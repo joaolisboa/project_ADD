@@ -10,7 +10,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.dropbox.core.DbxException;
 import com.dropbox.core.android.Auth;
+import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.users.FullAccount;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -24,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 
 import lisboa.joao.project_add.Dropbox.DropboxClientFactory;
 import lisboa.joao.project_add.Dropbox.GetCurrentAccountTask;
+import lisboa.joao.project_add.Dropbox.UploadFileTask;
 import lisboa.joao.project_add.MEOCloud.Authentication;
 import lisboa.joao.project_add.MEOCloud.MEOAuth;
 import lisboa.joao.project_add.MEOCloud.MEOCloudAPI;
@@ -64,6 +67,8 @@ public class ServiceChooserActivity extends Activity {
 
         MEOCloudAPI.instance().setConsumerKey(getString(R.string.meo_consumer_key));
 
+
+
         //// TODO: 15-Mar-17
         //MEOAuth.startOAuth2Authentication(ServiceChooserActivity.this, getString(R.string.meo_consumer_key));
         //String token = MEOAuth.getOAuth2Token();
@@ -99,6 +104,17 @@ public class ServiceChooserActivity extends Activity {
                     Log.e(getClass().getName(), "Failed to get account details", e);
                 }
             }).execute();
+            new UploadFileTask(this, DropboxClientFactory.getClient(), new UploadFileTask.Callback(){
+                @Override
+                public void onUploadComplete(FileMetadata result){
+                    Toast.makeText(ServiceChooserActivity.this, "Connected account: " + result.getName(), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError(Exception e){
+                    Log.e(getClass().getName(), "Failed to get account details", e);
+                }
+            }).execute("test");
         }
     }
 }

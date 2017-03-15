@@ -26,6 +26,7 @@ import static com.dropbox.core.android.AuthActivity.EXTRA_AUTH_STATE;
  */
 
 public class Authentication extends Activity {
+
     private static final String TAG = AuthActivity.class.getName();
 
     public static final String EXTRA_CONSUMER_KEY = "CONSUMER_KEY";
@@ -42,9 +43,9 @@ public class Authentication extends Activity {
     private static final String DEFAULT_WEB_HOST = "www.dropbox.com";
 
     // saved instance state keys
-    private static final String SIS_KEY_AUTH_STATE_NONCE = "SIS_KEY_AUTH_STATE_NONCE";
+    /*private static final String SIS_KEY_AUTH_STATE_NONCE = "SIS_KEY_AUTH_STATE_NONCE";
 
-    /** Used internally. */
+    * Used internally. */
     public static Intent result = null;
 
     // Temporary storage for parameters before Activity is created
@@ -80,7 +81,7 @@ public class Authentication extends Activity {
             result = null;
             mAuthStateNonce = null;
         } else {
-            mAuthStateNonce = savedInstanceState.getString(SIS_KEY_AUTH_STATE_NONCE);
+            //mAuthStateNonce = savedInstanceState.getString(SIS_KEY_AUTH_STATE_NONCE);
         }
 
         setTheme(android.R.style.Theme_Translucent_NoTitleBar);
@@ -116,7 +117,7 @@ public class Authentication extends Activity {
         // Random entropy passed through auth makes sure we don't accept a
         // response which didn't come from our request.  Each random
         // value is only ever used once.
-        final String state = createStateNonce();
+        //final String state = createStateNonce();
 
         /*
          * An Android bug exists where onResume may be called twice in rapid succession.
@@ -130,7 +131,7 @@ public class Authentication extends Activity {
 
                 Log.d(TAG, "running startActivity in handler");
                 try {
-                    startWebAuth(state);
+                   // startWebAuth(state);
                 } catch (ActivityNotFoundException e) {
                     Log.e(TAG, "Could not launch intent. User may have restricted profile", e);
                     finish();
@@ -138,8 +139,8 @@ public class Authentication extends Activity {
                 }
                 // Save state that indicates we started a request, only after
                 // we started one successfully.
-                mAuthStateNonce = state;
-                setAuthParams(null, null, null);
+                //mAuthStateNonce = state;
+                //setAuthParams(null, null, null);
             }
         });
 
@@ -222,7 +223,7 @@ public class Authentication extends Activity {
     private void authFinished(Intent authResult) {
         result = authResult;
         mAuthStateNonce = null;
-        setAuthParams(null, null, null);
+        //setAuthParams(null, null, null);
         finish();
     }
 
@@ -240,10 +241,10 @@ public class Authentication extends Activity {
                 "api", mApiType,
                 "state", state};
 
-        String url = DbxRequestUtil.buildUrlWithParams(locale.toString(), mWebHost, path, params);
+        //String url = DbxRequestUtil.buildUrlWithParams(locale.toString(), mWebHost, path, params);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(service.getAuthorizationUrl()));
-        startActivity(intent);
+        //Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(service.getAuthorizationUrl()));
+        //startActivity(intent);
     }
 }
 
