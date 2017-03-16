@@ -1,13 +1,6 @@
 package lisboa.joao.project_add.MEOCloud;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-
-import com.dropbox.core.android.AuthActivity;
 import com.github.scribejava.core.builder.api.DefaultApi20;
-import com.github.scribejava.core.model.OAuthConfig;
-import com.github.scribejava.core.utils.OAuthEncoder;
 
 /**
  * Created by Lisboa on 14-Mar-17.
@@ -25,8 +18,8 @@ public class MEOCloudAPI extends DefaultApi20 {
         return InstanceHolder.INSTANCE;
     }
 
-    private static final String AUTHORIZE_URL = "https://meocloud.pt/oauth2/authorize?client_id=%s&response_type=code";
-    private static final String ACCESS_URL = "https://meocloud.pt/oauth2/token";
+    public static final String AUTHORIZE_URL = "https://meocloud.pt/oauth2/authorize?client_id=%s&response_type=code";
+    public static final String ACCESS_URL = "https://meocloud.pt/oauth2/token";
 
     @Override
     public String getAccessTokenEndpoint() {

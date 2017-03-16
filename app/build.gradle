@@ -31,5 +31,11 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.squareup.okhttp3:okhttp:3.5.0'
     compile 'com.dropbox.core:dropbox-core-sdk:2.1.2'
+    compile ('org.apache.httpcomponents:httpmime:4.3'){
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+    compile ('org.apache.httpcomponents:httpcore:4.4.1'){
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
     testCompile 'junit:junit:4.12'
 }
