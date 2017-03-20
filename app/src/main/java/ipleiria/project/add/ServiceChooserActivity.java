@@ -69,8 +69,9 @@ public class ServiceChooserActivity extends AppCompatActivity {
         String accessToken = MEOCloudAPI.getOAuth2Token(ServiceChooserActivity.this);
         if(accessToken != null){
             preferences.edit().putString(MEO_PREFS_KEY, accessToken).apply();
-            Toast.makeText(ServiceChooserActivity.this, "Connected account: " + accessToken, Toast.LENGTH_SHORT).show();
+            Toast.makeText(ServiceChooserActivity.this, "Connected to meo: " + accessToken, Toast.LENGTH_SHORT).show();
             findViewById(R.id.sign_in_meo).setEnabled(false);
+            MEOCloudAPI.getAccountInfo();
         }
     }
 

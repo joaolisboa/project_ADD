@@ -13,8 +13,11 @@ public class MEOCloudAPI {
     static final String AUTHORIZE_URL = "https://meocloud.pt/oauth2/authorize?client_id=%s&response_type=token&state=%s";
     static final String ACCESS_URL = "https://meocloud.pt/oauth2/token";
 
-    private static String accessToken;
+    static final String API_ENDPOINT = "api.meocloud.pt";
+    static final String API_CONTENT_ENDPOINT = "api-content.meocloud.pt";
+    static final String API_VERSION = "1";
 
+    private static String accessToken;
 
     public static void startOAuth2Authentication(Context context, String consumerKey) {
         Intent intent =  MEOAuth.makeIntent(context, consumerKey);
@@ -43,6 +46,23 @@ public class MEOCloudAPI {
         }
 
         return null;
+    }
+
+    public static String getAccountInfo(){
+        final String acc = null;
+        new GetAccountTask(new GetAccountTask.Callback(){
+
+            @Override
+            public void onComplete(String response) {
+                System.out.println("Get account response: " + response);
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        }).execute(accessToken);
+        return acc;
     }
 
 }
