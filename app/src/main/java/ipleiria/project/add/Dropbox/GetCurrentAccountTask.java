@@ -1,4 +1,4 @@
-package lisboa.joao.project_add.Dropbox;
+package ipleiria.project.add.Dropbox;
 
 import android.os.AsyncTask;
 

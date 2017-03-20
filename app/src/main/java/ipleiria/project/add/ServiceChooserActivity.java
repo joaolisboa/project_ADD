@@ -1,4 +1,4 @@
-package lisboa.joao.project_add;
+package ipleiria.project.add;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,10 +11,10 @@ import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.users.FullAccount;
 
-import lisboa.joao.project_add.Dropbox.DropboxClientFactory;
-import lisboa.joao.project_add.Dropbox.GetCurrentAccountTask;
-import lisboa.joao.project_add.Dropbox.UploadFileTask;
-import lisboa.joao.project_add.MEOCloud.MEOCloudAPI;
+import ipleiria.project.add.Dropbox.DropboxClientFactory;
+import ipleiria.project.add.Dropbox.GetCurrentAccountTask;
+import ipleiria.project.add.Dropbox.UploadFileTask;
+import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 
 public class ServiceChooserActivity extends AppCompatActivity {
 

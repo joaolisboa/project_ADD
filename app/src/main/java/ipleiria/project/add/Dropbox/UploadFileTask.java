@@ -1,4 +1,4 @@
-package lisboa.joao.project_add.Dropbox;
+package ipleiria.project.add.Dropbox;
 
 import android.content.Context;
 import android.net.Uri;
@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.WriteMode;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -15,7 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import lisboa.joao.project_add.Utils.UriHelpers;
+import ipleiria.project.add.Utils.UriHelpers;
 
 /**
  * Async task to upload a file to a directory

@@ -1,4 +1,4 @@
-package lisboa.joao.project_add.MEOCloud;
+package ipleiria.project.add.MEOCloud;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;

@@ -1,4 +1,4 @@
-package lisboa.joao.project_add.Utils;
+package ipleiria.project.add.Utils;
 
 import android.content.ContentUris;
 import android.content.Context;

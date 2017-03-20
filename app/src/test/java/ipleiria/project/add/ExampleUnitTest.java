@@ -1,4 +1,4 @@
-package lisboa.joao.project_add;
+package ipleiria.project.add;
 
 import org.junit.Test;
 

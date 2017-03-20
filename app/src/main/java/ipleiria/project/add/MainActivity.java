@@ -1,4 +1,4 @@
-package lisboa.joao.project_add;
+package ipleiria.project.add;
 
 import android.content.Intent;
 import android.os.Bundle;
