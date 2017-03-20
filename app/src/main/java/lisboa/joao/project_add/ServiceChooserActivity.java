@@ -1,8 +1,8 @@
 package lisboa.joao.project_add;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -16,7 +16,7 @@ import lisboa.joao.project_add.Dropbox.GetCurrentAccountTask;
 import lisboa.joao.project_add.Dropbox.UploadFileTask;
 import lisboa.joao.project_add.MEOCloud.MEOCloudAPI;
 
-public class ServiceChooserActivity extends Activity {
+public class ServiceChooserActivity extends AppCompatActivity {
 
     private static final String DROPBOX_PREFS_KEY = "dropbox_access_token";
     private static final String MEO_PREFS_KEY = "meo_access_token";
