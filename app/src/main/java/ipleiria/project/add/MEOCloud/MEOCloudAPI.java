@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import ipleiria.project.add.MEOCloud.Data.Account;
+
 /**
  * Created by Lisboa on 14-Mar-17.
  */
@@ -53,8 +55,8 @@ public class MEOCloudAPI {
         new GetAccountTask(new GetAccountTask.Callback(){
 
             @Override
-            public void onComplete(String response) {
-                System.out.println("Get account response: " + response);
+            public void onComplete(MEOCloudResponse<Account> result) {
+                System.out.println("Get account response: " + result);
             }
 
             @Override

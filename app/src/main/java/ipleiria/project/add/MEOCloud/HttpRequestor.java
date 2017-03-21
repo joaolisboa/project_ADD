@@ -15,9 +15,9 @@ import okhttp3.Response;
  * Created by Lisboa on 20-Mar-17.
  */
 
-public class HttpHandler {
+class HttpRequestor {
 
-    static String get(String accessToken, String path, @Nullable String params) {
+    static Response get(String accessToken, String path, @Nullable String params) {
         OkHttpClient client = new OkHttpClient();
         try {
             StringBuilder sb = new StringBuilder()
@@ -33,7 +33,7 @@ public class HttpHandler {
             }
             Response response = client.newCall(builder.build()).execute();
             System.out.println(response.body().string());
-            return response.body().toString();
+            return response;
         } catch (IOException ex) {
             Log.e("tag", "error on method GET", ex);
         }
