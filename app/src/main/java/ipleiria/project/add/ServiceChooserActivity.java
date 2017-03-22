@@ -14,7 +14,10 @@ import com.dropbox.core.v2.users.FullAccount;
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.GetCurrentAccountTask;
 import ipleiria.project.add.Dropbox.UploadFileTask;
+import ipleiria.project.add.MEOCloud.Data.Account;
+import ipleiria.project.add.MEOCloud.GetAccountTask;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
+import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 
 public class ServiceChooserActivity extends AppCompatActivity {
 
@@ -33,73 +36,93 @@ public class ServiceChooserActivity extends AppCompatActivity {
         preferences.edit().remove("dropbox_access_token").apply();
         preferences.edit().remove("meo_access_token").apply();
 
-        if(preferences.contains(DROPBOX_PREFS_KEY)){
+        if (preferences.contains(DROPBOX_PREFS_KEY)) {
             findViewById(R.id.sign_in_dropbox).setEnabled(false);
         }
 
-        if(preferences.contains(MEO_PREFS_KEY)){
+        if (preferences.contains(MEO_PREFS_KEY)) {
             findViewById(R.id.sign_in_meo).setEnabled(false);
         }
 
     }
 
-    public void signInDropbox(View view){
+    public void signInDropbox(View view) {
         // open authentication for Dropbox
         Auth.startOAuth2Authentication(ServiceChooserActivity.this, getString(R.string.dropbox_app_key));
     }
 
-    public void signInMEO(View view){
+    public void signInMEO(View view) {
         MEOCloudAPI.startOAuth2Authentication(ServiceChooserActivity.this, getString(R.string.meo_consumer_key));
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
 
-        if(!preferences.contains(MEO_PREFS_KEY)){
+        if (!preferences.contains(MEO_PREFS_KEY)) {
             saveMeoToken();
         }
 
-        if(!preferences.contains(DROPBOX_PREFS_KEY)){
+        if (!preferences.contains(DROPBOX_PREFS_KEY)) {
             saveDropboxToken();
         }
     }
 
-    private void saveMeoToken(){
-        String accessToken = MEOCloudAPI.getOAuth2Token(ServiceChooserActivity.this);
-        if(accessToken != null){
+    private void saveMeoToken() {
+        String accessToken = MEOCloudAPI.getOAuth2Token();
+        if (accessToken != null) {
             preferences.edit().putString(MEO_PREFS_KEY, accessToken).apply();
-            Toast.makeText(ServiceChooserActivity.this, "Connected to meo: " + accessToken, Toast.LENGTH_SHORT).show();
             findViewById(R.id.sign_in_meo).setEnabled(false);
-            MEOCloudAPI.getAccountInfo();
+
+            new GetAccountTask(new GetAccountTask.Callback() {
+
+                @Override
+                public void onComplete(MEOCloudResponse<Account> result) {
+                    if (result.responseSuccessful()) {
+                        Account account = (Account) result.getResponse();
+                        Toast.makeText(ServiceChooserActivity.this,
+                                "Connected account: " + account.getEmail(),
+                                Toast.LENGTH_SHORT).show();
+                    } else{
+                        Toast.makeText(ServiceChooserActivity.this,
+                                "Error: " + result.getError(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            }).execute(accessToken);
         }
     }
 
-    private void saveDropboxToken(){
+    private void saveDropboxToken() {
         String accessToken = Auth.getOAuth2Token();
-        if(accessToken != null){
+        if (accessToken != null) {
             preferences.edit().putString(DROPBOX_PREFS_KEY, accessToken).apply();
             findViewById(R.id.sign_in_dropbox).setEnabled(false);
             DropboxClientFactory.init(accessToken);
-            new GetCurrentAccountTask(DropboxClientFactory.getClient(), new GetCurrentAccountTask.Callback(){
+            new GetCurrentAccountTask(DropboxClientFactory.getClient(), new GetCurrentAccountTask.Callback() {
                 @Override
-                public void onComplete(FullAccount result){
+                public void onComplete(FullAccount result) {
                     Toast.makeText(ServiceChooserActivity.this, "Connected account: " + result.getEmail(), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
-                public void onError(Exception e){
+                public void onError(Exception e) {
                     Log.e(getClass().getName(), "Failed to get account details", e);
                 }
             }).execute();
-            new UploadFileTask(this, DropboxClientFactory.getClient(), new UploadFileTask.Callback(){
+            new UploadFileTask(this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
                 @Override
-                public void onUploadComplete(FileMetadata result){
+                public void onUploadComplete(FileMetadata result) {
                     Toast.makeText(ServiceChooserActivity.this, "Connected account: " + result.getName(), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
-                public void onError(Exception e){
+                public void onError(Exception e) {
                     Log.e(getClass().getName(), "Failed to get account details", e);
                 }
             }).execute("test");

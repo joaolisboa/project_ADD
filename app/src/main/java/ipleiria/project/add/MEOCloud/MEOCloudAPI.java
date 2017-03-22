@@ -19,6 +19,10 @@ public class MEOCloudAPI {
     static final String API_CONTENT_ENDPOINT = "api-content.meocloud.pt";
     static final String API_VERSION = "1";
 
+    // "meocloud" mode has full access to the user files
+    // "sandbox" mode has restricted access to only a specific folder
+    static final String API_MODE = "sandbox";
+
     private static String accessToken;
 
     public static void startOAuth2Authentication(Context context, String consumerKey) {
@@ -32,7 +36,7 @@ public class MEOCloudAPI {
         context.startActivity(intent);
     }
 
-    public static String getOAuth2Token(final Context context) {
+    public static String getOAuth2Token() {
         Intent data = MEOAuth.result;
 
         if (data == null) {
@@ -48,23 +52,6 @@ public class MEOCloudAPI {
         }
 
         return null;
-    }
-
-    public static String getAccountInfo(){
-        final String acc = null;
-        new GetAccountTask(new GetAccountTask.Callback(){
-
-            @Override
-            public void onComplete(MEOCloudResponse<Account> result) {
-                System.out.println("Get account response: " + result);
-            }
-
-            @Override
-            public void onError(Exception e) {
-
-            }
-        }).execute(accessToken);
-        return acc;
     }
 
 }

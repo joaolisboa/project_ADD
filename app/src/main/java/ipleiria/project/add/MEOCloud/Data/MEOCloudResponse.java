@@ -1,4 +1,6 @@
-package ipleiria.project.add.MEOCloud;
+package ipleiria.project.add.MEOCloud.Data;
+
+import ipleiria.project.add.Utils.HttpStatus;
 
 /**
  * Created by J on 21/03/2017.
@@ -7,15 +9,13 @@ package ipleiria.project.add.MEOCloud;
 public class MEOCloudResponse<I> {
 
     private int code;
-    private String message;
+    private String error;
     private Object response;
 
     public MEOCloudResponse(){}
 
-    public MEOCloudResponse(int code, String message, I response){
-        this.code = code;
-        this.message = message;
-        this.response = response;
+    public boolean responseSuccessful(){
+        return code == HttpStatus.OK;
     }
 
     public int getCode() {
@@ -26,12 +26,12 @@ public class MEOCloudResponse<I> {
         this.code = code;
     }
 
-    public String getMessage() {
-        return message;
+    public String getError() {
+        return error;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setError(String error) {
+        this.error = error;
     }
 
     public Object getResponse() {

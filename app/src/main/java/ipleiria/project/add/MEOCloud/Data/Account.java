@@ -20,6 +20,7 @@ public class Account extends JsonObject{
     public static final String JSON_TAG_CREATED_ON = "created_on";
     public static final String JSON_TAG_SEGMENT = "segment";
     public static final String JSON_TAG_REFERRAL_LINK = "referral_link";
+    public static final String JSON_TAG_QUOTA_INFO = "quota_info";
 
     @Expose
     @SerializedName(JSON_TAG_DISPLAY_NAME)
@@ -48,6 +49,9 @@ public class Account extends JsonObject{
     @Expose
     @SerializedName(JSON_TAG_REFERRAL_LINK)
     private String referralLink;
+    @Expose
+    @SerializedName(JSON_TAG_QUOTA_INFO)
+    private Quota quota;
 
     public String getDisplayName() {
         return displayName;
@@ -102,6 +106,12 @@ public class Account extends JsonObject{
     }
     public void setReferralLink(String referralLink) {
         this.referralLink = referralLink;
+    }
+    public Quota getQuota() {
+        return quota;
+    }
+    public void setQuota(Quota quota) {
+        this.quota = quota;
     }
 
 }
