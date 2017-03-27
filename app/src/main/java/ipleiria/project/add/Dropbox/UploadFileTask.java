@@ -14,7 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import ipleiria.project.add.Utils.UriHelpers;
+import ipleiria.project.add.Utils.UriHelper;
 
 /**
  * Async task to upload a file to a directory
@@ -52,7 +52,7 @@ public class UploadFileTask extends AsyncTask<String, Void, FileMetadata> {
     @Override
     protected FileMetadata doInBackground(String... params) {
         String localUri = params[0];
-        File localFile = UriHelpers.getFileForUri(mContext, Uri.parse(localUri));
+        File localFile = UriHelper.getFileForUri(mContext, Uri.parse(localUri));
 
         try {
             //return mDbxClient.files().uploadBuilder(remoteFolderPath + "/" + remoteFileName)

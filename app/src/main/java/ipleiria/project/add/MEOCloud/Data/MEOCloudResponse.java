@@ -1,12 +1,13 @@
 package ipleiria.project.add.MEOCloud.Data;
 
+import ipleiria.project.add.MEOCloud.ErrorMessageResponse;
 import ipleiria.project.add.Utils.HttpStatus;
 
 /**
  * Created by J on 21/03/2017.
  */
 
-public class MEOCloudResponse<I> {
+public class MEOCloudResponse<Object> {
 
     private int code;
     private String error;
@@ -23,15 +24,16 @@ public class MEOCloudResponse<I> {
     }
 
     public void setCode(int code) {
+        if(response instanceof ErrorMessageResponse)
+            error = ((ErrorMessageResponse) response).processRequestCode(code);
+        else
+            error = HttpStatus.processRequestCode(code);
+
         this.code = code;
     }
 
     public String getError() {
         return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
     }
 
     public Object getResponse() {

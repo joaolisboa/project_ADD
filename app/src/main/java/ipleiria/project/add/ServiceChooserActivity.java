@@ -15,9 +15,11 @@ import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.GetCurrentAccountTask;
 import ipleiria.project.add.Dropbox.UploadFileTask;
 import ipleiria.project.add.MEOCloud.Data.Account;
+import ipleiria.project.add.MEOCloud.Data.File;
+import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.GetAccountTask;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
-import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
+import ipleiria.project.add.MEOCloud.MEODownloadFileTask;
 
 public class ServiceChooserActivity extends AppCompatActivity {
 
@@ -33,14 +35,16 @@ public class ServiceChooserActivity extends AppCompatActivity {
 
         // remove tokens while testing
         preferences = getSharedPreferences("services", MODE_PRIVATE);
-        preferences.edit().remove("dropbox_access_token").apply();
-        preferences.edit().remove("meo_access_token").apply();
+
+        //preferences.edit().remove("dropbox_access_token").apply();
+        //preferences.edit().remove("meo_access_token").apply();
 
         if (preferences.contains(DROPBOX_PREFS_KEY)) {
             findViewById(R.id.sign_in_dropbox).setEnabled(false);
         }
 
         if (preferences.contains(MEO_PREFS_KEY)) {
+            MEOCloudAPI.accessToken = preferences.getString(MEO_PREFS_KEY, "");
             findViewById(R.id.sign_in_meo).setEnabled(false);
         }
 
@@ -79,7 +83,7 @@ public class ServiceChooserActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(MEOCloudResponse<Account> result) {
                     if (result.responseSuccessful()) {
-                        Account account = (Account) result.getResponse();
+                        Account account = result.getResponse();
                         Toast.makeText(ServiceChooserActivity.this,
                                 "Connected account: " + account.getEmail(),
                                 Toast.LENGTH_SHORT).show();
@@ -88,6 +92,7 @@ public class ServiceChooserActivity extends AppCompatActivity {
                                 "Error: " + result.getError(),
                                 Toast.LENGTH_SHORT).show();
                     }
+
                 }
 
                 @Override

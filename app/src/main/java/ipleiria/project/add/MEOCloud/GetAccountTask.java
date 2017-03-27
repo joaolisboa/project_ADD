@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import ipleiria.project.add.MEOCloud.Data.Account;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
+import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -40,7 +41,10 @@ public class GetAccountTask extends AsyncTask<String, Void, MEOCloudResponse<Acc
     @Override
     protected MEOCloudResponse<Account> doInBackground(String... params) {
         try {
-            Response response = HttpRequestor.get(params[0], "Account/Info", null);
+            if(params == null){
+                throw new MissingAccessTokenException();
+            }
+            Response response = HttpRequestor.get(params[0], MEOCloudAPI.API_METHOD_ACOUNT_INFO, null);
             if (response != null){
                 MEOCloudResponse<Account> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
@@ -50,23 +54,14 @@ public class GetAccountTask extends AsyncTask<String, Void, MEOCloudResponse<Acc
                     String responseBody = response.body().string();
                     Account account = Account.fromJson(responseBody, Account.class);
                     meoCloudResponse.setResponse(account);
-                } else{
-                    HttpRequestor.processRequest(meoCloudResponse, response.code());
                 }
                 return meoCloudResponse;
             }
             return null;
-        } catch (IOException e) {
+        } catch (IOException | MissingAccessTokenException e) {
             exception = e;
         }
         return null;
-    }
-
-    // any error message specific to this request will be handle before checking for general erros
-    private <I> void processRequest(MEOCloudResponse<I> meoCloudResponse, int responseCode){
-        switch (responseCode){
-
-        }
     }
 
 }

@@ -9,7 +9,7 @@ import ipleiria.project.add.Utils.JsonObject;
  * Created by J on 21/03/2017.
  */
 
-public class Account extends JsonObject{
+public class Account extends JsonObject {
 
     public static final String JSON_TAG_DISPLAY_NAME = "display_name";
     public static final String JSON_TAG_UID = "uid";
@@ -113,5 +113,6 @@ public class Account extends JsonObject{
     public void setQuota(Quota quota) {
         this.quota = quota;
     }
+
 
 }
