@@ -6,19 +6,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import java.util.List;
+
 import ipleiria.project.add.MEOCloud.Data.File;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
 import ipleiria.project.add.MEOCloud.GetMetadataTask;
 import ipleiria.project.add.MEOCloud.MEODownloadFileTask;
+import ipleiria.project.add.MEOCloud.SearchFileTask;
 
 public class MainActivity extends AppCompatActivity {
+
+    String accessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        accessToken = getSharedPreferences("services", MODE_PRIVATE).getString("meo_access_token", "");
 
     }
 
@@ -27,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void downloadFile(View view){
-        String accessToken = getSharedPreferences("services", MODE_PRIVATE).getString("meo_access_token", "");
         new MEODownloadFileTask(MainActivity.this, new MEODownloadFileTask.Callback(){
 
             @Override
@@ -64,5 +69,26 @@ public class MainActivity extends AppCompatActivity {
             }
         }).execute(accessToken, "/");
 
+    }
+
+    public void searchFile(View view){
+        new SearchFileTask(new SearchFileTask.Callback(){
+
+            @Override
+            public void onComplete(MEOCloudResponse<List<Metadata>> result) {
+                if(result.responseSuccessful()){
+                    for(Metadata m: result.getResponse()){
+                        System.out.println(m.toJson());
+                    }
+                }else{
+                    System.out.println(result.getError());
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("SearchError", e.getMessage(), e);
+            }
+        }).execute(accessToken, "/", "lucid");
     }
 }
