@@ -61,20 +61,16 @@ public class DeleteFileTask extends AsyncTask<String, Void, MEOCloudResponse<Met
                 throw new MissingFilePathException();
             }
 
-            if (params[1].startsWith("/")) {
-                params[1] = params[1].substring(1);
-            }
-
             String token = params[0];
             String remoteFilePath = params[1];
 
-            HashMap<String, Object> map = new HashMap<>();
-            map.put("root", MEOCloudAPI.API_MODE);
-            map.put("path", remoteFilePath);
+            HashMap<String, String> bodyMap = new HashMap<>();
+            bodyMap.put("root", MEOCloudAPI.API_MODE);
+            bodyMap.put("path", remoteFilePath);
 
             String path = MEOCloudAPI.API_METHOD_DELETE;
 
-            Response response = HttpRequestor.post(token, path, null, map);
+            Response response = HttpRequestor.post(token, path, null, bodyMap);
             if (response != null) {
                 MEOCloudResponse<Metadata> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());

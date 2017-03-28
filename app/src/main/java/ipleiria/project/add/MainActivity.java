@@ -11,6 +11,7 @@ import java.util.List;
 import ipleiria.project.add.MEOCloud.Data.File;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
+import ipleiria.project.add.MEOCloud.DeleteFileTask;
 import ipleiria.project.add.MEOCloud.GetMetadataTask;
 import ipleiria.project.add.MEOCloud.MEODownloadFileTask;
 import ipleiria.project.add.MEOCloud.SearchFileTask;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Log.e("DownloadError", e.getMessage(), e);
             }
-        }).execute(accessToken, "exploring_luciddreaming.pdf");
+        }).execute(accessToken, "/exploring_luciddreaming.pdf");
 
         new GetMetadataTask(new GetMetadataTask.Callback(){
 
@@ -90,5 +91,24 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("SearchError", e.getMessage(), e);
             }
         }).execute(accessToken, "/", "lucid");
+    }
+
+    public void deleteFile(View view){
+        new DeleteFileTask(new DeleteFileTask.Callback(){
+
+            @Override
+            public void onComplete(MEOCloudResponse<Metadata> result) {
+                if(result.responseSuccessful()){
+                    System.out.println(result.getResponse().toJson());
+                }else{
+                    System.out.println(result.getError());
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e("DeleteError", e.getMessage(), e);
+            }
+        }).execute(accessToken, "/exploring_luciddreaming.pdf");
     }
 }

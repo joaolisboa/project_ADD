@@ -26,4 +26,11 @@
         android:layout_height="wrap_content"
         android:onClick="searchFile"
         android:text="Search" />
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="deleteFile"
+        android:text="Delete" />
+
 </LinearLayout>

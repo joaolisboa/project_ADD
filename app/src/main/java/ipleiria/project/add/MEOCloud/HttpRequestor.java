@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -80,7 +81,7 @@ class HttpRequestor {
         return null;
     }
 
-    static Response post(String accessToken, String path, @Nullable HashMap<String, String> params, @NonNull HashMap<String, Object> postBody) {
+    static Response post(String accessToken, String path, @Nullable HashMap<String, String> params, @NonNull HashMap<String, String> postBody) {
         OkHttpClient client = new OkHttpClient();
         try {
             StringBuilder sb = new StringBuilder()
@@ -93,10 +94,17 @@ class HttpRequestor {
                 sb.append("?").append(encodeParameters(params));
             }
 
-            RequestBody body = RequestBody.create(JSON, encodePostBody(postBody));
+            MultipartBody.Builder bodyBuilder = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM);
+            RequestBody body;
+            for (Map.Entry<String, String> e : postBody.entrySet()) {
+                bodyBuilder.addFormDataPart(e.getKey(), e.getValue());
+            }
+            body = bodyBuilder.build();
 
             List<Header> headers = new ArrayList<>();
             headers.add(new Header("Authorization", "Bearer " + accessToken));
+
             Request.Builder builder = new Request.Builder().post(body).url(sb.toString());
             for (Header header : headers) {
                 builder.addHeader(header.getKey(), header.getValue());
@@ -142,13 +150,13 @@ class HttpRequestor {
         stringBuilder.append("{");
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
-            stringBuilder.append("'")
+            stringBuilder.append("\"")
                     .append(entry.getKey())
-                    .append("':");
+                    .append("\": ");
             if (entry.getValue() instanceof String) {
-                stringBuilder.append("'")
+                stringBuilder.append("\"")
                         .append(entry.getValue())
-                        .append("'");
+                        .append("\"");
             } else {
                 stringBuilder.append(entry.getValue());
             }
@@ -157,6 +165,7 @@ class HttpRequestor {
             }
         }
         stringBuilder.append("}");
+        System.out.println(stringBuilder.toString());
         return stringBuilder.toString();
     }
 
