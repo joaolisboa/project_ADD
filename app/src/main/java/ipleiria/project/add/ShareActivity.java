@@ -12,6 +12,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -69,8 +70,7 @@ public class ShareActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Exception e) {
-                    System.out.println("Upload failed");
-                    System.out.println(e.getMessage());
+                    Log.e("UploadError", e.getMessage(), e);
                 }
             }).execute(accessToken, uri.toString(), UriHelper.getFileName(ShareActivity.this, uri));
         }

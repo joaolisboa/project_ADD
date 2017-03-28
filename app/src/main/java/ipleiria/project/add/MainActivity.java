@@ -3,6 +3,7 @@ package ipleiria.project.add;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import ipleiria.project.add.MEOCloud.Data.File;
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                System.out.println(e.getMessage());
+                Log.e("DownloadError", e.getMessage(), e);
             }
         }).execute(accessToken, "exploring_luciddreaming.pdf");
 
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                System.out.println(e.getMessage());
+                Log.e("MetadataError", e.getMessage(), e);
             }
         }).execute(accessToken, "/");
 
