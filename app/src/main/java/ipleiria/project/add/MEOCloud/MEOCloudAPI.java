@@ -37,6 +37,7 @@ public class MEOCloudAPI {
     public static final String API_METHOD_CREATE_FOLDER = "Fileops/CreateFolder";
     public static final String API_METHOD_UNDELETE_TREE = "UndeleteTree";
     public static final String API_METHOD_ACOUNT_INFO = "Account/Info";
+    public static final String API_METHOD_DISABLE_TOKEN = "DisableAccessToken";
 
 
 

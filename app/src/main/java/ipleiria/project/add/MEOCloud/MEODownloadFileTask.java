@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.UUID;
 
 import ipleiria.project.add.MEOCloud.Data.File;
@@ -46,6 +47,10 @@ public class MEODownloadFileTask extends AsyncTask<String, Void, MEOCloudRespons
         }
     }
 
+    public void setParams(){
+
+    }
+
     @Override
     protected MEOCloudResponse<File> doInBackground(String... params) {
         try {
@@ -53,7 +58,7 @@ public class MEODownloadFileTask extends AsyncTask<String, Void, MEOCloudRespons
                 throw new MissingParametersException();
             }else if(params[0] == null || params[0].isEmpty()){
                 throw new MissingAccessTokenException();
-            }if(params[1] == null || params[1].isEmpty()){
+            }else if(params[1] == null || params[1].isEmpty()){
                 throw new MissingFilePathException();
             }
 
@@ -61,16 +66,23 @@ public class MEODownloadFileTask extends AsyncTask<String, Void, MEOCloudRespons
                 params[1] = params[1].substring(1);
             }
 
-            String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + params[1];
+            String token = params[0];
+            String remoteFilePath = params[1];
+
+            HashMap<String, String> map = new HashMap<>();
+            if(params.length > 2 && params[2] != null) {
+                map.put("rev", params[2]);
+            }
+
+            String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
             System.out.println(path);
 
-            Response response = HttpRequestor.getContent(params[0], path, null);
+            Response response = HttpRequestor.getContent(token, path, map);
             if (response != null) {
                 MEOCloudResponse<File> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
                     InputStream is = response.body().byteStream();
-                    //File tempFile = new File(UUID.randomUUID().toString());
                     FileOutputStream fos = context.openFileOutput(params[1], Context.MODE_PRIVATE);
                     byte[] buffer = new byte[1024 * 100];
                     int nBytes;

@@ -1,13 +1,10 @@
 package ipleiria.project.add.MEOCloud;
 
-import android.content.Context;
 import android.os.AsyncTask;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.HashMap;
 
-import ipleiria.project.add.MEOCloud.Data.File;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
@@ -20,17 +17,18 @@ import okhttp3.Response;
  * Created by Lisboa on 27-Mar-17.
  */
 
-public class GetMetadataInfoTask extends AsyncTask<String, Void, MEOCloudResponse<Metadata>> {
+public class GetMetadataTask extends AsyncTask<String, Void, MEOCloudResponse<Metadata>> {
 
-    private final GetMetadataInfoTask.Callback callback;
+    private final GetMetadataTask.Callback callback;
     private Exception exception;
 
     public interface Callback {
         void onComplete(MEOCloudResponse<Metadata> result);
+
         void onError(Exception e);
     }
 
-    public GetMetadataInfoTask(GetMetadataInfoTask.Callback callback) {
+    public GetMetadataTask(GetMetadataTask.Callback callback) {
         this.callback = callback;
     }
 
@@ -47,11 +45,11 @@ public class GetMetadataInfoTask extends AsyncTask<String, Void, MEOCloudRespons
     @Override
     protected MEOCloudResponse<Metadata> doInBackground(String... params) {
         try {
-            if(params == null){
+            if (params == null) {
                 throw new MissingParametersException();
-            }else if(params[0] == null || params[0].isEmpty()){
+            } else if (params[0] == null || params[0].isEmpty()) {
                 throw new MissingAccessTokenException();
-            }if(params[1] == null || params[1].isEmpty()){
+            }else if (params[1] == null || params[1].isEmpty()) {
                 throw new MissingFilePathException();
             }
 
@@ -59,10 +57,31 @@ public class GetMetadataInfoTask extends AsyncTask<String, Void, MEOCloudRespons
                 params[1] = params[1].substring(1);
             }
 
-            String path = MEOCloudAPI.API_METHOD_METADATA + "/" + MEOCloudAPI.API_MODE + "/" + params[1];
+            String token = params[0];
+            String remoteFilePath = params[1];
+
+            HashMap<String, String> map = new HashMap<>();
+            if (params.length > 2 && params[2] != null) {
+                map.put("file_limit", params[2]);
+            }
+            if (params.length > 3 && params[3] != null) {
+                map.put("hash", params[3]);
+            }
+            if (params.length > 4 && params[4] != null) {
+                map.put("list", params[4]);
+            }
+            if (params.length > 5 && params[5] != null) {
+                map.put("include_deleted", params[5]);
+            }
+            if (params.length > 6 && params[6] != null) {
+                map.put("rev", params[6]);
+            }
+
+
+            String path = MEOCloudAPI.API_METHOD_METADATA + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
             System.out.println(path);
 
-            Response response = HttpRequestor.get(params[0], path, null);
+            Response response = HttpRequestor.get(token, path, map);
             if (response != null) {
                 MEOCloudResponse<Metadata> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());

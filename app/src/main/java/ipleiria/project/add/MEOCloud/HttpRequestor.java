@@ -35,7 +35,7 @@ class HttpRequestor {
                     .append("/").append(MEOCloudAPI.API_VERSION)
                     .append("/").append(path);
 
-            if(params != null && !params.isEmpty()){
+            if (params != null && !params.isEmpty()) {
                 sb.append("?").append(encodeParameters(params));
             }
 
@@ -62,7 +62,7 @@ class HttpRequestor {
                     .append("/").append(MEOCloudAPI.API_VERSION)
                     .append("/").append(path);
 
-            if(params != null && !params.isEmpty()){
+            if (params != null && !params.isEmpty()) {
                 sb.append("?").append(encodeParameters(params));
             }
 
@@ -89,9 +89,8 @@ class HttpRequestor {
                     .append("/").append(MEOCloudAPI.API_VERSION)
                     .append("/").append(path);
 
-            if(params != null && !params.isEmpty()){
-                String parameters = encodeParameters(params);
-                sb.append("?").append(parameters);
+            if (params != null && !params.isEmpty()) {
+                sb.append("?").append(encodeParameters(params));
             }
 
             RequestBody body = RequestBody.create(JSON, encodePostBody(postBody));
@@ -118,9 +117,8 @@ class HttpRequestor {
                     .append("/").append(MEOCloudAPI.API_VERSION)
                     .append("/").append(path);
 
-            if(params != null && !params.isEmpty()){
-                String parameters = encodeParameters(params);
-                sb.append("?").append(parameters);
+            if (params != null && !params.isEmpty()) {
+                sb.append("?").append(encodeParameters(params));
             }
 
             RequestBody body = RequestBody.create(MediaType.parse("application/octet-stream"), content);
@@ -143,18 +141,18 @@ class HttpRequestor {
         Iterator it = postBody.entrySet().iterator();
         stringBuilder.append("{");
         while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
+            Map.Entry entry = (Map.Entry) it.next();
             stringBuilder.append("'")
                     .append(entry.getKey())
                     .append("':");
-            if(entry.getValue() instanceof String){
+            if (entry.getValue() instanceof String) {
                 stringBuilder.append("'")
                         .append(entry.getValue())
                         .append("'");
-            }else {
+            } else {
                 stringBuilder.append(entry.getValue());
             }
-            if(it.hasNext()){
+            if (it.hasNext()) {
                 stringBuilder.append(",");
             }
         }
@@ -162,16 +160,17 @@ class HttpRequestor {
         return stringBuilder.toString();
     }
 
-    private static String encodeParameters(HashMap<String, String> params){
+    private static String encodeParameters(HashMap<String, String> params) {
         StringBuilder stringBuilder = new StringBuilder();
         Iterator it = params.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
+            Map.Entry entry = (Map.Entry) it.next();
             stringBuilder.append(entry.getKey())
                     .append("=")
                     .append(entry.getValue());
 
-            if(it.hasNext()){
+
+            if (it.hasNext()) {
                 stringBuilder.append("&");
             }
         }

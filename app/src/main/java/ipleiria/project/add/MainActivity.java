@@ -8,7 +8,7 @@ import android.view.View;
 import ipleiria.project.add.MEOCloud.Data.File;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
-import ipleiria.project.add.MEOCloud.GetMetadataInfoTask;
+import ipleiria.project.add.MEOCloud.GetMetadataTask;
 import ipleiria.project.add.MEOCloud.MEODownloadFileTask;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }).execute(accessToken, "exploring_luciddreaming.pdf");
 
-        new GetMetadataInfoTask(new GetMetadataInfoTask.Callback(){
+        new GetMetadataTask(new GetMetadataTask.Callback(){
 
             @Override
             public void onComplete(MEOCloudResponse<Metadata> result) {

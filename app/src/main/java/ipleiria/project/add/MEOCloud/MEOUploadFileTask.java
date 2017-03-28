@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
@@ -67,11 +68,22 @@ public class MEOUploadFileTask extends AsyncTask<String, Void, MEOCloudResponse<
                 params[2] = params[2].substring(1);
             }
 
-            String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + params[2];
-            System.out.println(params[1]);
+            String token = params[0];
+            String localFilePath = params[1];
+            String remoteFilePath = params[2];
+
+            HashMap<String, String> map = new HashMap<>();
+            if(params.length > 3 && params[3] != null) {
+                map.put("overwrite", params[3]);
+            }
+            if (params.length > 4 && params[4] != null) {
+                map.put("parent_rev", params[4]);
+            }
+
+            String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
             System.out.println(path);
 
-            InputStream is = context.getContentResolver().openInputStream(Uri.parse(params[1]));
+            InputStream is = context.getContentResolver().openInputStream(Uri.parse(localFilePath));
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
             int nRead;
@@ -83,7 +95,7 @@ public class MEOUploadFileTask extends AsyncTask<String, Void, MEOCloudResponse<
                 }
             }
 
-            Response response = HttpRequestor.post(params[0], path, null, buffer.toByteArray());
+            Response response = HttpRequestor.post(token, path, map, buffer.toByteArray());
             if (response != null) {
                 MEOCloudResponse<Metadata> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
