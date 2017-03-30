@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud;
+package ipleiria.project.add.MEOCloud.Tasks;
 
 import android.content.Context;
 import android.net.Uri;
@@ -13,10 +13,14 @@ import java.util.HashMap;
 
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
+import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingRemoteFilePathException;
+import ipleiria.project.add.MEOCloud.HttpRequestor;
+import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -26,17 +30,11 @@ import okhttp3.Response;
 
 public class MEOUploadFileTask extends AsyncTask<String, Void, MEOCloudResponse<Metadata>> {
 
-    private final MEOUploadFileTask.Callback callback;
+    private final MEOCallback<Metadata> callback;
     private Exception exception;
     private Context context;
 
-    public interface Callback {
-        void onComplete(MEOCloudResponse<Metadata> result);
-
-        void onError(Exception e);
-    }
-
-    public MEOUploadFileTask(Context context, MEOUploadFileTask.Callback callback) {
+    public MEOUploadFileTask(Context context, MEOCallback<Metadata> callback) {
         this.callback = callback;
         this.context = context;
     }
@@ -47,7 +45,11 @@ public class MEOUploadFileTask extends AsyncTask<String, Void, MEOCloudResponse<
         if (exception != null) {
             callback.onError(exception);
         } else {
-            callback.onComplete(result);
+            if(result.responseSuccessful()){
+                callback.onComplete(result);
+            }else{
+                callback.onRequestError(new HttpErrorException(result.getError()));
+            }
         }
     }
 

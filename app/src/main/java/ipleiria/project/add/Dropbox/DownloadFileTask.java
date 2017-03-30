@@ -18,7 +18,7 @@ import java.io.OutputStream;
 /**
  * Task to download a file from Dropbox and put it in the Downloads folder
  */
-class DownloadFileTask extends AsyncTask<FileMetadata, Void, File> {
+public class DownloadFileTask extends AsyncTask<String, Void, File> {
 
     private final Context mContext;
     private final DbxClientV2 mDbxClient;
@@ -30,7 +30,7 @@ class DownloadFileTask extends AsyncTask<FileMetadata, Void, File> {
         void onError(Exception e);
     }
 
-    DownloadFileTask(Context context, DbxClientV2 dbxClient, Callback callback) {
+    public DownloadFileTask(Context context, DbxClientV2 dbxClient, Callback callback) {
         mContext = context;
         mDbxClient = dbxClient;
         mCallback = callback;
@@ -47,35 +47,15 @@ class DownloadFileTask extends AsyncTask<FileMetadata, Void, File> {
     }
 
     @Override
-    protected File doInBackground(FileMetadata... params) {
-        FileMetadata metadata = params[0];
+    protected File doInBackground(String... params) {
         try {
-            File path = Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS);
-            File file = new File(path, metadata.getName());
+            String filename = params[0];
 
-            // Make sure the Downloads directory exists.
-            if (!path.exists()) {
-                if (!path.mkdirs()) {
-                    mException = new RuntimeException("Unable to create directory: " + path);
-                }
-            } else if (!path.isDirectory()) {
-                mException = new IllegalStateException("Download path is not a directory: " + path);
-                return null;
+            try (OutputStream outputStream = mContext.openFileOutput(filename, Context.MODE_PRIVATE)) {
+                mDbxClient.files().download(filename).download(outputStream);
             }
 
-            // Download the file.
-            try (OutputStream outputStream = new FileOutputStream(file)) {
-                mDbxClient.files().download(metadata.getPathLower(), metadata.getRev())
-                    .download(outputStream);
-            }
-
-            // Tell android about the file
-            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            intent.setData(Uri.fromFile(file));
-            mContext.sendBroadcast(intent);
-
-            return file;
+            return new File(mContext.getFilesDir().getAbsolutePath() + "/" + filename);
         } catch (DbxException | IOException e) {
             mException = e;
         }

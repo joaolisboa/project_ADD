@@ -15,11 +15,11 @@ import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.GetCurrentAccountTask;
 import ipleiria.project.add.Dropbox.UploadFileTask;
 import ipleiria.project.add.MEOCloud.Data.Account;
-import ipleiria.project.add.MEOCloud.Data.File;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.GetAccountTask;
+import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.Tasks.GetAccountTask;
+import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
-import ipleiria.project.add.MEOCloud.MEODownloadFileTask;
 
 public class ServiceChooserActivity extends AppCompatActivity {
 
@@ -78,20 +78,19 @@ public class ServiceChooserActivity extends AppCompatActivity {
             preferences.edit().putString(MEO_PREFS_KEY, accessToken).apply();
             findViewById(R.id.sign_in_meo).setEnabled(false);
 
-            new GetAccountTask(new GetAccountTask.Callback() {
+            new GetAccountTask(new MEOCallback<Account>() {
 
                 @Override
                 public void onComplete(MEOCloudResponse<Account> result) {
-                    if (result.responseSuccessful()) {
-                        Account account = result.getResponse();
-                        Toast.makeText(ServiceChooserActivity.this,
+                    Account account = result.getResponse();
+                    Toast.makeText(ServiceChooserActivity.this,
                                 "Connected account: " + account.getEmail(),
                                 Toast.LENGTH_SHORT).show();
-                    } else{
-                        Toast.makeText(ServiceChooserActivity.this,
-                                "Error: " + result.getError(),
-                                Toast.LENGTH_SHORT).show();
-                    }
+
+                }
+
+                @Override
+                public void onRequestError(HttpErrorException httpE) {
 
                 }
 

@@ -41,13 +41,13 @@ public class MEOCloudAPI {
 
 
 
-    static final String API_ENDPOINT = "api.meocloud.pt";
-    static final String API_CONTENT_ENDPOINT = "api-content.meocloud.pt";
-    static final String API_VERSION = "1";
+    public static final String API_ENDPOINT = "api.meocloud.pt";
+    public static final String API_CONTENT_ENDPOINT = "api-content.meocloud.pt";
+    public static final String API_VERSION = "1";
 
     // "meocloud" mode has full access to the user files
     // "sandbox" mode has restricted access to only a specific folder
-    static final String API_MODE = "sandbox";
+    public static final String API_MODE = "sandbox";
 
     public static String accessToken;
 

@@ -23,11 +23,11 @@ import okhttp3.Response;
  * Created by Lisboa on 20-Mar-17.
  */
 
-class HttpRequestor {
+public class HttpRequestor {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    static Response get(String accessToken, String path, @Nullable HashMap<String, String> params) {
+    public static Response get(String accessToken, String path, @Nullable HashMap<String, String> params) {
         OkHttpClient client = new OkHttpClient();
         try {
             StringBuilder sb = new StringBuilder()
@@ -54,7 +54,7 @@ class HttpRequestor {
         return null;
     }
 
-    static Response getContent(String accessToken, String path, @Nullable HashMap<String, String> params) {
+    public static Response getContent(String accessToken, String path, @Nullable HashMap<String, String> params) {
         OkHttpClient client = new OkHttpClient();
         try {
             StringBuilder sb = new StringBuilder()
@@ -81,7 +81,7 @@ class HttpRequestor {
         return null;
     }
 
-    static Response post(String accessToken, String path, @Nullable HashMap<String, String> params, @NonNull HashMap<String, String> postBody) {
+    public static Response post(String accessToken, String path, @Nullable HashMap<String, String> params, @NonNull HashMap<String, String> postBody) {
         OkHttpClient client = new OkHttpClient();
         try {
             StringBuilder sb = new StringBuilder()
@@ -116,7 +116,7 @@ class HttpRequestor {
         return null;
     }
 
-    static Response post(String accessToken, String path, @Nullable HashMap<String, String> params, @NonNull byte[] content) {
+    public static Response post(String accessToken, String path, @Nullable HashMap<String, String> params, @NonNull byte[] content) {
         OkHttpClient client = new OkHttpClient();
         try {
             StringBuilder sb = new StringBuilder()
@@ -142,31 +142,6 @@ class HttpRequestor {
             Log.e("tag", "error on method POST", ex);
         }
         return null;
-    }
-
-    private static String encodePostBody(HashMap<String, Object> postBody) {
-        StringBuilder stringBuilder = new StringBuilder();
-        Iterator it = postBody.entrySet().iterator();
-        stringBuilder.append("{");
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-            stringBuilder.append("\"")
-                    .append(entry.getKey())
-                    .append("\": ");
-            if (entry.getValue() instanceof String) {
-                stringBuilder.append("\"")
-                        .append(entry.getValue())
-                        .append("\"");
-            } else {
-                stringBuilder.append(entry.getValue());
-            }
-            if (it.hasNext()) {
-                stringBuilder.append(",");
-            }
-        }
-        stringBuilder.append("}");
-        System.out.println(stringBuilder.toString());
-        return stringBuilder.toString();
     }
 
     private static String encodeParameters(HashMap<String, String> params) {

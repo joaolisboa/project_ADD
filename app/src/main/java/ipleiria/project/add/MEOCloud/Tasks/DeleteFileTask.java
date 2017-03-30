@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud;
+package ipleiria.project.add.MEOCloud.Tasks;
 
 import android.os.AsyncTask;
 
@@ -13,11 +13,15 @@ import java.util.List;
 
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
+import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.InvalidQuerySizeException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingSearchParameter;
+import ipleiria.project.add.MEOCloud.HttpRequestor;
+import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -27,16 +31,10 @@ import okhttp3.Response;
 
 public class DeleteFileTask extends AsyncTask<String, Void, MEOCloudResponse<Metadata>> {
 
-    private final DeleteFileTask.Callback callback;
+    private final MEOCallback<Metadata> callback;
     private Exception exception;
 
-    public interface Callback {
-        void onComplete(MEOCloudResponse<Metadata> result);
-
-        void onError(Exception e);
-    }
-
-    public DeleteFileTask(DeleteFileTask.Callback callback) {
+    public DeleteFileTask(MEOCallback<Metadata> callback) {
         this.callback = callback;
     }
 
@@ -46,7 +44,11 @@ public class DeleteFileTask extends AsyncTask<String, Void, MEOCloudResponse<Met
         if (exception != null) {
             callback.onError(exception);
         } else {
-            callback.onComplete(result);
+            if(result.responseSuccessful()){
+                callback.onComplete(result);
+            }else{
+                callback.onRequestError(new HttpErrorException(result.getError()));
+            }
         }
     }
 

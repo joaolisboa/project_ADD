@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud;
+package ipleiria.project.add.MEOCloud.Tasks;
 
 import android.os.AsyncTask;
 
@@ -7,9 +7,13 @@ import java.util.HashMap;
 
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
+import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
+import ipleiria.project.add.MEOCloud.HttpRequestor;
+import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -19,15 +23,10 @@ import okhttp3.Response;
 
 public class DisableAccessTokenTask extends AsyncTask<String, Void, MEOCloudResponse<Void>> {
 
-    private final DisableAccessTokenTask.Callback callback;
+    private final MEOCallback callback;
     private Exception exception;
 
-    public interface Callback {
-        void onComplete(MEOCloudResponse<Void> result);
-        void onError(Exception e);
-    }
-
-    public DisableAccessTokenTask(DisableAccessTokenTask.Callback callback) {
+    public DisableAccessTokenTask(MEOCallback callback) {
         this.callback = callback;
     }
 
@@ -37,7 +36,11 @@ public class DisableAccessTokenTask extends AsyncTask<String, Void, MEOCloudResp
         if (exception != null) {
             callback.onError(exception);
         } else {
-            callback.onComplete(result);
+            if(result.responseSuccessful()){
+                callback.onComplete(result);
+            }else{
+                callback.onRequestError(new HttpErrorException(result.getError()));
+            }
         }
     }
 

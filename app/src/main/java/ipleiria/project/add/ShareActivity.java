@@ -1,34 +1,22 @@
 package ipleiria.project.add;
 
-import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.UUID;
+import com.dropbox.core.v2.files.FileMetadata;
 
+import java.util.ArrayList;
+
+import ipleiria.project.add.Dropbox.DropboxClientFactory;
+import ipleiria.project.add.Dropbox.UploadFileTask;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
-import ipleiria.project.add.MEOCloud.MEOCloudAPI;
-import ipleiria.project.add.MEOCloud.MEOUploadFileTask;
+import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFileTask;
 import ipleiria.project.add.Utils.UriHelper;
 
 public class ShareActivity extends AppCompatActivity {
@@ -52,27 +40,40 @@ public class ShareActivity extends AppCompatActivity {
     }
 
     private void handleFile(Intent intent) {
-        String accessToken = getSharedPreferences("services", MODE_PRIVATE).getString("meo_access_token", "");
+        String meoAccessToken = getSharedPreferences("services", MODE_PRIVATE).getString("meo_access_token", "");
 
         Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (uri != null) {
-            new MEOUploadFileTask(ShareActivity.this, new MEOUploadFileTask.Callback() {
+            new MEOUploadFileTask(ShareActivity.this, new MEOCallback<Metadata>() {
 
                 @Override
                 public void onComplete(MEOCloudResponse<Metadata> result) {
-                    if (result.responseSuccessful()) {
-                        System.out.println("Upload successful");
-                    } else {
-                        System.out.println("Upload failed");
-                        System.out.println(result.getCode() + ": " + result.getError());
-                    }
+                    System.out.println("Upload successful");
+                }
+
+                @Override
+                public void onRequestError(HttpErrorException httpE) {
+
                 }
 
                 @Override
                 public void onError(Exception e) {
                     Log.e("UploadError", e.getMessage(), e);
                 }
-            }).execute(accessToken, uri.toString(), UriHelper.getFileName(ShareActivity.this, uri));
+            }).execute(meoAccessToken, uri.toString(), UriHelper.getFileName(ShareActivity.this, uri));
+
+            new UploadFileTask(ShareActivity.this, DropboxClientFactory.getClient(), new UploadFileTask.Callback(){
+
+                @Override
+                public void onUploadComplete(FileMetadata result) {
+                    System.out.println(result.getName());
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("UploadDropError", e.getMessage(), e);
+                }
+            }).execute(uri.toString());
         }
     }
 

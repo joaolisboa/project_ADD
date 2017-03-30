@@ -56,7 +56,7 @@ public class UploadFileTask extends AsyncTask<String, Void, FileMetadata> {
         Uri localUri = Uri.parse(params[0]);
 
         try (InputStream is = mContext.getContentResolver().openInputStream(localUri)) {
-            return mDbxClient.files().upload(UriHelper.getFileName(mContext, localUri)).uploadAndFinish(is);
+            return mDbxClient.files().upload("/" + UriHelper.getFileName(mContext, localUri)).uploadAndFinish(is);
         } catch (DbxException | IOException e) {
             mException = e;
         }

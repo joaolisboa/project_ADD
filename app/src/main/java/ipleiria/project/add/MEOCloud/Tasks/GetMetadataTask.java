@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud;
+package ipleiria.project.add.MEOCloud.Tasks;
 
 import android.os.AsyncTask;
 
@@ -7,9 +7,13 @@ import java.util.HashMap;
 
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
+import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
+import ipleiria.project.add.MEOCloud.HttpRequestor;
+import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -19,16 +23,10 @@ import okhttp3.Response;
 
 public class GetMetadataTask extends AsyncTask<String, Void, MEOCloudResponse<Metadata>> {
 
-    private final GetMetadataTask.Callback callback;
+    private final MEOCallback<Metadata> callback;
     private Exception exception;
 
-    public interface Callback {
-        void onComplete(MEOCloudResponse<Metadata> result);
-
-        void onError(Exception e);
-    }
-
-    public GetMetadataTask(GetMetadataTask.Callback callback) {
+    public GetMetadataTask(MEOCallback<Metadata> callback) {
         this.callback = callback;
     }
 
@@ -38,7 +36,11 @@ public class GetMetadataTask extends AsyncTask<String, Void, MEOCloudResponse<Me
         if (exception != null) {
             callback.onError(exception);
         } else {
-            callback.onComplete(result);
+            if(result.responseSuccessful()){
+                callback.onComplete(result);
+            }else{
+                callback.onRequestError(new HttpErrorException(result.getError()));
+            }
         }
     }
 

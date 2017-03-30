@@ -9,9 +9,9 @@ import ipleiria.project.add.Utils.HttpStatus;
  * Created by J on 21/03/2017.
  */
 
-public class File extends java.io.File implements ErrorMessageResponse {
+public class FileResponse extends java.io.File implements ErrorMessageResponse {
 
-    public File(@NonNull String pathname) {
+    public FileResponse(@NonNull String pathname) {
         super(pathname);
     }
 

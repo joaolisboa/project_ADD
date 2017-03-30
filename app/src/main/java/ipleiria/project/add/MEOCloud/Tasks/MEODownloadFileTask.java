@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud;
+package ipleiria.project.add.MEOCloud.Tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,13 +7,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.UUID;
 
-import ipleiria.project.add.MEOCloud.Data.File;
+import ipleiria.project.add.MEOCloud.Data.FileResponse;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
+import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
+import ipleiria.project.add.MEOCloud.HttpRequestor;
+import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -21,38 +24,33 @@ import okhttp3.Response;
  * Created by Lisboa on 26-Mar-17.
  */
 
-public class MEODownloadFileTask extends AsyncTask<String, Void, MEOCloudResponse<File>> {
+public class MEODownloadFileTask extends AsyncTask<String, Void, MEOCloudResponse<FileResponse>> {
 
-    private final Callback callback;
+    private final MEOCallback<FileResponse> callback;
     private Exception exception;
     private Context context;
 
-    public interface Callback {
-        void onComplete(MEOCloudResponse<File> result);
-        void onError(Exception e);
-    }
-
-    public MEODownloadFileTask(Context context, Callback callback) {
+    public MEODownloadFileTask(Context context, MEOCallback<FileResponse> callback) {
         this.callback = callback;
         this.context = context;
     }
 
     @Override
-    protected void onPostExecute(MEOCloudResponse<File> result) {
+    protected void onPostExecute(MEOCloudResponse<FileResponse> result) {
         super.onPostExecute(result);
         if (exception != null) {
             callback.onError(exception);
         } else {
-            callback.onComplete(result);
+            if(result.responseSuccessful()){
+                callback.onComplete(result);
+            }else{
+                callback.onRequestError(new HttpErrorException(result.getError()));
+            }
         }
     }
 
-    public void setParams(){
-
-    }
-
     @Override
-    protected MEOCloudResponse<File> doInBackground(String... params) {
+    protected MEOCloudResponse<FileResponse> doInBackground(String... params) {
         try {
             if(params == null){
                 throw new MissingParametersException();
@@ -79,7 +77,7 @@ public class MEODownloadFileTask extends AsyncTask<String, Void, MEOCloudRespons
 
             Response response = HttpRequestor.getContent(token, path, map);
             if (response != null) {
-                MEOCloudResponse<File> meoCloudResponse = new MEOCloudResponse<>();
+                MEOCloudResponse<FileResponse> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
                     InputStream is = response.body().byteStream();
@@ -93,7 +91,7 @@ public class MEODownloadFileTask extends AsyncTask<String, Void, MEOCloudRespons
                     is.close();
                     fos.close();
                     String downloadPath = context.getFilesDir().getAbsolutePath() + "/" + params[1];
-                    meoCloudResponse.setResponse(new File(downloadPath));
+                    meoCloudResponse.setResponse(new FileResponse(downloadPath));
                 }
                 return meoCloudResponse;
             }

@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud;
+package ipleiria.project.add.MEOCloud.Tasks;
 
 import android.os.AsyncTask;
 
@@ -6,7 +6,11 @@ import java.io.IOException;
 
 import ipleiria.project.add.MEOCloud.Data.Account;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
+import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
+import ipleiria.project.add.MEOCloud.HttpRequestor;
+import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -16,15 +20,10 @@ import okhttp3.Response;
 
 public class GetAccountTask extends AsyncTask<String, Void, MEOCloudResponse<Account>> {
 
-    private final Callback callback;
+    private final MEOCallback<Account> callback;
     private Exception exception;
 
-    public interface Callback {
-        void onComplete(MEOCloudResponse<Account> result);
-        void onError(Exception e);
-    }
-
-    public GetAccountTask(Callback callback) {
+    public GetAccountTask(MEOCallback<Account> callback) {
         this.callback = callback;
     }
 
@@ -34,7 +33,11 @@ public class GetAccountTask extends AsyncTask<String, Void, MEOCloudResponse<Acc
         if (exception != null) {
             callback.onError(exception);
         } else {
-            callback.onComplete(result);
+            if(result.responseSuccessful()){
+                callback.onComplete(result);
+            }else{
+                callback.onRequestError(new HttpErrorException(result.getError()));
+            }
         }
     }
 
