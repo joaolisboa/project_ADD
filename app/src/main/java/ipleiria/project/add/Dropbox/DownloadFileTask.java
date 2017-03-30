@@ -49,10 +49,14 @@ public class DownloadFileTask extends AsyncTask<String, Void, File> {
     @Override
     protected File doInBackground(String... params) {
         try {
+            if (params[0].startsWith("/")) {
+                params[0] = params[0].substring(1);
+            }
+
             String filename = params[0];
 
             try (OutputStream outputStream = mContext.openFileOutput(filename, Context.MODE_PRIVATE)) {
-                mDbxClient.files().download(filename).download(outputStream);
+                mDbxClient.files().download("/" + filename).download(outputStream);
             }
 
             return new File(mContext.getFilesDir().getAbsolutePath() + "/" + filename);
