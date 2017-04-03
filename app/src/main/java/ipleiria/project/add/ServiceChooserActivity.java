@@ -8,17 +8,15 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.dropbox.core.android.Auth;
-import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.users.FullAccount;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.Dropbox.GetCurrentAccountTask;
-import ipleiria.project.add.Dropbox.UploadFileTask;
+import ipleiria.project.add.Dropbox.DropboxGetAccount;
 import ipleiria.project.add.MEOCloud.Data.Account;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.Tasks.GetAccountTask;
+import ipleiria.project.add.MEOCloud.Tasks.MEOGetAccount;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 
@@ -76,7 +74,7 @@ public class ServiceChooserActivity extends AppCompatActivity {
             preferences.edit().putString(MEO_PREFS_KEY, accessToken).apply();
             findViewById(R.id.sign_in_meo).setEnabled(false);
 
-            new GetAccountTask(new MEOCallback<Account>() {
+            new MEOGetAccount(new MEOCallback<Account>() {
 
                 @Override
                 public void onComplete(MEOCloudResponse<Account> result) {
@@ -106,7 +104,7 @@ public class ServiceChooserActivity extends AppCompatActivity {
             preferences.edit().putString(DROPBOX_PREFS_KEY, accessToken).apply();
             findViewById(R.id.sign_in_dropbox).setEnabled(false);
             DropboxClientFactory.init(accessToken);
-            new GetCurrentAccountTask(DropboxClientFactory.getClient(), new GetCurrentAccountTask.Callback() {
+            new DropboxGetAccount(DropboxClientFactory.getClient(), new DropboxGetAccount.Callback() {
                 @Override
                 public void onComplete(FullAccount result) {
                     Toast.makeText(ServiceChooserActivity.this, "Connected account: " + result.getEmail(), Toast.LENGTH_SHORT).show();

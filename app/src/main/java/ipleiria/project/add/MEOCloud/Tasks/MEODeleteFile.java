@@ -30,17 +30,17 @@ import okhttp3.Response;
  * Created by J on 28/03/2017.
  */
 
-public class SearchFileTask extends AsyncTask<String, Void, MEOCloudResponse<List<Metadata>>> {
+public class MEODeleteFile extends AsyncTask<String, Void, MEOCloudResponse<Metadata>> {
 
-    private final MEOCallback<List<Metadata>> callback;
+    private final MEOCallback<Metadata> callback;
     private Exception exception;
 
-    public SearchFileTask(MEOCallback<List<Metadata>> callback) {
+    public MEODeleteFile(MEOCallback<Metadata> callback) {
         this.callback = callback;
     }
 
     @Override
-    protected void onPostExecute(MEOCloudResponse<List<Metadata>> result) {
+    protected void onPostExecute(MEOCloudResponse<Metadata> result) {
         super.onPostExecute(result);
         if (exception != null) {
             callback.onError(exception);
@@ -54,52 +54,29 @@ public class SearchFileTask extends AsyncTask<String, Void, MEOCloudResponse<Lis
     }
 
     @Override
-    protected MEOCloudResponse<List<Metadata>> doInBackground(String... params) {
+    protected MEOCloudResponse<Metadata> doInBackground(String... params) {
         try {
             if (params == null) {
                 throw new MissingParametersException();
-            }else if (params[0] == null || params[0].isEmpty()) {
+            } else if (params[0] == null || params[0].isEmpty()) {
                 throw new MissingFilePathException();
-            }else if (params[1] == null || params[1].isEmpty()){
-                throw new MissingSearchParameter();
-            }
-
-            if (params[0].startsWith("/")) {
-                params[0] = params[0].substring(1);
             }
 
             String token = MEOCloudClient.getAccessToken();
             String remoteFilePath = params[0];
 
-            HashMap<String, String> map = new HashMap<>();
-            if (params.length > 1 && params[1] != null) {
-                map.put("query", params[1]);
-                if(params[1].length() < 3 || params[1].length() > 20){
-                    throw new InvalidQuerySizeException();
-                }
-            }
-            if (params.length > 2 && params[2] != null) {
-                map.put("mime_type", params[2]);
-            }
-            if (params.length > 3 && params[3] != null) {
-                map.put("file_limit", params[3]);
-            }
-            if (params.length > 4 && params[4] != null) {
-                map.put("include_deleted", params[4]);
-            }
+            HashMap<String, String> bodyMap = new HashMap<>();
+            bodyMap.put("root", MEOCloudAPI.API_MODE);
+            bodyMap.put("path", remoteFilePath);
 
+            String path = MEOCloudAPI.API_METHOD_DELETE;
 
-            String path = MEOCloudAPI.API_METHOD_SEARCH + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
-            System.out.println(path);
-
-            Response response = HttpRequestor.get(token, path, map);
+            Response response = HttpRequestor.post(token, path, null, bodyMap);
             if (response != null) {
-                MEOCloudResponse<List<Metadata>> meoCloudResponse = new MEOCloudResponse<>();
+                MEOCloudResponse<Metadata> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
-                    Type listOfLinkMetadata = new TypeToken<List<Metadata>>(){}.getType();
-                    Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-                    List<Metadata> searchResults = gson.fromJson(response.body().string(), listOfLinkMetadata);
+                    Metadata searchResults = Metadata.fromJson(response.body().string(), Metadata.class);
                     meoCloudResponse.setResponse(searchResults);
                 }
                 return meoCloudResponse;
@@ -108,9 +85,7 @@ public class SearchFileTask extends AsyncTask<String, Void, MEOCloudResponse<Lis
         } catch (IOException
                 | MissingParametersException
                 | MissingFilePathException
-                | MissingAccessTokenException
-                | InvalidQuerySizeException
-                | MissingSearchParameter e) {
+                | MissingAccessTokenException e) {
             exception = e;
         }
         return null;

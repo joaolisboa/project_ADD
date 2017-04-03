@@ -11,14 +11,13 @@ import com.dropbox.core.v2.files.FileMetadata;
 import java.util.ArrayList;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.Dropbox.UploadFileTask;
+import ipleiria.project.add.Dropbox.DropboxUploadFile;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFileTask;
+import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFile;
 import ipleiria.project.add.Utils.UriHelper;
 
 public class ShareActivity extends AppCompatActivity {
@@ -51,7 +50,7 @@ public class ShareActivity extends AppCompatActivity {
 
         Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (uri != null && MEOCloudClient.isClientInitialized()) {
-            new MEOUploadFileTask(ShareActivity.this, new MEOCallback<Metadata>() {
+            new MEOUploadFile(ShareActivity.this, new MEOCallback<Metadata>() {
 
                 @Override
                 public void onComplete(MEOCloudResponse<Metadata> result) {
@@ -69,7 +68,7 @@ public class ShareActivity extends AppCompatActivity {
                 }
             }).execute(uri.toString(), UriHelper.getFileName(ShareActivity.this, uri));
 
-            new UploadFileTask(ShareActivity.this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
+            new DropboxUploadFile(ShareActivity.this, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
 
                 @Override
                 public void onUploadComplete(FileMetadata result) {

@@ -2,15 +2,23 @@ package ipleiria.project.add.MEOCloud.Tasks;
 
 import android.os.AsyncTask;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.Exceptions.InvalidQuerySizeException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
+import ipleiria.project.add.MEOCloud.Exceptions.MissingSearchParameter;
 import ipleiria.project.add.MEOCloud.HttpRequestor;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
@@ -19,20 +27,20 @@ import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
 /**
- * Created by Lisboa on 27-Mar-17.
+ * Created by J on 28/03/2017.
  */
 
-public class GetMetadataTask extends AsyncTask<String, Void, MEOCloudResponse<Metadata>> {
+public class MEOSearchFile extends AsyncTask<String, Void, MEOCloudResponse<List<Metadata>>> {
 
-    private final MEOCallback<Metadata> callback;
+    private final MEOCallback<List<Metadata>> callback;
     private Exception exception;
 
-    public GetMetadataTask(MEOCallback<Metadata> callback) {
+    public MEOSearchFile(MEOCallback<List<Metadata>> callback) {
         this.callback = callback;
     }
 
     @Override
-    protected void onPostExecute(MEOCloudResponse<Metadata> result) {
+    protected void onPostExecute(MEOCloudResponse<List<Metadata>> result) {
         super.onPostExecute(result);
         if (exception != null) {
             callback.onError(exception);
@@ -46,12 +54,14 @@ public class GetMetadataTask extends AsyncTask<String, Void, MEOCloudResponse<Me
     }
 
     @Override
-    protected MEOCloudResponse<Metadata> doInBackground(String... params) {
+    protected MEOCloudResponse<List<Metadata>> doInBackground(String... params) {
         try {
             if (params == null) {
                 throw new MissingParametersException();
-            } else if (params[0] == null || params[0].isEmpty()) {
+            }else if (params[0] == null || params[0].isEmpty()) {
                 throw new MissingFilePathException();
+            }else if (params[1] == null || params[1].isEmpty()){
+                throw new MissingSearchParameter();
             }
 
             if (params[0].startsWith("/")) {
@@ -63,33 +73,34 @@ public class GetMetadataTask extends AsyncTask<String, Void, MEOCloudResponse<Me
 
             HashMap<String, String> map = new HashMap<>();
             if (params.length > 1 && params[1] != null) {
-                map.put("file_limit", params[1]);
+                map.put("query", params[1]);
+                if(params[1].length() < 3 || params[1].length() > 20){
+                    throw new InvalidQuerySizeException();
+                }
             }
             if (params.length > 2 && params[2] != null) {
-                map.put("hash", params[2]);
+                map.put("mime_type", params[2]);
             }
             if (params.length > 3 && params[3] != null) {
-                map.put("list", params[3]);
+                map.put("file_limit", params[3]);
             }
             if (params.length > 4 && params[4] != null) {
                 map.put("include_deleted", params[4]);
             }
-            if (params.length > 5 && params[5] != null) {
-                map.put("rev", params[5]);
-            }
 
 
-            String path = MEOCloudAPI.API_METHOD_METADATA + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
+            String path = MEOCloudAPI.API_METHOD_SEARCH + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
             System.out.println(path);
 
             Response response = HttpRequestor.get(token, path, map);
             if (response != null) {
-                MEOCloudResponse<Metadata> meoCloudResponse = new MEOCloudResponse<>();
+                MEOCloudResponse<List<Metadata>> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
-                    String responseBody = response.body().string();
-                    Metadata metadata = Metadata.fromJson(responseBody, Metadata.class);
-                    meoCloudResponse.setResponse(metadata);
+                    Type listOfLinkMetadata = new TypeToken<List<Metadata>>(){}.getType();
+                    Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+                    List<Metadata> searchResults = gson.fromJson(response.body().string(), listOfLinkMetadata);
+                    meoCloudResponse.setResponse(searchResults);
                 }
                 return meoCloudResponse;
             }
@@ -97,7 +108,9 @@ public class GetMetadataTask extends AsyncTask<String, Void, MEOCloudResponse<Me
         } catch (IOException
                 | MissingParametersException
                 | MissingFilePathException
-                | MissingAccessTokenException e) {
+                | MissingAccessTokenException
+                | InvalidQuerySizeException
+                | MissingSearchParameter e) {
             exception = e;
         }
         return null;

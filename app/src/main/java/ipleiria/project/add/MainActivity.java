@@ -10,18 +10,18 @@ import android.view.View;
 import java.io.File;
 import java.util.List;
 
-import ipleiria.project.add.Dropbox.DownloadFileTask;
+import ipleiria.project.add.Dropbox.DropboxDownloadFile;
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.MEOCloud.Data.FileResponse;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.Tasks.DeleteFileTask;
+import ipleiria.project.add.MEOCloud.Tasks.MEODeleteFile;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.Tasks.GetMetadataTask;
+import ipleiria.project.add.MEOCloud.Tasks.MEOGetMetadata;
 import ipleiria.project.add.MEOCloud.MEOCallback;
-import ipleiria.project.add.MEOCloud.Tasks.MEODownloadFileTask;
-import ipleiria.project.add.MEOCloud.Tasks.SearchFileTask;
+import ipleiria.project.add.MEOCloud.Tasks.MEODownloadFile;
+import ipleiria.project.add.MEOCloud.Tasks.MEOSearchFile;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void downloadFile(View view) {
-        new MEODownloadFileTask(MainActivity.this, new MEOCallback<FileResponse>() {
+        new MEODownloadFile(MainActivity.this, new MEOCallback<FileResponse>() {
 
             @Override
             public void onComplete(MEOCloudResponse<FileResponse> result) {
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }).execute("/exploring_luciddreaming.pdf");
 
-        new GetMetadataTask(new MEOCallback<Metadata>() {
+        new MEOGetMetadata(new MEOCallback<Metadata>() {
 
             @Override
             public void onComplete(MEOCloudResponse<Metadata> result) {
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }).execute("/");
 
-        new DownloadFileTask(MainActivity.this, DropboxClientFactory.getClient(), new DownloadFileTask.Callback() {
+        new DropboxDownloadFile(MainActivity.this, DropboxClientFactory.getClient(), new DropboxDownloadFile.Callback() {
 
             @Override
             public void onDownloadComplete(File result) {
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void searchFile(View view) {
-        new SearchFileTask(new MEOCallback<List<Metadata>>() {
+        new MEOSearchFile(new MEOCallback<List<Metadata>>() {
 
             @Override
             public void onComplete(MEOCloudResponse<List<Metadata>> result) {
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void deleteFile(View view) {
-        new DeleteFileTask(new MEOCallback<Metadata>() {
+        new MEODeleteFile(new MEOCallback<Metadata>() {
 
             @Override
             public void onComplete(MEOCloudResponse<Metadata> result) {

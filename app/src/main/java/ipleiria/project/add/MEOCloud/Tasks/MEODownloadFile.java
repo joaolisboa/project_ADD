@@ -1,23 +1,19 @@
 package ipleiria.project.add.MEOCloud.Tasks;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
+import ipleiria.project.add.MEOCloud.Data.FileResponse;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.Data.Metadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingRemoteFilePathException;
 import ipleiria.project.add.MEOCloud.HttpRequestor;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
@@ -29,19 +25,19 @@ import okhttp3.Response;
  * Created by Lisboa on 26-Mar-17.
  */
 
-public class MEOUploadFileTask extends AsyncTask<String, Void, MEOCloudResponse<Metadata>> {
+public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<FileResponse>> {
 
-    private final MEOCallback<Metadata> callback;
+    private final MEOCallback<FileResponse> callback;
     private Exception exception;
     private Context context;
 
-    public MEOUploadFileTask(Context context, MEOCallback<Metadata> callback) {
+    public MEODownloadFile(Context context, MEOCallback<FileResponse> callback) {
         this.callback = callback;
         this.context = context;
     }
 
     @Override
-    protected void onPostExecute(MEOCloudResponse<Metadata> result) {
+    protected void onPostExecute(MEOCloudResponse<FileResponse> result) {
         super.onPostExecute(result);
         if (exception != null) {
             callback.onError(exception);
@@ -55,55 +51,47 @@ public class MEOUploadFileTask extends AsyncTask<String, Void, MEOCloudResponse<
     }
 
     @Override
-    protected MEOCloudResponse<Metadata> doInBackground(String... params) {
+    protected MEOCloudResponse<FileResponse> doInBackground(String... params) {
         try {
             if(params == null){
                 throw new MissingParametersException();
             }else if(params[0] == null || params[0].isEmpty()){
                 throw new MissingFilePathException();
-            }else if(params[1] == null || params[1].isEmpty()){
-                throw new MissingRemoteFilePathException();
             }
 
-            if (params[1].startsWith("/")) {
-                params[1] = params[1].substring(1);
+            if (params[0].startsWith("/")) {
+                params[0] = params[0].substring(1);
             }
 
             String token = MEOCloudClient.getAccessToken();
-            String localFilePath = params[0];
-            String remoteFilePath = params[1];
+            String filePath = params[0];
 
             HashMap<String, String> map = new HashMap<>();
-            if(params.length > 2 && params[2] != null) {
-                map.put("overwrite", params[2]);
-            }
-            if (params.length > 3 && params[3] != null) {
-                map.put("parent_rev", params[3]);
+            System.out.println(params.length);
+            if(params.length > 1 && params[1] != null) {
+                map.put("rev", params[1]);
             }
 
-            String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
+            String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + filePath;
             System.out.println(path);
 
-            InputStream is = context.getContentResolver().openInputStream(Uri.parse(localFilePath));
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-            int nRead;
-            byte[] data = new byte[16384];
-
-            if (is != null) {
-                while ((nRead = is.read(data, 0, data.length)) != -1) {
-                    buffer.write(data, 0, nRead);
-                }
-            }
-
-            Response response = HttpRequestor.post(token, path, map, buffer.toByteArray());
+            Response response = HttpRequestor.getContent(token, path, map);
             if (response != null) {
-                MEOCloudResponse<Metadata> meoCloudResponse = new MEOCloudResponse<>();
+                MEOCloudResponse<FileResponse> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
-                    String responseBody = response.body().string();
-                    Metadata metadata = Metadata.fromJson(responseBody, Metadata.class);
-                    meoCloudResponse.setResponse(metadata);
+                    InputStream is = response.body().byteStream();
+                    FileOutputStream fos = context.openFileOutput(filePath, Context.MODE_PRIVATE);
+                    byte[] buffer = new byte[1024 * 100];
+                    int nBytes;
+                    while((nBytes = is.read(buffer)) != -1){
+                        fos.write(buffer, 0, nBytes);
+                        fos.flush();
+                    }
+                    is.close();
+                    fos.close();
+                    String downloadPath = context.getFilesDir().getAbsolutePath() + "/" + filePath;
+                    meoCloudResponse.setResponse(new FileResponse(downloadPath));
                 }
                 return meoCloudResponse;
             }
@@ -111,8 +99,7 @@ public class MEOUploadFileTask extends AsyncTask<String, Void, MEOCloudResponse<
         } catch (IOException
                 | MissingParametersException
                 | MissingFilePathException
-                | MissingAccessTokenException
-                | MissingRemoteFilePathException e) {
+                | MissingAccessTokenException e) {
             exception = e;
         }
         return null;

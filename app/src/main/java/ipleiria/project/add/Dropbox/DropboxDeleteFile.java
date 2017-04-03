@@ -7,40 +7,36 @@ import android.os.AsyncTask;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.Metadata;
+import com.dropbox.core.v2.sharing.FileMemberRemoveActionResult;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import ipleiria.project.add.Utils.UriHelper;
 
 /**
- * Async task to upload a file to a directory
+ * Created by J on 03/04/2017.
  */
-public class UploadFileTask extends AsyncTask<String, Void, FileMetadata> {
 
-    private final Context mContext;
+public class DropboxDeleteFile extends AsyncTask<String, Void, Metadata> {
+
     private final DbxClientV2 mDbxClient;
-    private final Callback mCallback;
+    private final DropboxDeleteFile.Callback mCallback;
     private Exception mException;
 
     public interface Callback {
-        void onUploadComplete(FileMetadata result);
-
+        void onUploadComplete(Metadata result);
         void onError(Exception e);
     }
 
-    public UploadFileTask(Context context, DbxClientV2 dbxClient, Callback callback) {
-        mContext = context;
+    public DropboxDeleteFile(DbxClientV2 dbxClient, DropboxDeleteFile.Callback callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }
 
     @Override
-    protected void onPostExecute(FileMetadata result) {
+    protected void onPostExecute(Metadata result) {
         super.onPostExecute(result);
         if (mException != null) {
             mCallback.onError(mException);
@@ -52,12 +48,11 @@ public class UploadFileTask extends AsyncTask<String, Void, FileMetadata> {
     }
 
     @Override
-    protected FileMetadata doInBackground(String... params) {
-        Uri localUri = Uri.parse(params[0]);
-
-        try (InputStream is = mContext.getContentResolver().openInputStream(localUri)) {
-            return mDbxClient.files().upload("/" + UriHelper.getFileName(mContext, localUri)).uploadAndFinish(is);
-        } catch (DbxException | IOException e) {
+    protected Metadata doInBackground(String... params) {
+        String remotePath = params[0];
+        try  {
+            return mDbxClient.files().delete(remotePath);
+        } catch (DbxException e) {
             mException = e;
         }
 

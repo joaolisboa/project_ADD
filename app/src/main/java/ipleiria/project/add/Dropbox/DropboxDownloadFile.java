@@ -18,7 +18,7 @@ import java.io.OutputStream;
 /**
  * Task to download a file from Dropbox and put it in the Downloads folder
  */
-public class DownloadFileTask extends AsyncTask<String, Void, File> {
+public class DropboxDownloadFile extends AsyncTask<String, Void, File> {
 
     private final Context mContext;
     private final DbxClientV2 mDbxClient;
@@ -30,7 +30,7 @@ public class DownloadFileTask extends AsyncTask<String, Void, File> {
         void onError(Exception e);
     }
 
-    public DownloadFileTask(Context context, DbxClientV2 dbxClient, Callback callback) {
+    public DropboxDownloadFile(Context context, DbxClientV2 dbxClient, Callback callback) {
         mContext = context;
         mDbxClient = dbxClient;
         mCallback = callback;

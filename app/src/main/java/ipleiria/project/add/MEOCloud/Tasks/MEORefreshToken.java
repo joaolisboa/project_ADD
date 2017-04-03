@@ -16,7 +16,7 @@ import okhttp3.Response;
  * Created by Lisboa on 20-Mar-17.
  */
 //// TODO: 20-Mar-17 test token refresh
-class RefreshTokenTask extends AsyncTask<String, Void, String> {
+class MEORefreshToken extends AsyncTask<String, Void, String> {
 
     private final Callback callback;
     private Exception exception;
@@ -26,7 +26,7 @@ class RefreshTokenTask extends AsyncTask<String, Void, String> {
         void onError(Exception e);
     }
 
-    RefreshTokenTask(Callback callback){
+    MEORefreshToken(Callback callback){
         this.callback = callback;
     }
 
