@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.Data.Metadata;
+import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
@@ -22,17 +22,17 @@ import okhttp3.Response;
  * Created by Lisboa on 27-Mar-17.
  */
 
-public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<Metadata>> {
+public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<MEOMetadata>> {
 
-    private final MEOCallback<Metadata> callback;
+    private final MEOCallback<MEOMetadata> callback;
     private Exception exception;
 
-    public MEOGetMetadata(MEOCallback<Metadata> callback) {
+    public MEOGetMetadata(MEOCallback<MEOMetadata> callback) {
         this.callback = callback;
     }
 
     @Override
-    protected void onPostExecute(MEOCloudResponse<Metadata> result) {
+    protected void onPostExecute(MEOCloudResponse<MEOMetadata> result) {
         super.onPostExecute(result);
         if (exception != null) {
             callback.onError(exception);
@@ -46,7 +46,7 @@ public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<Met
     }
 
     @Override
-    protected MEOCloudResponse<Metadata> doInBackground(String... params) {
+    protected MEOCloudResponse<MEOMetadata> doInBackground(String... params) {
         try {
             if (params == null) {
                 throw new MissingParametersException();
@@ -84,11 +84,11 @@ public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<Met
 
             Response response = HttpRequestor.get(token, path, map);
             if (response != null) {
-                MEOCloudResponse<Metadata> meoCloudResponse = new MEOCloudResponse<>();
+                MEOCloudResponse<MEOMetadata> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
                     String responseBody = response.body().string();
-                    Metadata metadata = Metadata.fromJson(responseBody, Metadata.class);
+                    MEOMetadata metadata = MEOMetadata.fromJson(responseBody, MEOMetadata.class);
                     meoCloudResponse.setResponse(metadata);
                 }
                 return meoCloudResponse;

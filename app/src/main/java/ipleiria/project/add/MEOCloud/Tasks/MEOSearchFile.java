@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.Data.Metadata;
+import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.InvalidQuerySizeException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
@@ -30,17 +30,17 @@ import okhttp3.Response;
  * Created by J on 28/03/2017.
  */
 
-public class MEOSearchFile extends AsyncTask<String, Void, MEOCloudResponse<List<Metadata>>> {
+public class MEOSearchFile extends AsyncTask<String, Void, MEOCloudResponse<List<MEOMetadata>>> {
 
-    private final MEOCallback<List<Metadata>> callback;
+    private final MEOCallback<List<MEOMetadata>> callback;
     private Exception exception;
 
-    public MEOSearchFile(MEOCallback<List<Metadata>> callback) {
+    public MEOSearchFile(MEOCallback<List<MEOMetadata>> callback) {
         this.callback = callback;
     }
 
     @Override
-    protected void onPostExecute(MEOCloudResponse<List<Metadata>> result) {
+    protected void onPostExecute(MEOCloudResponse<List<MEOMetadata>> result) {
         super.onPostExecute(result);
         if (exception != null) {
             callback.onError(exception);
@@ -54,7 +54,7 @@ public class MEOSearchFile extends AsyncTask<String, Void, MEOCloudResponse<List
     }
 
     @Override
-    protected MEOCloudResponse<List<Metadata>> doInBackground(String... params) {
+    protected MEOCloudResponse<List<MEOMetadata>> doInBackground(String... params) {
         try {
             if (params == null) {
                 throw new MissingParametersException();
@@ -94,12 +94,12 @@ public class MEOSearchFile extends AsyncTask<String, Void, MEOCloudResponse<List
 
             Response response = HttpRequestor.get(token, path, map);
             if (response != null) {
-                MEOCloudResponse<List<Metadata>> meoCloudResponse = new MEOCloudResponse<>();
+                MEOCloudResponse<List<MEOMetadata>> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
-                    Type listOfLinkMetadata = new TypeToken<List<Metadata>>(){}.getType();
+                    Type listOfLinkMetadata = new TypeToken<List<MEOMetadata>>(){}.getType();
                     Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-                    List<Metadata> searchResults = gson.fromJson(response.body().string(), listOfLinkMetadata);
+                    List<MEOMetadata> searchResults = gson.fromJson(response.body().string(), listOfLinkMetadata);
                     meoCloudResponse.setResponse(searchResults);
                 }
                 return meoCloudResponse;

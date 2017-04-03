@@ -13,7 +13,7 @@ import ipleiria.project.add.Utils.JsonObject;
  * Created by Lisboa on 26-Mar-17.
  */
 
-public class Metadata extends JsonObject implements ErrorMessageResponse {
+public class MEOMetadata extends JsonObject implements ErrorMessageResponse {
 
     public static final String JSON_TAG_HASH = "hash";
     public static final String JSON_TAG_BYTES = "bytes";
@@ -68,7 +68,7 @@ public class Metadata extends JsonObject implements ErrorMessageResponse {
     private String mimeType;
     @Expose
     @SerializedName(JSON_TAG_CONTENTS)
-    private List<Metadata> contents;
+    private List<MEOMetadata> contents;
     @Expose
     @SerializedName(JSON_TAG_CLIENT_MODIFIED)
     private String clientModified;
@@ -189,11 +189,11 @@ public class Metadata extends JsonObject implements ErrorMessageResponse {
         this.mimeType = mimeType;
     }
 
-    public List<Metadata> getContents() {
+    public List<MEOMetadata> getContents() {
         return contents;
     }
 
-    public void setContents(List<Metadata> contents) {
+    public void setContents(List<MEOMetadata> contents) {
         this.contents = contents;
     }
 

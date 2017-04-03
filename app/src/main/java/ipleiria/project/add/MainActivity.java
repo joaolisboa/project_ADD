@@ -7,14 +7,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.FolderMetadata;
+import com.dropbox.core.v2.files.ListFolderResult;
+import com.dropbox.core.v2.files.Metadata;
+
 import java.io.File;
 import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxDownloadFile;
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
+import ipleiria.project.add.Dropbox.DropboxGetMetadata;
+import ipleiria.project.add.Dropbox.DropboxListFolder;
 import ipleiria.project.add.MEOCloud.Data.FileResponse;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.Data.Metadata;
+import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEODeleteFile;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
@@ -34,6 +41,34 @@ public class MainActivity extends AppCompatActivity {
 
         if(!preferences.getString("dropbox_access_token", "").isEmpty()){
             DropboxClientFactory.init(preferences.getString("dropbox_access_token", ""));
+            new DropboxListFolder(DropboxClientFactory.getClient(), new DropboxListFolder.Callback(){
+
+                @Override
+                public void onComplete(ListFolderResult result) {
+                    System.out.println(result.getEntries().get(0));
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("ServiceError", e.getMessage(), e);
+                }
+            }).execute("");
+
+            new DropboxGetMetadata(DropboxClientFactory.getClient(), new DropboxGetMetadata.Callback(){
+                @Override
+                public void onComplete(Metadata result) {
+                    if(result instanceof FileMetadata){
+                        System.out.println("path is file");
+                    }else if(result instanceof FolderMetadata){
+                        System.out.println("path is folder");
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("ServiceError", e.getMessage(), e);
+                }
+            }).execute("/exploring_luciddreaming.pdf");
         }
         if(!preferences.getString("meo_access_token", "").isEmpty()){
             MEOCloudClient.init(preferences.getString("meo_access_token", ""));
@@ -66,10 +101,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }).execute("/exploring_luciddreaming.pdf");
 
-        new MEOGetMetadata(new MEOCallback<Metadata>() {
+        new MEOGetMetadata(new MEOCallback<MEOMetadata>() {
 
             @Override
-            public void onComplete(MEOCloudResponse<Metadata> result) {
+            public void onComplete(MEOCloudResponse<MEOMetadata> result) {
                 System.out.println(result.getResponse().toJson());
             }
 
@@ -100,11 +135,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void searchFile(View view) {
-        new MEOSearchFile(new MEOCallback<List<Metadata>>() {
+        new MEOSearchFile(new MEOCallback<List<MEOMetadata>>() {
 
             @Override
-            public void onComplete(MEOCloudResponse<List<Metadata>> result) {
-                for (Metadata m : result.getResponse()) {
+            public void onComplete(MEOCloudResponse<List<MEOMetadata>> result) {
+                for (MEOMetadata m : result.getResponse()) {
                     System.out.println(m.toJson());
                 }
             }
@@ -122,10 +157,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void deleteFile(View view) {
-        new MEODeleteFile(new MEOCallback<Metadata>() {
+        new MEODeleteFile(new MEOCallback<MEOMetadata>() {
 
             @Override
-            public void onComplete(MEOCloudResponse<Metadata> result) {
+            public void onComplete(MEOCloudResponse<MEOMetadata> result) {
                 System.out.println(result.getResponse().toJson());
             }
 

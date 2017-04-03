@@ -3,16 +3,14 @@ package ipleiria.project.add.MEOCloud.Tasks;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.Data.Metadata;
+import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
@@ -29,19 +27,19 @@ import okhttp3.Response;
  * Created by Lisboa on 26-Mar-17.
  */
 
-public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<Metadata>> {
+public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<MEOMetadata>> {
 
-    private final MEOCallback<Metadata> callback;
+    private final MEOCallback<MEOMetadata> callback;
     private Exception exception;
     private Context context;
 
-    public MEOUploadFile(Context context, MEOCallback<Metadata> callback) {
+    public MEOUploadFile(Context context, MEOCallback<MEOMetadata> callback) {
         this.callback = callback;
         this.context = context;
     }
 
     @Override
-    protected void onPostExecute(MEOCloudResponse<Metadata> result) {
+    protected void onPostExecute(MEOCloudResponse<MEOMetadata> result) {
         super.onPostExecute(result);
         if (exception != null) {
             callback.onError(exception);
@@ -55,7 +53,7 @@ public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<Meta
     }
 
     @Override
-    protected MEOCloudResponse<Metadata> doInBackground(String... params) {
+    protected MEOCloudResponse<MEOMetadata> doInBackground(String... params) {
         try {
             if(params == null){
                 throw new MissingParametersException();
@@ -98,11 +96,11 @@ public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<Meta
 
             Response response = HttpRequestor.post(token, path, map, buffer.toByteArray());
             if (response != null) {
-                MEOCloudResponse<Metadata> meoCloudResponse = new MEOCloudResponse<>();
+                MEOCloudResponse<MEOMetadata> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
                     String responseBody = response.body().string();
-                    Metadata metadata = Metadata.fromJson(responseBody, Metadata.class);
+                    MEOMetadata metadata = MEOMetadata.fromJson(responseBody, MEOMetadata.class);
                     meoCloudResponse.setResponse(metadata);
                 }
                 return meoCloudResponse;
