@@ -7,7 +7,7 @@
     <string name="dropbox_app_secret">8xhivwv4yq5bgga</string>
     <string name="meo_consumer_key">8eb23961-0b47-46c7-b3ba-a15187103118</string>
     <string name="meo_app_secret">327526132662230807532020078626020574174</string>
-
+    <string name="title_activity_list">ListActivity</string>
 
 
 </resources>

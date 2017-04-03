@@ -75,6 +75,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void listFiles(View view){
+        startActivity(new Intent(this, ListActivity.class));
+    }
+
     public void goToAccounts(View view) {
         startActivity(new Intent(this, ServiceChooserActivity.class));
     }
