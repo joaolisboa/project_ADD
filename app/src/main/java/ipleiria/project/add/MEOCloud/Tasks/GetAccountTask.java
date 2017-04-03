@@ -11,6 +11,7 @@ import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.HttpRequestor;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -44,10 +45,8 @@ public class GetAccountTask extends AsyncTask<String, Void, MEOCloudResponse<Acc
     @Override
     protected MEOCloudResponse<Account> doInBackground(String... params) {
         try {
-            if(params == null){
-                throw new MissingAccessTokenException();
-            }
-            Response response = HttpRequestor.get(params[0], MEOCloudAPI.API_METHOD_ACOUNT_INFO, null);
+            Response response = HttpRequestor.get(MEOCloudClient.getAccessToken(),
+                                    MEOCloudAPI.API_METHOD_ACOUNT_INFO, null);
             if (response != null){
                 MEOCloudResponse<Account> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());

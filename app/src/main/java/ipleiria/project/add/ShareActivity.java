@@ -15,7 +15,9 @@ import ipleiria.project.add.Dropbox.UploadFileTask;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFileTask;
 import ipleiria.project.add.Utils.UriHelper;
 
@@ -40,10 +42,15 @@ public class ShareActivity extends AppCompatActivity {
     }
 
     private void handleFile(Intent intent) {
-        String meoAccessToken = getSharedPreferences("services", MODE_PRIVATE).getString("meo_access_token", "");
+        if (!MEOCloudClient.isClientInitialized()) {
+            String accessToken = getSharedPreferences("services", MODE_PRIVATE).getString("meo_access_token", "");
+            if(!accessToken.isEmpty()) {
+                MEOCloudClient.init(accessToken);
+            }
+        }
 
         Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-        if (uri != null) {
+        if (uri != null && MEOCloudClient.isClientInitialized()) {
             new MEOUploadFileTask(ShareActivity.this, new MEOCallback<Metadata>() {
 
                 @Override
@@ -60,9 +67,9 @@ public class ShareActivity extends AppCompatActivity {
                 public void onError(Exception e) {
                     Log.e("UploadError", e.getMessage(), e);
                 }
-            }).execute(meoAccessToken, uri.toString(), UriHelper.getFileName(ShareActivity.this, uri));
+            }).execute(uri.toString(), UriHelper.getFileName(ShareActivity.this, uri));
 
-            new UploadFileTask(ShareActivity.this, DropboxClientFactory.getClient(), new UploadFileTask.Callback(){
+            new UploadFileTask(ShareActivity.this, DropboxClientFactory.getClient(), new UploadFileTask.Callback() {
 
                 @Override
                 public void onUploadComplete(FileMetadata result) {

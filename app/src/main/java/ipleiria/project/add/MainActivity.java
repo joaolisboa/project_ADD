@@ -15,6 +15,7 @@ import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.MEOCloud.Data.FileResponse;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.Metadata;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.DeleteFileTask;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Tasks.GetMetadataTask;
@@ -24,17 +25,19 @@ import ipleiria.project.add.MEOCloud.Tasks.SearchFileTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    String accessToken;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         SharedPreferences preferences = getSharedPreferences("services", MODE_PRIVATE);
-        accessToken = preferences.getString("meo_access_token", "");
-        DropboxClientFactory.init(preferences.getString("dropbox_access_token", ""));
 
+        if(!preferences.getString("dropbox_access_token", "").isEmpty()){
+            DropboxClientFactory.init(preferences.getString("dropbox_access_token", ""));
+        }
+        if(!preferences.getString("meo_access_token", "").isEmpty()){
+            MEOCloudClient.init(preferences.getString("meo_access_token", ""));
+        }
     }
 
     public void goToAccounts(View view) {
@@ -61,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Log.e("DownloadError", e.getMessage(), e);
             }
-        }).execute(accessToken, "/exploring_luciddreaming.pdf");
+        }).execute("/exploring_luciddreaming.pdf");
 
         new GetMetadataTask(new MEOCallback<Metadata>() {
 
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Log.e("MetadataError", e.getMessage(), e);
             }
-        }).execute(accessToken, "/");
+        }).execute("/");
 
         new DownloadFileTask(MainActivity.this, DropboxClientFactory.getClient(), new DownloadFileTask.Callback() {
 
@@ -115,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Log.e("SearchError", e.getMessage(), e);
             }
-        }).execute(accessToken, "/", "lucid");
+        }).execute("/", "lucid");
     }
 
     public void deleteFile(View view) {
@@ -135,6 +138,6 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Log.e("DeleteError", e.getMessage(), e);
             }
-        }).execute(accessToken, "/exploring_luciddreaming.pdf");
+        }).execute("/exploring_luciddreaming.pdf");
     }
 }

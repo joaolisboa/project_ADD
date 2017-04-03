@@ -21,6 +21,7 @@ import ipleiria.project.add.MEOCloud.Exceptions.MissingRemoteFilePathException;
 import ipleiria.project.add.MEOCloud.HttpRequestor;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -59,27 +60,25 @@ public class MEOUploadFileTask extends AsyncTask<String, Void, MEOCloudResponse<
             if(params == null){
                 throw new MissingParametersException();
             }else if(params[0] == null || params[0].isEmpty()){
-                throw new MissingAccessTokenException();
-            }else if(params[1] == null || params[1].isEmpty()){
                 throw new MissingFilePathException();
-            }else if(params[2] == null || params[2].isEmpty()){
+            }else if(params[1] == null || params[1].isEmpty()){
                 throw new MissingRemoteFilePathException();
             }
 
-            if (params[2].startsWith("/")) {
-                params[2] = params[2].substring(1);
+            if (params[1].startsWith("/")) {
+                params[1] = params[1].substring(1);
             }
 
-            String token = params[0];
-            String localFilePath = params[1];
-            String remoteFilePath = params[2];
+            String token = MEOCloudClient.getAccessToken();
+            String localFilePath = params[0];
+            String remoteFilePath = params[1];
 
             HashMap<String, String> map = new HashMap<>();
-            if(params.length > 3 && params[3] != null) {
-                map.put("overwrite", params[3]);
+            if(params.length > 2 && params[2] != null) {
+                map.put("overwrite", params[2]);
             }
-            if (params.length > 4 && params[4] != null) {
-                map.put("parent_rev", params[4]);
+            if (params.length > 3 && params[3] != null) {
+                map.put("parent_rev", params[3]);
             }
 
             String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;

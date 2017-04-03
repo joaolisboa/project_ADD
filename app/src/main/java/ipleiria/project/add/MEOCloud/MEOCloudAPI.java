@@ -49,8 +49,6 @@ public class MEOCloudAPI {
     // "sandbox" mode has restricted access to only a specific folder
     public static final String API_MODE = "sandbox";
 
-    public static String accessToken;
-
     public static void startOAuth2Authentication(Context context, String consumerKey) {
         Intent intent =  MEOAuth.makeIntent(context, consumerKey);
         if (!(context instanceof Activity)) {
@@ -69,7 +67,7 @@ public class MEOCloudAPI {
             return null;
         }
 
-        accessToken = data.getStringExtra(MEOAuth.EXTRA_ACCESS_TOKEN);
+        String accessToken = data.getStringExtra(MEOAuth.EXTRA_ACCESS_TOKEN);
         int tokenExpiresIn = Integer.valueOf(data.getStringExtra(MEOAuth.EXTRA_TOKEN_EXPIRE));
         //// TODO: 20-Mar-17 if token is expiring soon refresh token
 

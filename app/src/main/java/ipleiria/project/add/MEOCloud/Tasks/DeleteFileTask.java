@@ -22,6 +22,7 @@ import ipleiria.project.add.MEOCloud.Exceptions.MissingSearchParameter;
 import ipleiria.project.add.MEOCloud.HttpRequestor;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -58,13 +59,11 @@ public class DeleteFileTask extends AsyncTask<String, Void, MEOCloudResponse<Met
             if (params == null) {
                 throw new MissingParametersException();
             } else if (params[0] == null || params[0].isEmpty()) {
-                throw new MissingAccessTokenException();
-            }else if (params[1] == null || params[1].isEmpty()) {
                 throw new MissingFilePathException();
             }
 
-            String token = params[0];
-            String remoteFilePath = params[1];
+            String token = MEOCloudClient.getAccessToken();
+            String remoteFilePath = params[0];
 
             HashMap<String, String> bodyMap = new HashMap<>();
             bodyMap.put("root", MEOCloudAPI.API_MODE);

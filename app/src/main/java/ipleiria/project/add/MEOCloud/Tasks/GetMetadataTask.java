@@ -14,6 +14,7 @@ import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
 import ipleiria.project.add.MEOCloud.HttpRequestor;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -50,33 +51,31 @@ public class GetMetadataTask extends AsyncTask<String, Void, MEOCloudResponse<Me
             if (params == null) {
                 throw new MissingParametersException();
             } else if (params[0] == null || params[0].isEmpty()) {
-                throw new MissingAccessTokenException();
-            }else if (params[1] == null || params[1].isEmpty()) {
                 throw new MissingFilePathException();
             }
 
-            if (params[1].startsWith("/")) {
-                params[1] = params[1].substring(1);
+            if (params[0].startsWith("/")) {
+                params[0] = params[0].substring(1);
             }
 
-            String token = params[0];
-            String remoteFilePath = params[1];
+            String token = MEOCloudClient.getAccessToken();
+            String remoteFilePath = params[0];
 
             HashMap<String, String> map = new HashMap<>();
+            if (params.length > 1 && params[1] != null) {
+                map.put("file_limit", params[1]);
+            }
             if (params.length > 2 && params[2] != null) {
-                map.put("file_limit", params[2]);
+                map.put("hash", params[2]);
             }
             if (params.length > 3 && params[3] != null) {
-                map.put("hash", params[3]);
+                map.put("list", params[3]);
             }
             if (params.length > 4 && params[4] != null) {
-                map.put("list", params[4]);
+                map.put("include_deleted", params[4]);
             }
             if (params.length > 5 && params[5] != null) {
-                map.put("include_deleted", params[5]);
-            }
-            if (params.length > 6 && params[6] != null) {
-                map.put("rev", params[6]);
+                map.put("rev", params[5]);
             }
 
 

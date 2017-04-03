@@ -27,4 +27,8 @@ public class DropboxClientFactory {
         }
         return sDbxClient;
     }
+
+    public static boolean isClientInitialized(){
+        return sDbxClient != null;
+    }
 }

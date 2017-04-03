@@ -22,6 +22,7 @@ import ipleiria.project.add.MEOCloud.Exceptions.MissingSearchParameter;
 import ipleiria.project.add.MEOCloud.HttpRequestor;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -57,36 +58,34 @@ public class SearchFileTask extends AsyncTask<String, Void, MEOCloudResponse<Lis
         try {
             if (params == null) {
                 throw new MissingParametersException();
-            } else if (params[0] == null || params[0].isEmpty()) {
-                throw new MissingAccessTokenException();
-            }else if (params[1] == null || params[1].isEmpty()) {
+            }else if (params[0] == null || params[0].isEmpty()) {
                 throw new MissingFilePathException();
-            }else if (params[2] == null || params[2].isEmpty()){
+            }else if (params[1] == null || params[1].isEmpty()){
                 throw new MissingSearchParameter();
             }
 
-            if (params[1].startsWith("/")) {
-                params[1] = params[1].substring(1);
+            if (params[0].startsWith("/")) {
+                params[0] = params[0].substring(1);
             }
 
-            String token = params[0];
-            String remoteFilePath = params[1];
+            String token = MEOCloudClient.getAccessToken();
+            String remoteFilePath = params[0];
 
             HashMap<String, String> map = new HashMap<>();
-            if (params.length > 2 && params[2] != null) {
-                map.put("query", params[2]);
-                if(params[2].length() < 3 || params[2].length() > 20){
+            if (params.length > 1 && params[1] != null) {
+                map.put("query", params[1]);
+                if(params[1].length() < 3 || params[1].length() > 20){
                     throw new InvalidQuerySizeException();
                 }
             }
+            if (params.length > 2 && params[2] != null) {
+                map.put("mime_type", params[2]);
+            }
             if (params.length > 3 && params[3] != null) {
-                map.put("mime_type", params[3]);
+                map.put("file_limit", params[3]);
             }
             if (params.length > 4 && params[4] != null) {
-                map.put("file_limit", params[4]);
-            }
-            if (params.length > 5 && params[5] != null) {
-                map.put("include_deleted", params[5]);
+                map.put("include_deleted", params[4]);
             }
 
 

@@ -14,6 +14,7 @@ import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
 import ipleiria.project.add.MEOCloud.HttpRequestor;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
@@ -23,10 +24,10 @@ import okhttp3.Response;
 
 public class DisableAccessTokenTask extends AsyncTask<String, Void, MEOCloudResponse<Void>> {
 
-    private final MEOCallback callback;
+    private final MEOCallback<Void> callback;
     private Exception exception;
 
-    public DisableAccessTokenTask(MEOCallback callback) {
+    public DisableAccessTokenTask(MEOCallback<Void> callback) {
         this.callback = callback;
     }
 
@@ -47,21 +48,16 @@ public class DisableAccessTokenTask extends AsyncTask<String, Void, MEOCloudResp
     @Override
     protected MEOCloudResponse<Void> doInBackground(String... params) {
         try {
-            if(params == null){
-                throw new MissingParametersException();
-            }else if(params[0] == null || params[0].isEmpty()){
-                throw new MissingAccessTokenException();
-            }
 
-            Response response = HttpRequestor.get(params[0], MEOCloudAPI.API_METHOD_DISABLE_TOKEN, null);
+            Response response = HttpRequestor.get(MEOCloudClient.getAccessToken(),
+                                    MEOCloudAPI.API_METHOD_DISABLE_TOKEN, null);
             if (response != null) {
                 MEOCloudResponse<Void> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 return meoCloudResponse;
             }
             return null;
-        } catch (MissingParametersException
-                | MissingAccessTokenException e) {
+        } catch (MissingAccessTokenException e) {
             exception = e;
         }
         return null;

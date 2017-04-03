@@ -21,8 +21,6 @@ class RefreshTokenTask extends AsyncTask<String, Void, String> {
     private final Callback callback;
     private Exception exception;
 
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
     interface Callback {
         void onComplete(String token);
         void onError(Exception e);
