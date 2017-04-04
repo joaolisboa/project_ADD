@@ -161,11 +161,6 @@ class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemViewHolde
         return items.size();
     }
 
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-    }
-
     void pendingRemoval(int position) {
         final ListItem item = items.get(position);
         if (!itemsPendingRemoval.contains(item)) {

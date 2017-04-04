@@ -31,12 +31,12 @@ public class ListActivity extends AppCompatActivity {
 
         list = new ArrayList<>();
         File dir = getFilesDir();
-        for(int i = 0; i < 15; i++){
-            list.add(new ListItem(null, "Test item " + i, "description", "Category"));
-        }
 
         for(File f: dir.listFiles()){
             list.add(new ListItem(f, f.getName(), "description", " Category"));
+        }
+        for(int i = 0; i < 15; i++){
+            list.add(new ListItem(null, "Dummy item " + i, "description", "Category"));
         }
 
         setUpRecyclerView();
