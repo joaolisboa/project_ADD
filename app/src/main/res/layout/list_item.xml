@@ -21,7 +21,6 @@
         android:layout_marginStart="68dp"
         android:gravity="center_vertical"
         android:textSize="16sp"
-        android:textStyle="bold"
         android:textColor="@android:color/primary_text_light" />
     <TextView
         android:id="@+id/category_text_view"
