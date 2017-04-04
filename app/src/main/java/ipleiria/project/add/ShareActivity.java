@@ -1,5 +1,6 @@
 package ipleiria.project.add;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,6 +9,10 @@ import android.util.Log;
 
 import com.dropbox.core.v2.files.FileMetadata;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
@@ -50,6 +55,22 @@ public class ShareActivity extends AppCompatActivity {
 
         Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (uri != null && MEOCloudClient.isClientInitialized()) {
+
+            try {
+                InputStream is = getContentResolver().openInputStream(uri);
+                FileOutputStream fos = openFileOutput(UriHelper.getFileName(ShareActivity.this, uri), Context.MODE_PRIVATE);
+                byte[] buffer = new byte[1024 * 100];
+                int nBytes;
+                while((nBytes = is.read(buffer)) != -1){
+                    fos.write(buffer, 0, nBytes);
+                    fos.flush();
+                }
+                is.close();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             new MEOUploadFile(ShareActivity.this, new MEOCallback<MEOMetadata>() {
 
                 @Override
