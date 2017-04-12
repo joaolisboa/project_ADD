@@ -1,5 +1,14 @@
 package ipleiria.project.add.Model;
 
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
+
+import com.unnamed.b.atv.model.TreeNode;
+
+import ipleiria.project.add.R;
+
 /**
  * Created by Lisboa on 12-Apr-17.
  */
@@ -31,4 +40,7 @@ public class Criteria extends Category{
         ref.append(reference);
         return ref.toString();
     }
+
+
+
 }
