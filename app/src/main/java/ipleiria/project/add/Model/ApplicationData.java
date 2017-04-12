@@ -16,12 +16,12 @@ public class ApplicationData {
     private String userUID;
     private SharedPreferences sharedPreferences;
 
-    private List<Category> dimensions;
-    private List<Category> areas;
-    private List<Category> categories;
+    private List<Dimension> dimensions;
+    private List<Area> areas;
+    private List<Criteria> criterias;
 
     private ApplicationData(){
-        categories = new LinkedList<>();
+        criterias = new LinkedList<>();
         dimensions = new LinkedList<>();
         areas = new LinkedList<>();
     }
@@ -50,79 +50,75 @@ public class ApplicationData {
         return userUID;
     }
 
-    public List<Category> getCategories() {
-        return categories;
+    public List<Criteria> getCriterias() {
+        return criterias;
     }
 
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
-    }
-
-    public void addCategories(Category... categories) {
-        for(Category category: categories){
-            addCategory(category);
+    public void addCriterias(Criteria... criterias) {
+        for(Criteria criteria: criterias){
+            addCriteria(criteria);
         }
     }
 
-    private void addCategory(Category category) {
-        if(!categories.contains(category)){
-            categories.add(category);
+    private void addCriteria(Criteria criteria) {
+        if(!criterias.contains(criteria)){
+            criterias.add(criteria);
         }
     }
 
-    private void addCategories(List<Category> categories) {
-        for(Category category: categories){
-            addCategory(category);
+    private void addCriterias(List<Criteria> criterias) {
+        for(Criteria criteria: criterias){
+            addCriteria(criteria);
         }
     }
 
-    public void addDimension(Category dimension){
+    public void addDimension(Dimension dimension){
         if(!dimensions.contains(dimension)){
             dimensions.add(dimension);
-            if(dimension.hasChildren()){
-                addAreas(dimension.getChildren());
+            if(!dimension.getAreas().isEmpty()){
+                addAreas(dimension.getAreas());
             }
         }
     }
 
-    public void addDimensions(Category... dimensions){
-        for(Category dimension: dimensions){
+    public void addDimensions(Dimension... dimensions){
+        for(Dimension dimension: dimensions){
             addDimension(dimension);
         }
     }
 
-    public void addDimensions(List<Category> dimensions){
-        for(Category dimension: dimensions){
+    public void addDimensions(List<Dimension> dimensions){
+        for(Dimension dimension: dimensions){
             addDimension(dimension);
         }
     }
 
-    public List<Category> getDimensions() {
+    public List<Dimension> getDimensions() {
         return dimensions;
     }
 
-    public void addArea(Category area){
+    public void addArea(Area area){
         if(!areas.contains(area)){
             areas.add(area);
-            if(area.hasChildren()){
-                addCategories(area.getChildren());
+            if(!area.getCriterias().isEmpty()){
+                addCriterias(area.getCriterias());
             }
         }
     }
 
-    public void addAreas(Category... areas){
-        for(Category area: areas){
+    public void addAreas(Area... areas){
+        for(Area area: areas){
             addArea(area);
         }
     }
 
-    public void addAreas(List<Category> areas){
-        for(Category area: areas){
+    public void addAreas(List<Area> areas){
+        for(Area area: areas){
             addArea(area);
         }
     }
 
-    public List<Category> getAreas() {
+    public List<Area> getAreas() {
         return areas;
     }
 }

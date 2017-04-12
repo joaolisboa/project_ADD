@@ -28,7 +28,10 @@ import ipleiria.project.add.MEOCloud.Tasks.MEOGetMetadata;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.Tasks.MEODownloadFile;
 import ipleiria.project.add.Model.ApplicationData;
+import ipleiria.project.add.Model.Area;
 import ipleiria.project.add.Model.Category;
+import ipleiria.project.add.Model.Criteria;
+import ipleiria.project.add.Model.Dimension;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,28 +76,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void testCategory() {
-        Category c1 = new Category("root1", 1);
-        Category c2 = new Category("root2", 2);
+        Dimension c1 = new Dimension("root1", 1);
+        Dimension c2 = new Dimension("root2", 2);
         for(int i = 1; i < 4; i++){
-            Category child = new Category("child"+i, i);
-            c1.addChild(child);
-            c2.addChild(child);
+            Area child = new Area("child"+i, i);
+            c1.addArea(child);
+            c2.addArea(child);
         }
-        for(Category cat: c1.getChildren()){
-            Category child1_1 = new Category("child1.1", 1);
-            Category child1_2 = new Category("child1.2", 2);
-            cat.addChildren(child1_1, child1_2);
+        for(Area cat: c1.getAreas()){
+            Criteria child1_1 = new Criteria("child1.1", 1);
+            Criteria child1_2 = new Criteria("child1.2", 2);
+            cat.addCriterias(child1_1, child1_2);
         }
-        for(Category cat: c2.getChildren()){
-            Category child1_1 = new Category("child1.1", 1);
-            Category child1_2 = new Category("child1.2", 2);
-            cat.addChildren(child1_1, child1_2);
+        for(Area cat: c2.getAreas()){
+            Criteria child1_1 = new Criteria("child1.1", 1);
+            Criteria child1_2 = new Criteria("child1.2", 2);
+            cat.addCriterias(child1_1, child1_2);
         }
 
         ApplicationData.getInstance().addDimensions(c1, c2);
         System.out.println(ApplicationData.getInstance().getDimensions().size());
         System.out.println(ApplicationData.getInstance().getAreas().size());
-        System.out.println(ApplicationData.getInstance().getCategories().size());
+        System.out.println(ApplicationData.getInstance().getCriterias().size());
     }
 
     private void firebaseAnonymousLogin() {

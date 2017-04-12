@@ -36,18 +36,10 @@ public class ListActivity extends AppCompatActivity {
         File dir = getFilesDir();
 
         for(File f: dir.listFiles()){
-            try {
-                list.add(new Item(f.getName(), "description", ApplicationData.getInstance().getCategories().get(0)));
-            } catch (Exception e) {
-                Log.d("INVALID_CATEGORY", e.getMessage(), e);
-            }
+            list.add(new Item(f.getName(), "description", ApplicationData.getInstance().getCriterias().get(0)));
         }
         for(int i = 0; i < 15; i++){
-            try {
-                list.add(new Item("Dummy item " + i, "description", ApplicationData.getInstance().getCategories().get(2)));
-            } catch (Exception e) {
-                Log.d("INVALID_CATEGORY", e.getMessage(), e);
-            }
+            list.add(new Item("Dummy item " + i, "description", ApplicationData.getInstance().getCriterias().get(2)));
         }
         System.out.println("list size: " + list.size());
         setUpRecyclerView();

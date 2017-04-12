@@ -11,17 +11,16 @@ public class Item {
     private File file;
     private String name;
     private String description;
-    private Category category;
-    private String categoryReference;
+    private Criteria criteria;
 
     public Item(String name, String description) {
         this.name = name;
         this.description = description;
     }
 
-    public Item(String name, String description, Category category) throws Exception {
+    public Item(String name, String description, Criteria criteria){
         this(name, description);
-        setCategory(category);
+        this.criteria = criteria;
     }
 
     public File getFile() {
@@ -48,27 +47,23 @@ public class Item {
         this.description = description;
     }
 
-    public Category getCategory() {
-        return category;
+    public Criteria getCriteria() {
+        return criteria;
     }
 
-    public void setCategory(Category category) throws Exception {
-        if(!category.isLeaf()){
-            throw new Exception("Category must be a leaf with depth of 3 (or 2 parents)");
-        }
-        this.categoryReference = category.getRealReference();
-        this.category = category;
+    public void setCriteria(Criteria criteria){
+        this.criteria = criteria;
     }
 
-    public int getDimension(){
-        return category.getRoot().getReference();
+    public Dimension getDimension(){
+        return criteria.getDimension();
     }
 
-    public int getArea(){
-        return category.getParent().getReference();
+    public Area getArea(){
+        return criteria.getArea();
     }
 
     public String getCategoryReference() {
-        return categoryReference;
+        return criteria.getRealReference();
     }
 }
