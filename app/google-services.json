@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "476372799489",
+    "firebase_url": "https://project-add.firebaseio.com",
+    "project_id": "project-add",
+    "storage_bucket": "project-add.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:476372799489:android:d6bb783f13133d3f",
+        "android_client_info": {
+          "package_name": "ipleiria.project.add"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "476372799489-aj7fj01kh0sul874c53crf0kep1k3mrd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ipleiria.project.add",
+            "certificate_hash": "e29e04ee6f95ec39244aba0e952bc5953d84ebcb"
+          }
+        },
+        {
+          "client_id": "476372799489-8tti0auuj512khndphj89do0c8q58hbq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBs7DID53p7L1-x5Z1vibDupTtTz8lcBvE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "476372799489-8tti0auuj512khndphj89do0c8q58hbq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

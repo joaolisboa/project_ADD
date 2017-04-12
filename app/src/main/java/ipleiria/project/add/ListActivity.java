@@ -11,16 +11,19 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.View;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
+
+import ipleiria.project.add.Model.ApplicationData;
+import ipleiria.project.add.Model.Item;
 
 public class ListActivity extends AppCompatActivity {
 
     RecyclerView mRecyclerView;
-    private ArrayList<ListItem> list;
+    private ArrayList<Item> list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,12 +36,20 @@ public class ListActivity extends AppCompatActivity {
         File dir = getFilesDir();
 
         for(File f: dir.listFiles()){
-            list.add(new ListItem(f, f.getName(), "description", " Category"));
+            try {
+                list.add(new Item(f.getName(), "description", ApplicationData.getInstance().getCategories().get(0)));
+            } catch (Exception e) {
+                Log.d("INVALID_CATEGORY", e.getMessage(), e);
+            }
         }
         for(int i = 0; i < 15; i++){
-            list.add(new ListItem(null, "Dummy item " + i, "description", "Category"));
+            try {
+                list.add(new Item("Dummy item " + i, "description", ApplicationData.getInstance().getCategories().get(2)));
+            } catch (Exception e) {
+                Log.d("INVALID_CATEGORY", e.getMessage(), e);
+            }
         }
-
+        System.out.println("list size: " + list.size());
         setUpRecyclerView();
     }
 

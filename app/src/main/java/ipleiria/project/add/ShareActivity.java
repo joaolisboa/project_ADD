@@ -46,14 +46,20 @@ public class ShareActivity extends AppCompatActivity {
     }
 
     private void handleFile(Intent intent) {
-        if (!MEOCloudClient.isClientInitialized()) {
-            String accessToken = getSharedPreferences("services", MODE_PRIVATE).getString("meo_access_token", "");
-            if(!accessToken.isEmpty()) {
-                MEOCloudClient.init(accessToken);
+        Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        handleFile(uri);
+    }
+
+    private void handleMultipleFiles(Intent intent) {
+        ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+        if (uris != null) {
+            for (Uri uri : uris) {
+                handleFile(uri);
             }
         }
+    }
 
-        Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+    private void handleFile(Uri uri){
         if (uri != null && MEOCloudClient.isClientInitialized()) {
 
             try {
@@ -101,15 +107,6 @@ public class ShareActivity extends AppCompatActivity {
                     Log.e("UploadDropError", e.getMessage(), e);
                 }
             }).execute(uri.toString());
-        }
-    }
-
-    private void handleMultipleFiles(Intent intent) {
-        ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-        if (uris != null) {
-            for (Uri uri : uris) {
-                System.out.println(uri.toString());
-            }
         }
     }
 }

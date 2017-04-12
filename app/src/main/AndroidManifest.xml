@@ -103,6 +103,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ListActivity" />
+        <activity android:name=".SelectCategoryActivity"></activity>
     </application>
 
 </manifest>

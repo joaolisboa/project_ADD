@@ -1,12 +1,8 @@
 package ipleiria.project.add;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,16 +10,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+
+import ipleiria.project.add.Model.Item;
 
 /**
  * Created by Lisboa on 04-Apr-17.
@@ -33,14 +23,14 @@ class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemViewHolde
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000; // 3sec
 
-    private ArrayList<ListItem> items;
-    private ArrayList<ListItem> itemsPendingRemoval;
+    private ArrayList<Item> items;
+    private ArrayList<Item> itemsPendingRemoval;
     private int lastInsertedIndex; // so we can add some more items for testing purposes
 
     private Handler handler = new Handler(); // hanlder for running delayed runnables
-    private HashMap<ListItem, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
+    private HashMap<Item, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
 
-    ListItemAdapter(ArrayList<ListItem> items) {
+    ListItemAdapter(ArrayList<Item> items) {
         this.items = items;
         itemsPendingRemoval = new ArrayList<>();
         lastInsertedIndex = items.size();
@@ -53,7 +43,7 @@ class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemViewHolde
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
-        final ListItem item = items.get(position);
+        final Item item = items.get(position);
 
         if (itemsPendingRemoval.contains(item)) {
             // we need to show the "undo" state of the row
@@ -86,7 +76,7 @@ class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemViewHolde
                 viewHolder.thumbnail.setBackgroundResource(R.drawable.default_file_thumb);
             }*/
             holder.descriptionTextView.setVisibility(View.VISIBLE);
-            holder.descriptionTextView.setText(item.getCategory());
+            //holder.descriptionTextView.setText(item.getCategory());
             holder.titleTextView.setVisibility(View.VISIBLE);
             holder.titleTextView.setText(item.getName());
             holder.undoButton.setVisibility(View.GONE);
@@ -94,80 +84,16 @@ class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemViewHolde
         }
     }
 
-    private Bitmap getbitpam(String path) {
-        Bitmap imgthumBitmap = null;
-        try {
-            final int THUMBNAIL_SIZE = 64;
-
-            FileInputStream fis = new FileInputStream(path);
-            imgthumBitmap = BitmapFactory.decodeStream(fis);
-
-            imgthumBitmap = Bitmap.createScaledBitmap(imgthumBitmap,
-                    THUMBNAIL_SIZE, THUMBNAIL_SIZE, false);
-
-            ByteArrayOutputStream bytearroutstream = new ByteArrayOutputStream();
-            imgthumBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearroutstream);
-        } catch (Exception ex) {
-            Log.e("ListItemAdapter", ex.getMessage(), ex);
-        }
-        return imgthumBitmap;
-    }
-
-    /*public Bitmap getFileThumbnail(String path) {
-        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
-
-        bitmapOptions.inJustDecodeBounds = true; // obtain the size of the image, without loading it in memory
-        BitmapFactory.decodeFile(path, bitmapOptions);
-
-        // find the best scaling factor for the desired dimensions
-        int desiredWidth = 400;
-        int desiredHeight = 300;
-        float widthScale = (float) bitmapOptions.outWidth / desiredWidth;
-        float heightScale = (float) bitmapOptions.outHeight / desiredHeight;
-        float scale = Math.min(widthScale, heightScale);
-
-        int sampleSize = 1;
-        while (sampleSize < scale) {
-            sampleSize *= 2;
-        }
-        bitmapOptions.inSampleSize = sampleSize; // this value must be a power of 2,
-        // this is why you can not have an image scaled as you would like
-        bitmapOptions.inJustDecodeBounds = false; // now we want to load the image
-
-        // Let's load just the part of the image necessary for creating the thumbnail, not the whole image
-        Bitmap thumbnail = BitmapFactory.decodeFile(path, bitmapOptions);
-
-        // Save the thumbnail
-        try {
-            String fileDir = path.substring(0, path.lastIndexOf(File.separator));
-            File thumbnailFile = new Fil()
-            FileOutputStream fos = null;
-            fos = new FileOutputStream(thumbnailFile);
-            thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, fos);
-            fos.flush();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, fos);
-
-        // Use the thumbail on an ImageView or recycle it!
-        thumbnail.recycle();
-    }*/
-
     @Override
     public int getItemCount() {
         return items.size();
     }
 
     void pendingRemoval(int position) {
-        final ListItem item = items.get(position);
+        final Item item = items.get(position);
         if (!itemsPendingRemoval.contains(item)) {
             itemsPendingRemoval.add(item);
-            // this will redraw row in "undo" state
             notifyItemChanged(position);
-            // let's create, store and post a runnable to remove the item
             Runnable pendingRemovalRunnable = new Runnable() {
                 @Override
                 public void run() {
@@ -180,7 +106,7 @@ class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemViewHolde
     }
 
     private void remove(int position) {
-        ListItem item = items.get(position);
+        Item item = items.get(position);
         if (itemsPendingRemoval.contains(item)) {
             itemsPendingRemoval.remove(item);
         }

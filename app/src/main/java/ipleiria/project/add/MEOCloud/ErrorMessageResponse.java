@@ -6,7 +6,7 @@ package ipleiria.project.add.MEOCloud;
 
 public interface ErrorMessageResponse {
 
-    // any error message specific to this request will be handle before checking for general erros
+    // override any error message specific to this request
     String processRequestCode(int code);
 
 }

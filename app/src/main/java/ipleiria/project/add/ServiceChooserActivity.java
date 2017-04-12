@@ -46,7 +46,6 @@ public class ServiceChooserActivity extends AppCompatActivity {
     }
 
     public void signInDropbox(View view) {
-        // open authentication for Dropbox
         Auth.startOAuth2Authentication(ServiceChooserActivity.this, getString(R.string.dropbox_app_key));
     }
 
