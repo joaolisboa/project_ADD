@@ -36,18 +36,17 @@ public class SelectCategoryActivity extends AppCompatActivity {
                 TreeNode level1 = new TreeNode(area);
                 for(Criteria criteria: area.getCriterias()){
                     TreeNode level2 = new TreeNode(criteria);
-                    //level2.setViewHolder(new NodeHolder(SelectCategoryActivity.this));
+                    level2.setViewHolder(new NodeHolder(SelectCategoryActivity.this, R.layout.node_holder_criteria));
                     level1.addChild(level2);
                 }
-                //level1.setViewHolder(new NodeHolder(SelectCategoryActivity.this));
+                level1.setViewHolder(new NodeHolder(SelectCategoryActivity.this, R.layout.node_holder_area));
                 parent.addChild(level1);
             }
-            //parent.setViewHolder(new NodeHolder(SelectCategoryActivity.this));
+            parent.setViewHolder(new NodeHolder(SelectCategoryActivity.this, R.layout.node_holder_dimension));
             treeRoot.addChild(parent);
         }
 
         tView = new AndroidTreeView(SelectCategoryActivity.this, treeRoot);
-        tView.setDefaultViewHolder(NodeHolder.class);
         tView.setDefaultNodeClickListener(nodeClickListener);
         tView.setDefaultNodeLongClickListener(nodeLongClickListener);
         tView.setUse2dScroll(true);

@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences preferences = getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE);
         ApplicationData.getInstance().setSharedPreferences(preferences);
+        ApplicationData.getInstance().fillTestData();
 
         firebaseAuth = FirebaseAuth.getInstance();
         authListener = new FirebaseAuth.AuthStateListener() {
@@ -71,32 +72,6 @@ public class MainActivity extends AppCompatActivity {
             MEOCloudClient.init(preferences.getString("meo_access_token", ""));
         }
 
-        testCategory();
-    }
-
-    private void testCategory() {
-        Dimension c1 = new Dimension("root1", 1);
-        Dimension c2 = new Dimension("root2", 2);
-        for(int i = 1; i < 4; i++){
-            Area child = new Area("child"+i, i);
-            c1.addArea(child);
-            c2.addArea(child);
-        }
-        for(Area cat: c1.getAreas()){
-            Criteria child1_1 = new Criteria("child1.1", 1);
-            Criteria child1_2 = new Criteria("child1.2", 2);
-            cat.addCriterias(child1_1, child1_2);
-        }
-        for(Area cat: c2.getAreas()){
-            Criteria child1_1 = new Criteria("child1.1", 1);
-            Criteria child1_2 = new Criteria("child1.2", 2);
-            cat.addCriterias(child1_1, child1_2);
-        }
-
-        ApplicationData.getInstance().addDimensions(c1, c2);
-        System.out.println(ApplicationData.getInstance().getDimensions().size());
-        System.out.println(ApplicationData.getInstance().getAreas().size());
-        System.out.println(ApplicationData.getInstance().getCriterias().size());
     }
 
     private void firebaseAnonymousLogin() {

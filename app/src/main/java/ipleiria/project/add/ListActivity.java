@@ -16,6 +16,7 @@ import android.view.View;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Item;
@@ -23,7 +24,7 @@ import ipleiria.project.add.Model.Item;
 public class ListActivity extends AppCompatActivity {
 
     RecyclerView mRecyclerView;
-    private ArrayList<Item> list;
+    private List<Item> list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,16 +33,7 @@ public class ListActivity extends AppCompatActivity {
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
-        list = new ArrayList<>();
-        File dir = getFilesDir();
-
-        for(File f: dir.listFiles()){
-            list.add(new Item(f.getName(), "description", ApplicationData.getInstance().getCriterias().get(0)));
-        }
-        for(int i = 0; i < 15; i++){
-            list.add(new Item("Dummy item " + i, "description", ApplicationData.getInstance().getCriterias().get(2)));
-        }
-        System.out.println("list size: " + list.size());
+        list = ApplicationData.getInstance().getItems();
         setUpRecyclerView();
     }
 

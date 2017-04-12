@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import ipleiria.project.add.Model.Item;
 
@@ -23,14 +24,14 @@ class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemViewHolde
 
     private static final int PENDING_REMOVAL_TIMEOUT = 3000; // 3sec
 
-    private ArrayList<Item> items;
-    private ArrayList<Item> itemsPendingRemoval;
-    private int lastInsertedIndex; // so we can add some more items for testing purposes
+    private List<Item> items;
+    private List<Item> itemsPendingRemoval;
+    private int lastInsertedIndex; // so we can add some more items, not implemented
 
     private Handler handler = new Handler(); // hanlder for running delayed runnables
     private HashMap<Item, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
 
-    ListItemAdapter(ArrayList<Item> items) {
+    ListItemAdapter(List<Item> items) {
         this.items = items;
         itemsPendingRemoval = new ArrayList<>();
         lastInsertedIndex = items.size();
