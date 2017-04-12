@@ -20,12 +20,19 @@
         android:onClick="downloadFile"
         android:text="Download" />
 
-    <Button
+    <!--<Button
         android:id="@+id/search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="searchFile"
-        android:text="Search" />
+        android:text="Search" />-->
+
+    <Button
+        android:id="@+id/listCategories"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="selectCriteria"
+        android:text="Criterias" />
 
     <!--<Button
         android:id="@+id/delete"
@@ -33,6 +40,7 @@
         android:layout_height="wrap_content"
         android:onClick="deleteFile"
         android:text="Delete" />-->
+
     <Button
         android:id="@+id/listFiles"
         android:layout_width="wrap_content"

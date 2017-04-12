@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
                     // User is signed in
                     ApplicationData.getInstance().setUserUID(user.getUid());
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-
                 } else {
                     // User is signed out
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_out");
@@ -122,6 +121,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void listFiles(View view){
         startActivity(new Intent(this, ListActivity.class));
+    }
+
+    public void selectCriteria(View view) {
+        startActivity(new Intent(this, SelectCategoryActivity.class));
     }
 
     public void goToAccounts(View view) {
