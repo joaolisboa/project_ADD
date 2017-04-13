@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.dropbox.core.v2.files.FileMetadata;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +24,7 @@ import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFile;
 import ipleiria.project.add.Utils.UriHelper;
 
-public class ShareActivity extends AppCompatActivity {
+public class AddItemActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +63,7 @@ public class ShareActivity extends AppCompatActivity {
 
             try {
                 InputStream is = getContentResolver().openInputStream(uri);
-                FileOutputStream fos = openFileOutput(UriHelper.getFileName(ShareActivity.this, uri), Context.MODE_PRIVATE);
+                FileOutputStream fos = openFileOutput(UriHelper.getFileName(AddItemActivity.this, uri), Context.MODE_PRIVATE);
                 byte[] buffer = new byte[1024 * 100];
                 int nBytes;
                 while((nBytes = is.read(buffer)) != -1){
@@ -77,7 +76,7 @@ public class ShareActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            new MEOUploadFile(ShareActivity.this, new MEOCallback<MEOMetadata>() {
+            new MEOUploadFile(AddItemActivity.this, new MEOCallback<MEOMetadata>() {
 
                 @Override
                 public void onComplete(MEOCloudResponse<MEOMetadata> result) {
@@ -93,9 +92,9 @@ public class ShareActivity extends AppCompatActivity {
                 public void onError(Exception e) {
                     Log.e("UploadError", e.getMessage(), e);
                 }
-            }).execute(uri.toString(), UriHelper.getFileName(ShareActivity.this, uri));
+            }).execute(uri.toString(), UriHelper.getFileName(AddItemActivity.this, uri));
 
-            new DropboxUploadFile(ShareActivity.this, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
+            new DropboxUploadFile(AddItemActivity.this, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
 
                 @Override
                 public void onUploadComplete(FileMetadata result) {

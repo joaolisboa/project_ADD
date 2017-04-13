@@ -69,6 +69,7 @@ public class MEOCloudAPI {
 
         String accessToken = data.getStringExtra(MEOAuth.EXTRA_ACCESS_TOKEN);
         int tokenExpiresIn = Integer.valueOf(data.getStringExtra(MEOAuth.EXTRA_TOKEN_EXPIRE));
+        MEOAuth.result = null;
         //// TODO: 20-Mar-17 if token is expiring soon refresh token
 
         if(accessToken != null && !accessToken.isEmpty()){

@@ -81,7 +81,7 @@ public class HttpRequestor {
         return null;
     }
 
-    public static Response post(String accessToken, String path, @Nullable HashMap<String, String> params, @NonNull HashMap<String, String> postBody) {
+    public static Response post(String accessToken, String path, @Nullable HashMap<String, String> params, HashMap<String, String> postBody) {
         OkHttpClient client = new OkHttpClient();
         try {
             StringBuilder sb = new StringBuilder()
@@ -116,7 +116,7 @@ public class HttpRequestor {
         return null;
     }
 
-    public static Response post(String accessToken, String path, @Nullable HashMap<String, String> params, @NonNull byte[] content) {
+    public static Response post(String accessToken, String path, @Nullable HashMap<String, String> params, byte[] content) {
         OkHttpClient client = new OkHttpClient();
         try {
             StringBuilder sb = new StringBuilder()

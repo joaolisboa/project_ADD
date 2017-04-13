@@ -15,12 +15,12 @@ import okhttp3.Response;
  * Created by Lisboa on 28-Mar-17.
  */
 
-public class MEODisableToken extends AsyncTask<String, Void, MEOCloudResponse<Void>> {
+public class MEORevokeToken extends AsyncTask<String, Void, MEOCloudResponse<Void>> {
 
     private final MEOCallback<Void> callback;
     private Exception exception;
 
-    public MEODisableToken(MEOCallback<Void> callback) {
+    public MEORevokeToken(MEOCallback<Void> callback) {
         this.callback = callback;
     }
 
@@ -41,9 +41,7 @@ public class MEODisableToken extends AsyncTask<String, Void, MEOCloudResponse<Vo
     @Override
     protected MEOCloudResponse<Void> doInBackground(String... params) {
         try {
-
-            Response response = HttpRequestor.get(MEOCloudClient.getAccessToken(),
-                                    MEOCloudAPI.API_METHOD_DISABLE_TOKEN, null);
+            Response response = HttpRequestor.post(MEOCloudClient.getAccessToken(), MEOCloudAPI.API_METHOD_DISABLE_TOKEN, null, new byte[0]);
             if (response != null) {
                 MEOCloudResponse<Void> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());

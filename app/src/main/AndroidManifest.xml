@@ -35,9 +35,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ServiceChooserActivity"
-            android:label="@string/service_chooser_label" />
-        <activity
             android:name=".MEOCloud.MEOAuth"
             android:configChanges="orientation|keyboard"
             android:launchMode="singleTask">
@@ -53,7 +50,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ShareActivity"
+            android:name=".AddItemActivity"
             android:label="@string/share_activity_label">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -103,7 +100,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ListActivity" />
-        <activity android:name=".SelectCategoryActivity"></activity>
+        <activity android:name=".SelectCategoryActivity" />
+        <activity android:name=".SettingsActivity"></activity>
     </application>
 
 </manifest>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ipleiria.project.add.SettingsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:id="@+id/dropbox">
+
+        <ImageView
+            android:layout_margin="8dp"
+            android:layout_width="64dp"
+            android:layout_height="match_parent"
+            app:srcCompat="@drawable/dropbox_icon"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:text="Connect Dropbox" />
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_margin="8dp"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_link_black_64dp"
+            android:id="@+id/dropbox_state"/>
+    </LinearLayout>
+
+    <View
+        android:layout_below="@+id/dropbox"
+        android:id="@+id/divider1"
+        style="@style/Divider"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:id="@+id/meocloud"
+        android:layout_below="@id/divider1">
+
+        <ImageView
+            android:layout_margin="8dp"
+            android:layout_width="64dp"
+            android:layout_height="match_parent"
+            app:srcCompat="@drawable/meocloud_icon"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:text="Connect MEO Cloud" />
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:srcCompat="@drawable/ic_link_black_64dp"
+            android:id="@+id/meocloud_state"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_below="@+id/meocloud"
+        android:id="@+id/divider2"
+        style="@style/Divider"/>
+
+
+
+</RelativeLayout>

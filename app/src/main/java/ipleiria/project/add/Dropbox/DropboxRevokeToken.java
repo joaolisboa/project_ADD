@@ -4,16 +4,15 @@ import android.os.AsyncTask;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.ListFolderResult;
 
 /**
  * Created by J on 03/04/2017.
  */
 
-public class DropboxDisableToken extends AsyncTask<String, Void, Void> {
+public class DropboxRevokeToken extends AsyncTask<String, Void, Void> {
 
     private final DbxClientV2 mDbxClient;
-    private final DropboxDisableToken.Callback mCallback;
+    private final DropboxRevokeToken.Callback mCallback;
     private Exception mException;
 
     public interface Callback {
@@ -21,7 +20,7 @@ public class DropboxDisableToken extends AsyncTask<String, Void, Void> {
         void onError(Exception e);
     }
 
-    public DropboxDisableToken(DbxClientV2 dbxClient, DropboxDisableToken.Callback callback) {
+    public DropboxRevokeToken(DbxClientV2 dbxClient, DropboxRevokeToken.Callback callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }

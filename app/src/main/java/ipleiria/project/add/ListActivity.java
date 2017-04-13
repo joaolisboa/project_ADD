@@ -32,7 +32,6 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
         list = ApplicationData.getInstance().getItems();
         setUpRecyclerView();
     }

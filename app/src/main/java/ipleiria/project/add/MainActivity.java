@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SharedPreferences preferences = getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE);
+        //preferences.edit().remove(SettingsActivity.DROPBOX_PREFS_KEY).apply();
+        //preferences.edit().remove(SettingsActivity.MEO_PREFS_KEY).apply();
         ApplicationData.getInstance().setSharedPreferences(preferences);
         ApplicationData.getInstance().fillTestData();
 
@@ -94,16 +96,16 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    public void goToSettings(View view) {
+        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+    }
+
     public void listFiles(View view){
         startActivity(new Intent(this, ListActivity.class));
     }
 
     public void selectCriteria(View view) {
         startActivity(new Intent(this, SelectCategoryActivity.class));
-    }
-
-    public void goToAccounts(View view) {
-        startActivity(new Intent(this, ServiceChooserActivity.class));
     }
 
     public void downloadFile(View view) {

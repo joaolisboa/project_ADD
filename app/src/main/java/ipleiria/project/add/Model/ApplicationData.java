@@ -22,25 +22,6 @@ public class ApplicationData {
     private List<Criteria> criterias;
     private List<Item> items;
 
-    private ApplicationData() {
-        criterias = new LinkedList<>();
-        dimensions = new LinkedList<>();
-        areas = new LinkedList<>();
-        items = new LinkedList<>();
-    }
-
-    public static ApplicationData getInstance() {
-        if (instance == null) {
-            instance = new ApplicationData();
-        }
-        return instance;
-    }
-
-    public static ApplicationData newInstance() {
-        instance = new ApplicationData();
-        return instance;
-    }
-
     public void fillTestData() {
 
         //region CATEGORY/CRITERIA
@@ -63,9 +44,6 @@ public class ApplicationData {
             }
         }
         ApplicationData.getInstance().addDimensions(c1, c2);
-        System.out.println(ApplicationData.getInstance().getDimensions().size());
-        System.out.println(ApplicationData.getInstance().getAreas().size());
-        System.out.println(ApplicationData.getInstance().getCriterias().size());
         //endregion
 
         //region ITEMS
@@ -74,6 +52,25 @@ public class ApplicationData {
         }
         //endregion
 
+    }
+
+    private ApplicationData() {
+        criterias = new LinkedList<>();
+        dimensions = new LinkedList<>();
+        areas = new LinkedList<>();
+        items = new LinkedList<>();
+    }
+
+    public static ApplicationData getInstance() {
+        if (instance == null) {
+            instance = new ApplicationData();
+        }
+        return instance;
+    }
+
+    public static ApplicationData newInstance() {
+        instance = new ApplicationData();
+        return instance;
     }
 
     public List<Item> getItems() {
@@ -86,6 +83,10 @@ public class ApplicationData {
 
     public void setSharedPreferences(SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
+    }
+
+    public SharedPreferences getSharedPreferences() {
+        return sharedPreferences;
     }
 
     public void setUserUID(String userUID) {
