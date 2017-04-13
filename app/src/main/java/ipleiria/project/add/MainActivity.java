@@ -60,12 +60,28 @@ public class MainActivity extends AppCompatActivity {
                     ApplicationData.getInstance().setUserUID(user.getUid());
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
-                    // User is signed out
+                    // User is signed out or there's no credentials
+                    firebaseAuth.signInAnonymously()
+                            .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    Log.d(AUTH_TAG, "signInAnonymously:onComplete:" + task.isSuccessful());
+
+                                    // If sign in fails, display a message to the user. If sign in succeeds
+                                    // the auth state listener will be notified and logic to handle the
+                                    // signed in user can be handled in the listener.
+                                    if (!task.isSuccessful()) {
+                                        Log.w(AUTH_TAG, "signInAnonymously", task.getException());
+                                        Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    // ...
+                                }
+                            });
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_out");
                 }
             }
         };
-        firebaseAnonymousLogin();
 
         if(!preferences.getString("dropbox_access_token", "").isEmpty()){
             DropboxClientFactory.init(preferences.getString("dropbox_access_token", ""));
@@ -74,26 +90,6 @@ public class MainActivity extends AppCompatActivity {
             MEOCloudClient.init(preferences.getString("meo_access_token", ""));
         }
 
-    }
-
-    private void firebaseAnonymousLogin() {
-        firebaseAuth.signInAnonymously()
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(AUTH_TAG, "signInAnonymously:onComplete:" + task.isSuccessful());
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w(AUTH_TAG, "signInAnonymously", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                        }
-
-                        // ...
-                    }
-                });
     }
 
     public void goToSettings(View view) {
@@ -175,5 +171,9 @@ public class MainActivity extends AppCompatActivity {
         if (authListener != null) {
             firebaseAuth.removeAuthStateListener(authListener);
         }
+    }
+
+    public void googleSignIn(View view) {
+        startActivity(new Intent(MainActivity.this, GoogleSignInActivity.class));
     }
 }

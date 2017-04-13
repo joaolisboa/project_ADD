@@ -86,6 +86,18 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="sign_out">Sign out</string>
+    <string name="disconnect">Disconnect</string>
+
+    <!-- Google Sign-in strings -->
+    <string name="signed_in_fmt">Signed in as: %s</string>
+    <string name="signed_in">Signed in</string>
+    <string name="signing_in">Signing in…</string>
+    <string name="signed_out">Signed out</string>
+    <string name="signed_in_err">"Error: please check logs."</string>
+    <string name="desc_google_icon">Google Logo</string>
+    <string name="google_title_text">Google Sign-In</string>
+    <string name="loading">Loading…</string>
 
 
 </resources>
