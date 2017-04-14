@@ -18,6 +18,10 @@ public class Category{
     protected String name;
     protected int reference;
 
+    public Category(){
+
+    }
+
     public Category(String name, int reference){
         this.name = name;
         this.reference = reference;

@@ -12,6 +12,10 @@ public class Area extends Category{
     private Dimension dimension;
     private List<Criteria> criterias;
 
+    public Area(){
+
+    }
+
     public Area(String name, int reference){
         super(name, reference);
         this.criterias = new LinkedList<>();
@@ -47,9 +51,9 @@ public class Area extends Category{
     @Override
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("\n\tarea: " + name);
+        stringBuilder.append("\n\tarea: " + reference + ". " + name);
         for(Criteria c: criterias){
-            stringBuilder.append("\n\t\tcriteria: "+c.getName());
+            stringBuilder.append(c);
         }
         return stringBuilder.toString();
     }

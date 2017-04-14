@@ -49,7 +49,7 @@ public class SelectCategoryActivity extends AppCompatActivity {
         tView = new AndroidTreeView(SelectCategoryActivity.this, treeRoot);
         tView.setDefaultNodeClickListener(nodeClickListener);
         tView.setDefaultNodeLongClickListener(nodeLongClickListener);
-        tView.setUse2dScroll(true);
+        tView.setUse2dScroll(false);
         tView.setDefaultAnimation(true);
         containerView.addView(tView.getView());
 

@@ -11,6 +11,10 @@ public class Dimension extends Category{
 
     private List<Area> areas;
 
+    public Dimension(){
+
+    }
+
     public Dimension(String name, int reference){
         super(name, reference);
         this.areas = new LinkedList<>();
@@ -38,7 +42,7 @@ public class Dimension extends Category{
     @Override
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("dimension: " + name);
+        stringBuilder.append("dimension: " + reference + ". " + name);
         for(Area a: areas){
             stringBuilder.append(a);
         }

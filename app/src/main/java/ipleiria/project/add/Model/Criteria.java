@@ -17,6 +17,10 @@ public class Criteria extends Category{
 
     private Area area;
 
+    public Criteria(){
+
+    }
+
     public Criteria(String name, int reference){
         super(name, reference);
     }
@@ -41,6 +45,10 @@ public class Criteria extends Category{
         return ref.toString();
     }
 
+    @Override
+    public String toString(){
+        return "\n\t\tcriteria: " + reference + ". " + name;
+    }
 
 
 }

@@ -21,6 +21,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +37,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ipleiria.project.add.Dropbox.DropboxDownloadFile;
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private FirebaseAuth firebaseAuth;
+    private Boolean authFlag = false;
     private FirebaseDatabase database;
     private FirebaseAuth.AuthStateListener authListener;
 
@@ -71,19 +74,21 @@ public class MainActivity extends AppCompatActivity {
         //preferences.edit().remove(SettingsActivity.MEO_PREFS_KEY).apply();
         ApplicationData.getInstance().setSharedPreferences(preferences);
         ApplicationData.getInstance().fillTestData(MainActivity.this);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         if (hasNetwork()) {
-            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
             firebaseAuth = FirebaseAuth.getInstance();
             authListener = new FirebaseAuth.AuthStateListener() {
                 @Override
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                     FirebaseUser user = firebaseAuth.getCurrentUser();
                     if (user != null) {
-                        // User is signed in
-                        ApplicationData.getInstance().setUserUID(user.getUid());
-                        Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                        database = FirebaseDatabase.getInstance();
+                        if(!authFlag){
+                            // User is signed in
+                            ApplicationData.getInstance().setUserUID(user.getUid());
+                            Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                            authFlag = true;
+                        }
                     } else {
                         // User is signed out or there's no credentials
                         firebaseAuth.signInAnonymously()
@@ -115,6 +120,39 @@ public class MainActivity extends AppCompatActivity {
                 MEOCloudClient.init(preferences.getString("meo_access_token", ""));
             }
         }
+
+        database = FirebaseDatabase.getInstance();
+        DatabaseReference categoryRef = database.getReference().child("categories");
+        categoryRef.keepSynced(true);
+        categoryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<Dimension> dimensions = new LinkedList<>();
+                for (DataSnapshot dimensionSnap : dataSnapshot.getChildren()) {
+                    Dimension dimension = new Dimension(dimensionSnap.child("name").getValue(String.class),
+                            dimensionSnap.child("reference").getValue(Integer.class));
+                    for (DataSnapshot areaSnap : dimensionSnap.child("areas").getChildren()) {
+                        Area area = new Area(areaSnap.child("name").getValue(String.class),
+                                areaSnap.child("reference").getValue(Integer.class));
+                        for (DataSnapshot criteriaSnap : areaSnap.child("criterias").getChildren()) {
+                            Criteria criteria = new Criteria(criteriaSnap.child("name").getValue(String.class),
+                                    criteriaSnap.child("reference").getValue(Integer.class));
+                            area.addCriteria(criteria);
+                        }
+                        dimension.addArea(area);
+                    }
+                    dimensions.add(dimension);
+                }
+                ApplicationData.getInstance().addDimensions(dimensions);
+                for(Dimension d: dimensions)
+                    System.out.println(d);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -163,9 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             ApplicationData.getInstance().addDimensions(dimensions);
-            for (Dimension d : ApplicationData.getInstance().getDimensions()) {
-                System.out.println(dimensions);
-            }
+            System.out.println(dimensions);
             writeFirebaseData();
         } catch (IOException e) {
             e.printStackTrace();
@@ -174,8 +210,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void writeFirebaseData() {
-
-        // TODO: 14-Apr-17 add offline capability with firebase
         String userUid = ApplicationData.getInstance().getUserUID();
         DatabaseReference userRef = database.getReference().child("users").child(userUid);
         userRef.addValueEventListener(new ValueEventListener() {
@@ -288,7 +322,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        firebaseAuth.addAuthStateListener(authListener);
+        if(hasNetwork())
+            firebaseAuth.addAuthStateListener(authListener);
     }
 
     @Override
