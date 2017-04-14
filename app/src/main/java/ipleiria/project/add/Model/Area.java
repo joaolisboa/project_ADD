@@ -43,4 +43,14 @@ public class Area extends Category{
     public void setDimension(Dimension dimension) {
         this.dimension = dimension;
     }
+
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("\n\tarea: " + name);
+        for(Criteria c: criterias){
+            stringBuilder.append("\n\t\tcriteria: "+c.getName());
+        }
+        return stringBuilder.toString();
+    }
 }

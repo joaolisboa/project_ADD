@@ -59,4 +59,12 @@
         android:onClick="googleSignIn"
         android:text="@string/google_title_text" />
 
+    <!--<Button
+        android:layout_below="@id/googleSignIn"
+        android:id="@+id/readXLS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="readExcel"
+        android:text="Read Excel" />-->
+
 </RelativeLayout>

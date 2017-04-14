@@ -1,0 +1,704 @@
+{
+  "categories" : {
+    "-KhhfE1kk9eVY2rPeuPq" : {
+      "areas" : {
+        "-KhhfE1l6NpUnVEGxSk0" : {
+          "criterias" : {
+            "-KhhfE1l6NpUnVEGxSk1" : {
+              "name" : "Licenciatura/Mestrado/Provas Públicas",
+              "reference" : 1
+            },
+            "-KhhfE1l6NpUnVEGxSk2" : {
+              "name" : "Título de Especialista",
+              "reference" : 2
+            },
+            "-KhhfE1l6NpUnVEGxSk3" : {
+              "name" : "Doutoramento ",
+              "reference" : 3
+            },
+            "-KhhfE1l6NpUnVEGxSk4" : {
+              "name" : "Agregação",
+              "reference" : 4
+            }
+          },
+          "name" : "Formação académica (graus e provas públicas)",
+          "reference" : 1
+        },
+        "-KhhfE1m3aoUsTrK0nL0" : {
+          "criterias" : {
+            "-KhhfE1m3aoUsTrK0nL1" : {
+              "name" : "Experiência Profissional em atividade fora do meio académico, nos últimos 3 anos, exclusivamente para os docentes em regime de tempo integral sem exclusividade",
+              "reference" : 1
+            }
+          },
+          "name" : "Experiência Profissional",
+          "reference" : 2
+        },
+        "-KhhfE1m3aoUsTrK0nL2" : {
+          "criterias" : {
+            "-KhhfE1m3aoUsTrK0nL3" : {
+              "name" : "Participação em congressos, palestras, conferências, colóquios e atividades similares, com comunicação e sem publicação",
+              "reference" : 1
+            },
+            "-KhhfE1m3aoUsTrK0nL4" : {
+              "name" : "Participação em congressos com apresentação de comunicação, com publicação e sem \"peer review\"",
+              "reference" : 2
+            },
+            "-KhhfE1m3aoUsTrK0nL5" : {
+              "name" : "Participação em congressos de investigação de âmbito nacional, com apresentação de comunicação, publicação e com \"peer review\" ",
+              "reference" : 3
+            },
+            "-KhhfE1m3aoUsTrK0nL6" : {
+              "name" : "Participação em congressos de investigação de âmbito internacional, com apresentação de comunicação, publicação e com \"peer review\" ",
+              "reference" : 4
+            },
+            "-KhhfE1nf4OrDSxa-9RQ" : {
+              "name" : "Membro de comissão científica de congressos, seminários, ou atividade similar de âmbito nacional",
+              "reference" : 5
+            },
+            "-KhhfE1nf4OrDSxa-9RR" : {
+              "name" : "Membro de comissão científica de congressos, seminários, ou atividade similar de âmbito internacional ",
+              "reference" : 6
+            },
+            "-KhhfE1nf4OrDSxa-9RS" : {
+              "name" : "Revisor  de comunicação submetida a congresso, conferência ou atividade similar, de âmbito nacional",
+              "reference" : 7
+            },
+            "-KhhfE1ow1VskhtYjJ-9" : {
+              "name" : "Revisor  de comunicação submetida a congresso, conferência ou atividade similar, de âmbito internacional",
+              "reference" : 8
+            },
+            "-KhhfE1ow1VskhtYjJ-A" : {
+              "name" : "Revisor de  artigo de revista científica de âmbito nacional",
+              "reference" : 9
+            },
+            "-KhhfE1ow1VskhtYjJ-B" : {
+              "name" : "Revisor de  artigo de revista científica de âmbito internacional",
+              "reference" : 10
+            },
+            "-KhhfE1ow1VskhtYjJ-C" : {
+              "name" : "Editor de atas de conferências ou congressos de âmbito nacional",
+              "reference" : 11
+            },
+            "-KhhfE1ow1VskhtYjJ-D" : {
+              "name" : "Editor de atas de conferências ou congressos de âmbito internacional",
+              "reference" : 12
+            },
+            "-KhhfE1ow1VskhtYjJ-E" : {
+              "name" : "Publicação de artigos de divulgação científica em órgão de comunicação social",
+              "reference" : 13
+            },
+            "-KhhfE1pWGAW06gvI50D" : {
+              "name" : "Publicação de artigos em revista nacional de circulação nacional ou internacional sem \"peer review\"",
+              "reference" : 14
+            },
+            "-KhhfE1pWGAW06gvI50E" : {
+              "name" : "Publicação de artigos em revista nacional de circulação nacional com \"peer review\"",
+              "reference" : 15
+            },
+            "-KhhfE1pWGAW06gvI50F" : {
+              "name" : "Publicação de artigos em revista de circulação internacional com \"peer review\"",
+              "reference" : 16
+            },
+            "-KhhfE1pWGAW06gvI50G" : {
+              "name" : "Concessão de patente nacional",
+              "reference" : 17
+            },
+            "-KhhfE1pWGAW06gvI50H" : {
+              "name" : "Concessão de patente internacional",
+              "reference" : 18
+            },
+            "-KhhfE1pWGAW06gvI50I" : {
+              "name" : "Participação em corpo editorial de revista científica nacional",
+              "reference" : 19
+            },
+            "-KhhfE1pWGAW06gvI50J" : {
+              "name" : "Participação em corpo editorial de revista científica internacional",
+              "reference" : 20
+            },
+            "-KhhfE1qFWpnvXoWJ0Hr" : {
+              "name" : "Autor ou coautor de livro de circulação nacional, excluindo livros que são a compilação de artigos já publicados",
+              "reference" : 21
+            },
+            "-KhhfE1qFWpnvXoWJ0Hs" : {
+              "name" : "Autor ou coautor de livro de circulação internacional, excluindo livros que são a compilação de artigos já publicados",
+              "reference" : 22
+            },
+            "-KhhfE1qFWpnvXoWJ0Ht" : {
+              "name" : "Autor ou coautor de capítulo de livro de circulação nacional, excluindo livros que são a compilação de artigos já publicados",
+              "reference" : 23
+            },
+            "-KhhfE1qFWpnvXoWJ0Hu" : {
+              "name" : "Autor ou coautor de capítulo de livro de circulação internacional, excluindo livros que são a compilação de artigos já publicados",
+              "reference" : 24
+            },
+            "-KhhfE1qFWpnvXoWJ0Hv" : {
+              "name" : "Editor ou coeditor de livro nacional",
+              "reference" : 25
+            },
+            "-KhhfE1qFWpnvXoWJ0Hw" : {
+              "name" : "Editor ou coeditor de livro  internacional",
+              "reference" : 26
+            },
+            "-KhhfE1qFWpnvXoWJ0Hx" : {
+              "name" : "Tradução de livro para publicação",
+              "reference" : 27
+            },
+            "-KhhfE1rK3s9zWpkSClq" : {
+              "name" : "Revisão de livro científico de âmbito nacional",
+              "reference" : 28
+            },
+            "-KhhfE1rK3s9zWpkSClr" : {
+              "name" : "Revisão de livro científico de âmbito internacional",
+              "reference" : 29
+            },
+            "-KhhfE1rK3s9zWpkSCls" : {
+              "name" : "Elaboração de relatório científico, técnico, cultural ou artístico para instituição nacional",
+              "reference" : 30
+            },
+            "-KhhfE1rK3s9zWpkSClt" : {
+              "name" : "Elaboração de relatório científico, técnico, cultural ou artístico para instituição internacional",
+              "reference" : 31
+            }
+          },
+          "name" : "Comunicações e publicações",
+          "reference" : 3
+        },
+        "-KhhfE1rK3s9zWpkSClu" : {
+          "criterias" : {
+            "-KhhfE1rK3s9zWpkSClv" : {
+              "name" : "Prémio de Arte, Ciência ou Cultura de âmbito nacional",
+              "reference" : 1
+            },
+            "-KhhfE1rK3s9zWpkSClw" : {
+              "name" : "Prémio de Arte, Ciência ou Cultura de âmbito internacional",
+              "reference" : 2
+            }
+          },
+          "name" : "Prémios",
+          "reference" : 4
+        },
+        "-KhhfE1sirODFzYils1b" : {
+          "criterias" : {
+            "-KhhfE1sirODFzYils1c" : {
+              "name" : "Membro de unidades de investigação em funcionamento no IPL",
+              "reference" : 1
+            },
+            "-KhhfE1sirODFzYils1d" : {
+              "name" : "Orientação ou coorientação de projetos de Licenciatura (projetos, monografias de final de curso, ou atividades similares de finalização de curso, sujeitas a apresentação e discussão pública final)",
+              "reference" : 2
+            },
+            "-KhhfE1sirODFzYils1e" : {
+              "name" : "Orientação ou coorientação de dissertações de Mestrado, ou trabalho equivalente nos termos da lei, concluídas",
+              "reference" : 3
+            },
+            "-KhhfE1sirODFzYils1f" : {
+              "name" : "Orientação ou coorientação de Teses de Doutoramento concluídas",
+              "reference" : 4
+            }
+          },
+          "name" : "Investigação e orientação",
+          "reference" : 5
+        },
+        "-KhhfE1sirODFzYils1g" : {
+          "criterias" : {
+            "-KhhfE1tLBpU8-Q_Bn4H" : {
+              "name" : "Júri de avaliação de projetos de Licenciatura (projetos, monografias de final de curso, ou atividades similares de finalização de curso, sujeitas a apresentação e discussão pública final) ou Complementos Académicos, desde que não tenha sido docente da unidade curricular, orientador ou coorientador do trabalho",
+              "reference" : 1
+            },
+            "-KhhfE1tLBpU8-Q_Bn4I" : {
+              "name" : "Júri de provas públicas de avaliação de dissertações de Mestrado ou trabalho equivalente nos termos da lei, desde que não tenha sido orientador ou coorientador do trabalho",
+              "reference" : 2
+            },
+            "-KhhfE1tLBpU8-Q_Bn4J" : {
+              "name" : "Júri de provas públicas de avaliação de teses de Doutoramento desde que não tenha sido orientador ou coorientador do trabalho",
+              "reference" : 3
+            },
+            "-KhhfE1tLBpU8-Q_Bn4K" : {
+              "name" : "Júri de provas académicas documentais de concursos de pessoal docente do ensino superior politécnico ou universitário",
+              "reference" : 4
+            },
+            "-KhhfE1tLBpU8-Q_Bn4L" : {
+              "name" : "Júri de provas académicas públicas de concursos de pessoal docente do ensino superior politécnico ou universitário",
+              "reference" : 5
+            },
+            "-KhhfE1tLBpU8-Q_Bn4M" : {
+              "name" : "Júri ou avaliador de projetos de investigação financiados por instituições externas, nacionais e internacionais  ou de eventos científicos, culturais e artísticos  ",
+              "reference" : 6
+            }
+          },
+          "name" : "Júri e avaliador",
+          "reference" : 6
+        },
+        "-KhhfE1tLBpU8-Q_Bn4N" : {
+          "criterias" : {
+            "-KhhfE1u7LFRWouqUULL" : {
+              "name" : "Responsável de projeto sem financiamento externo",
+              "reference" : 1
+            },
+            "-KhhfE1u7LFRWouqUULM" : {
+              "name" : "Criação de empresas de base tecnológica",
+              "reference" : 2
+            },
+            "-KhhfE1u7LFRWouqUULN" : {
+              "name" : "Responsável de projeto com financiamento externo < 20,000/ano",
+              "reference" : 3
+            },
+            "-KhhfE1u7LFRWouqUULO" : {
+              "name" : "Colaborador de projeto com financiamento externo < 20,000/ano",
+              "reference" : 4
+            },
+            "-KhhfE1u7LFRWouqUULP" : {
+              "name" : "Responsável de projeto com financiamento externo >= 20,000/ano",
+              "reference" : 5
+            },
+            "-KhhfE1u7LFRWouqUULQ" : {
+              "name" : "Colaborador de projeto com financiamento externo >= 20,000/ano",
+              "reference" : 6
+            },
+            "-KhhfE1u7LFRWouqUULR" : {
+              "name" : "Responsável de projeto internacional com financiamento externo < 100,000/ano",
+              "reference" : 7
+            },
+            "-KhhfE1vFNMRFxd9rPEA" : {
+              "name" : "Colaborador de projeto internacional com financiamento externo < 100,000/ano",
+              "reference" : 8
+            },
+            "-KhhfE1vFNMRFxd9rPEB" : {
+              "name" : "Responsável de projeto internacional com financiamento externo >= 100,000/ano",
+              "reference" : 9
+            },
+            "-KhhfE1vFNMRFxd9rPEC" : {
+              "name" : "Colaborador de projeto internacional com financiamento externo >= 100,000/ano",
+              "reference" : 10
+            }
+          },
+          "name" : "Projetos",
+          "reference" : 7
+        },
+        "-KhhfE1vFNMRFxd9rPED" : {
+          "criterias" : {
+            "-KhhfE1vFNMRFxd9rPEE" : {
+              "name" : "Participação como autor, em exposições artísticas individuais nacionais ",
+              "reference" : 1
+            },
+            "-KhhfE1vFNMRFxd9rPEF" : {
+              "name" : "Participação como autor, em exposições artísticas individuais internacionais",
+              "reference" : 2
+            },
+            "-KhhfE1wDgS5B705zQpz" : {
+              "name" : "Participação como autor, em exposições artísticas coletivas nacionais",
+              "reference" : 3
+            },
+            "-KhhfE1wDgS5B705zQq-" : {
+              "name" : "Participação como autor, em exposições artísticas coletivas internacionais",
+              "reference" : 4
+            }
+          },
+          "name" : "Exposições",
+          "reference" : 8
+        },
+        "-KhhfE1wDgS5B705zQq0" : {
+          "criterias" : {
+            "-KhhfE1wDgS5B705zQq1" : {
+              "name" : "Autoria e conceção de espetáculos  de natureza performativa, de cinema, teatro ou televisão, apresentados fora da instituição, nacionais",
+              "reference" : 1
+            },
+            "-KhhfE1wDgS5B705zQq2" : {
+              "name" : "Autoria e conceção de espetáculos  de natureza performativa, de cinema, teatro ou televisão, apresentados fora da instituição, internacionais",
+              "reference" : 2
+            },
+            "-KhhfE1wDgS5B705zQq3" : {
+              "name" : "Participação como intérprete em espetáculos de natureza performativa, de cinema, teatro ou televisão, nacionais ",
+              "reference" : 3
+            },
+            "-KhhfE1wDgS5B705zQq4" : {
+              "name" : "Participação como intérprete em espetáculos de natureza performativa, de cinema, teatro ou televisão,  internacionais",
+              "reference" : 4
+            },
+            "-KhhfE1xzL_Chbf_N3If" : {
+              "name" : "Autoria e conceção de curtas metragens de animação, cinema ou publicidade, nacionais",
+              "reference" : 5
+            },
+            "-KhhfE1xzL_Chbf_N3Ig" : {
+              "name" : "Autoria e conceção de curtas metragens de animação, cinema ou publicidade, internacionais",
+              "reference" : 6
+            },
+            "-KhhfE1xzL_Chbf_N3Ih" : {
+              "name" : "Autoria e conceção de longas metragens de animação, cinema ou publicidade, nacionais",
+              "reference" : 7
+            },
+            "-KhhfE1xzL_Chbf_N3Ii" : {
+              "name" : "Autoria e conceção de longas metragens de animação, cinema ou publicidade, internacionais",
+              "reference" : 8
+            },
+            "-KhhfE1xzL_Chbf_N3Ij" : {
+              "name" : "Participação como coautor em especialidade técnica em longas metragens de animação, cinema ou publicidade, nacionais",
+              "reference" : 9
+            },
+            "-KhhfE1xzL_Chbf_N3Ik" : {
+              "name" : "Participação como coautor em especialidade técnica em longas metragens de animação, cinema ou publicidade, internacionais",
+              "reference" : 10
+            },
+            "-KhhfE1xzL_Chbf_N3Il" : {
+              "name" : "Autoria e conceção de espetáculos de índole experimental, transversal, transdisciplinar ou multimédia, nacionais",
+              "reference" : 11
+            },
+            "-KhhfE1yzNwOyK3KtLue" : {
+              "name" : "Autoria e conceção de espetáculos de índole experimental, transversal, transdisciplinar ou multimédia, internacionais",
+              "reference" : 12
+            },
+            "-KhhfE1yzNwOyK3KtLuf" : {
+              "name" : "Autoria e conceção em projetos de autoria coletiva artística performativa/plástica, enquanto coautor, nacionais",
+              "reference" : 13
+            },
+            "-KhhfE1yzNwOyK3KtLug" : {
+              "name" : "Autoria e conceção em projetos de autoria coletiva artística performativa/plástica, enquanto coautor, internacionais",
+              "reference" : 14
+            }
+          },
+          "name" : "Arte e espetáculo",
+          "reference" : 9
+        },
+        "-KhhfE1yzNwOyK3KtLuh" : {
+          "criterias" : {
+            "-KhhfE1yzNwOyK3KtLui" : {
+              "name" : "Autoria, conceção e projeto de objetos de design industrial, de produto e de ambientes, com circulação comercial ou como parte de coleções, sem patente",
+              "reference" : 1
+            },
+            "-KhhfE1yzNwOyK3KtLuj" : {
+              "name" : "Autoria, conceção e projeto de objetos de design industrial, de produto e de ambientes, com circulação comercial ou como parte de coleções, com patente",
+              "reference" : 2
+            },
+            "-KhhfE1yzNwOyK3KtLuk" : {
+              "name" : "Autoria e conceção de obra gráfica ou suportes visuais em edição, publicidade e novos media, de grande difusão, com circulação comercial ou como parte de coleções",
+              "reference" : 3
+            }
+          },
+          "name" : "Design",
+          "reference" : 10
+        },
+        "-KhhfE1z1aWHmyc0iorI" : {
+          "criterias" : {
+            "-KhhfE1z1aWHmyc0iorJ" : {
+              "name" : "Realização de residências artísticas de investigação e criação em autoria coletiva nacional",
+              "reference" : 1
+            },
+            "-KhhfE1z1aWHmyc0iorK" : {
+              "name" : "Realização de residências artísticas de investigação e criação em autoria coletiva internacional",
+              "reference" : 2
+            },
+            "-KhhfE1z1aWHmyc0iorL" : {
+              "name" : "Cursos e/ou Diplomas de atualização científica ?  50 horas duração",
+              "reference" : 3
+            },
+            "-KhhfE1z1aWHmyc0iorM" : {
+              "name" : "Cursos e/ou Diplomas de atualização científica > 50 e < 150 horas duração",
+              "reference" : 4
+            },
+            "-KhhfE1z1aWHmyc0iorN" : {
+              "name" : "Cursos e/ou Diplomas de atualização científica >= 150 horas duração",
+              "reference" : 5
+            }
+          },
+          "name" : "Atualização técnico-científica",
+          "reference" : 11
+        },
+        "-KhhfE2-zo0Cl2QkWDIK" : {
+          "criterias" : {
+            "-KhhfE2-zo0Cl2QkWDIL" : {
+              "name" : "Outras atividades técnico-científicas consideradas relevantes pelo Diretor da Unidade Orgânica ouvido o Conselho Técnico-Científico, e sujeitas a apresentação de relatório final",
+              "reference" : 1
+            }
+          },
+          "name" : "Outras atividades",
+          "reference" : 12
+        }
+      },
+      "name" : "Técnico-Científica               ",
+      "reference" : 1
+    },
+    "-KhhfE2-zo0Cl2QkWDIM" : {
+      "areas" : {
+        "-KhhfE2-zo0Cl2QkWDIN" : {
+          "criterias" : {
+            "-KhhfE2-zo0Cl2QkWDIO" : {
+              "name" : "Experiência Profissional no ensino superior politécnico e universitário",
+              "reference" : 1
+            },
+            "-KhhfE2-zo0Cl2QkWDIP" : {
+              "name" : "Número médio anual de horas letivas efetivas de contacto por semana (1.º e 2.º ciclos) ",
+              "reference" : 2
+            },
+            "-KhhfE2-zo0Cl2QkWDIQ" : {
+              "name" : "Número de unidades curriculares com conteúdo diferente lecionadas",
+              "reference" : 3
+            }
+          },
+          "name" : "Experiência e Dedicação à Docência",
+          "reference" : 1
+        },
+        "-KhhfE22eFtUxV6DSItg" : {
+          "criterias" : {
+            "-KhhfE22eFtUxV6DSIth" : {
+              "name" : "Manuais e livros de apoio à docência ou antologias comentadas, publicados",
+              "reference" : 1
+            },
+            "-KhhfE22eFtUxV6DSIti" : {
+              "name" : "Elaboração de apontamentos, impressos (por meios físicos ou eletrónicos), cadernos de exercícios, software, manual de práticas de laboratório, ou outro material didático",
+              "reference" : 2
+            }
+          },
+          "name" : "Elaboração de Material didático ",
+          "reference" : 2
+        },
+        "-KhhfE23It4xAF9371I0" : {
+          "criterias" : {
+            "-KhhfE27OUa2gi7BtjM_" : {
+              "name" : "Lecionação de cursos de atualização pedagógica, científica ou técnica  ?  50 horas duração",
+              "reference" : 1
+            },
+            "-KhhfE27OUa2gi7BtjMa" : {
+              "name" : "Lecionação de cursos de atualização pedagógica, científica ou técnica > 50 e < 150 horas duração",
+              "reference" : 2
+            },
+            "-KhhfE28QgXKhGR7kaKt" : {
+              "name" : "Lecionação de cursos de atualização pedagógica, científica ou técnica  >= 150 horas duração",
+              "reference" : 3
+            },
+            "-KhhfE28QgXKhGR7kaKu" : {
+              "name" : "Frequência de cursos de atualização pedagógica  ?  50 horas duração",
+              "reference" : 4
+            },
+            "-KhhfE28QgXKhGR7kaKv" : {
+              "name" : "Frequência de cursos de atualização pedagógica  > 50 e < 150 horas duração",
+              "reference" : 5
+            },
+            "-KhhfE28QgXKhGR7kaKw" : {
+              "name" : "Frequência de cursos de atualização pedagógica  >= 150 horas duração",
+              "reference" : 6
+            }
+          },
+          "name" : "Atualização pedagógica",
+          "reference" : 3
+        },
+        "-KhhfE29c62wgFdLHE1Q" : {
+          "criterias" : {
+            "-KhhfE2AYebrofMgLgsC" : {
+              "name" : "Responsável por unidade curricular e pela elaboração de programas",
+              "reference" : 1
+            },
+            "-KhhfE2AYebrofMgLgsD" : {
+              "name" : "Participação na elaboração de programas de unidades curriculares",
+              "reference" : 2
+            },
+            "-KhhfE2AYebrofMgLgsE" : {
+              "name" : "Orientação e acompanhamento de alunos em ensino clínico e prática pedagógica ",
+              "reference" : 3
+            },
+            "-KhhfE2AYebrofMgLgsF" : {
+              "name" : "Orientação e acompanhamento de estágios curriculares",
+              "reference" : 4
+            },
+            "-KhhfE2AYebrofMgLgsG" : {
+              "name" : "Orientação e acompanhamento de estágios extracurriculares",
+              "reference" : 5
+            }
+          },
+          "name" : "Programas e orientações pedagógicas",
+          "reference" : 4
+        },
+        "-KhhfE2AYebrofMgLgsH" : {
+          "criterias" : {
+            "-KhhfE2AYebrofMgLgsI" : {
+              "name" : "Participação em programas de mobilidade internacional",
+              "reference" : 1
+            },
+            "-KhhfE2AYebrofMgLgsJ" : {
+              "name" : "Organização de visitas de estudos/aulas abertas devidamente autorizadas pelos órgãos competentes",
+              "reference" : 2
+            }
+          },
+          "name" : "Mobilidade, visitas de estudo e aulas abertas",
+          "reference" : 5
+        },
+        "-KhhfE2BeelC2jNJRq24" : {
+          "criterias" : {
+            "-KhhfE2BeelC2jNJRq25" : {
+              "name" : "Resultados da avaliação do desempenho pedagógico dos docentes por estes e pelos estudantes, levada a cabo pelos Conselhos Pedagógicos nos termos da lei",
+              "reference" : 1
+            }
+          },
+          "name" : "Avaliação do Desempenho pelos Estudantes e pelos pares",
+          "reference" : 6
+        },
+        "-KhhfE2BeelC2jNJRq26" : {
+          "criterias" : {
+            "-KhhfE2BeelC2jNJRq27" : {
+              "name" : "Outras atividades pedagógicas consideradas relevantes pelo Diretor da Unidade Orgânica ouvido o Conselho Pedagógico e sujeitas a apresentação de relatório final",
+              "reference" : 1
+            }
+          },
+          "name" : "Outras atividades",
+          "reference" : 7
+        }
+      },
+      "name" : "Pedagógica",
+      "reference" : 2
+    },
+    "-KhhfE2BeelC2jNJRq28" : {
+      "areas" : {
+        "-KhhfE2BeelC2jNJRq29" : {
+          "criterias" : {
+            "-KhhfE2BeelC2jNJRq2A" : {
+              "name" : "Responsável ou corresponsável por equipa de trabalho de prestação de serviços ao exterior, estudos/projetos ou pareceres",
+              "reference" : 1
+            },
+            "-KhhfE2BeelC2jNJRq2B" : {
+              "name" : "Membro de equipa de prestação de serviços ao exterior, estudos/projetos ou pareceres ",
+              "reference" : 2
+            }
+          },
+          "name" : "Prestação de serviços ao exterior, estudos/projetos ou pareceres ",
+          "reference" : 1
+        },
+        "-KhhfE2CDph_kKfjxDcF" : {
+          "criterias" : {
+            "-KhhfE2CDph_kKfjxDcG" : {
+              "name" : "Membro de órgãos de gestão ou colegiais, tais como (Conselho Geral, Conselho Académico, Conselho de Gestão, Conselho para a Avaliação e Qualidade, Conselho de Representantes, Conselho Técnico-Científico, Conselho Pedagógico, Conselho de Coordenação da Avaliação dos Docentes, Comissão Paritária)",
+              "reference" : 1
+            },
+            "-KhhfE2CDph_kKfjxDcH" : {
+              "name" : "Presidente de órgão de gestão ou colegial tais como (Conselho Geral, Conselho Académico, Conselho de Gestão, Conselho para a Avaliação e Qualidade, Conselho de Representantes, Conselho Técnico-Científico, Conselho Pedagógico, Conselho de Coordenação da Avaliação dos Docentes, Comissão Paritária)",
+              "reference" : 2
+            },
+            "-KhhfE2CDph_kKfjxDcI" : {
+              "name" : "Secretário de órgão de gestão ou colegial tais como (Conselho Geral, Conselho Académico, Conselho de Gestão, Conselho para a Avaliação e Qualidade, Conselho de Representantes, Conselho Técnico-Científico, Conselho Pedagógico, Conselho de Coordenação da Avaliação dos Docentes, Comissão Paritária)",
+              "reference" : 3
+            },
+            "-KhhfE2CDph_kKfjxDcJ" : {
+              "name" : "Coordenador de Departamento (ou estrutura com funções equivalentes)",
+              "reference" : 4
+            },
+            "-KhhfE2CDph_kKfjxDcK" : {
+              "name" : "Coordenador de Secção",
+              "reference" : 5
+            },
+            "-KhhfE2CDph_kKfjxDcL" : {
+              "name" : "Coordenador de Curso",
+              "reference" : 6
+            },
+            "-KhhfE2CDph_kKfjxDcM" : {
+              "name" : "Coordenador de Unidade de Investigação",
+              "reference" : 7
+            },
+            "-KhhfE2D48XSLeS7CKcC" : {
+              "name" : "Membro de Comissão Científica, Pedagógica ou Científico-pedagógica de curso",
+              "reference" : 8
+            },
+            "-KhhfE2D48XSLeS7CKcD" : {
+              "name" : "Membro da Comissão Permanente do Conselho Técnico-científico ou do Conselho Pedagógico (acumula como membro do órgão)",
+              "reference" : 9
+            },
+            "-KhhfE2D48XSLeS7CKcE" : {
+              "name" : "Participação em grupo de trabalho formalmente nomeado por órgão estatutário ou departamento (ou estrutura com funções equivalentes), com apresentação de relatório final",
+              "reference" : 10
+            },
+            "-KhhfE2ElgviUYweA7IB" : {
+              "name" : "Resultados do cumprimento de obrigações profissionais, (designadamente relatórios produzidos, assim como cumprimento de prazos (sumários, programas, lançamento de notas, assinatura de termos, assiduidade às aulas e avaliações ou outros) disponibilizados pela direção da Unidade Orgânica.",
+              "reference" : 11
+            },
+            "-KhhfE2ElgviUYweA7IC" : {
+              "name" : "Direção dos Cursos de Especialização Tecnológica",
+              "reference" : 12
+            }
+          },
+          "name" : "Participação em Órgãos Colegiais e Responsabilidade académica ",
+          "reference" : 2
+        },
+        "-KhhfE2ElgviUYweA7ID" : {
+          "criterias" : {
+            "-KhhfE2ElgviUYweA7IE" : {
+              "name" : "Membro de júris de recrutamento de pessoal docente (no IPL ou noutras instituições nomeado pelo IPL ou por quem de direito)",
+              "reference" : 1
+            },
+            "-KhhfE2ElgviUYweA7IF" : {
+              "name" : "Membro de júris de recrutamento de pessoal não docente (no IPL ou noutras instituições nomeado pelo IPL ou por quem de direito)",
+              "reference" : 2
+            },
+            "-KhhfE2ElgviUYweA7IG" : {
+              "name" : "Participação em júris de seleção de candidatos a cursos de pós-graduação",
+              "reference" : 3
+            },
+            "-KhhfE2ElgviUYweA7IH" : {
+              "name" : "Participação em  júris de seleção/seriação das provas para maiores de 23 anos",
+              "reference" : 4
+            },
+            "-KhhfE2ElgviUYweA7II" : {
+              "name" : "Participação em júri de aquisição bens e serviços e empreitadas e afins",
+              "reference" : 5
+            }
+          },
+          "name" : "Participações em júris",
+          "reference" : 3
+        },
+        "-KhhfE2F05O-9bJ1eKYm" : {
+          "criterias" : {
+            "-KhhfE2F05O-9bJ1eKYn" : {
+              "name" : "Membro de comissão organizadora de congressos, seminários, jornadas, exposições, ou atividades afins",
+              "reference" : 1
+            },
+            "-KhhfE2F05O-9bJ1eKYo" : {
+              "name" : "Membro da comissão organizadora de ações de formação",
+              "reference" : 2
+            },
+            "-KhhfE2F05O-9bJ1eKYp" : {
+              "name" : "Participação em comissão de natureza técnica, científica ou pedagógica  devidamente autorizada pelo Presidente do IPL ou outras autoridades competentes",
+              "reference" : 3
+            },
+            "-KhhfE2F05O-9bJ1eKYq" : {
+              "name" : "Organização de atividades extracurriculares devidamente autorizadas pelos órgãos competentes",
+              "reference" : 4
+            },
+            "-KhhfE2F05O-9bJ1eKYr" : {
+              "name" : "Participação em órgãos de instituições externas sob nomeação do Presidente do IPL ou por órgão competente",
+              "reference" : 5
+            },
+            "-KhhfE2F05O-9bJ1eKYs" : {
+              "name" : "Organização de cursos de atualização pedagógica, científica ou técnica  ?  50 horas duração",
+              "reference" : 6
+            },
+            "-KhhfE2F05O-9bJ1eKYt" : {
+              "name" : "Organização de cursos de atualização pedagógica, científica ou técnica > 50 e < 150 horas duração",
+              "reference" : 7
+            },
+            "-KhhfE2GDiPqKzUxU-oz" : {
+              "name" : "Organização de cursos de atualização pedagógica, científica ou técnica  >= 150 horas duração",
+              "reference" : 8
+            },
+            "-KhhfE2GDiPqKzUxU-p-" : {
+              "name" : "Responsável por laboratórios, oficinas ou salas de aula específicas",
+              "reference" : 9
+            },
+            "-KhhfE2GDiPqKzUxU-p0" : {
+              "name" : "Relator no processo de avaliação de desempenho do pessoal docente",
+              "reference" : 10
+            },
+            "-KhhfE2GDiPqKzUxU-p1" : {
+              "name" : "Planeamento e organização de estágios curriculares, práticas pedagógicas e ensinos clínicos",
+              "reference" : 11
+            },
+            "-KhhfE2GDiPqKzUxU-p2" : {
+              "name" : "Outras atividades organizacionais consideradas relevantes pelo Presidente do Instituto ou pelo Diretor da Unidade Orgânica e sujeitas a apresentação de relatório final",
+              "reference" : 12
+            }
+          },
+          "name" : "Outras atividades",
+          "reference" : 4
+        }
+      },
+      "name" : "Organizacional",
+      "reference" : 3
+    }
+  }
+}

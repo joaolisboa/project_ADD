@@ -61,7 +61,7 @@ public class AddItemActivity extends AppCompatActivity {
     private void handleFile(Uri uri){
         if (uri != null && MEOCloudClient.isClientInitialized()) {
 
-            try {
+            /*try {
                 InputStream is = getContentResolver().openInputStream(uri);
                 FileOutputStream fos = openFileOutput(UriHelper.getFileName(AddItemActivity.this, uri), Context.MODE_PRIVATE);
                 byte[] buffer = new byte[1024 * 100];
@@ -74,7 +74,7 @@ public class AddItemActivity extends AppCompatActivity {
                 fos.close();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
 
             new MEOUploadFile(AddItemActivity.this, new MEOCallback<MEOMetadata>() {
 

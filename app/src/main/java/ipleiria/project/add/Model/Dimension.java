@@ -35,4 +35,14 @@ public class Dimension extends Category{
         return areas.get(index);
     }
 
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("dimension: " + name);
+        for(Area a: areas){
+            stringBuilder.append(a);
+        }
+        return stringBuilder.toString();
+    }
+
 }

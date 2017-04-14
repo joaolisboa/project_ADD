@@ -1,5 +1,6 @@
 package ipleiria.project.add.Model;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -36,10 +37,10 @@ public class ApplicationData {
     private List<Criteria> criterias;
     private List<Item> items;
 
-    public void fillTestData() {
+    public void fillTestData(Context context) {
 
         //region CATEGORY/CRITERIA
-        Dimension c1 = new Dimension("dimension1", 1);
+        /*Dimension c1 = new Dimension("dimension1", 1);
         Dimension c2 = new Dimension("dimension2", 2);
 
         c1.addAreas(new Area("area" + 1, 1), new Area("area" + 2, 2), new Area("area" + 3, 3));
@@ -57,16 +58,20 @@ public class ApplicationData {
                 cat1.addCriterias(child1_2);
             }
         }
-        ApplicationData.getInstance().addDimensions(c1, c2);
+        ApplicationData.getInstance().addDimensions(c1, c2);*/
         //endregion
 
         //region ITEMS
+        /*File dir = context.getFilesDir();
+        for(File f: dir.listFiles()){
+            items.add(new Item(f.getName(), "description", ApplicationData.getInstance().getCriterias().get(0)));
+        }
         for(int i = 0; i < 15; i++){
             items.add(new Item("Dummy item " + i, "description", ApplicationData.getInstance().getCriterias().get(2)));
-        }
+        }*/
         //endregion
 
-        //region emails
+        //region EMAILS
         emails.add("dummymail@gmail.com");
         if(DropboxClientFactory.isClientInitialized()){
             try {

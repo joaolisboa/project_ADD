@@ -194,7 +194,9 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
-            firebaseAuthWithGoogle(acct);
+            if(FirebaseAuth.getInstance().getCurrentUser().isAnonymous()) {
+                firebaseAuthWithGoogle(acct);
+            }
             mStatusTextView.setText("signed in: " + acct.getDisplayName());
             updateUI(true);
         } else {
