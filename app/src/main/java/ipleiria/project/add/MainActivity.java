@@ -14,6 +14,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 
@@ -29,13 +34,14 @@ import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.Tasks.MEODownloadFile;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Area;
-import ipleiria.project.add.Model.Category;
 import ipleiria.project.add.Model.Criteria;
 import ipleiria.project.add.Model.Dimension;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String AUTH_TAG = "AnonymousAuth";
+    private static final String TAG = "MainActivity";
+
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authListener;
 
@@ -50,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         ApplicationData.getInstance().setSharedPreferences(preferences);
         ApplicationData.getInstance().fillTestData();
 
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         firebaseAuth = FirebaseAuth.getInstance();
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -58,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 if (user != null) {
                     // User is signed in
                     ApplicationData.getInstance().setUserUID(user.getUid());
+                    writeFirebaseData();
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
                     // User is signed out or there's no credentials
@@ -88,6 +96,55 @@ public class MainActivity extends AppCompatActivity {
         }
         if(!preferences.getString("meo_access_token", "").isEmpty()){
             MEOCloudClient.init(preferences.getString("meo_access_token", ""));
+        }
+
+    }
+
+    private void writeFirebaseData() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        // TODO: 14-Apr-17 add offline capability with firebase
+        String userUid = ApplicationData.getInstance().getUserUID();
+        DatabaseReference userRef = database.getReference().child("users").child(userUid);
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                Object value = dataSnapshot.getValue();
+                Log.d(TAG, "Value is: " + value.toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                System.out.println(error.getDetails());
+                System.out.println(error.getMessage());
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+        userRef.child("name").setValue(firebaseAuth.getCurrentUser().getDisplayName());
+
+        userRef.child("emails").setValue(ApplicationData.getInstance().getEmails());
+
+        for(Dimension dimension: ApplicationData.getInstance().getDimensions()){
+            userRef.child("categories").child(dimension.getName()).child("reference").setValue(dimension.getReference());
+            for(Area area: dimension.getAreas()){
+                userRef.child("categories")
+                        .child(dimension.getName())
+                        .child("areas")
+                        .child(area.getName())
+                        .child("reference")
+                        .setValue(area.getReference());
+                for(Criteria criteria: area.getCriterias()){
+                    userRef.child("categories")
+                            .child(dimension.getName())
+                            .child("areas")
+                            .child(area.getName())
+                            .child("criteria")
+                            .child(criteria.getName())
+                            .setValue(criteria.getReference());
+                }
+            }
         }
 
     }

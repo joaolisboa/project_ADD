@@ -1,0 +1,56 @@
+
+{
+	"users": {
+	    "useruid1": {
+	    	"name": "bobtony",
+	    	"emails": {
+	    		"uniquegeneratedid1":"email1@gmail.com",
+	    		"uniquegeneratedid2":"email2@gmail.com"
+	    	},
+	    	"categories": {
+	    		"dimension1":{
+	    			"reference":1,
+	    			"areas":{
+	    				"area1":{
+	    					"reference":1,
+	    					"criteria":{
+	    						"criteria1":1,
+	    						"criteria2":2,
+	    						"criteria3":3
+	    					}
+	    				},
+	    				"area2":{
+	    					"reference":1,
+	    					"criteria":{
+	    						"criteria1":1,
+	    						"criteria2":2,
+	    						"criteria3":3
+	    					}
+	    				}
+	    			}
+	    		},
+	    		"dimension2":{
+	    			"reference":2,
+	    			"areas":{
+	    				"area1":{
+	    					"reference":1,
+	    					"criteria":{
+	    						"criteria1":1,
+	    						"criteria2":2,
+	    						"criteria3":3
+	    					}
+	    				},
+	    				"area2":{
+	    					"reference":1,
+	    					"criteria":{
+	    						"criteria1":1,
+	    						"criteria2":2,
+	    						"criteria3":3
+	    					}
+	    				}
+	    			}
+	    		}
+	      	}
+	    }
+	}
+}
