@@ -13,11 +13,11 @@ import ipleiria.project.add.Model.Category;
  * Created by Lisboa on 12-Apr-17.
  */
 
-public class NodeHolder extends TreeNode.BaseNodeViewHolder<Category>  {
+public class CategoryNodeHolder extends TreeNode.BaseNodeViewHolder<Category>  {
 
     private int layout;
 
-    public NodeHolder(Context context, int layout) {
+    public CategoryNodeHolder(Context context, int layout) {
         super(context);
         this.layout = layout;
     }

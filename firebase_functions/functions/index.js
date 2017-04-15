@@ -6,7 +6,7 @@ admin.initializeApp(functions.config().firebase);
 
 exports.deleteUserDataOnUninstall = functions.analytics.event('app_remove').onLog(event => {
   	const uid = event.data.uid;
-  	admin.database().ref('/users/${uid}').once("name", function(snapshot) {
+  	admin.database().ref('/users/${uid}').child('name').once("value", function(snapshot) {
   		console.log(snapshot.val());
   		if(snapshot.val() === "Anonymous"){
   			admin.auth().deleteUser(uid).then(() => {

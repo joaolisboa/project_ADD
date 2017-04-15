@@ -103,6 +103,7 @@
         <activity android:name=".SelectCategoryActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".GoogleSignInActivity" />
+        <activity android:name=".ListEmailActivity"></activity>
     </application>
 
 </manifest>

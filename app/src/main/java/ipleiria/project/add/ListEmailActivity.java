@@ -16,12 +16,12 @@ import android.view.View;
 import java.util.List;
 
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.Model.Item;
+import ipleiria.project.add.Model.Email;
 
-public class ListActivity extends AppCompatActivity {
+public class ListEmailActivity extends AppCompatActivity {
 
     RecyclerView mRecyclerView;
-    private List<Item> list;
+    private List<Email> emails;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +29,7 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        list = ApplicationData.getInstance().getItems();
+        emails = ApplicationData.getInstance().getEmails();
         setUpRecyclerView();
     }
 
@@ -38,7 +38,7 @@ public class ListActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(llm);
-        mRecyclerView.setAdapter(new ListItemAdapter(list));
+        mRecyclerView.setAdapter(new ListEmailAdapter(ListEmailActivity.this, emails));
         setUpItemTouchHelper();
         setUpAnimationDecoratorHelper();
     }
@@ -60,9 +60,9 @@ public class ListActivity extends AppCompatActivity {
 
             private void init() {
                 background = new ColorDrawable(Color.RED);
-                deleteIcon = ContextCompat.getDrawable(ListActivity.this, R.drawable.delete_item_icon);
+                deleteIcon = ContextCompat.getDrawable(ListEmailActivity.this, R.drawable.delete_item_icon);
                 deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-                deleteIconMargin = (int) ListActivity.this.getResources().getDimension(R.dimen.ic_clear_margin);
+                deleteIconMargin = (int) ListEmailActivity.this.getResources().getDimension(R.dimen.ic_clear_margin);
                 initiated = true;
             }
 
@@ -75,7 +75,7 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 int position = viewHolder.getAdapterPosition();
-                ListItemAdapter testAdapter = (ListItemAdapter)recyclerView.getAdapter();
+                ListEmailAdapter testAdapter = (ListEmailAdapter)recyclerView.getAdapter();
                 if (testAdapter.isPendingRemoval(position)) {
                     return 0;
                 }
@@ -85,7 +85,7 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int swipedPosition = viewHolder.getAdapterPosition();
-                ListItemAdapter adapter = (ListItemAdapter)mRecyclerView.getAdapter();
+                ListEmailAdapter adapter = (ListEmailAdapter)mRecyclerView.getAdapter();
                 adapter.pendingRemoval(swipedPosition);
             }
 

@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.dropbox.core.DbxException;
+import com.dropbox.core.v2.users.FullAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -42,11 +44,15 @@ import java.util.Map;
 
 import ipleiria.project.add.Dropbox.DropboxDownloadFile;
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
+import ipleiria.project.add.Dropbox.DropboxGetAccount;
+import ipleiria.project.add.MEOCloud.Data.Account;
 import ipleiria.project.add.MEOCloud.Data.FileResponse;
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
+import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.Tasks.MEOGetAccount;
 import ipleiria.project.add.MEOCloud.Tasks.MEOGetMetadata;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.Tasks.MEODownloadFile;
@@ -54,6 +60,7 @@ import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Area;
 import ipleiria.project.add.Model.Criteria;
 import ipleiria.project.add.Model.Dimension;
+import ipleiria.project.add.Model.Email;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -137,9 +144,36 @@ public class MainActivity extends AppCompatActivity {
 
             if (!preferences.getString("dropbox_access_token", "").isEmpty()) {
                 DropboxClientFactory.init(preferences.getString("dropbox_access_token", ""));
+                new DropboxGetAccount(DropboxClientFactory.getClient(), new DropboxGetAccount.Callback() {
+                    @Override
+                    public void onComplete(FullAccount result) {
+                        ApplicationData.getInstance().addEmail(new Email(result.getEmail(), true));
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+
+                    }
+                }).execute();
             }
             if (!preferences.getString("meo_access_token", "").isEmpty()) {
                 MEOCloudClient.init(preferences.getString("meo_access_token", ""));
+                new MEOGetAccount(new MEOCallback<Account>() {
+                    @Override
+                    public void onComplete(MEOCloudResponse<Account> result) {
+                        ApplicationData.getInstance().addEmail(new Email(result.getResponse().getEmail(), true));
+                    }
+
+                    @Override
+                    public void onRequestError(HttpErrorException httpE) {
+                        Log.e(TAG, httpE.getMessage(), httpE);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+                }).execute();
             }
         }
 
@@ -249,10 +283,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         userRef.child("name").setValue(ApplicationData.getInstance().getDisplayName());
-        for(Map.Entry<String, Boolean> email: ApplicationData.getInstance().getEmails().entrySet()) {
+        for(Email email: ApplicationData.getInstance().getEmails()) {
             DatabaseReference emailRef = userRef.child("emails").push();
-            emailRef.child("email").setValue(email.getKey());
-            emailRef.child("verified").setValue(email.getValue());
+            emailRef.child("email").setValue(email.getEmail());
+            emailRef.child("verified").setValue(email.isVerified());
         }
 
         /*DatabaseReference categoryRef = database.getReference().child("categories");
@@ -357,11 +391,6 @@ public class MainActivity extends AppCompatActivity {
             firebaseAuth.removeAuthStateListener(authListener);
         }
     }
-
-    public void googleSignIn(View view) {
-        startActivity(new Intent(MainActivity.this, GoogleSignInActivity.class));
-    }
-
     private boolean hasNetwork() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();

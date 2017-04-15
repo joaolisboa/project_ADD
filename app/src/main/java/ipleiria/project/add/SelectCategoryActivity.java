@@ -3,8 +3,6 @@ package ipleiria.project.add;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -36,13 +34,13 @@ public class SelectCategoryActivity extends AppCompatActivity {
                 TreeNode level1 = new TreeNode(area);
                 for(Criteria criteria: area.getCriterias()){
                     TreeNode level2 = new TreeNode(criteria);
-                    level2.setViewHolder(new NodeHolder(SelectCategoryActivity.this, R.layout.node_holder_criteria));
+                    level2.setViewHolder(new CategoryNodeHolder(SelectCategoryActivity.this, R.layout.node_holder_criteria));
                     level1.addChild(level2);
                 }
-                level1.setViewHolder(new NodeHolder(SelectCategoryActivity.this, R.layout.node_holder_area));
+                level1.setViewHolder(new CategoryNodeHolder(SelectCategoryActivity.this, R.layout.node_holder_area));
                 parent.addChild(level1);
             }
-            parent.setViewHolder(new NodeHolder(SelectCategoryActivity.this, R.layout.node_holder_dimension));
+            parent.setViewHolder(new CategoryNodeHolder(SelectCategoryActivity.this, R.layout.node_holder_dimension));
             treeRoot.addChild(parent);
         }
 

@@ -3,23 +3,9 @@ package ipleiria.project.add.Model;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.util.Log;
 
-import com.dropbox.core.DbxException;
-
-import java.io.File;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
-import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.MEOCloud.Data.Account;
-import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.MEOCallback;
-import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.Tasks.MEOGetAccount;
 
 /**
  * Created by Lisboa on 11-Apr-17.
@@ -36,13 +22,12 @@ public class ApplicationData {
     private Uri profileUri;
     private String displayName;
 
-    private Map<String, Boolean> emails;
-
+    private List<Email> emails;
     private List<Dimension> dimensions;
-
     private List<Area> areas;
     private List<Criteria> criterias;
     private List<Item> items;
+
     public void fillTestData(Context context) {
 
         //region CATEGORY/CRITERIA
@@ -78,32 +63,7 @@ public class ApplicationData {
         //endregion
 
         //region EMAILS
-        emails.put("dummymail@gmail.com", false);
-        if(DropboxClientFactory.isClientInitialized()){
-            try {
-                emails.put(DropboxClientFactory.getClient().users().getCurrentAccount().getEmail(), true);
-            } catch (DbxException e) {
-                e.printStackTrace();
-            }
-        }
-        if(MEOCloudClient.isClientInitialized()){
-            new MEOGetAccount(new MEOCallback<Account>() {
-                @Override
-                public void onComplete(MEOCloudResponse<Account> result) {
-                    emails.put(result.getResponse().getEmail(), true);
-                }
-
-                @Override
-                public void onRequestError(HttpErrorException httpE) {
-                    Log.e(TAG, httpE.getMessage(), httpE);
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
-                }
-            }).execute();
-        }
+        emails.add(new Email("dummymail@gmail.com", false));
         //endregion
 
     }
@@ -113,7 +73,7 @@ public class ApplicationData {
         dimensions = new LinkedList<>();
         areas = new LinkedList<>();
         items = new LinkedList<>();
-        emails = new HashMap<>();
+        emails = new LinkedList<>();
     }
 
     public static ApplicationData getInstance() {
@@ -144,11 +104,11 @@ public class ApplicationData {
         this.displayName = displayName;
     }
 
-    public Map<String, Boolean> getEmails() {
+    public List<Email> getEmails() {
         return emails;
     }
 
-    public void setEmails(Map<String, Boolean> emails) {
+    public void setEmails(List<Email> emails) {
         this.emails = emails;
     }
 
@@ -246,5 +206,10 @@ public class ApplicationData {
 
     public List<Area> getAreas() {
         return areas;
+    }
+
+    public void addEmail(Email email) {
+        if(!emails.contains(email))
+            emails.add(email);
     }
 }

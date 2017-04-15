@@ -1,9 +1,12 @@
 package ipleiria.project.add;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -27,10 +30,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Model.ApplicationData;
 
 /**
@@ -87,6 +92,25 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    ApplicationData.getInstance().setUserUID(user.getUid());
+                    String displayName = user.getDisplayName();
+                    Uri profileUri = user.getPhotoUrl();
+
+                    // If the above were null, iterate the provider data
+                    // and set with the first non null data
+                    for (UserInfo userInfo : user.getProviderData()) {
+                        if (displayName == null && userInfo.getDisplayName() != null) {
+                            displayName = userInfo.getDisplayName();
+                        }
+                        if (profileUri == null && userInfo.getPhotoUrl() != null) {
+                            profileUri = userInfo.getPhotoUrl();
+                        }
+                    }
+                    if(displayName == null || displayName.isEmpty()){
+                        displayName = "Anonymous";
+                    }
+                    ApplicationData.getInstance().setDisplayName(displayName);
+                    ApplicationData.getInstance().setProfileUri(profileUri);
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -101,9 +125,8 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-    private void signOut() {
-        System.out.println("Downgrading account to anonymous");
-        // dirty but works
+
+    private void downgrade(){
         if (mAuth.getCurrentUser() != null) {
             FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid()).removeValue(new DatabaseReference.CompletionListener() {
                 @Override
@@ -137,6 +160,22 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
         }else{
             System.out.println("Firebase user null?");
         }
+    }
+
+    private void signOut() {
+        // dirty but works
+        AlertDialog.Builder builder = new AlertDialog.Builder(GoogleSignInActivity.this);
+        builder.setMessage("Signing out of Google means data will no longer be synced across devices.")
+                .setTitle("Confirm");
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                System.out.println("Downgrading account to anonymous");
+                downgrade();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.create().show();
+
     }
 
 
