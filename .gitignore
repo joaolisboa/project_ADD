@@ -38,3 +38,5 @@ captures/
 
 # Keystore files
 *.jks
+
+firebase_functions/functions/node_modules/

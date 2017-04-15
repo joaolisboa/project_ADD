@@ -101,11 +101,8 @@ public class MainActivity extends AppCompatActivity {
                                     profileUri = userInfo.getPhotoUrl();
                                 }
                             }
-                            if(displayName == null){
-                                displayName = user.getDisplayName();
-                            }
-                            if(profileUri == null){
-                                profileUri = user.getPhotoUrl();
+                            if(displayName == null || displayName.isEmpty()){
+                                displayName = "Anonymous";
                             }
                             ApplicationData.getInstance().setDisplayName(displayName);
                             ApplicationData.getInstance().setProfileUri(profileUri);

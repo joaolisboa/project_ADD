@@ -190,6 +190,19 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
             GoogleSignInAccount acct = result.getSignInAccount();
             if (FirebaseAuth.getInstance().getCurrentUser().isAnonymous()) {
                 firebaseAuthWithGoogle(acct);
+            }else{
+                AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+                mAuth.getCurrentUser().reauthenticate(credential).addOnCompleteListener(GoogleSignInActivity.this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "reauthenticate user:" + task.isSuccessful());
+                        if (!task.isSuccessful()) {
+                            Toast.makeText(GoogleSignInActivity.this, "Reauthentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, task.getException().getMessage(), task.getException());
+                        }
+                    }
+                });
             }
             mStatusTextView.setText("signed in: " + acct.getDisplayName());
             updateUI(true);
