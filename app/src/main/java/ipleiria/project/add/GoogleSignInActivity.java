@@ -27,6 +27,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import ipleiria.project.add.Model.ApplicationData;
 
@@ -35,7 +38,7 @@ import ipleiria.project.add.Model.ApplicationData;
  */
 
 public class GoogleSignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
-        View.OnClickListener{
+        View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
@@ -98,54 +101,45 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-
-    private void downgradeUserToAnonymous(){
-        //// TODO: 13-Apr-17 Delete data of delete user and upload to new anon user
-        if(mAuth.getCurrentUser() != null){
-            mAuth.getCurrentUser().delete()
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "User account deleted.");
-                                mAuth.signOut();
-                            }
-                        }
-                    });
-            mAuth.signInAnonymously()
-                    .addOnCompleteListener(GoogleSignInActivity.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            Log.d(TAG, "signInAnonymously:onComplete:" + task.isSuccessful());
-
-                            // If sign in fails, display a message to the user. If sign in succeeds
-                            // the auth state listener will be notified and logic to handle the
-                            // signed in user can be handled in the listener.
-                            if (!task.isSuccessful()) {
-                                Log.w(TAG, "signInAnonymously", task.getException());
-                                Toast.makeText(GoogleSignInActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                            }
-
-                            // ...
-                        }
-                    });
+    private void signOut() {
+        System.out.println("Downgrading account to anonymous");
+        // dirty but works
+        if (mAuth.getCurrentUser() != null) {
+            FirebaseDatabase.getInstance().getReference().child("users").child(mAuth.getCurrentUser().getUid()).removeValue(new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    mAuth.getCurrentUser().delete()
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.d(TAG, "User account deleted.");
+                                        mAuth.signOut();
+                                        mAuth.signInAnonymously();
+                                        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                                                new ResultCallback<Status>() {
+                                                    @Override
+                                                    public void onResult(Status status) {
+                                                        updateUI(false);
+                                                        if (status.isSuccess()) {
+                                                            System.out.println("Google sign out successfull");
+                                                        }
+                                                    }
+                                                });
+                                    }else{
+                                        System.out.println("Firebase user delete failed");
+                                        Log.e(TAG, task.getException().getMessage(), task.getException());
+                                    }
+                                }
+                            });
+                }
+            });
+        }else{
+            System.out.println("Firebase user null?");
         }
     }
 
-    private void signOut() {
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        // [START_EXCLUDE]
-                        updateUI(false);
-                        if(status.isSuccess()){
-                            downgradeUserToAnonymous();
-                        }
-                        // [END_EXCLUDE]
-                    }
-                });
-    }
+
 
     @Override
     public void onClick(View v) {
@@ -194,7 +188,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
-            if(FirebaseAuth.getInstance().getCurrentUser().isAnonymous()) {
+            if (FirebaseAuth.getInstance().getCurrentUser().isAnonymous()) {
                 firebaseAuthWithGoogle(acct);
             }
             mStatusTextView.setText("signed in: " + acct.getDisplayName());
@@ -223,7 +217,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                             Toast.makeText(GoogleSignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                             Log.e(TAG, task.getException().getMessage(), task.getException());
-                        }else
+                        } else
                             System.out.println(mAuth.getCurrentUser().getUid());
                     }
                 });

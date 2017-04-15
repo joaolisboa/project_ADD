@@ -2,13 +2,16 @@ package ipleiria.project.add.Model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.util.Log;
 
 import com.dropbox.core.DbxException;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.MEOCloud.Data.Account;
@@ -30,13 +33,16 @@ public class ApplicationData {
     private SharedPreferences sharedPreferences;
 
     private String userUID;
-    private List<String> emails;
+    private Uri profileUri;
+    private String displayName;
+
+    private Map<String, Boolean> emails;
 
     private List<Dimension> dimensions;
+
     private List<Area> areas;
     private List<Criteria> criterias;
     private List<Item> items;
-
     public void fillTestData(Context context) {
 
         //region CATEGORY/CRITERIA
@@ -72,10 +78,10 @@ public class ApplicationData {
         //endregion
 
         //region EMAILS
-        emails.add("dummymail@gmail.com");
+        emails.put("dummymail@gmail.com", false);
         if(DropboxClientFactory.isClientInitialized()){
             try {
-                emails.add(DropboxClientFactory.getClient().users().getCurrentAccount().getEmail());
+                emails.put(DropboxClientFactory.getClient().users().getCurrentAccount().getEmail(), true);
             } catch (DbxException e) {
                 e.printStackTrace();
             }
@@ -84,7 +90,7 @@ public class ApplicationData {
             new MEOGetAccount(new MEOCallback<Account>() {
                 @Override
                 public void onComplete(MEOCloudResponse<Account> result) {
-                    emails.add(result.getResponse().getEmail());
+                    emails.put(result.getResponse().getEmail(), true);
                 }
 
                 @Override
@@ -107,7 +113,7 @@ public class ApplicationData {
         dimensions = new LinkedList<>();
         areas = new LinkedList<>();
         items = new LinkedList<>();
-        emails = new LinkedList<>();
+        emails = new HashMap<>();
     }
 
     public static ApplicationData getInstance() {
@@ -122,11 +128,27 @@ public class ApplicationData {
         return instance;
     }
 
-    public List<String> getEmails() {
+    public Uri getProfileUri() {
+        return profileUri;
+    }
+
+    public void setProfileUri(Uri profileUri) {
+        this.profileUri = profileUri;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public Map<String, Boolean> getEmails() {
         return emails;
     }
 
-    public void setEmails(List<String> emails) {
+    public void setEmails(Map<String, Boolean> emails) {
         this.emails = emails;
     }
 

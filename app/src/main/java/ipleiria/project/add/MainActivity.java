@@ -21,6 +21,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -87,7 +88,29 @@ public class MainActivity extends AppCompatActivity {
                             // User is signed in
                             ApplicationData.getInstance().setUserUID(user.getUid());
                             Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                            String displayName = user.getDisplayName();
+                            Uri profileUri = user.getPhotoUrl();
+
+                            // If the above were null, iterate the provider data
+                            // and set with the first non null data
+                            for (UserInfo userInfo : user.getProviderData()) {
+                                if (displayName == null && userInfo.getDisplayName() != null) {
+                                    displayName = userInfo.getDisplayName();
+                                }
+                                if (profileUri == null && userInfo.getPhotoUrl() != null) {
+                                    profileUri = userInfo.getPhotoUrl();
+                                }
+                            }
+                            if(displayName == null){
+                                displayName = user.getDisplayName();
+                            }
+                            if(profileUri == null){
+                                profileUri = user.getPhotoUrl();
+                            }
+                            ApplicationData.getInstance().setDisplayName(displayName);
+                            ApplicationData.getInstance().setProfileUri(profileUri);
                             authFlag = true;
+                            writeFirebaseData();
                         }
                     } else {
                         // User is signed out or there's no credentials
@@ -103,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
                                         if (!task.isSuccessful()) {
                                             Log.w(AUTH_TAG, "signInAnonymously", task.getException());
                                             Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                        }else{
+                                            authFlag = true;
                                         }
 
                                         // ...
@@ -144,8 +169,6 @@ public class MainActivity extends AppCompatActivity {
                     dimensions.add(dimension);
                 }
                 ApplicationData.getInstance().addDimensions(dimensions);
-                for(Dimension d: dimensions)
-                    System.out.println(d);
             }
 
             @Override
@@ -228,8 +251,12 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
-        userRef.child("name").setValue(firebaseAuth.getCurrentUser().getDisplayName());
-        userRef.child("emails").setValue(ApplicationData.getInstance().getEmails());
+        userRef.child("name").setValue(ApplicationData.getInstance().getDisplayName());
+        for(Map.Entry<String, Boolean> email: ApplicationData.getInstance().getEmails().entrySet()) {
+            DatabaseReference emailRef = userRef.child("emails").push();
+            emailRef.child("email").setValue(email.getKey());
+            emailRef.child("verified").setValue(email.getValue());
+        }
 
         /*DatabaseReference categoryRef = database.getReference().child("categories");
         for (Dimension dimension : ApplicationData.getInstance().getDimensions()) {
