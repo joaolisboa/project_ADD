@@ -85,6 +85,7 @@ class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemViewHolde
         }
     }
 
+
     @Override
     public int getItemCount() {
         return items.size();

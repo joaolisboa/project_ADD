@@ -51,8 +51,10 @@ import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOGetAccount;
 import ipleiria.project.add.Model.ApplicationData;
+import ipleiria.project.add.Model.Email;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Utils.CircleTransformation;
+import ipleiria.project.add.Utils.NetworkState;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -81,8 +83,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        preferences = getSharedPreferences("services", MODE_PRIVATE);
-
+        preferences = getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE);
         profileImageView = (ImageView) findViewById(R.id.profile_pic);
 
 
@@ -106,8 +107,12 @@ public class SettingsActivity extends AppCompatActivity {
             dropboxL.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Auth.startOAuth2Authentication(SettingsActivity.this, getString(R.string.dropbox_app_key));
-                    loginIntent = true;
+                    if (NetworkState.isOnline(SettingsActivity.this)) {
+                        Auth.startOAuth2Authentication(SettingsActivity.this, getString(R.string.dropbox_app_key));
+                        loginIntent = true;
+                    }else{
+                        Toast.makeText(SettingsActivity.this, "Can't establish connection", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         } else {
@@ -135,7 +140,11 @@ public class SettingsActivity extends AppCompatActivity {
             meoCloudL.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    MEOCloudAPI.startOAuth2Authentication(SettingsActivity.this, getString(R.string.meo_consumer_key));
+                    if (NetworkState.isOnline(SettingsActivity.this)) {
+                        MEOCloudAPI.startOAuth2Authentication(SettingsActivity.this, getString(R.string.meo_consumer_key));
+                    }else{
+                        Toast.makeText(SettingsActivity.this, "Can't establish connection", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         } else {
@@ -148,7 +157,11 @@ public class SettingsActivity extends AppCompatActivity {
                             .setTitle("Confirm");
                     builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            MEOCloudClient.revokeToken(SettingsActivity.this);
+                            if (NetworkState.isOnline(SettingsActivity.this)) {
+                                MEOCloudClient.revokeToken(SettingsActivity.this);
+                            }else{
+                                Toast.makeText(SettingsActivity.this, "Can't establish connection", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                     builder.setNegativeButton(R.string.cancel, null);
@@ -167,6 +180,21 @@ public class SettingsActivity extends AppCompatActivity {
         if (accessToken != null) {
             preferences.edit().putString(MEO_PREFS_KEY, accessToken).apply();
             MEOCloudClient.init(accessToken);
+            if(MEOCloudClient.isClientInitialized()){
+                new MEOGetAccount(new MEOCallback<Account>() {
+                    @Override
+                    public void onComplete(MEOCloudResponse<Account> result) {
+                        ApplicationData.getInstance().addEmail(new Email(result.getResponse().getEmail(), true));
+                        FirebaseHandler.getInstance().writeEmails();
+                    }
+
+                    @Override
+                    public void onRequestError(HttpErrorException httpE) {}
+
+                    @Override
+                    public void onError(Exception e) {}
+                }).execute();
+            }
             setButtonActions();
         }
     }
@@ -176,6 +204,18 @@ public class SettingsActivity extends AppCompatActivity {
         if (accessToken != null) {
             preferences.edit().putString(DROPBOX_PREFS_KEY, accessToken).apply();
             DropboxClientFactory.init(accessToken);
+            if(DropboxClientFactory.isClientInitialized()){
+                new DropboxGetAccount(DropboxClientFactory.getClient(), new DropboxGetAccount.Callback() {
+                    @Override
+                    public void onComplete(FullAccount result) {
+                        ApplicationData.getInstance().addEmail(new Email(result.getEmail(), true));
+                        FirebaseHandler.getInstance().writeEmails();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {}
+                }).execute();
+            }
             setButtonActions();
         }
     }
@@ -185,7 +225,11 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void googleSignIn(View view) {
-        startActivity(new Intent(SettingsActivity.this, GoogleSignInActivity.class));
+        if (NetworkState.isOnline(SettingsActivity.this)) {
+            startActivity(new Intent(SettingsActivity.this, GoogleSignInActivity.class));
+        }else{
+            Toast.makeText(SettingsActivity.this, "Can't establish connection", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -200,12 +244,16 @@ public class SettingsActivity extends AppCompatActivity {
             saveDropboxToken();
         }
 
-        ((TextView) findViewById(R.id.num_emails)).setText(getString(R.string.number_of_emails,
-                ApplicationData.getInstance().getEmails().size()));
+        int numEmails = ApplicationData.getInstance().getEmails().size();
+        if(numEmails == 0){
+            FirebaseHandler.getInstance().readEmails();
+        }else {
+            ((TextView) findViewById(R.id.num_emails)).setText(getString(R.string.number_of_emails, numEmails));
+        }
 
         ((TextView) findViewById(R.id.account_name)).setText(ApplicationData.getInstance().getDisplayName());
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (!user.isAnonymous()) {
+        if (user != null && !user.isAnonymous()) {
             ((TextView) findViewById(R.id.account_description)).setText(getString(R.string.account_syncing_status, user.getEmail()));
             System.out.println("loading picasso profile pic");
             Picasso.with(SettingsActivity.this)
@@ -219,5 +267,6 @@ public class SettingsActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.account_description)).setText(getString(R.string.google_sign_in_helper));
             profileImageView.setImageDrawable(ContextCompat.getDrawable(SettingsActivity.this, R.drawable.ic_profile_placeholder));
         }
+
     }
 }

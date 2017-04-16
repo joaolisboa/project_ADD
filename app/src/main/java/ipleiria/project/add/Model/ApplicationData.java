@@ -4,8 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
 
 /**
  * Created by Lisboa on 11-Apr-17.
@@ -17,6 +21,7 @@ public class ApplicationData {
     private static ApplicationData instance = null;
 
     private SharedPreferences sharedPreferences;
+    private Context context;
 
     private String userUID;
     private Uri profileUri;
@@ -27,6 +32,8 @@ public class ApplicationData {
     private List<Area> areas;
     private List<Criteria> criterias;
     private List<Item> items;
+
+    private List<Email> lockedEmails = new LinkedList<>();
 
     public void fillTestData(Context context) {
 
@@ -63,7 +70,7 @@ public class ApplicationData {
         //endregion
 
         //region EMAILS
-        emails.add(new Email("dummymail@gmail.com", false));
+        //emails.add(new Email("dummymail@gmail.com", false));
         //endregion
 
     }
@@ -97,6 +104,8 @@ public class ApplicationData {
     }
 
     public String getDisplayName() {
+        if(displayName == null)
+            displayName = "Anonymous";
         return displayName;
     }
 
@@ -130,6 +139,7 @@ public class ApplicationData {
 
     public void setUserUID(String userUID) {
         this.userUID = userUID;
+        sharedPreferences.edit().putString(FIREBASE_UID_KEY, userUID).apply();
     }
 
     public String getUserUID() {
@@ -208,8 +218,54 @@ public class ApplicationData {
         return areas;
     }
 
-    public void addEmail(Email email) {
-        if(!emails.contains(email))
-            emails.add(email);
+    public void addEmail(Email newEmail) {
+        if (!emails.contains(newEmail)) {
+            if (emails.isEmpty())
+                emails.add(newEmail);
+            else {
+                boolean added = false;
+                for (int i = 0; i < emails.size(); i++) {
+                    Email email = emails.get(i);
+                    if (email.getEmail().equals(newEmail.getEmail())) {
+                        if (newEmail.isVerified()) {
+                            email.setVerified(true);
+                        }
+                        if (email.getDbKey() == null && newEmail.getDbKey() != null) {
+                            email.setDbKey(newEmail.getDbKey());
+                        }
+                        System.out.println("email altered: "  + email);
+                        added = false;
+                        break;
+                    } else if(email.getDbKey() != null && newEmail.getDbKey() != null){
+                        if(email.getDbKey().equals(newEmail.getDbKey())) {
+                            email.setEmail(newEmail.getEmail());
+                            if (newEmail.isVerified()) {
+                                email.setVerified(true);
+                            }
+                            System.out.println("email altered: "  + email);
+                            added = false;
+                            break;
+                        }else {
+                            added = true;
+                        }
+                    } else {
+                        added = true;
+                        System.out.println("emails must be different: " + email.getEmail() + "=" + newEmail.getEmail());
+                    }
+                }
+                if (added) {
+                    emails.add(newEmail);
+                }
+            }
+        }
+    }
+
+    public boolean emailExists(String emailS) {
+        for(Email email: emails){
+            if(email.getEmail().equals(emailS)){
+                return true;
+            }
+        }
+        return false;
     }
 }

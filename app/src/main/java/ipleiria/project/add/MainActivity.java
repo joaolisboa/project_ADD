@@ -61,6 +61,11 @@ import ipleiria.project.add.Model.Area;
 import ipleiria.project.add.Model.Criteria;
 import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Email;
+import ipleiria.project.add.Utils.NetworkState;
+
+import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
+import static ipleiria.project.add.SettingsActivity.DROPBOX_PREFS_KEY;
+import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -77,14 +82,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         SharedPreferences preferences = getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE);
-        //preferences.edit().remove(SettingsActivity.DROPBOX_PREFS_KEY).apply();
-        //preferences.edit().remove(SettingsActivity.MEO_PREFS_KEY).apply();
         ApplicationData.getInstance().setSharedPreferences(preferences);
         ApplicationData.getInstance().fillTestData(MainActivity.this);
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        FirebaseHandler.newInstance();
 
-        if (hasNetwork()) {
+        if (NetworkState.isOnline(this)) {
             firebaseAuth = FirebaseAuth.getInstance();
             authListener = new FirebaseAuth.AuthStateListener() {
                 @Override
@@ -114,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
                             ApplicationData.getInstance().setDisplayName(displayName);
                             ApplicationData.getInstance().setProfileUri(profileUri);
                             authFlag = true;
-                            writeFirebaseData();
+
+                            FirebaseHandler.getInstance().writeUserInfo();
                         }
                     } else {
                         // User is signed out or there's no credentials
@@ -142,75 +147,28 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
 
-            if (!preferences.getString("dropbox_access_token", "").isEmpty()) {
+            if (!preferences.getString(DROPBOX_PREFS_KEY, "").isEmpty()) {
                 DropboxClientFactory.init(preferences.getString("dropbox_access_token", ""));
-                new DropboxGetAccount(DropboxClientFactory.getClient(), new DropboxGetAccount.Callback() {
-                    @Override
-                    public void onComplete(FullAccount result) {
-                        ApplicationData.getInstance().addEmail(new Email(result.getEmail(), true));
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-
-                    }
-                }).execute();
             }
-            if (!preferences.getString("meo_access_token", "").isEmpty()) {
+            if (!preferences.getString(MEO_PREFS_KEY, "").isEmpty()) {
                 MEOCloudClient.init(preferences.getString("meo_access_token", ""));
-                new MEOGetAccount(new MEOCallback<Account>() {
-                    @Override
-                    public void onComplete(MEOCloudResponse<Account> result) {
-                        ApplicationData.getInstance().addEmail(new Email(result.getResponse().getEmail(), true));
-                    }
-
-                    @Override
-                    public void onRequestError(HttpErrorException httpE) {
-                        Log.e(TAG, httpE.getMessage(), httpE);
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        Log.e(TAG, e.getMessage(), e);
-                    }
-                }).execute();
+            }
+        }else{
+            String userUID = preferences.getString(FIREBASE_UID_KEY, null);
+            if(userUID != null){
+                ApplicationData.getInstance().setUserUID(userUID);
+            }else{
+                Log.e(TAG, "User is offline and has not UID stored in app - never opened app offline?");
             }
         }
-
-        database = FirebaseDatabase.getInstance();
-        DatabaseReference categoryRef = database.getReference().child("categories");
-        categoryRef.keepSynced(true);
-        categoryRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                List<Dimension> dimensions = new LinkedList<>();
-                for (DataSnapshot dimensionSnap : dataSnapshot.getChildren()) {
-                    Dimension dimension = new Dimension(dimensionSnap.child("name").getValue(String.class),
-                            dimensionSnap.child("reference").getValue(Integer.class));
-                    for (DataSnapshot areaSnap : dimensionSnap.child("areas").getChildren()) {
-                        Area area = new Area(areaSnap.child("name").getValue(String.class),
-                                areaSnap.child("reference").getValue(Integer.class));
-                        for (DataSnapshot criteriaSnap : areaSnap.child("criterias").getChildren()) {
-                            Criteria criteria = new Criteria(criteriaSnap.child("name").getValue(String.class),
-                                    criteriaSnap.child("reference").getValue(Integer.class));
-                            area.addCriteria(criteria);
-                        }
-                        dimension.addArea(area);
-                    }
-                    dimensions.add(dimension);
-                }
-                ApplicationData.getInstance().addDimensions(dimensions);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
+        if(ApplicationData.getInstance().getUserUID() != null){
+            // firebase should keep data offline
+            FirebaseHandler.getInstance().readEmails();
+            FirebaseHandler.getInstance().readCategories();
+        }
     }
 
-    public final void readExcel(View view) {
+    /*public final void readExcel(View view) {
         try {
             List<Dimension> dimensions = new LinkedList<>();
             InputStream is = openFileInput("sample.csv");
@@ -261,54 +219,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-    }
-
-    private void writeFirebaseData() {
-        String userUid = ApplicationData.getInstance().getUserUID();
-        DatabaseReference userRef = database.getReference().child("users").child(userUid);
-        userRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                Log.d(TAG, "Value is: " + dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                System.out.println(error.getDetails());
-                System.out.println(error.getMessage());
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
-        userRef.child("name").setValue(ApplicationData.getInstance().getDisplayName());
-        for(Email email: ApplicationData.getInstance().getEmails()) {
-            DatabaseReference emailRef = userRef.child("emails").push();
-            emailRef.child("email").setValue(email.getEmail());
-            emailRef.child("verified").setValue(email.isVerified());
-        }
-
-        /*DatabaseReference categoryRef = database.getReference().child("categories");
-        for (Dimension dimension : ApplicationData.getInstance().getDimensions()) {
-            DatabaseReference dimRef = categoryRef.push();
-            dimRef.child("name").setValue(dimension.getName());
-            dimRef.child("reference").setValue(dimension.getReference());
-
-            for (Area area : dimension.getAreas()) {
-                DatabaseReference areaRef = dimRef.child("areas").push();
-                areaRef.child("name").setValue(area.getName());
-                areaRef.child("reference").setValue(area.getReference());
-
-                for (Criteria criteria : area.getCriterias()) {
-                    DatabaseReference criteriaRef = areaRef.child("criterias").push();
-                    criteriaRef.child("name").setValue(criteria.getName());
-                    criteriaRef.child("reference").setValue(criteria.getReference());
-                }
-            }
-        }*/
-
-    }
+    }*/
 
     public void goToSettings(View view) {
         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
@@ -380,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        if(hasNetwork())
+        if(NetworkState.isOnline(this))
             firebaseAuth.addAuthStateListener(authListener);
     }
 
@@ -390,10 +301,5 @@ public class MainActivity extends AppCompatActivity {
         if (authListener != null) {
             firebaseAuth.removeAuthStateListener(authListener);
         }
-    }
-    private boolean hasNetwork() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

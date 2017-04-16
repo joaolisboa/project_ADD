@@ -1,17 +1,26 @@
 package ipleiria.project.add;
 
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.InputType;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -26,7 +35,7 @@ public class ListEmailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.activity_list_email);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         emails = ApplicationData.getInstance().getEmails();
@@ -38,9 +47,81 @@ public class ListEmailActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(llm);
-        mRecyclerView.setAdapter(new ListEmailAdapter(ListEmailActivity.this, emails));
+        ListEmailAdapter adapter = new ListEmailAdapter(ListEmailActivity.this, emails);
+        adapter.notifyDataSetChanged();
+        mRecyclerView.setAdapter(adapter);
         setUpItemTouchHelper();
         setUpAnimationDecoratorHelper();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.email_list_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId())
+        {
+            case R.id.new_email:
+                addNewEmail();
+                break;
+        }
+        return true;
+    }
+
+    private void addNewEmail() {
+        View view = View.inflate(this, R.layout.add_email_dialog, null);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(view)
+                .setTitle("New Email")
+                .setPositiveButton("OK", null)
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .create();
+
+        final EditText input = (EditText) view.findViewById(R.id.email_edittext);
+        final TextView dialogError = (TextView) view.findViewById(R.id.dialog_error);
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        String email = input.getText().toString();
+                        if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                            if (!ApplicationData.getInstance().emailExists(email)) {
+                                Email newEmail = new Email(email, false);
+                                ApplicationData.getInstance().addEmail(newEmail);
+                                mRecyclerView.getAdapter().notifyDataSetChanged();
+                                dialog.dismiss();
+                            }else{
+                                dialogError.setText(getString(R.string.email_already_exists));
+                                dialogError.setVisibility(View.VISIBLE);
+                            }
+                        }else{
+                            dialogError.setText(R.string.invalid_email);
+                            dialogError.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            }
+        });
+        dialog.show();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        FirebaseHandler.getInstance().writeEmails();
     }
 
     /**
@@ -93,7 +174,6 @@ public class ListEmailActivity extends AppCompatActivity {
             public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 View itemView = viewHolder.itemView;
                 // not sure why, but this method get's called for viewholder that are already swiped away
-                System.out.println("drawing child - onChildDraw call");
                 if (viewHolder.getAdapterPosition() == -1) {
                     // not interested in those
                     return;

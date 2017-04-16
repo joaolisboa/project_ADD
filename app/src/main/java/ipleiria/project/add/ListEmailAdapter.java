@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Email;
 
 /**
@@ -83,6 +84,12 @@ class ListEmailAdapter extends RecyclerView.Adapter<ListEmailAdapter.ItemViewHol
         }
     }
 
+    public void addEmail(Email email){
+        lastInsertedIndex++;
+        items.add(email);
+        notifyItemInserted(items.size() - 1);
+    }
+
     @Override
     public int getItemCount() {
         return items.size();
@@ -105,6 +112,7 @@ class ListEmailAdapter extends RecyclerView.Adapter<ListEmailAdapter.ItemViewHol
     }
 
     private void remove(int position) {
+        System.out.println(ApplicationData.getInstance().getEmails());
         Email item = items.get(position);
         if (itemsPendingRemoval.contains(item)) {
             itemsPendingRemoval.remove(item);
