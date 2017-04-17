@@ -170,59 +170,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*public final void readExcel(View view) {
-        try {
-            List<Dimension> dimensions = new LinkedList<>();
-            InputStream is = openFileInput("sample.csv");
-            CSVReader reader = new CSVReader(new InputStreamReader(is, "ISO-8859-1"));
-            Dimension lastDimension = null;
-            Area lastArea = null;
-            List<String[]> lines = reader.readAll();
-
-            int x = 1, y = 1, z = 1;
-            for (String[] nextLine : lines.subList(12, lines.size())) {
-                String cell = nextLine[0];
-                Dimension d;
-                Area a;
-                if (cell != null && !cell.isEmpty() && (!cell.equals("Total da componente técnico-científica")
-                        && !cell.equals("Total da componente pedagógica")
-                        && !cell.equals("Total da componente organizacional"))) {
-                    cell = nextLine[1];
-                    d = new Dimension(cell, x);
-                    if (d.getName() == null || d.getName().isEmpty()) {
-                        d = lastDimension;
-                    } else {
-                        lastDimension = d;
-                        x++;
-                        y=1;
-                        z=1;
-                        dimensions.add(d);
-                    }
-                    cell = nextLine[2];
-                    a = new Area(cell, y);
-                    if (a.getName() == null || a.getName().isEmpty()) {
-                        a = lastArea;
-                    } else {
-                        lastArea = a;
-                        y++;
-                        z=1;
-                        d.addArea(a);
-                    }
-                    cell = nextLine[3];
-                    if (cell != null && !cell.isEmpty()) {
-                        a.addCriteria(new Criteria(cell, z++));
-                    }
-                }
-            }
-            ApplicationData.getInstance().addDimensions(dimensions);
-            System.out.println(dimensions);
-            writeFirebaseData();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }*/
-
     public void goToSettings(View view) {
         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
     }
@@ -286,15 +233,19 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Log.e("ServiceError", e.getMessage(), e);
             }
-        }).execute("/image.jpg");
+        }).execute("/sample.csv");
 
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if(NetworkState.isOnline(this))
+        if(NetworkState.isOnline(this)) {
+            if (firebaseAuth == null) {
+                firebaseAuth = FirebaseAuth.getInstance();
+            }
             firebaseAuth.addAuthStateListener(authListener);
+        }
     }
 
     @Override

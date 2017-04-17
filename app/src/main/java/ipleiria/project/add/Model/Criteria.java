@@ -37,6 +37,10 @@ public class Criteria extends Category{
         this.area = area;
     }
 
+    public void setDimension(Dimension dimension){
+        area.setDimension(dimension);
+    }
+
     public String getRealReference() {
         StringBuilder ref = new StringBuilder();
         ref.append(getDimension().getReference()).append(".");

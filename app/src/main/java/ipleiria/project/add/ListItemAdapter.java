@@ -79,7 +79,7 @@ class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemViewHolde
             holder.descriptionTextView.setVisibility(View.VISIBLE);
             //holder.descriptionTextView.setText(item.getCategory());
             holder.titleTextView.setVisibility(View.VISIBLE);
-            holder.titleTextView.setText(item.getName());
+            holder.titleTextView.setText(item.getFilename());
             holder.undoButton.setVisibility(View.GONE);
             holder.undoButton.setOnClickListener(null);
         }

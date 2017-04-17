@@ -29,6 +29,7 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        FirebaseHandler.getInstance().readItems();
         list = ApplicationData.getInstance().getItems();
         setUpRecyclerView();
     }

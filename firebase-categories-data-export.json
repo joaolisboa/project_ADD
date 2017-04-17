@@ -241,35 +241,35 @@
               "reference" : 2
             },
             "-KhhfE1u7LFRWouqUULN" : {
-              "name" : "Responsável de projeto com financiamento externo < 20,000/ano",
+              "name" : "Responsável de projeto com financiamento externo < 20,000€/ano",
               "reference" : 3
             },
             "-KhhfE1u7LFRWouqUULO" : {
-              "name" : "Colaborador de projeto com financiamento externo < 20,000/ano",
+              "name" : "Colaborador de projeto com financiamento externo < 20,000€/ano",
               "reference" : 4
             },
             "-KhhfE1u7LFRWouqUULP" : {
-              "name" : "Responsável de projeto com financiamento externo >= 20,000/ano",
+              "name" : "Responsável de projeto com financiamento externo >= 20,000€/ano",
               "reference" : 5
             },
             "-KhhfE1u7LFRWouqUULQ" : {
-              "name" : "Colaborador de projeto com financiamento externo >= 20,000/ano",
+              "name" : "Colaborador de projeto com financiamento externo >= 20,000€/ano",
               "reference" : 6
             },
             "-KhhfE1u7LFRWouqUULR" : {
-              "name" : "Responsável de projeto internacional com financiamento externo < 100,000/ano",
+              "name" : "Responsável de projeto internacional com financiamento externo < 100,000€/ano",
               "reference" : 7
             },
             "-KhhfE1vFNMRFxd9rPEA" : {
-              "name" : "Colaborador de projeto internacional com financiamento externo < 100,000/ano",
+              "name" : "Colaborador de projeto internacional com financiamento externo < 100,000€/ano",
               "reference" : 8
             },
             "-KhhfE1vFNMRFxd9rPEB" : {
-              "name" : "Responsável de projeto internacional com financiamento externo >= 100,000/ano",
+              "name" : "Responsável de projeto internacional com financiamento externo >= 100,000€/ano",
               "reference" : 9
             },
             "-KhhfE1vFNMRFxd9rPEC" : {
-              "name" : "Colaborador de projeto internacional com financiamento externo >= 100,000/ano",
+              "name" : "Colaborador de projeto internacional com financiamento externo >= 100,000€/ano",
               "reference" : 10
             }
           },

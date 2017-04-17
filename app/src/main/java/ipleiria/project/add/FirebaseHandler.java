@@ -26,6 +26,7 @@ import ipleiria.project.add.Model.Area;
 import ipleiria.project.add.Model.Criteria;
 import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Email;
+import ipleiria.project.add.Model.Item;
 
 /**
  * Created by Lisboa on 15-Apr-17.
@@ -40,6 +41,7 @@ public class FirebaseHandler {
     private FirebaseDatabase database;
     private DatabaseReference userReference;
     private DatabaseReference categoryReference;
+    private DatabaseReference itemsReference;
 
     private FirebaseHandler() {
         database = FirebaseDatabase.getInstance();
@@ -56,6 +58,8 @@ public class FirebaseHandler {
         if(ApplicationData.getInstance().getUserUID()!= null){
             userReference = database.getReference().child("users").child(ApplicationData.getInstance().getUserUID());
             userReference.keepSynced(true);
+            itemsReference = database.getReference().child("items").child(ApplicationData.getInstance().getUserUID());
+            itemsReference.keepSynced(true);
         }
         categoryReference = database.getReference().child("categories");
         categoryReference.keepSynced(true);
@@ -122,10 +126,6 @@ public class FirebaseHandler {
         });
     }
 
-    public void readEmailsOnce(){
-
-    }
-
     public void readEmails(){
         DatabaseReference emailRef = userReference.child("emails");
         emailRef.addChildEventListener(new ChildEventListener() {
@@ -186,9 +186,7 @@ public class FirebaseHandler {
             initReferences();
         }
         if(userReference != null){
-
             userReference.child("name").setValue(ApplicationData.getInstance().getDisplayName());
-
         }
     }
 
@@ -207,4 +205,71 @@ public class FirebaseHandler {
         }
     }
 
+    public void writeItems(){
+        List<Item> items = ApplicationData.getInstance().getItems();
+        for(Item item: items) {
+            writeItem(item);
+        }
+    }
+
+    public void writeItem(Item item){
+        System.out.println(item);
+        DatabaseReference itemRef = itemsReference.getRef();
+        if(item.getDbKey() == null || item.getDbKey().isEmpty()){
+            itemRef = itemRef.push();
+            item.setDbKey(itemRef.getKey());
+        }else{
+            itemRef = itemRef.child(item.getDbKey());
+        }
+        itemRef.child("filename").setValue(item.getFilename());
+        itemRef.child("reference").setValue(item.getCategoryReference());
+        itemRef.child("description").setValue(item.getDescription());
+    }
+
+    public void readItems(){
+        itemsReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Item newItem = dataSnapshot.getValue(Item.class);
+                newItem.setReference((String)dataSnapshot.child("reference").getValue());
+                newItem.setDbKey(dataSnapshot.getKey());
+                ApplicationData.getInstance().addItem(newItem);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Item newItem = dataSnapshot.getValue(Item.class);
+                newItem.setReference((String)dataSnapshot.child("reference").getValue());
+                newItem.setDbKey(dataSnapshot.getKey());
+                ApplicationData.getInstance().addItem(newItem);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public DatabaseReference getUserReference() {
+        return userReference;
+    }
+
+    public DatabaseReference getCategoryReference() {
+        return categoryReference;
+    }
+
+    public DatabaseReference getItemsReference() {
+        return itemsReference;
+    }
 }

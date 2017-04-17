@@ -1,20 +1,22 @@
 package ipleiria.project.add.Model;
 
-import java.io.File;
-
 /**
  * Created by Lisboa on 04-Apr-17.
  */
 
 public class Item {
 
-    private File file;
-    private String name;
+    private String filename;
     private String description;
     private Criteria criteria;
+    private String dbKey;
 
-    public Item(String name, String description) {
-        this.name = name;
+    public Item(){
+
+    }
+
+    public Item(String filename, String description) {
+        this.filename = filename;
         this.description = description;
     }
 
@@ -23,20 +25,20 @@ public class Item {
         this.criteria = criteria;
     }
 
-    public File getFile() {
-        return file;
+    public String getDbKey() {
+        return dbKey;
     }
 
-    public void setFile(File file) {
-        this.file = file;
+    public void setDbKey(String dbKey) {
+        this.dbKey = dbKey;
     }
 
-    public String getName() {
-        return name;
+    public String getFilename() {
+        return filename;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public String getDescription() {
@@ -65,5 +67,17 @@ public class Item {
 
     public String getCategoryReference() {
         return criteria.getRealReference();
+    }
+
+    public void setReference(String reference){
+        String[] s = reference.split("\\.");
+        criteria = ApplicationData.getInstance().getCriterias().get(Integer.valueOf(s[2])-1);
+        criteria.setArea(ApplicationData.getInstance().getAreas().get(Integer.valueOf(s[1])-1));
+        criteria.setDimension(ApplicationData.getInstance().getDimensions().get(Integer.valueOf(s[0])-1));
+    }
+
+    @Override
+    public String toString(){
+        return getCategoryReference() + ":" + filename;
     }
 }

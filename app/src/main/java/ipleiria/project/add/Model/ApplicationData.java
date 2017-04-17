@@ -283,4 +283,20 @@ public class ApplicationData {
         }
         return false;
     }
+
+    public void addItem(Item newItem) {
+        for(Item item: items){
+            if(item.getDbKey() != null &&
+                    newItem.getDbKey() != null &&
+                    item.getDbKey().equals(newItem.getDbKey())){
+                item = newItem;
+                return;
+            }
+        }
+        if(!items.contains(newItem)){
+            items.add(newItem);
+        }
+    }
+
+
 }

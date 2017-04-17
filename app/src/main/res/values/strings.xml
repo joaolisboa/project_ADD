@@ -106,6 +106,7 @@
     <string name="number_of_emails">%d emails</string>
     <string name="email_already_exists">Email already exists</string>
     <string name="invalid_email">Email invalid</string>
+    <string name="filename_format">File: %1$s</string>
 
 
 </resources>

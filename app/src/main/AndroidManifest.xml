@@ -51,6 +51,7 @@
         </activity>
         <activity
             android:name=".AddItemActivity"
+            android:windowSoftInputMode="stateHidden"
             android:label="@string/share_activity_label">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
