@@ -75,6 +75,20 @@ public class ApplicationData {
 
     }
 
+    public LinkedList<String> getAllCriterias (){
+        // get all criterias
+        LinkedList<String> criterias;
+        criterias = new LinkedList<>();
+        for (Dimension d : ApplicationData.getInstance().getDimensions()) {
+            for (Area a : d.getAreas()) {
+                for (Criteria c : a.getCriterias()) {
+                    criterias.add(c.getName().toLowerCase());
+                }
+            }
+        }
+        return criterias;
+    }
+
     private ApplicationData() {
         criterias = new LinkedList<>();
         dimensions = new LinkedList<>();

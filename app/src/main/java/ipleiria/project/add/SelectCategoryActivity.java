@@ -3,7 +3,6 @@ package ipleiria.project.add;
 import android.app.SearchManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
@@ -33,6 +31,7 @@ public class SelectCategoryActivity extends AppCompatActivity {
     ArrayAdapter<String> adapter;
     private LinkedList<String> criterias;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,19 +47,10 @@ public class SelectCategoryActivity extends AppCompatActivity {
         criterias = new LinkedList<>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         l.setAdapter(adapter);
-        createMenu();
+        createTreeView();
 
+        criterias = ApplicationData.getInstance().getAllCriterias();
 
-
-
-        // get all criterias
-        for (Dimension d : ApplicationData.getInstance().getDimensions()) {
-            for (Area a : d.getAreas()) {
-                for (Criteria c : a.getCriterias()) {
-                    criterias.add(c.getName().toLowerCase());
-                }
-            }
-        }
 
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -72,22 +62,17 @@ public class SelectCategoryActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 list.clear();
                 if (TextUtils.isEmpty(newText)) {
-                    createMenu();
                     l.setVisibility(View.GONE);
-
-
+                    containerView.setVisibility(View.VISIBLE);
                 } else {
-
-
-                        String filter = newText.toLowerCase();
-                        for (String criterio : criterias) {
-                            if (criterio.contains(filter)) {
-                                list.add(criterio);
-                            }
+                    String filter = newText.toLowerCase();
+                    for (String criterio : criterias) {
+                        if (criterio.contains(filter)) {
+                            list.add(criterio);
                         }
-                        containerView.setVisibility(View.INVISIBLE);
-
-
+                    }
+                    l.setVisibility(View.VISIBLE);
+                    containerView.setVisibility(View.GONE);
                 }
                 l.setAdapter(adapter);
                 return false;
@@ -111,7 +96,8 @@ public class SelectCategoryActivity extends AppCompatActivity {
 
     }
 
-    public void createMenu() {
+
+    public void createTreeView() {
         for (Dimension dimension : ApplicationData.getInstance().getDimensions()) {
             TreeNode parent = new TreeNode(dimension);
             for (Area area : dimension.getAreas()) {
