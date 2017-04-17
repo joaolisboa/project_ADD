@@ -13,6 +13,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+
 import java.util.List;
 
 import ipleiria.project.add.Model.ApplicationData;
@@ -29,7 +33,38 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        FirebaseHandler.getInstance().readItems();
+        FirebaseHandler.getInstance().getItemsReference().addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Item newItem = dataSnapshot.getValue(Item.class);
+                newItem.setReference((String)dataSnapshot.child("reference").getValue());
+                newItem.setDbKey(dataSnapshot.getKey());
+                ApplicationData.getInstance().addItem(newItem);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Item newItem = dataSnapshot.getValue(Item.class);
+                newItem.setReference((String)dataSnapshot.child("reference").getValue());
+                newItem.setDbKey(dataSnapshot.getKey());
+                ApplicationData.getInstance().addItem(newItem);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         list = ApplicationData.getInstance().getItems();
         setUpRecyclerView();
     }

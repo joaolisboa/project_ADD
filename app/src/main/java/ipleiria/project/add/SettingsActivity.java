@@ -86,13 +86,6 @@ public class SettingsActivity extends AppCompatActivity {
         preferences = getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE);
         profileImageView = (ImageView) findViewById(R.id.profile_pic);
 
-
-        /*((TextView)findViewById(R.id.account_name)).setText(ApplicationData.getInstance().getDisplayName());
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(!user.isAnonymous()){
-            ((TextView)findViewById(R.id.account_description)).setText(getString(R.string.account_syncing_status, user.getEmail()));
-        }*/
-
         dropboxL = (LinearLayout) findViewById(R.id.dropbox);
         meoCloudL = (LinearLayout) findViewById(R.id.meocloud);
         dropboxState = (ImageView) findViewById(R.id.dropbox_state);

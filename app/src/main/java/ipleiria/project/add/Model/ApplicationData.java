@@ -172,6 +172,13 @@ public class ApplicationData {
     }
 
     private void addCriteria(Criteria criteria) {
+        for(Criteria c: criterias){
+            if(c.getDbKey() != null && criteria.getDbKey() != null
+                    && c.getDbKey().equals(criteria.getDbKey())){
+                c = criteria;
+                return;
+            }
+        }
         if (!criterias.contains(criteria)) {
             criterias.add(criteria);
         }
@@ -184,6 +191,13 @@ public class ApplicationData {
     }
 
     public void addDimension(Dimension dimension) {
+        for(Dimension d: dimensions){
+            if(d.getDbKey() != null && dimension.getDbKey() != null
+                    && d.getDbKey().equals(dimension.getDbKey())){
+                d = dimension;
+                return;
+            }
+        }
         if (!dimensions.contains(dimension)) {
             dimensions.add(dimension);
             if (!dimension.getAreas().isEmpty()) {
@@ -209,6 +223,13 @@ public class ApplicationData {
     }
 
     public void addArea(Area area) {
+        for(Area a: areas){
+            if(a.getDbKey() != null && area.getDbKey() != null
+                    && a.getDbKey().equals(area.getDbKey())){
+                a = area;
+                return;
+            }
+        }
         if (!areas.contains(area)) {
             areas.add(area);
             if (!area.getCriterias().isEmpty()) {

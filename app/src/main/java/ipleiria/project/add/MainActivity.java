@@ -27,6 +27,7 @@ import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -82,8 +83,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(FirebaseDatabase.getInstance() == null) {
+        try {
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        }catch(DatabaseException e){
+            // set persistence must only be run once and be run before any call to FirebaseDatabase
+            Log.d(TAG, e.getMessage());
         }
         SharedPreferences preferences = getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE);
         ApplicationData.getInstance().setSharedPreferences(preferences);
@@ -92,62 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (NetworkState.isOnline(this)) {
             firebaseAuth = FirebaseAuth.getInstance();
-            authListener = new FirebaseAuth.AuthStateListener() {
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    FirebaseUser user = firebaseAuth.getCurrentUser();
-                    if (user != null) {
-                        if(!authFlag){
-                            // User is signed in
-                            ApplicationData.getInstance().setUserUID(user.getUid());
-                            Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                            String displayName = user.getDisplayName();
-                            Uri profileUri = user.getPhotoUrl();
-
-                            // If the above were null, iterate the provider data
-                            // and set with the first non null data
-                            for (UserInfo userInfo : user.getProviderData()) {
-                                if (displayName == null && userInfo.getDisplayName() != null) {
-                                    displayName = userInfo.getDisplayName();
-                                }
-                                if (profileUri == null && userInfo.getPhotoUrl() != null) {
-                                    profileUri = userInfo.getPhotoUrl();
-                                }
-                            }
-                            if(displayName == null || displayName.isEmpty()){
-                                displayName = "Anonymous";
-                            }
-                            ApplicationData.getInstance().setDisplayName(displayName);
-                            ApplicationData.getInstance().setProfileUri(profileUri);
-                            authFlag = true;
-
-                            FirebaseHandler.getInstance().writeUserInfo();
-                        }
-                    } else {
-                        // User is signed out or there's no credentials
-                        firebaseAuth.signInAnonymously()
-                                .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        Log.d(AUTH_TAG, "signInAnonymously:onComplete:" + task.isSuccessful());
-
-                                        // If sign in fails, display a message to the user. If sign in succeeds
-                                        // the auth state listener will be notified and logic to handle the
-                                        // signed in user can be handled in the listener.
-                                        if (!task.isSuccessful()) {
-                                            Log.w(AUTH_TAG, "signInAnonymously", task.getException());
-                                            Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                                        }else{
-                                            authFlag = true;
-                                        }
-
-                                        // ...
-                                    }
-                                });
-                        Log.d(AUTH_TAG, "onAuthStateChanged:signed_out");
-                    }
-                }
-            };
+            initAuthListener();
 
             if (!preferences.getString(DROPBOX_PREFS_KEY, "").isEmpty()) {
                 DropboxClientFactory.init(preferences.getString("dropbox_access_token", ""));
@@ -167,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
             // firebase should keep data offline
             FirebaseHandler.getInstance().readEmails();
             FirebaseHandler.getInstance().readCategories();
+            FirebaseHandler.getInstance().readItems();
         }
     }
 
@@ -244,8 +194,72 @@ public class MainActivity extends AppCompatActivity {
             if (firebaseAuth == null) {
                 firebaseAuth = FirebaseAuth.getInstance();
             }
-            firebaseAuth.addAuthStateListener(authListener);
+            if(firebaseAuth != null){
+                if(authListener == null){
+                    initAuthListener();
+                }
+                firebaseAuth.addAuthStateListener(authListener);
+            }
         }
+    }
+
+    private void initAuthListener() {
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    if(!authFlag){
+                        // User is signed in
+                        ApplicationData.getInstance().setUserUID(user.getUid());
+                        Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                        String displayName = user.getDisplayName();
+                        Uri profileUri = user.getPhotoUrl();
+
+                        // If the above were null, iterate the provider data
+                        // and set with the first non null data
+                        for (UserInfo userInfo : user.getProviderData()) {
+                            if (displayName == null && userInfo.getDisplayName() != null) {
+                                displayName = userInfo.getDisplayName();
+                            }
+                            if (profileUri == null && userInfo.getPhotoUrl() != null) {
+                                profileUri = userInfo.getPhotoUrl();
+                            }
+                        }
+                        if(displayName == null || displayName.isEmpty()){
+                            displayName = "Anonymous";
+                        }
+                        ApplicationData.getInstance().setDisplayName(displayName);
+                        ApplicationData.getInstance().setProfileUri(profileUri);
+                        authFlag = true;
+                        FirebaseHandler.getInstance().initReferences();
+                        FirebaseHandler.getInstance().writeUserInfo();
+                    }
+                } else {
+                    // User is signed out or there's no credentials
+                    firebaseAuth.signInAnonymously()
+                            .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    Log.d(AUTH_TAG, "signInAnonymously:onComplete:" + task.isSuccessful());
+
+                                    // If sign in fails, display a message to the user. If sign in succeeds
+                                    // the auth state listener will be notified and logic to handle the
+                                    // signed in user can be handled in the listener.
+                                    if (!task.isSuccessful()) {
+                                        Log.w(AUTH_TAG, "signInAnonymously", task.getException());
+                                        Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                    }else{
+                                        authFlag = true;
+                                    }
+
+                                    // ...
+                                }
+                            });
+                    Log.d(AUTH_TAG, "onAuthStateChanged:signed_out");
+                }
+            }
+        };
     }
 
     @Override

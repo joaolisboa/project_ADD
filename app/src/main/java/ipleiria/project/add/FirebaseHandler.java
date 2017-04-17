@@ -54,7 +54,7 @@ public class FirebaseHandler {
         initReferences();
     }
 
-    private void initReferences(){
+    public void initReferences(){
         if(ApplicationData.getInstance().getUserUID()!= null){
             userReference = database.getReference().child("users").child(ApplicationData.getInstance().getUserUID());
             userReference.keepSynced(true);
@@ -85,12 +85,15 @@ public class FirebaseHandler {
                 for (DataSnapshot dimensionSnap : dataSnapshot.getChildren()) {
                     Dimension dimension = new Dimension(dimensionSnap.child("name").getValue(String.class),
                             dimensionSnap.child("reference").getValue(Integer.class));
+                    dimension.setDbKey(dimensionSnap.getKey());
                     for (DataSnapshot areaSnap : dimensionSnap.child("areas").getChildren()) {
                         Area area = new Area(areaSnap.child("name").getValue(String.class),
                                 areaSnap.child("reference").getValue(Integer.class));
+                        area.setDbKey(areaSnap.getKey());
                         for (DataSnapshot criteriaSnap : areaSnap.child("criterias").getChildren()) {
                             Criteria criteria = new Criteria(criteriaSnap.child("name").getValue(String.class),
                                     criteriaSnap.child("reference").getValue(Integer.class));
+                            criteria.setDbKey(criteriaSnap.getKey());
                             area.addCriteria(criteria);
                         }
                         dimension.addArea(area);

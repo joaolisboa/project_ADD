@@ -16,6 +16,7 @@ import ipleiria.project.add.Utils.JsonObject;
 public class Category{
 
     protected String name;
+    protected String dbKey;
     protected int reference;
 
     public Category(){
@@ -25,6 +26,14 @@ public class Category{
     public Category(String name, int reference){
         this.name = name;
         this.reference = reference;
+    }
+
+    public String getDbKey() {
+        return dbKey;
+    }
+
+    public void setDbKey(String dbKey) {
+        this.dbKey = dbKey;
     }
 
     public String getName() {
