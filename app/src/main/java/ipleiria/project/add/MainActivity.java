@@ -82,7 +82,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        if(FirebaseDatabase.getInstance() == null) {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        }
         SharedPreferences preferences = getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE);
         ApplicationData.getInstance().setSharedPreferences(preferences);
         ApplicationData.getInstance().fillTestData(MainActivity.this);
@@ -253,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Log.e("DownloadError", e.getMessage(), e);
             }
-        }).execute("/exploring_luciddreaming.pdf");
+        }).execute("/image.jpg");
 
         new MEOGetMetadata(new MEOCallback<MEOMetadata>() {
 
@@ -284,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 Log.e("ServiceError", e.getMessage(), e);
             }
-        }).execute("/exploring_luciddreaming.pdf");
+        }).execute("/image.jpg");
 
     }
 

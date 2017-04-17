@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -60,13 +61,13 @@ public class ApplicationData {
         //endregion
 
         //region ITEMS
-        /*File dir = context.getFilesDir();
+        File dir = context.getFilesDir();
         for(File f: dir.listFiles()){
-            items.add(new Item(f.getName(), "description", ApplicationData.getInstance().getCriterias().get(0)));
+            items.add(new Item(f.getName(), "description"));
         }
         for(int i = 0; i < 15; i++){
-            items.add(new Item("Dummy item " + i, "description", ApplicationData.getInstance().getCriterias().get(2)));
-        }*/
+            items.add(new Item("Dummy item " + i, "description"));
+        }
         //endregion
 
         //region EMAILS

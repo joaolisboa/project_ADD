@@ -245,11 +245,8 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         int numEmails = ApplicationData.getInstance().getEmails().size();
-        if(numEmails == 0){
-            FirebaseHandler.getInstance().readEmails();
-        }else {
-            ((TextView) findViewById(R.id.num_emails)).setText(getString(R.string.number_of_emails, numEmails));
-        }
+
+        ((TextView) findViewById(R.id.num_emails)).setText(getString(R.string.number_of_emails, numEmails));
 
         ((TextView) findViewById(R.id.account_name)).setText(ApplicationData.getInstance().getDisplayName());
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();

@@ -186,7 +186,9 @@ public class FirebaseHandler {
             initReferences();
         }
         if(userReference != null){
+
             userReference.child("name").setValue(ApplicationData.getInstance().getDisplayName());
+
         }
     }
 
