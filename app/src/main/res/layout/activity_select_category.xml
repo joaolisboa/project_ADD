@@ -6,9 +6,30 @@
     android:layout_height="match_parent"
     tools:context="ipleiria.project.add.SelectCategoryActivity">
 
+    <SearchView
+        android:id="@+id/searchText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="19dp" />
+
     <RelativeLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/container" />
+        android:layout_height="wrap_content"
+        android:paddingBottom="200dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/listviewSeach" />
+
+    <ListView
+        android:id="@+id/listviewSeach"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="100dp"
+        android:layout_below="@+id/searchText"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="36dp" />
 
 </RelativeLayout>

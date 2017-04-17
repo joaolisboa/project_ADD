@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "476372799489-khhtdepf98jfckgrbbavkulps078k2nh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ipleiria.project.add",
+            "certificate_hash": "e3aab85ba6879da954d9a0136c72b9e2fb07a45c"
+          }
+        },
+        {
+          "client_id": "476372799489-n3gne72aoumi9rht62gqufnqsn29orbt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ipleiria.project.add",
+            "certificate_hash": "e70494d138bf36a5ccf0088482afc97f2ae21261"
+          }
+        },
+        {
           "client_id": "476372799489-aj7fj01kh0sul874c53crf0kep1k3mrd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -30,6 +46,9 @@
       "api_key": [
         {
           "current_key": "AIzaSyBs7DID53p7L1-x5Z1vibDupTtTz8lcBvE"
+        },
+        {
+          "current_key": "AIzaSyAqO_v8y1Yxt2JulsDmA4tGGicbAYVUy1k"
         }
       ],
       "services": {
