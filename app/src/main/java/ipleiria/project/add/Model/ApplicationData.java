@@ -161,6 +161,10 @@ public class ApplicationData {
         return userUID;
     }
 
+    public Criteria getCriteria(int dimension, int area, int criteria){
+        return dimensions.get(dimension).getArea(area).getCriteria(criteria);
+    }
+
     public List<Criteria> getCriterias() {
         return criterias;
     }
@@ -172,10 +176,12 @@ public class ApplicationData {
     }
 
     private void addCriteria(Criteria criteria) {
-        for(Criteria c: criterias){
-            if(c.getDbKey() != null && criteria.getDbKey() != null
-                    && c.getDbKey().equals(criteria.getDbKey())){
-                c = criteria;
+        for(int i = 0; i < criterias.size(); i++){
+            if(criterias.get(i).getDbKey() != null &&
+                    criteria.getDbKey() != null &&
+                    criterias.get(i).getDbKey().equals(criteria.getDbKey())){
+                criterias.remove(i);
+                criterias.add(i, criteria);
                 return;
             }
         }
@@ -191,10 +197,11 @@ public class ApplicationData {
     }
 
     public void addDimension(Dimension dimension) {
-        for(Dimension d: dimensions){
-            if(d.getDbKey() != null && dimension.getDbKey() != null
-                    && d.getDbKey().equals(dimension.getDbKey())){
-                d = dimension;
+        for(int i = 0; i < dimensions.size(); i++){
+            if(dimensions.get(i).getDbKey() != null && dimension.getDbKey() != null
+                    && dimensions.get(i).getDbKey().equals(dimension.getDbKey())){
+                dimensions.remove(i);
+                dimensions.add(i, dimension);
                 return;
             }
         }
@@ -223,10 +230,11 @@ public class ApplicationData {
     }
 
     public void addArea(Area area) {
-        for(Area a: areas){
-            if(a.getDbKey() != null && area.getDbKey() != null
-                    && a.getDbKey().equals(area.getDbKey())){
-                a = area;
+        for(int i = 0; i < areas.size(); i++){
+            if(areas.get(i).getDbKey() != null && area.getDbKey() != null
+                    && areas.get(i).getDbKey().equals(area.getDbKey())){
+                areas.remove(i);
+                areas.add(i, area);
                 return;
             }
         }
@@ -306,11 +314,12 @@ public class ApplicationData {
     }
 
     public void addItem(Item newItem) {
-        for(Item item: items){
-            if(item.getDbKey() != null &&
+        for(int i = 0; i < items.size(); i++){
+            if(items.get(i).getDbKey() != null &&
                     newItem.getDbKey() != null &&
-                    item.getDbKey().equals(newItem.getDbKey())){
-                item = newItem;
+                    items.get(i).getDbKey().equals(newItem.getDbKey())){
+                items.remove(i);
+                items.add(i, newItem);
                 return;
             }
         }
@@ -319,5 +328,13 @@ public class ApplicationData {
         }
     }
 
-
+    public void deleteItem(String itemKey) {
+        for(int i = 0; i < items.size(); i++){
+            if(items.get(i).getDbKey() != null &&
+                    items.get(i).getDbKey().equals(itemKey)){
+                items.remove(i);
+                return;
+            }
+        }
+    }
 }

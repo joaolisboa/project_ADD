@@ -69,15 +69,17 @@ public class Item {
         return criteria.getRealReference();
     }
 
-    public void setReference(String reference){
+    public void setReference(String reference) {
         String[] s = reference.split("\\.");
-        criteria = ApplicationData.getInstance().getCriterias().get(Integer.valueOf(s[2])-1);
-        criteria.setArea(ApplicationData.getInstance().getAreas().get(Integer.valueOf(s[1])-1));
-        criteria.setDimension(ApplicationData.getInstance().getDimensions().get(Integer.valueOf(s[0])-1));
+        int dimension = Integer.valueOf(s[0]) - 1;
+        int area = Integer.valueOf(s[1]) - 1;
+        int criteria = Integer.valueOf(s[2]) - 1;
+        this.criteria = ApplicationData.getInstance().getCriteria(dimension, area, criteria);
     }
 
     @Override
     public String toString(){
-        return getCategoryReference() + ":" + filename;
+        return getCategoryReference() + ":" + filename + ":" + dbKey;
     }
+
 }

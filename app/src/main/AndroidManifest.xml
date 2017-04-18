@@ -100,7 +100,7 @@
                 <data android:mimeType="application/vnd.google-apps.spreadsheet" />
             </intent-filter>
         </activity>
-        <activity android:name=".ListActivity" />
+        <activity android:name=".ListItemActivity" />
         <activity android:name=".SelectCategoryActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".GoogleSignInActivity" />

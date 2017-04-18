@@ -41,7 +41,6 @@ public class SelectCategoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_category);
-
         containerView = (ViewGroup) findViewById(R.id.container);
 
         SearchView search = (SearchView) findViewById(R.id.searchText);

@@ -22,7 +22,7 @@ import java.util.List;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Item;
 
-public class ListActivity extends AppCompatActivity {
+public class ListItemActivity extends AppCompatActivity {
 
     RecyclerView mRecyclerView;
     private List<Item> list;
@@ -33,38 +33,7 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        FirebaseHandler.getInstance().getItemsReference().addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Item newItem = dataSnapshot.getValue(Item.class);
-                newItem.setReference((String)dataSnapshot.child("reference").getValue());
-                newItem.setDbKey(dataSnapshot.getKey());
-                ApplicationData.getInstance().addItem(newItem);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Item newItem = dataSnapshot.getValue(Item.class);
-                newItem.setReference((String)dataSnapshot.child("reference").getValue());
-                newItem.setDbKey(dataSnapshot.getKey());
-                ApplicationData.getInstance().addItem(newItem);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        FirebaseHandler.getInstance().getItemsReference().addChildEventListener(itemsEventListener);
         list = ApplicationData.getInstance().getItems();
         setUpRecyclerView();
     }
@@ -96,9 +65,9 @@ public class ListActivity extends AppCompatActivity {
 
             private void init() {
                 background = new ColorDrawable(Color.RED);
-                deleteIcon = ContextCompat.getDrawable(ListActivity.this, R.drawable.delete_item_icon);
+                deleteIcon = ContextCompat.getDrawable(ListItemActivity.this, R.drawable.delete_item_icon);
                 deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-                deleteIconMargin = (int) ListActivity.this.getResources().getDimension(R.dimen.ic_clear_margin);
+                deleteIconMargin = (int) ListItemActivity.this.getResources().getDimension(R.dimen.ic_clear_margin);
                 initiated = true;
             }
 
@@ -242,4 +211,47 @@ public class ListActivity extends AppCompatActivity {
 
         });
     }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        FirebaseHandler.getInstance().getItemsReference().removeEventListener(itemsEventListener);
+        FirebaseHandler.getInstance().readItems();
+    }
+
+    private ChildEventListener itemsEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            Item newItem = dataSnapshot.getValue(Item.class);
+            newItem.setReference((String)dataSnapshot.child("reference").getValue());
+            newItem.setDbKey(dataSnapshot.getKey());
+            ApplicationData.getInstance().addItem(newItem);
+            mRecyclerView.getAdapter().notifyDataSetChanged();
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            Item newItem = dataSnapshot.getValue(Item.class);
+            newItem.setReference((String)dataSnapshot.child("reference").getValue());
+            newItem.setDbKey(dataSnapshot.getKey());
+            ApplicationData.getInstance().addItem(newItem);
+            mRecyclerView.getAdapter().notifyDataSetChanged();
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            ApplicationData.getInstance().deleteItem(dataSnapshot.getKey());
+            mRecyclerView.getAdapter().notifyDataSetChanged();
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
 }

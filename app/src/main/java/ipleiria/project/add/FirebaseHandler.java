@@ -149,7 +149,9 @@ public class FirebaseHandler {
             }
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
@@ -249,41 +251,12 @@ public class FirebaseHandler {
         });
     }
 
+    public void removeItemsListener(){
+        itemsReference.removeEventListener(itemsEventListener);
+    }
+
     public void readItems(){
-        itemsReference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Item newItem = dataSnapshot.getValue(Item.class);
-                System.out.println(dataSnapshot.getValue());
-                System.out.println(dataSnapshot.child("reference").getValue());
-                newItem.setReference((String)dataSnapshot.child("reference").getValue());
-                newItem.setDbKey(dataSnapshot.getKey());
-                ApplicationData.getInstance().addItem(newItem);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Item newItem = dataSnapshot.getValue(Item.class);
-                newItem.setReference((String)dataSnapshot.child("reference").getValue());
-                newItem.setDbKey(dataSnapshot.getKey());
-                ApplicationData.getInstance().addItem(newItem);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        itemsReference.addChildEventListener(itemsEventListener);
     }
 
     public DatabaseReference getUserReference() {
@@ -297,4 +270,47 @@ public class FirebaseHandler {
     public DatabaseReference getItemsReference() {
         return itemsReference;
     }
+
+    private ChildEventListener itemsEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            Item newItem = dataSnapshot.getValue(Item.class);
+            newItem.setReference((String)dataSnapshot.child("reference").getValue());
+            newItem.setDbKey(dataSnapshot.getKey());
+            ApplicationData.getInstance().addItem(newItem);
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            Item newItem = dataSnapshot.getValue(Item.class);
+            newItem.setReference((String)dataSnapshot.child("reference").getValue());
+            newItem.setDbKey(dataSnapshot.getKey());
+            ApplicationData.getInstance().addItem(newItem);
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            ApplicationData.getInstance().deleteItem(dataSnapshot.getKey());
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+    public void deleteItem(final String itemKey){
+        itemsReference.child(itemKey).removeValue(new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                System.out.println("Item deleted: " + itemKey);
+            }
+        });
+    }
+
 }
