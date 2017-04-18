@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -16,6 +17,7 @@ import com.unnamed.b.atv.view.AndroidTreeView;
 
 import java.sql.SQLOutput;
 import java.util.LinkedList;
+import java.util.List;
 
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Area;
@@ -25,61 +27,38 @@ import ipleiria.project.add.Model.Dimension;
 
 public class SelectCategoryActivity extends AppCompatActivity {
 
+    private ViewGroup containerView;
+
     private TreeNode treeRoot;
     private AndroidTreeView tView;
-    private LinkedList<String> list;
-    private ListView l;
-    ArrayAdapter<String> adapter;
-    private LinkedList<String> criterias;
+    private LinkedList<Criteria> searchResults;
+    private ListView searchListView;
+    ArrayAdapter<Criteria> adapter;
+    private List<Criteria> criterias;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_category);
-        final ViewGroup containerView = (ViewGroup) findViewById(R.id.container);
 
-        treeRoot = TreeNode.root();
+        containerView = (ViewGroup) findViewById(R.id.container);
+
         SearchView search = (SearchView) findViewById(R.id.searchText);
         final SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         search.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        l = (ListView) findViewById(R.id.listviewSeach);
-        list = new LinkedList<>();
+        searchListView = (ListView) findViewById(R.id.listviewSeach);
+        searchResults = new LinkedList<>();
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, searchResults);
+        searchListView.setAdapter(adapter);
+
+        searchListView.setOnItemClickListener(searchItemClickListener);
+        search.setOnQueryTextListener(searchQueryListener);
+
         criterias = new LinkedList<>();
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
-        l.setAdapter(adapter);
+        criterias = ApplicationData.getInstance().getCriterias();
+        treeRoot = TreeNode.root();
         createTreeView();
-
-        criterias = ApplicationData.getInstance().getAllCriterias();
-
-
-        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                list.clear();
-                if (TextUtils.isEmpty(newText)) {
-                    l.setVisibility(View.GONE);
-                    containerView.setVisibility(View.VISIBLE);
-                } else {
-                    String filter = newText.toLowerCase();
-                    for (String criterio : criterias) {
-                        if (criterio.contains(filter)) {
-                            list.add(criterio);
-                        }
-                    }
-                    l.setVisibility(View.VISIBLE);
-                    containerView.setVisibility(View.GONE);
-                }
-                l.setAdapter(adapter);
-                return false;
-            }
-        });
-
 
         tView = new AndroidTreeView(SelectCategoryActivity.this, treeRoot);
         tView.setDefaultNodeClickListener(nodeClickListener);
@@ -115,6 +94,44 @@ public class SelectCategoryActivity extends AppCompatActivity {
             treeRoot.addChild(parent);
         }
     }
+
+    private SearchView.OnQueryTextListener searchQueryListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            searchResults.clear();
+            if (TextUtils.isEmpty(newText)) {
+                searchListView.setVisibility(View.GONE);
+                containerView.setVisibility(View.VISIBLE);
+            } else {
+                String query = newText.toLowerCase();
+                for (Criteria criterio : criterias) {
+                    if (criterio.contains(query)) {
+                        searchResults.add(criterio);
+                    }
+                }
+                searchListView.setVisibility(View.VISIBLE);
+                containerView.setVisibility(View.GONE);
+            }
+            searchListView.setAdapter(adapter);
+            return false;
+        }
+    };
+
+    private ListView.OnItemClickListener searchItemClickListener = new ListView.OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Category item = (Category) searchListView.getItemAtPosition(position);
+            if (item instanceof Criteria) {
+                Toast.makeText(SelectCategoryActivity.this, ((Criteria) item).getRealReference(), Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     private TreeNode.TreeNodeClickListener nodeClickListener = new TreeNode.TreeNodeClickListener() {
         @Override

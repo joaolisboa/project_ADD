@@ -49,9 +49,13 @@ public class Criteria extends Category{
         return ref.toString();
     }
 
+    public boolean contains(String query){
+        return name.toLowerCase().contains(query);
+    }
+
     @Override
     public String toString(){
-        return "\n\t\tcriteria: " + reference + ". " + name;
+        return getDimension().getReference() + "." + getArea().getReference() + "." + reference + ". " + name;
     }
 
 

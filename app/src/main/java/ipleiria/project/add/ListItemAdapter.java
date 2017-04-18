@@ -67,17 +67,11 @@ class ListItemAdapter extends RecyclerView.Adapter<ListItemAdapter.ItemViewHolde
                 }
             });
         } else {
-            // we need to show the "normal" state
             holder.itemView.setBackgroundColor(Color.WHITE);
             holder.thumbnail.setVisibility(View.VISIBLE);
-            //holder.thumbnail.setBackgroundResource(R.drawable.default_file_thumb);
-            /*if(item.getFile() != null){
-                viewHolder.thumbnail.setImageBitmap(getbitpam(item.getFile().getAbsolutePath()));
-            }else{
-                viewHolder.thumbnail.setBackgroundResource(R.drawable.default_file_thumb);
-            }*/
             holder.descriptionTextView.setVisibility(View.VISIBLE);
-            //holder.descriptionTextView.setText(item.getCategory());
+            if(item.getCriteria() != null)
+                holder.descriptionTextView.setText("Criteria: " + item.getCategoryReference());
             holder.titleTextView.setVisibility(View.VISIBLE);
             holder.titleTextView.setText(item.getFilename());
             holder.undoButton.setVisibility(View.GONE);

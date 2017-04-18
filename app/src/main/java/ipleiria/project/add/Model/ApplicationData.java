@@ -61,13 +61,13 @@ public class ApplicationData {
         //endregion
 
         //region ITEMS
-        File dir = context.getFilesDir();
+        /*File dir = context.getFilesDir();
         for(File f: dir.listFiles()){
             items.add(new Item(f.getName(), "description"));
         }
         for(int i = 0; i < 15; i++){
             items.add(new Item("Dummy item " + i, "description"));
-        }
+        }*/
         //endregion
 
         //region EMAILS
@@ -76,7 +76,7 @@ public class ApplicationData {
 
     }
 
-    public LinkedList<String> getAllCriterias (){
+    /*public LinkedList<String> getAllCriterias (){
         // get all criterias
         LinkedList<String> criterias;
         criterias = new LinkedList<>();
@@ -88,7 +88,7 @@ public class ApplicationData {
             }
         }
         return criterias;
-    }
+    }*/
 
     private ApplicationData() {
         criterias = new LinkedList<>();

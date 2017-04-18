@@ -1,7 +1,6 @@
 package ipleiria.project.add;
 
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -21,11 +21,8 @@ import com.dropbox.core.v2.files.FileMetadata;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.DropboxUploadFile;
@@ -46,12 +43,14 @@ import ipleiria.project.add.Utils.UriHelper;
 
 public class AddItemActivity extends AppCompatActivity {
 
+    private ViewGroup containerView;
+
     private TreeNode treeRoot;
     private AndroidTreeView tView;
-    private LinkedList<String> list;
-    private ListView l;
-    ArrayAdapter<String> adapter;
-    private LinkedList<String> criterias;
+    private LinkedList<Criteria> searchResults;
+    private ListView searchListView;
+    ArrayAdapter<Criteria> adapter;
+    private List<Criteria> criterias;
 
     private Uri receivedFile;
     private String filename;
@@ -62,49 +61,24 @@ public class AddItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receive_data);
 
-        final ViewGroup containerView = (ViewGroup) findViewById(R.id.container);
+        containerView = (ViewGroup) findViewById(R.id.container);
 
-        treeRoot = TreeNode.root();
         SearchView search = (SearchView) findViewById(R.id.searchText);
         final SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         search.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        l = (ListView) findViewById(R.id.listviewSeach);
-        list = new LinkedList<>();
+        searchListView = (ListView) findViewById(R.id.listviewSeach);
+        searchResults = new LinkedList<>();
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, searchResults);
+        searchListView.setAdapter(adapter);
+
+        searchListView.setOnItemClickListener(searchItemClickListener);
+        search.setOnQueryTextListener(searchQueryListener);
+
         criterias = new LinkedList<>();
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
-        l.setAdapter(adapter);
+        criterias = ApplicationData.getInstance().getCriterias();
+
+        treeRoot = TreeNode.root();
         createTreeView();
-
-        criterias = ApplicationData.getInstance().getAllCriterias();
-
-        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                list.clear();
-                if (TextUtils.isEmpty(newText)) {
-                    l.setVisibility(View.GONE);
-                    containerView.setVisibility(View.VISIBLE);
-                    findViewById(R.id.category_title).setVisibility(View.VISIBLE);
-                } else {
-                    String filter = newText.toLowerCase();
-                    for (String criterio : criterias) {
-                        if (criterio.contains(filter)) {
-                            list.add(criterio);
-                        }
-                    }
-                    l.setVisibility(View.VISIBLE);
-                    containerView.setVisibility(View.GONE);
-                    findViewById(R.id.category_title).setVisibility(View.GONE);
-                }
-                l.setAdapter(adapter);
-                return false;
-            }
-        });
 
         tView = new AndroidTreeView(AddItemActivity.this, treeRoot);
         tView.setDefaultNodeClickListener(nodeClickListener);
@@ -149,12 +123,14 @@ public class AddItemActivity extends AppCompatActivity {
 
     public void addItem(View view) {
         EditText descriptionEditText = (EditText) findViewById(R.id.item_description);
-        String desciption = descriptionEditText.getText().toString();
+        String description = descriptionEditText.getText().toString();
 
         if(selectedCriteria == null){
             Toast.makeText(this, "No criteria selected", Toast.LENGTH_SHORT).show();
-        }else {
-            Item item = new Item(filename, desciption);
+        }else if(description.isEmpty()) {
+            Toast.makeText(this, "Description is empty", Toast.LENGTH_SHORT).show();
+        }else{
+            Item item = new Item(filename, description);
             item.setCriteria(selectedCriteria);
             ApplicationData.getInstance().addItem(item);
 
@@ -196,6 +172,7 @@ public class AddItemActivity extends AppCompatActivity {
             if (ApplicationData.getInstance().getUserUID() != null) {
                 FirebaseHandler.getInstance().writeItem(item);
             }
+            startActivity(new Intent(this, MainActivity.class));
         }
     }
 
@@ -216,6 +193,47 @@ public class AddItemActivity extends AppCompatActivity {
             treeRoot.addChild(parent);
         }
     }
+
+    private SearchView.OnQueryTextListener searchQueryListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            searchResults.clear();
+            if (TextUtils.isEmpty(newText)) {
+                searchListView.setVisibility(View.GONE);
+                containerView.setVisibility(View.VISIBLE);
+                findViewById(R.id.category_title).setVisibility(View.VISIBLE);
+            } else {
+                String query = newText.toLowerCase();
+                for (Criteria criterio : criterias) {
+                    if (criterio.contains(query)) {
+                        searchResults.add(criterio);
+                    }
+                }
+                searchListView.setVisibility(View.VISIBLE);
+                containerView.setVisibility(View.GONE);
+                findViewById(R.id.category_title).setVisibility(View.GONE);
+            }
+            searchListView.setAdapter(adapter);
+            return false;
+        }
+    };
+
+    private ListView.OnItemClickListener searchItemClickListener = new ListView.OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Category item = (Category) searchListView.getItemAtPosition(position);
+            if (item instanceof Criteria) {
+                Toast.makeText(AddItemActivity.this, ((Criteria) item).getRealReference(), Toast.LENGTH_SHORT).show();
+                selectedCriteria = (Criteria)item;
+            }
+        }
+    };
 
     private TreeNode.TreeNodeClickListener nodeClickListener = new TreeNode.TreeNodeClickListener() {
         @Override

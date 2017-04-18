@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
             FirebaseHandler.getInstance().readEmails();
             FirebaseHandler.getInstance().readCategories();
             FirebaseHandler.getInstance().readItems();
+            FirebaseHandler.getInstance().readUserData();
         }
     }
 

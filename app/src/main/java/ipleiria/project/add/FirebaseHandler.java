@@ -10,8 +10,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.DropboxGetAccount;
@@ -196,6 +198,7 @@ public class FirebaseHandler {
     public void writeEmails(){
         List<Email> emails = ApplicationData.getInstance().getEmails();
         System.out.println("writing emails " + emails);
+        Map<String, Object> values = new HashMap<>();
         for(Email email: emails) {
             DatabaseReference emailRef = userReference.child("emails");
             if(email.getDbKey() == null || email.getDbKey().isEmpty()){
@@ -203,8 +206,9 @@ public class FirebaseHandler {
             }else{
                 emailRef = emailRef.child(email.getDbKey());
             }
-            emailRef.child("email").setValue(email.getEmail());
-            emailRef.child("verified").setValue(email.isVerified());
+            values.put("email", email.getEmail());
+            values.put("verified", email.isVerified());
+            emailRef.setValue(values);
         }
     }
 
@@ -218,15 +222,31 @@ public class FirebaseHandler {
     public void writeItem(Item item){
         System.out.println(item);
         DatabaseReference itemRef = itemsReference.getRef();
+        Map<String, Object> values = new HashMap<>();
         if(item.getDbKey() == null || item.getDbKey().isEmpty()){
             itemRef = itemRef.push();
             item.setDbKey(itemRef.getKey());
         }else{
             itemRef = itemRef.child(item.getDbKey());
         }
-        itemRef.child("filename").setValue(item.getFilename());
-        itemRef.child("reference").setValue(item.getCategoryReference());
-        itemRef.child("description").setValue(item.getDescription());
+        values.put("filename", item.getFilename());
+        values.put("reference", item.getCategoryReference());
+        values.put("description", item.getDescription());
+        itemRef.setValue(values);
+    }
+
+    public void readUserData(){
+        userReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ApplicationData.getInstance().setDisplayName((String)dataSnapshot.child("name").getValue());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void readItems(){
@@ -234,6 +254,8 @@ public class FirebaseHandler {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Item newItem = dataSnapshot.getValue(Item.class);
+                System.out.println(dataSnapshot.getValue());
+                System.out.println(dataSnapshot.child("reference").getValue());
                 newItem.setReference((String)dataSnapshot.child("reference").getValue());
                 newItem.setDbKey(dataSnapshot.getKey());
                 ApplicationData.getInstance().addItem(newItem);
