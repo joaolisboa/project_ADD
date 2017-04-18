@@ -51,6 +51,8 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile "com.daimajia.swipelayout:library:1.2.0@aar"
+    compile 'com.daimajia.androidanimations:library:2.2@aar'
 }
 
 

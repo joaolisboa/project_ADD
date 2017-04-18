@@ -337,4 +337,14 @@ public class ApplicationData {
             }
         }
     }
+
+    public Item getItem(String itemDbKey) {
+        for(Item item: items){
+            if(item.getDbKey() != null &&
+                    item.getDbKey().equals(itemDbKey)){
+                return item;
+            }
+        }
+        return null;
+    }
 }

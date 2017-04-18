@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Project ADD</string>
-    <string name="share_activity_label">Store files</string>
+    <string name="share_activity_label">Project ADD</string>
     <string name="service_chooser_label">Connect services</string>
     <string name="title_activity_list">ListActivity</string>
 
