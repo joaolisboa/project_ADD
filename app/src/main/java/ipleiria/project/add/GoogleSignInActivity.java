@@ -112,9 +112,11 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                     ApplicationData.getInstance().setDisplayName(displayName);
                     ApplicationData.getInstance().setProfileUri(profileUri);
                     System.out.println("Starting new firebaseHandler instance");
-                    FirebaseHandler.newInstance();
-                    FirebaseHandler.getInstance().readEmails();
+                    // when signing out of Google write data to new firebase user
+                    FirebaseHandler.getInstance().initReferences();
                     FirebaseHandler.getInstance().writeUserInfo();
+                    FirebaseHandler.getInstance().writeItems();
+                    FirebaseHandler.getInstance().writeEmails();
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -240,28 +242,25 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
 
     private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
-
         final AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        System.out.println(mAuth.getCurrentUser().getUid());
         mAuth.getCurrentUser().linkWithCredential(credential)
                 .addOnCompleteListener(GoogleSignInActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "linkWithCredential:onComplete:" + task.isSuccessful());
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.e(TAG, task.getException().getMessage(), task.getException());
-                            mAuth.signOut();
-                            // user is already signed in another device so we need to log in with the credential
-                            // instead of linking with the anonymous account
-                            mAuth.signInWithCredential(credential);
-                        } else {
-                            System.out.println(mAuth.getCurrentUser().getUid());
-                        }
-
+                    Log.d(TAG, "linkWithCredential:onComplete:" + task.isSuccessful());
+                    // If sign in fails, display a message to the user. If sign in succeeds
+                    // the auth state listener will be notified and logic to handle the
+                    // signed in user can be handled in the listener.
+                    if (!task.isSuccessful()) {
+                        Log.e(TAG, task.getException().getMessage(), task.getException());
+                        mAuth.signOut();
+                        // user is already signed in another device
+                        // so we need to log in with the credential
+                        // instead of linking with the anonymous account
+                        mAuth.signInWithCredential(credential);
+                    } else {
+                        System.out.println(mAuth.getCurrentUser().getUid());
+                    }
                     }
                 });
     }

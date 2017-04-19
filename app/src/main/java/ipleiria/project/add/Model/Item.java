@@ -1,28 +1,47 @@
 package ipleiria.project.add.Model;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by Lisboa on 04-Apr-17.
  */
 
 public class Item {
 
-    private String filename;
+    private List<ItemFile> filenames;
     private String description;
     private Criteria criteria;
+    private boolean deleted = false;
     private String dbKey;
 
     public Item(){
-
+        filenames = new LinkedList<>();
     }
 
-    public Item(String filename, String description) {
-        this.filename = filename;
+    public Item(String description){
         this.description = description;
     }
 
-    public Item(String name, String description, Criteria criteria){
-        this(name, description);
+    public Item(List<ItemFile> filenames, String description) {
+        this.filenames = filenames;
+        this.description = description;
+    }
+
+    public Item(List<ItemFile> filenames, String description, Criteria criteria){
+        this(filenames, description);
         this.criteria = criteria;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        for(ItemFile file: filenames){
+            file.setDeleted(deleted);
+        }
+        this.deleted = deleted;
     }
 
     public String getDbKey() {
@@ -33,12 +52,16 @@ public class Item {
         this.dbKey = dbKey;
     }
 
-    public String getFilename() {
-        return filename;
+    public List<ItemFile> getFilenames() {
+        return filenames;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void addFilename(ItemFile filename) {
+        filenames.add(filename);
+    }
+
+    public void addFilename(String filename){
+        filenames.add(new ItemFile(filename));
     }
 
     public String getDescription() {
@@ -55,6 +78,7 @@ public class Item {
 
     public void setCriteria(Criteria criteria){
         this.criteria = criteria;
+        criteria.addItem(this);
     }
 
     public Dimension getDimension(){
@@ -79,7 +103,7 @@ public class Item {
 
     @Override
     public String toString(){
-        return getCategoryReference() + ":" + filename + ":" + dbKey;
+        return getCategoryReference() + ":" + filenames + ":" + dbKey;
     }
 
 }

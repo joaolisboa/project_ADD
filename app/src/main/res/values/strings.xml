@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Project ADD</string>
-    <string name="share_activity_label">Project ADD</string>
+    <string name="share_activity_label">Add to ADD</string>
     <string name="service_chooser_label">Connect services</string>
     <string name="title_activity_list">ListActivity</string>
 
@@ -104,6 +104,7 @@
     <string name="google_sign_in_helper">Sign in with Google to sync data</string>
     <string name="edit_email_desc">You can use the verified emails to send files to projectaddestg@gmail.com and receive them in the app</string>
     <string name="number_of_emails">%d emails</string>
+    <string name="number_of_delete_items">%d items</string>
     <string name="email_already_exists">Email already exists</string>
     <string name="invalid_email">Email invalid</string>
     <string name="filename_format">File: %1$s</string>

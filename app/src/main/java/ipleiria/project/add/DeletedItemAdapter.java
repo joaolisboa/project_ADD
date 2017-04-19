@@ -20,17 +20,17 @@ import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Item;
 
 /**
- * Created by Lisboa on 18-Apr-17.
+ * Created by J on 19/04/2017.
  */
 
-public class ListItemAdapter extends BaseSwipeAdapter {
+public class DeletedItemAdapter extends BaseSwipeAdapter {
 
     private Context context;
     private List<Item> listItems;
 
     //protected SwipeItemRecyclerMangerImpl mItemManger = new SwipeItemRecyclerMangerImpl(this);
 
-    public ListItemAdapter(Context context, List<Item> objects) {
+    public DeletedItemAdapter(Context context, List<Item> objects) {
         this.context = context;
         this.listItems = objects;
     }
@@ -57,7 +57,7 @@ public class ListItemAdapter extends BaseSwipeAdapter {
 
     @Override
     public View generateView(final int position, ViewGroup parent) {
-        View itemView = LayoutInflater.from(context).inflate(R.layout.listview_item, null);
+        View itemView = LayoutInflater.from(context).inflate(R.layout.listview_deleted_item, null);
         Item item = listItems.get(position);
 
         SwipeLayout swipeLayout = (SwipeLayout) itemView.findViewById(R.id.bottom_layout_actions);
@@ -65,7 +65,7 @@ public class ListItemAdapter extends BaseSwipeAdapter {
         TextView itemName = (TextView) itemLayout.findViewById(R.id.title_text_view);
         TextView itemCriteria = (TextView) itemLayout.findViewById(R.id.category_text_view);
         ImageView itemThumbnail = (ImageView) itemLayout.findViewById(R.id.file_thumbnail);
-        ImageView buttonEdit = (ImageView) itemView.findViewById(R.id.edit);
+        ImageView restoreButton = (ImageView) itemView.findViewById(R.id.restore);
         ImageView buttonDelete = (ImageView) itemView.findViewById(R.id.delete);
 
         itemName.setText(item.getDescription());
@@ -75,19 +75,18 @@ public class ListItemAdapter extends BaseSwipeAdapter {
             @Override
             public void onClick(View view) {
                 Item item = (Item)getItem(position);
-                Toast.makeText(context, "click delete " + item, Toast.LENGTH_SHORT).show();
-                item.setDeleted(true);
-                FirebaseHandler.getInstance().writeItem(item);
+                Toast.makeText(context, "click permanently delete " + item, Toast.LENGTH_SHORT).show();
+                FirebaseHandler.getInstance().permanentlyDeleteItem(item.getDbKey());
+                FirebaseHandler.getInstance().permanentlyDeleteItem(item.getDbKey());
             }
         });
-        buttonEdit.setOnClickListener(new View.OnClickListener() {
+        restoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Item item = (Item)getItem(position);
-                Toast.makeText(context, "click edit " + item, Toast.LENGTH_SHORT).show();
-                Intent editIntent = new Intent(context, AddItemActivity.class);
-                editIntent.putExtra("itemKey", item.getDbKey());
-                context.startActivity(editIntent);
+                Toast.makeText(context, "click restore " + item, Toast.LENGTH_SHORT).show();
+                ApplicationData.getInstance().restoreItem(item.getDbKey());
+                FirebaseHandler.getInstance().writeItem(item);
             }
         });
         return itemView;

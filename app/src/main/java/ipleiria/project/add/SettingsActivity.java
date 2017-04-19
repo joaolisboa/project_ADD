@@ -237,9 +237,11 @@ public class SettingsActivity extends AppCompatActivity {
             saveDropboxToken();
         }
 
+        int deletedItems = ApplicationData.getInstance().getDeletedItems().size();
         int numEmails = ApplicationData.getInstance().getEmails().size();
 
         ((TextView) findViewById(R.id.num_emails)).setText(getString(R.string.number_of_emails, numEmails));
+        ((TextView) findViewById(R.id.num_deleted_items)).setText(getString(R.string.number_of_delete_items, deletedItems));
 
         ((TextView) findViewById(R.id.account_name)).setText(ApplicationData.getInstance().getDisplayName());
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -257,6 +259,9 @@ public class SettingsActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.account_description)).setText(getString(R.string.google_sign_in_helper));
             profileImageView.setImageDrawable(ContextCompat.getDrawable(SettingsActivity.this, R.drawable.ic_profile_placeholder));
         }
+    }
 
+    public void openTrash(View view) {
+        startActivity(new Intent(this, TrashActivity.class));
     }
 }

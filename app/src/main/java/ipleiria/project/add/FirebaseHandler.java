@@ -29,6 +29,7 @@ import ipleiria.project.add.Model.Criteria;
 import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Email;
 import ipleiria.project.add.Model.Item;
+import ipleiria.project.add.Model.ItemFile;
 
 /**
  * Created by Lisboa on 15-Apr-17.
@@ -231,9 +232,24 @@ public class FirebaseHandler {
         }else{
             itemRef = itemRef.child(item.getDbKey());
         }
-        values.put("filename", item.getFilename());
+        DatabaseReference itemFileRef = itemRef.child("files");
+        Map<String, Object> fileList = new HashMap<>();
+        for(ItemFile file: item.getFilenames()){
+            Map<String, Object> itemFile = new HashMap<>();
+            if(file.getDbKey() == null || file.getDbKey().isEmpty()){
+                itemFileRef = itemFileRef.push();
+                file.setDbKey(itemRef.getKey());
+            }else{
+                itemFileRef = itemFileRef.child(file.getDbKey());
+            }
+            itemFile.put("filename", file.getFilename());
+            itemFile.put("deleted", file.isDeleted());
+            fileList.put(file.getDbKey(), itemFile);
+        }
+        values.put("files", fileList);
         values.put("reference", item.getCategoryReference());
         values.put("description", item.getDescription());
+        values.put("deleted", item.isDeleted());
         itemRef.setValue(values);
     }
 
@@ -275,8 +291,13 @@ public class FirebaseHandler {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
             Item newItem = dataSnapshot.getValue(Item.class);
-            newItem.setReference((String)dataSnapshot.child("reference").getValue());
+            newItem.setReference((String) dataSnapshot.child("reference").getValue());
             newItem.setDbKey(dataSnapshot.getKey());
+            for (DataSnapshot fileSnapshot : dataSnapshot.child("files").getChildren()) {
+                ItemFile file = fileSnapshot.getValue(ItemFile.class);
+                file.setDbKey(fileSnapshot.getKey());
+                newItem.addFilename(file);
+            }
             ApplicationData.getInstance().addItem(newItem);
         }
 
@@ -285,12 +306,17 @@ public class FirebaseHandler {
             Item newItem = dataSnapshot.getValue(Item.class);
             newItem.setReference((String)dataSnapshot.child("reference").getValue());
             newItem.setDbKey(dataSnapshot.getKey());
+            for(DataSnapshot fileSnapshot: dataSnapshot.child("files").getChildren()){
+                ItemFile file = fileSnapshot.getValue(ItemFile.class);
+                file.setDbKey(fileSnapshot.getKey());
+                newItem.addFilename(file);
+            }
             ApplicationData.getInstance().addItem(newItem);
         }
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
-            ApplicationData.getInstance().deleteItem(dataSnapshot.getKey());
+            ApplicationData.getInstance().permanentlyDeleteItem(dataSnapshot.getKey());
         }
 
         @Override
@@ -304,7 +330,7 @@ public class FirebaseHandler {
         }
     };
 
-    public void deleteItem(final String itemKey){
+    public void permanentlyDeleteItem(final String itemKey){
         itemsReference.child(itemKey).removeValue(new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {

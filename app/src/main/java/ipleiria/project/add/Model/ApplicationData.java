@@ -137,6 +137,12 @@ public class ApplicationData {
     }
 
     public List<Item> getItems() {
+        List<Item> items = new LinkedList<>();
+        for(Item item: items){
+            if(!item.isDeleted()){
+                items.add(item);
+            }
+        }
         return items;
     }
 
@@ -328,14 +334,48 @@ public class ApplicationData {
         }
     }
 
-    public void deleteItem(String itemKey) {
+    public void permanentlyDeleteItem(String key){
         for(int i = 0; i < items.size(); i++){
-            if(items.get(i).getDbKey() != null &&
-                    items.get(i).getDbKey().equals(itemKey)){
-                items.remove(i);
+            Item item = items.get(i);
+            if(item.getDbKey() != null &&
+                    item.getDbKey().equals(key)){
+                items.remove(item);
+                item.getCriteria().deleteItem(item);
                 return;
             }
         }
+    }
+
+    public void deleteItem(String itemKey) {
+        for(int i = 0; i < items.size(); i++){
+            Item item = items.get(i);
+            if(item.getDbKey() != null &&
+                    item.getDbKey().equals(itemKey)){
+                item.setDeleted(true);
+                //todo move files to trash directory
+                return;
+            }
+        }
+    }
+
+    public void restoreItem(String key){
+        for(int i = 0; i < items.size(); i++) {
+            Item item = items.get(i);
+            if (item.getDbKey() != null &&
+                    item.getDbKey().equals(key)) {
+                item.setDeleted(false);
+            }
+        }
+    }
+
+    public List<Item> getDeletedItems(){
+        List<Item> deletedItems = new LinkedList<>();
+        for(Item item: items){
+            if(item.isDeleted()){
+                deletedItems.add(item);
+            }
+        }
+        return deletedItems;
     }
 
     public Item getItem(String itemDbKey) {

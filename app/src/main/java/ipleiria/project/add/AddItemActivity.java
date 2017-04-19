@@ -4,6 +4,8 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,9 +20,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dropbox.core.v2.files.FileMetadata;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,10 +46,13 @@ import ipleiria.project.add.Model.Category;
 import ipleiria.project.add.Model.Criteria;
 import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Item;
+import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.Utils.UriHelper;
 
 public class AddItemActivity extends AppCompatActivity {
+
+    private static final String TAG = "AddItemActivity";
 
     private ViewGroup containerView;
     private EditText descriptionEditText;
@@ -55,8 +66,8 @@ public class AddItemActivity extends AppCompatActivity {
     ArrayAdapter<Criteria> adapter;
     private List<Criteria> criterias;
 
-    private Uri receivedFile;
-    private String filename;
+    //private Uri receivedFile;
+    private List<Uri> receivedFiles;
     private Criteria selectedCriteria;
 
     private Item editingItem;
@@ -68,8 +79,10 @@ public class AddItemActivity extends AppCompatActivity {
 
         containerView = (ViewGroup) findViewById(R.id.container);
         descriptionEditText = (EditText) findViewById(R.id.item_description);
-        categoryTitle = (TextView)findViewById(R.id.category_title);
-        filenameView = (TextView)findViewById(R.id.filename);
+        categoryTitle = (TextView) findViewById(R.id.category_title);
+        filenameView = (TextView) findViewById(R.id.filename);
+
+        receivedFiles = new LinkedList<>();
 
         SearchView search = (SearchView) findViewById(R.id.searchText);
         final SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
@@ -83,16 +96,23 @@ public class AddItemActivity extends AppCompatActivity {
         search.setOnQueryTextListener(searchQueryListener);
 
         criterias = new LinkedList<>();
-        criterias = ApplicationData.getInstance().getCriterias();
-
+        if(ApplicationData.getInstance().getSharedPreferences() == null){
+            ApplicationData.getInstance()
+                    .setSharedPreferences(getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE));
+        }
+        try {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        }catch(DatabaseException e){
+            // set persistence must only be run once and be run before any call to FirebaseDatabase
+            Log.d(TAG, e.getMessage());
+        }
         treeRoot = TreeNode.root();
-        createTreeView();
-
-        tView = new AndroidTreeView(AddItemActivity.this, treeRoot);
-        tView.setDefaultNodeClickListener(nodeClickListener);
-        tView.setUse2dScroll(false);
-        tView.setDefaultAnimation(true);
-        containerView.addView(tView.getView());
+        criterias = ApplicationData.getInstance().getCriterias();
+        if(criterias.isEmpty()){
+            readCategories();
+        }else{
+            createTreeView();
+        }
 
         if (savedInstanceState != null) {
             String state = savedInstanceState.getString("tState");
@@ -106,98 +126,148 @@ public class AddItemActivity extends AppCompatActivity {
         String type = intent.getType();
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
-            handleFile(intent);
-        } /*else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+            handleSingleFile(intent);
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
             handleMultipleFiles(intent);
-        }*/ else {
+        } else {
             // Handle other intents, such as being started from the home screen
             String itemDbKey = intent.getStringExtra("itemKey");
             System.out.println("Editing item with key: " + itemDbKey);
             editingItem = ApplicationData.getInstance().getItem(itemDbKey);
-            if(editingItem != null){
-                filenameView.setText(editingItem.getFilename());
+            if (editingItem != null) {
+                filenameView.setText(editingItem.getFilenames().get(0).getFilename());
                 descriptionEditText.setText(editingItem.getDescription());
                 categoryTitle.setText("Selected " + editingItem.getCategoryReference());
+                ((FloatingActionButton)findViewById(R.id.fab)).setImageResource(R.drawable.ic_check_white);
             }
         }
     }
 
-    private void handleFile(Intent intent) {
-        receivedFile = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-        filename = UriHelper.getFileName(AddItemActivity.this, receivedFile);
+    private void readCategories() {
+        FirebaseHandler.getInstance().getCategoryReference().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<Dimension> dimensions = new LinkedList<>();
+                for (DataSnapshot dimensionSnap : dataSnapshot.getChildren()) {
+                    Dimension dimension = new Dimension(dimensionSnap.child("name").getValue(String.class),
+                            dimensionSnap.child("reference").getValue(Integer.class));
+                    dimension.setDbKey(dimensionSnap.getKey());
+                    for (DataSnapshot areaSnap : dimensionSnap.child("areas").getChildren()) {
+                        Area area = new Area(areaSnap.child("name").getValue(String.class),
+                                areaSnap.child("reference").getValue(Integer.class));
+                        area.setDbKey(areaSnap.getKey());
+                        for (DataSnapshot criteriaSnap : areaSnap.child("criterias").getChildren()) {
+                            Criteria criteria = new Criteria(criteriaSnap.child("name").getValue(String.class),
+                                    criteriaSnap.child("reference").getValue(Integer.class));
+                            criteria.setDbKey(criteriaSnap.getKey());
+                            area.addCriteria(criteria);
+                        }
+                        dimension.addArea(area);
+                    }
+                    dimensions.add(dimension);
+                }
+                ApplicationData.getInstance().addDimensions(dimensions);
+                createTreeView();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+            }
+        });
+    }
+
+    private void handleFile(Uri uri) {
+        receivedFiles.add(uri);
+    }
+
+    private void handleSingleFile(Intent intent) {
+        handleFile((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
+        String filename = UriHelper.getFileName(AddItemActivity.this, receivedFiles.get(0));
         filenameView.setText(filename);
     }
 
-    /*private void handleMultipleFiles(Intent intent) {
+    private void handleMultipleFiles(Intent intent) {
         ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
         if (uris != null) {
             for (Uri uri : uris) {
                 handleFile(uri);
             }
         }
-    }*/
+        String filename = UriHelper.getFileName(AddItemActivity.this, receivedFiles.get(0));
+        filenameView.setText(filename);
+    }
 
     public void addItem(View view) {
         String description = descriptionEditText.getText().toString();
 
-        if(selectedCriteria == null){
+        if (selectedCriteria == null) {
             Toast.makeText(this, "No criteria selected", Toast.LENGTH_SHORT).show();
-        }else if(description.isEmpty()) {
+        } else if (description.isEmpty()) {
             Toast.makeText(this, "Description is empty", Toast.LENGTH_SHORT).show();
-        }else{
-            Item item = new Item(filename, description);
-            if(editingItem != null){
+        } else {
+            List<ItemFile> itemFiles = new LinkedList<>();
+            for (Uri uri : receivedFiles) {
+                itemFiles.add(new ItemFile(UriHelper.getFileName(AddItemActivity.this, receivedFiles.get(0))));
+            }
+            Item item = new Item(itemFiles, description);
+            if (editingItem != null) {
                 editingItem.setCriteria(selectedCriteria);
                 editingItem.setDescription(description);
                 ApplicationData.getInstance().addItem(editingItem);
-            }else {
+            } else {
                 item.setCriteria(selectedCriteria);
                 ApplicationData.getInstance().addItem(item);
-
                 if (NetworkState.isOnline(this)) {
-                    if (MEOCloudClient.isClientInitialized()) {
-                        new MEOUploadFile(AddItemActivity.this, new MEOCallback<MEOMetadata>() {
-
-                            @Override
-                            public void onComplete(MEOCloudResponse<MEOMetadata> result) {
-                                System.out.println("Upload successful");
-                            }
-
-                            @Override
-                            public void onRequestError(HttpErrorException httpE) {
-
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                Log.e("UploadError", e.getMessage(), e);
-                            }
-                        }).execute(receivedFile.toString(), UriHelper.getFileName(AddItemActivity.this, receivedFile));
-                    }
-                    if (DropboxClientFactory.isClientInitialized()) {
-                        new DropboxUploadFile(AddItemActivity.this, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
-
-                            @Override
-                            public void onUploadComplete(FileMetadata result) {
-                                System.out.println(result.getName());
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                Log.e("UploadDropError", e.getMessage(), e);
-                            }
-                        }).execute(receivedFile.toString());
+                    for(Uri uri: receivedFiles){
+                        uploadFilesToCloud(uri);
                     }
                 }
             }
             if (ApplicationData.getInstance().getUserUID() != null) {
                 FirebaseHandler.getInstance().writeItem(editingItem == null ? item : editingItem);
             }
-            if(editingItem == null){
+            if (editingItem == null) {
                 startActivity(new Intent(this, MainActivity.class));
-            }else {
+            } else {
                 finish();
             }
+        }
+    }
+
+    private void uploadFilesToCloud(Uri uri) {
+        if (MEOCloudClient.isClientInitialized()) {
+            new MEOUploadFile(AddItemActivity.this, new MEOCallback<MEOMetadata>() {
+
+                @Override
+                public void onComplete(MEOCloudResponse<MEOMetadata> result) {
+                    System.out.println("MEO Upload successful: " + result.getResponse().getPath());
+                }
+
+                @Override
+                public void onRequestError(HttpErrorException httpE) {
+
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("UploadError", e.getMessage(), e);
+                }
+            }).execute(uri.toString(), UriHelper.getFileName(AddItemActivity.this, uri));
+        }
+        if (DropboxClientFactory.isClientInitialized()) {
+            new DropboxUploadFile(AddItemActivity.this, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
+
+                @Override
+                public void onUploadComplete(FileMetadata result) {
+                    System.out.println("Dropbox Upload successful :" + result.getName());
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("UploadDropError", e.getMessage(), e);
+                }
+            }).execute(uri.toString());
         }
     }
 
@@ -217,6 +287,11 @@ public class AddItemActivity extends AppCompatActivity {
             parent.setViewHolder(new CategoryNodeHolder(AddItemActivity.this, R.layout.node_holder_dimension));
             treeRoot.addChild(parent);
         }
+        tView = new AndroidTreeView(AddItemActivity.this, treeRoot);
+        tView.setDefaultNodeClickListener(nodeClickListener);
+        tView.setUse2dScroll(false);
+        tView.setDefaultAnimation(true);
+        containerView.addView(tView.getView());
     }
 
     private SearchView.OnQueryTextListener searchQueryListener = new SearchView.OnQueryTextListener() {
@@ -255,7 +330,7 @@ public class AddItemActivity extends AppCompatActivity {
             Category item = (Category) searchListView.getItemAtPosition(position);
             if (item instanceof Criteria) {
                 Toast.makeText(AddItemActivity.this, ((Criteria) item).getRealReference(), Toast.LENGTH_SHORT).show();
-                selectedCriteria = (Criteria)item;
+                selectedCriteria = (Criteria) item;
                 categoryTitle.setText("Selected " + ((Criteria) item).getRealReference());
             }
         }
@@ -267,7 +342,7 @@ public class AddItemActivity extends AppCompatActivity {
             Category item = (Category) value;
             if (item instanceof Criteria) {
                 Toast.makeText(AddItemActivity.this, ((Criteria) item).getRealReference(), Toast.LENGTH_SHORT).show();
-                selectedCriteria = (Criteria)item;
+                selectedCriteria = (Criteria) item;
                 categoryTitle.setText("Selected " + ((Criteria) item).getRealReference());
             }
         }

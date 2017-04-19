@@ -7,6 +7,9 @@ import android.widget.TextView;
 
 import com.unnamed.b.atv.model.TreeNode;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import ipleiria.project.add.R;
 
 /**
@@ -16,13 +19,15 @@ import ipleiria.project.add.R;
 public class Criteria extends Category{
 
     private Area area;
+    private List<Item> items;
 
     public Criteria(){
-
+        items = new LinkedList<>();
     }
 
     public Criteria(String name, int reference){
         super(name, reference);
+        items = new LinkedList<>();
     }
 
     public Dimension getDimension() {
@@ -58,5 +63,15 @@ public class Criteria extends Category{
         return getDimension().getReference() + "." + getArea().getReference() + "." + reference + ". " + name;
     }
 
+    public List<Item> getItems(){
+        return items;
+    }
 
+    public void addItem(Item item) {
+        items.add(item);
+    }
+
+    public void deleteItem(Item item){
+        items.remove(item);
+    }
 }
