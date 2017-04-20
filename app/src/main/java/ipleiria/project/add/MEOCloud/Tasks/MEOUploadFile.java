@@ -45,7 +45,7 @@ public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<MEOM
             callback.onError(exception);
         } else {
             if(result.responseSuccessful()){
-                callback.onComplete(result);
+                callback.onComplete(result.getResponse());
             }else{
                 callback.onRequestError(new HttpErrorException(result.getError()));
             }
@@ -68,7 +68,7 @@ public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<MEOM
             }
 
             String token = MEOCloudClient.getAccessToken();
-            String localFilePath = params[0];
+            Uri localFile = Uri.parse(params[0]);
             String remoteFilePath = params[1];
 
             HashMap<String, String> map = new HashMap<>();
@@ -78,11 +78,9 @@ public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<MEOM
             if (params.length > 3 && params[3] != null) {
                 map.put("parent_rev", params[3]);
             }
-
             String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
-            System.out.println(path);
-
-            InputStream is = context.getContentResolver().openInputStream(Uri.parse(localFilePath));
+            System.out.println("meo upload file to: " + path);
+            InputStream is = context.getContentResolver().openInputStream(localFile);
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
             int nRead;

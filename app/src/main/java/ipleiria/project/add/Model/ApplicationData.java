@@ -4,9 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -136,9 +133,12 @@ public class ApplicationData {
         this.emails = emails;
     }
 
-    public List<Item> getItems() {
+    public List<Item> getItems(boolean includeDeleted) {
+        if(includeDeleted){
+            return items;
+        }
         List<Item> items = new LinkedList<>();
-        for(Item item: items){
+        for(Item item: this.items){
             if(!item.isDeleted()){
                 items.add(item);
             }
@@ -373,6 +373,12 @@ public class ApplicationData {
         for(Item item: items){
             if(item.isDeleted()){
                 deletedItems.add(item);
+            }else {
+                for (ItemFile file : item.getFiles()) {
+                    if (file.isDeleted()) {
+                        deletedItems.add(item);
+                    }
+                }
             }
         }
         return deletedItems;

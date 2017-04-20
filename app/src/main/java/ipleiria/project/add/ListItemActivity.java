@@ -11,16 +11,14 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
-import java.util.List;
-
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Item;
+import ipleiria.project.add.Model.ItemFile;
 
 public class ListItemActivity extends AppCompatActivity {
 
     private ListView listView;
     private ListItemAdapter listViewAdapter;
-    private List<Item> list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +38,8 @@ public class ListItemActivity extends AppCompatActivity {
 
     private void updateListView() {
         listView = (ListView) findViewById(R.id.listview);
-        list = ApplicationData.getInstance().getItems();
-        listViewAdapter = new ListItemAdapter(this, list);
+        //list = ApplicationData.getInstance().getItems();
+        listViewAdapter = new ListItemAdapter(this, ApplicationData.getInstance().getItems(false));
         listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
         listView.setAdapter(listViewAdapter);
     }
@@ -58,8 +56,13 @@ public class ListItemActivity extends AppCompatActivity {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
             Item newItem = dataSnapshot.getValue(Item.class);
-            newItem.setReference((String)dataSnapshot.child("reference").getValue());
+            newItem.setReference((String) dataSnapshot.child("reference").getValue());
             newItem.setDbKey(dataSnapshot.getKey());
+            for (DataSnapshot fileSnapshot : dataSnapshot.child("files").getChildren()) {
+                ItemFile file = fileSnapshot.getValue(ItemFile.class);
+                file.setDbKey(fileSnapshot.getKey());
+                newItem.addFile(file);
+            }
             ApplicationData.getInstance().addItem(newItem);
             updateListView();
         }
@@ -69,13 +72,18 @@ public class ListItemActivity extends AppCompatActivity {
             Item newItem = dataSnapshot.getValue(Item.class);
             newItem.setReference((String)dataSnapshot.child("reference").getValue());
             newItem.setDbKey(dataSnapshot.getKey());
+            for(DataSnapshot fileSnapshot: dataSnapshot.child("files").getChildren()){
+                ItemFile file = fileSnapshot.getValue(ItemFile.class);
+                file.setDbKey(fileSnapshot.getKey());
+                newItem.addFile(file);
+            }
             ApplicationData.getInstance().addItem(newItem);
             updateListView();
         }
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
-            ApplicationData.getInstance().deleteItem(dataSnapshot.getKey());
+            ApplicationData.getInstance().permanentlyDeleteItem(dataSnapshot.getKey());
             updateListView();
         }
 

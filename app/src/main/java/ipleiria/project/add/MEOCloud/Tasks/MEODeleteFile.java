@@ -38,7 +38,7 @@ public class MEODeleteFile extends AsyncTask<String, Void, MEOCloudResponse<MEOM
             callback.onError(exception);
         } else {
             if(result.responseSuccessful()){
-                callback.onComplete(result);
+                callback.onComplete(result.getResponse());
             }else{
                 callback.onRequestError(new HttpErrorException(result.getError()));
             }
@@ -54,16 +54,18 @@ public class MEODeleteFile extends AsyncTask<String, Void, MEOCloudResponse<MEOM
                 throw new MissingFilePathException();
             }
 
+            if (params[0].startsWith("/")) {
+                params[0] = params[0].substring(1);
+            }
+
             String token = MEOCloudClient.getAccessToken();
             String remoteFilePath = params[0];
 
             HashMap<String, String> bodyMap = new HashMap<>();
             bodyMap.put("root", MEOCloudAPI.API_MODE);
-            bodyMap.put("path", remoteFilePath);
+            bodyMap.put("path", "/" + remoteFilePath);
 
-            String path = MEOCloudAPI.API_METHOD_DELETE;
-
-            Response response = HttpRequestor.post(token, path, null, bodyMap);
+            Response response = HttpRequestor.post(token, MEOCloudAPI.API_METHOD_DELETE, null, bodyMap);
             if (response != null) {
                 MEOCloudResponse<MEOMetadata> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());

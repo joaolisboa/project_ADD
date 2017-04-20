@@ -43,7 +43,7 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
             callback.onError(exception);
         } else {
             if(result.responseSuccessful()){
-                callback.onComplete(result);
+                callback.onComplete(result.getResponse());
             }else{
                 callback.onRequestError(new HttpErrorException(result.getError()));
             }
@@ -72,8 +72,8 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
                 map.put("rev", params[1]);
             }
 
+            // DOES NOT CREATE FOLDERS TO THE FILE PATH, NO FOLDERS = 4 0 4 !!!
             String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + filePath;
-            System.out.println(path);
 
             Response response = HttpRequestor.getContent(token, path, map);
             if (response != null) {

@@ -52,15 +52,15 @@ public class Item {
         this.dbKey = dbKey;
     }
 
-    public List<ItemFile> getFilenames() {
+    public List<ItemFile> getFiles() {
         return filenames;
     }
 
-    public void addFilename(ItemFile filename) {
+    public void addFile(ItemFile filename) {
         filenames.add(filename);
     }
 
-    public void addFilename(String filename){
+    public void addFile(String filename){
         filenames.add(new ItemFile(filename));
     }
 
@@ -103,7 +103,7 @@ public class Item {
 
     @Override
     public String toString(){
-        return getCategoryReference() + ":" + filenames + ":" + dbKey;
+        return getCategoryReference() + ":" + description + ":" + dbKey + ":" + deleted;
     }
 
 }

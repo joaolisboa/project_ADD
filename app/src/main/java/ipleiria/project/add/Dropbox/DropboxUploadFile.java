@@ -55,8 +55,13 @@ public class DropboxUploadFile extends AsyncTask<String, Void, FileMetadata> {
     protected FileMetadata doInBackground(String... params) {
         Uri localUri = Uri.parse(params[0]);
 
+        if (params[1].startsWith("/")) {
+            params[1] = params[1].substring(1);
+        }
+        String remoteFilePath = params[1];
+
         try (InputStream is = mContext.getContentResolver().openInputStream(localUri)) {
-            return mDbxClient.files().upload("/" + UriHelper.getFileName(mContext, localUri)).uploadAndFinish(is);
+            return mDbxClient.files().upload("/" + remoteFilePath).uploadAndFinish(is);
         } catch (DbxException | IOException e) {
             mException = e;
         }

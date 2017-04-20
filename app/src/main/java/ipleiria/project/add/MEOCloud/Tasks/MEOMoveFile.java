@@ -19,15 +19,15 @@ import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
 /**
- * Created by Lisboa on 27-Mar-17.
+ * Created by Lisboa on 19-Apr-17.
  */
 
-public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<MEOMetadata>> {
+public class MEOMoveFile extends AsyncTask<String, Void, MEOCloudResponse<MEOMetadata>> {
 
     private final MEOCallback<MEOMetadata> callback;
     private Exception exception;
 
-    public MEOGetMetadata(MEOCallback<MEOMetadata> callback) {
+    public MEOMoveFile(MEOCallback<MEOMetadata> callback) {
         this.callback = callback;
     }
 
@@ -50,7 +50,8 @@ public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<MEO
         try {
             if (params == null) {
                 throw new MissingParametersException();
-            } else if (params[0] == null || params[0].isEmpty()) {
+            } else if (params[0] == null || params[0].isEmpty()
+                    || params[1] == null || params[1].isEmpty()) {
                 throw new MissingFilePathException();
             }
 
@@ -58,38 +59,28 @@ public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<MEO
                 params[0] = params[0].substring(1);
             }
 
+            if (params[1].startsWith("/")) {
+                params[1] = params[1].substring(1);
+            }
+
             String token = MEOCloudClient.getAccessToken();
-            String remoteFilePath = params[0];
+            String fromPath = params[0];
+            String toPath = params[1];
 
-            HashMap<String, String> map = new HashMap<>();
-            if (params.length > 1 && params[1] != null) {
-                map.put("file_limit", params[1]);
-            }
-            if (params.length > 2 && params[2] != null) {
-                map.put("hash", params[2]);
-            }
-            if (params.length > 3 && params[3] != null) {
-                map.put("list", params[3]);
-            }
-            if (params.length > 4 && params[4] != null) {
-                map.put("include_deleted", params[4]);
-            }
-            if (params.length > 5 && params[5] != null) {
-                map.put("rev", params[5]);
-            }
+            HashMap<String, String> bodyMap = new HashMap<>();
+            bodyMap.put("root", MEOCloudAPI.API_MODE);
+            bodyMap.put("from_path", "/" + fromPath);
+            bodyMap.put("to_path", "/" + toPath);
+            System.out.println("from path: " + fromPath);
+            System.out.println("to path: " + toPath);
 
-
-            String path = MEOCloudAPI.API_METHOD_METADATA + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
-            System.out.println(path);
-
-            Response response = HttpRequestor.get(token, path, map);
+            Response response = HttpRequestor.post(token, MEOCloudAPI.API_METHOD_MOVE, null, bodyMap);
             if (response != null) {
                 MEOCloudResponse<MEOMetadata> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
-                    String responseBody = response.body().string();
-                    MEOMetadata metadata = MEOMetadata.fromJson(responseBody, MEOMetadata.class);
-                    meoCloudResponse.setResponse(metadata);
+                    MEOMetadata searchResults = MEOMetadata.fromJson(response.body().string(), MEOMetadata.class);
+                    meoCloudResponse.setResponse(searchResults);
                 }
                 return meoCloudResponse;
             }

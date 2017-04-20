@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,11 +33,11 @@ import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.DropboxUploadFile;
-import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
+import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
 import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFile;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Area;
@@ -48,7 +47,11 @@ import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.NetworkState;
+import ipleiria.project.add.Utils.RemotePath;
 import ipleiria.project.add.Utils.UriHelper;
+
+import static ipleiria.project.add.SettingsActivity.DROPBOX_PREFS_KEY;
+import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
 
 public class AddItemActivity extends AppCompatActivity {
 
@@ -100,6 +103,18 @@ public class AddItemActivity extends AppCompatActivity {
             ApplicationData.getInstance()
                     .setSharedPreferences(getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE));
         }
+
+        if (NetworkState.isOnline(this)) {
+            String dropToken = ApplicationData.getInstance().getSharedPreferences().getString(DROPBOX_PREFS_KEY, "");
+            if (!dropToken.isEmpty()) {
+                DropboxClientFactory.init(dropToken);
+            }
+            String meoToken = ApplicationData.getInstance().getSharedPreferences().getString(MEO_PREFS_KEY, "");
+            if (!meoToken.isEmpty()) {
+                MEOCloudClient.init(meoToken);
+            }
+        }
+
         try {
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         }catch(DatabaseException e){
@@ -135,9 +150,10 @@ public class AddItemActivity extends AppCompatActivity {
             System.out.println("Editing item with key: " + itemDbKey);
             editingItem = ApplicationData.getInstance().getItem(itemDbKey);
             if (editingItem != null) {
-                filenameView.setText(editingItem.getFilenames().get(0).getFilename());
+                filenameView.setText(editingItem.getFiles().get(0).getFilename());
                 descriptionEditText.setText(editingItem.getDescription());
                 categoryTitle.setText("Selected " + editingItem.getCategoryReference());
+                selectedCriteria = editingItem.getCriteria();
                 ((FloatingActionButton)findViewById(R.id.fab)).setImageResource(R.drawable.ic_check_white);
             }
         }
@@ -208,7 +224,7 @@ public class AddItemActivity extends AppCompatActivity {
         } else {
             List<ItemFile> itemFiles = new LinkedList<>();
             for (Uri uri : receivedFiles) {
-                itemFiles.add(new ItemFile(UriHelper.getFileName(AddItemActivity.this, receivedFiles.get(0))));
+                itemFiles.add(new ItemFile(UriHelper.getFileName(AddItemActivity.this, uri)));
             }
             Item item = new Item(itemFiles, description);
             if (editingItem != null) {
@@ -219,8 +235,8 @@ public class AddItemActivity extends AppCompatActivity {
                 item.setCriteria(selectedCriteria);
                 ApplicationData.getInstance().addItem(item);
                 if (NetworkState.isOnline(this)) {
-                    for(Uri uri: receivedFiles){
-                        uploadFilesToCloud(uri);
+                    for(int i = 0; i < receivedFiles.size(); i++){
+                        uploadFileToCloud(receivedFiles.get(i), item.getFiles().get(i), item.getCriteria());
                     }
                 }
             }
@@ -235,25 +251,64 @@ public class AddItemActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadFilesToCloud(Uri uri) {
-        if (MEOCloudClient.isClientInitialized()) {
-            new MEOUploadFile(AddItemActivity.this, new MEOCallback<MEOMetadata>() {
-
+    private void uploadFileToCloud(final Uri uri, ItemFile file, final Criteria criteria) {
+        final String remotePath = RemotePath.getRemoteFilePath(file, criteria);
+        // the code below is absolutely atrocious
+        // because MEOCloud doesn't create the directory to a file being uploaded
+        // the folders need to be added manually and one... by one
+        // which in a tree structure like this means 3! damn calls to CreateFolder
+        // so 4! asynctasks to upload a file...
+        if(MEOCloudClient.isClientInitialized()) {
+            // create folder for dimension
+            new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
                 @Override
-                public void onComplete(MEOCloudResponse<MEOMetadata> result) {
-                    System.out.println("MEO Upload successful: " + result.getResponse().getPath());
-                }
+                public void onComplete(MEOMetadata result) {
+                    // create folder for area
+                    new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
+                        @Override
+                        public void onComplete(MEOMetadata result) {
+                            // create folder for criteria
+                            new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
+                                @Override
+                                public void onComplete(MEOMetadata result) {
+                                    new MEOUploadFile(AddItemActivity.this, new MEOCallback<MEOMetadata>() {
 
+                                        @Override
+                                        public void onComplete(MEOMetadata result) {
+                                            System.out.println("MEO Upload successful: " + result.getPath());
+                                        }
+
+                                        @Override
+                                        public void onRequestError(HttpErrorException httpE) {
+                                            Log.e("UploadError", httpE.getMessage(), httpE);
+                                        }
+
+                                        @Override
+                                        public void onError(Exception e) {
+                                            Log.e("UploadError", e.getMessage(), e);
+                                        }
+                                    }).execute(uri.toString(), remotePath);
+                                }
+                                @Override
+                                public void onRequestError(HttpErrorException httpE) {}
+                                @Override
+                                public void onError(Exception e) {}
+                            }).execute(String.valueOf(criteria.getDimension().getReference()) +
+                                    "/" + String.valueOf(criteria.getArea().getReference()) +
+                                    "/" + String.valueOf(criteria.getReference()));
+                        }
+                        @Override
+                        public void onRequestError(HttpErrorException httpE) {}
+                        @Override
+                        public void onError(Exception e) {}
+                    }).execute(String.valueOf(criteria.getDimension().getReference()) +
+                            "/" + String.valueOf(criteria.getArea().getReference()));
+                }
                 @Override
-                public void onRequestError(HttpErrorException httpE) {
-
-                }
-
+                public void onRequestError(HttpErrorException httpE) {}
                 @Override
-                public void onError(Exception e) {
-                    Log.e("UploadError", e.getMessage(), e);
-                }
-            }).execute(uri.toString(), UriHelper.getFileName(AddItemActivity.this, uri));
+                public void onError(Exception e) {}
+            }).execute(String.valueOf(criteria.getDimension().getReference()));
         }
         if (DropboxClientFactory.isClientInitialized()) {
             new DropboxUploadFile(AddItemActivity.this, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
@@ -267,7 +322,7 @@ public class AddItemActivity extends AppCompatActivity {
                 public void onError(Exception e) {
                     Log.e("UploadDropError", e.getMessage(), e);
                 }
-            }).execute(uri.toString());
+            }).execute(uri.toString(), remotePath);
         }
     }
 

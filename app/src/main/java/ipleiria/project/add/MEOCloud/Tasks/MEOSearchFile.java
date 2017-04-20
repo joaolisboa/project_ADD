@@ -46,7 +46,7 @@ public class MEOSearchFile extends AsyncTask<String, Void, MEOCloudResponse<List
             callback.onError(exception);
         } else {
             if(result.responseSuccessful()){
-                callback.onComplete(result);
+                callback.onComplete(result.getResponse());
             }else{
                 callback.onRequestError(new HttpErrorException(result.getError()));
             }

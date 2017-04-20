@@ -176,8 +176,8 @@ public class SettingsActivity extends AppCompatActivity {
             if(MEOCloudClient.isClientInitialized()){
                 new MEOGetAccount(new MEOCallback<Account>() {
                     @Override
-                    public void onComplete(MEOCloudResponse<Account> result) {
-                        ApplicationData.getInstance().addEmail(new Email(result.getResponse().getEmail(), true));
+                    public void onComplete(Account result) {
+                        ApplicationData.getInstance().addEmail(new Email(result.getEmail(), true));
                         FirebaseHandler.getInstance().writeEmails();
                     }
 

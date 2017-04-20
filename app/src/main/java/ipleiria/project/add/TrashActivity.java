@@ -18,7 +18,7 @@ import ipleiria.project.add.Model.ItemFile;
 public class TrashActivity extends AppCompatActivity {
 
     private ListView listView;
-    private ListItemAdapter listViewAdapter;
+    private DeletedItemAdapter listViewAdapter;
     private List<Item> deletedItems;
 
     @Override
@@ -26,24 +26,12 @@ public class TrashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trash);
 
-        deletedItems = ApplicationData.getInstance().getDeletedItems();
-
-        // these deleted items below are items that include delete files
-        // but not all are deleted or the item isn't deleted
-        // if the item is fully deleted then it's part of the above list
-        for(Item i: ApplicationData.getInstance().getItems()){
-            for(ItemFile file: i.getFilenames()){
-                if(file.isDeleted()){
-                    deletedItems.add(i);
-                }
-            }
-        }
+        updateListView();
     }
 
     private void updateListView() {
         listView = (ListView) findViewById(R.id.listview);
-        deletedItems = ApplicationData.getInstance().getItems();
-        listViewAdapter = new ListItemAdapter(this, deletedItems);
+        listViewAdapter = new DeletedItemAdapter(this, ApplicationData.getInstance().getDeletedItems());
         listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
         listView.setAdapter(listViewAdapter);
     }
@@ -63,7 +51,7 @@ public class TrashActivity extends AppCompatActivity {
             newItem.setReference((String)dataSnapshot.child("reference").getValue());
             newItem.setDbKey(dataSnapshot.getKey());
             ApplicationData.getInstance().addItem(newItem);
-            updateListView();
+            ((DeletedItemAdapter)listView.getAdapter()).updateListItems(ApplicationData.getInstance().getDeletedItems());
         }
 
         @Override
@@ -72,13 +60,13 @@ public class TrashActivity extends AppCompatActivity {
             newItem.setReference((String)dataSnapshot.child("reference").getValue());
             newItem.setDbKey(dataSnapshot.getKey());
             ApplicationData.getInstance().addItem(newItem);
-            updateListView();
+            ((DeletedItemAdapter)listView.getAdapter()).updateListItems(ApplicationData.getInstance().getDeletedItems());
         }
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
             ApplicationData.getInstance().deleteItem(dataSnapshot.getKey());
-            updateListView();
+            ((DeletedItemAdapter)listView.getAdapter()).updateListItems(ApplicationData.getInstance().getDeletedItems());
         }
 
         @Override

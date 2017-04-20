@@ -1,5 +1,6 @@
 package ipleiria.project.add;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.dropbox.core.v2.users.FullAccount;
@@ -18,7 +19,6 @@ import java.util.Map;
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.DropboxGetAccount;
 import ipleiria.project.add.MEOCloud.Data.Account;
-import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
@@ -30,6 +30,7 @@ import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Email;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.Utils.NetworkState;
 
 /**
  * Created by Lisboa on 15-Apr-17.
@@ -132,7 +133,7 @@ public class FirebaseHandler {
         });
     }
 
-    public void readEmails(){
+    public void readEmails(Context context){
         DatabaseReference emailRef = userReference.child("emails");
         emailRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -162,30 +163,35 @@ public class FirebaseHandler {
                 Log.e(TAG, databaseError.getMessage(), databaseError.toException());
             }
         });
-        if(MEOCloudClient.isClientInitialized()){
-            new MEOGetAccount(new MEOCallback<Account>() {
-                @Override
-                public void onComplete(MEOCloudResponse<Account> result) {
-                    ApplicationData.getInstance().addEmail(new Email(result.getResponse().getEmail(), true));
-                }
+        if(NetworkState.isOnline(context)) {
+            if (MEOCloudClient.isClientInitialized()) {
+                new MEOGetAccount(new MEOCallback<Account>() {
+                    @Override
+                    public void onComplete(Account result) {
+                        ApplicationData.getInstance().addEmail(new Email(result.getEmail(), true));
+                    }
 
-                @Override
-                public void onRequestError(HttpErrorException httpE) {}
+                    @Override
+                    public void onRequestError(HttpErrorException httpE) {
+                    }
 
-                @Override
-                public void onError(Exception e) {}
-            }).execute();
-        }
-        if(DropboxClientFactory.isClientInitialized()){
-            new DropboxGetAccount(DropboxClientFactory.getClient(), new DropboxGetAccount.Callback() {
-                @Override
-                public void onComplete(FullAccount result) {
-                    ApplicationData.getInstance().addEmail(new Email(result.getEmail(), true));
-                }
+                    @Override
+                    public void onError(Exception e) {
+                    }
+                }).execute();
+            }
+            if (DropboxClientFactory.isClientInitialized()) {
+                new DropboxGetAccount(DropboxClientFactory.getClient(), new DropboxGetAccount.Callback() {
+                    @Override
+                    public void onComplete(FullAccount result) {
+                        ApplicationData.getInstance().addEmail(new Email(result.getEmail(), true));
+                    }
 
-                @Override
-                public void onError(Exception e) {}
-            }).execute();
+                    @Override
+                    public void onError(Exception e) {
+                    }
+                }).execute();
+            }
         }
     }
 
@@ -216,7 +222,7 @@ public class FirebaseHandler {
     }
 
     public void writeItems(){
-        List<Item> items = ApplicationData.getInstance().getItems();
+        List<Item> items = ApplicationData.getInstance().getItems(true);
         for(Item item: items) {
             writeItem(item);
         }
@@ -234,11 +240,11 @@ public class FirebaseHandler {
         }
         DatabaseReference itemFileRef = itemRef.child("files");
         Map<String, Object> fileList = new HashMap<>();
-        for(ItemFile file: item.getFilenames()){
+        for(ItemFile file: item.getFiles()){
             Map<String, Object> itemFile = new HashMap<>();
             if(file.getDbKey() == null || file.getDbKey().isEmpty()){
                 itemFileRef = itemFileRef.push();
-                file.setDbKey(itemRef.getKey());
+                file.setDbKey(itemFileRef.getKey());
             }else{
                 itemFileRef = itemFileRef.child(file.getDbKey());
             }
@@ -296,7 +302,7 @@ public class FirebaseHandler {
             for (DataSnapshot fileSnapshot : dataSnapshot.child("files").getChildren()) {
                 ItemFile file = fileSnapshot.getValue(ItemFile.class);
                 file.setDbKey(fileSnapshot.getKey());
-                newItem.addFilename(file);
+                newItem.addFile(file);
             }
             ApplicationData.getInstance().addItem(newItem);
         }
@@ -309,7 +315,7 @@ public class FirebaseHandler {
             for(DataSnapshot fileSnapshot: dataSnapshot.child("files").getChildren()){
                 ItemFile file = fileSnapshot.getValue(ItemFile.class);
                 file.setDbKey(fileSnapshot.getKey());
-                newItem.addFilename(file);
+                newItem.addFile(file);
             }
             ApplicationData.getInstance().addItem(newItem);
         }

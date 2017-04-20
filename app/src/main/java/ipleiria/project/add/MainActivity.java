@@ -67,12 +67,11 @@ public class MainActivity extends AppCompatActivity {
         if (NetworkState.isOnline(this)) {
             firebaseAuth = FirebaseAuth.getInstance();
             initAuthListener();
-
             if (!preferences.getString(DROPBOX_PREFS_KEY, "").isEmpty()) {
-                DropboxClientFactory.init(preferences.getString("dropbox_access_token", ""));
+                DropboxClientFactory.init(preferences.getString(DROPBOX_PREFS_KEY, null));
             }
             if (!preferences.getString(MEO_PREFS_KEY, "").isEmpty()) {
-                MEOCloudClient.init(preferences.getString("meo_access_token", ""));
+                MEOCloudClient.init(preferences.getString(MEO_PREFS_KEY, null));
             }
         }else{
             String userUID = preferences.getString(FIREBASE_UID_KEY, null);
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if(ApplicationData.getInstance().getUserUID() != null){
             // firebase should keep data offline
-            FirebaseHandler.getInstance().readEmails();
+            FirebaseHandler.getInstance().readEmails(this);
             FirebaseHandler.getInstance().readCategories();
             FirebaseHandler.getInstance().readItems();
             FirebaseHandler.getInstance().readUserData();
@@ -107,11 +106,9 @@ public class MainActivity extends AppCompatActivity {
         new MEODownloadFile(MainActivity.this, new MEOCallback<FileResponse>() {
 
             @Override
-            public void onComplete(MEOCloudResponse<FileResponse> result) {
-                FileResponse fileResponse = result.getResponse();
-                System.out.println(fileResponse.getPath());
-                System.out.println(fileResponse.length());
-
+            public void onComplete(FileResponse result) {
+                System.out.println(result.getPath());
+                System.out.println(result.length());
             }
 
             @Override
@@ -128,8 +125,8 @@ public class MainActivity extends AppCompatActivity {
         new MEOGetMetadata(new MEOCallback<MEOMetadata>() {
 
             @Override
-            public void onComplete(MEOCloudResponse<MEOMetadata> result) {
-                System.out.println(result.getResponse().toJson());
+            public void onComplete(MEOMetadata result) {
+                System.out.println(result.toJson());
             }
 
             @Override
@@ -205,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
                         authFlag = true;
                         FirebaseHandler.getInstance().initReferences();
                         FirebaseHandler.getInstance().writeUserInfo();
+                        /*FirebaseHandler.getInstance().writeItems();
+                        FirebaseHandler.getInstance().writeEmails();*/
                     }
                 } else {
                     // User is signed out or there's no credentials

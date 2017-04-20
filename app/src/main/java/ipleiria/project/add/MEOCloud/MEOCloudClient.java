@@ -11,6 +11,8 @@ import ipleiria.project.add.MEOCloud.Tasks.MEORevokeToken;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.SettingsActivity;
 
+import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
+
 /**
  * Created by J on 03/04/2017.
  */
@@ -20,6 +22,9 @@ public class MEOCloudClient {
     private static String accessToken;
 
     public static void init(String accessToken){
+        if(accessToken == null){
+            accessToken = ApplicationData.getInstance().getSharedPreferences().getString(MEO_PREFS_KEY, null);
+        }
         if(MEOCloudClient.accessToken == null || MEOCloudClient.accessToken.isEmpty()){
             MEOCloudClient.accessToken = accessToken;
         }
@@ -39,9 +44,9 @@ public class MEOCloudClient {
     public static void revokeToken(final Context context) {
         new MEORevokeToken(new MEOCallback<Void>() {
             @Override
-            public void onComplete(MEOCloudResponse<Void> result) {
+            public void onComplete(Void result) {
                 SharedPreferences prefs = ApplicationData.getInstance().getSharedPreferences();
-                prefs.edit().remove(SettingsActivity.MEO_PREFS_KEY).apply();
+                prefs.edit().remove(MEO_PREFS_KEY).apply();
                 accessToken = null;
                 ((SettingsActivity)context).updateView();
             }
