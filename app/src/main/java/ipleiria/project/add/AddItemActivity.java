@@ -38,6 +38,7 @@ import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
+import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolderTree;
 import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFile;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Area;
@@ -260,55 +261,34 @@ public class AddItemActivity extends AppCompatActivity {
         // so 4! asynctasks to upload a file...
         if(MEOCloudClient.isClientInitialized()) {
             // create folder for dimension
-            new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
+            new MEOCreateFolderTree(new MEOCallback<MEOMetadata>() {
                 @Override
                 public void onComplete(MEOMetadata result) {
-                    // create folder for area
-                    new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
+                    new MEOUploadFile(AddItemActivity.this, new MEOCallback<MEOMetadata>() {
+
                         @Override
                         public void onComplete(MEOMetadata result) {
-                            // create folder for criteria
-                            new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
-                                @Override
-                                public void onComplete(MEOMetadata result) {
-                                    new MEOUploadFile(AddItemActivity.this, new MEOCallback<MEOMetadata>() {
-
-                                        @Override
-                                        public void onComplete(MEOMetadata result) {
-                                            System.out.println("MEO Upload successful: " + result.getPath());
-                                        }
-
-                                        @Override
-                                        public void onRequestError(HttpErrorException httpE) {
-                                            Log.e("UploadError", httpE.getMessage(), httpE);
-                                        }
-
-                                        @Override
-                                        public void onError(Exception e) {
-                                            Log.e("UploadError", e.getMessage(), e);
-                                        }
-                                    }).execute(uri.toString(), remotePath);
-                                }
-                                @Override
-                                public void onRequestError(HttpErrorException httpE) {}
-                                @Override
-                                public void onError(Exception e) {}
-                            }).execute(String.valueOf(criteria.getDimension().getReference()) +
-                                    "/" + String.valueOf(criteria.getArea().getReference()) +
-                                    "/" + String.valueOf(criteria.getReference()));
+                            System.out.println("MEO Upload successful: " + result.getPath());
                         }
+
                         @Override
-                        public void onRequestError(HttpErrorException httpE) {}
+                        public void onRequestError(HttpErrorException httpE) {
+                            Log.e("UploadError", httpE.getMessage(), httpE);
+                        }
+
                         @Override
-                        public void onError(Exception e) {}
-                    }).execute(String.valueOf(criteria.getDimension().getReference()) +
-                            "/" + String.valueOf(criteria.getArea().getReference()));
+                        public void onError(Exception e) {
+                            Log.e("UploadError", e.getMessage(), e);
+                        }
+                    }).execute(uri.toString(), remotePath);
                 }
                 @Override
                 public void onRequestError(HttpErrorException httpE) {}
                 @Override
                 public void onError(Exception e) {}
-            }).execute(String.valueOf(criteria.getDimension().getReference()));
+            }).execute(String.valueOf(criteria.getDimension().getReference()),
+                    String.valueOf(criteria.getArea().getReference()),
+                    String.valueOf(criteria.getReference()));
         }
         if (DropboxClientFactory.isClientInitialized()) {
             new DropboxUploadFile(AddItemActivity.this, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
