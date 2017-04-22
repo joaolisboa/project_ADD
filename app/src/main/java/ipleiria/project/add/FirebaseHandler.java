@@ -46,6 +46,7 @@ public class FirebaseHandler {
     private DatabaseReference userReference;
     private DatabaseReference categoryReference;
     private DatabaseReference itemsReference;
+    private DatabaseReference deletedItemsReference;
 
     private FirebaseHandler() {
         database = FirebaseDatabase.getInstance();
@@ -64,6 +65,8 @@ public class FirebaseHandler {
             userReference.keepSynced(true);
             itemsReference = database.getReference().child("items").child(ApplicationData.getInstance().getUserUID());
             itemsReference.keepSynced(true);
+            deletedItemsReference = database.getReference().child("deleted-items").child(ApplicationData.getInstance().getUserUID());
+            deletedItemsReference.keepSynced(true);
         }
         categoryReference = database.getReference().child("categories");
         categoryReference.keepSynced(true);
@@ -222,8 +225,7 @@ public class FirebaseHandler {
     }
 
     public void writeItems(){
-        List<Item> items = ApplicationData.getInstance().getItems(true);
-        for(Item item: items) {
+        for(Item item: ApplicationData.getInstance().getItems()) {
             writeItem(item);
         }
     }
@@ -255,7 +257,6 @@ public class FirebaseHandler {
         values.put("files", fileList);
         values.put("reference", item.getCategoryReference());
         values.put("description", item.getDescription());
-        values.put("deleted", item.isDeleted());
         itemRef.setValue(values);
     }
 
@@ -293,6 +294,10 @@ public class FirebaseHandler {
         return itemsReference;
     }
 
+    public DatabaseReference getDeletedItemsReference(){
+        return deletedItemsReference;
+    }
+
     private ChildEventListener itemsEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -322,7 +327,7 @@ public class FirebaseHandler {
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
-            ApplicationData.getInstance().permanentlyDeleteItem(dataSnapshot.getKey());
+            ApplicationData.getInstance().deleteItem(dataSnapshot.getKey());
         }
 
         @Override
@@ -336,13 +341,101 @@ public class FirebaseHandler {
         }
     };
 
-    public void permanentlyDeleteItem(final String itemKey){
-        itemsReference.child(itemKey).removeValue(new DatabaseReference.CompletionListener() {
+    private ChildEventListener deletedItemsEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            Item newItem = dataSnapshot.getValue(Item.class);
+            newItem.setReference((String) dataSnapshot.child("reference").getValue());
+            newItem.setDbKey(dataSnapshot.getKey());
+            for (DataSnapshot fileSnapshot : dataSnapshot.child("files").getChildren()) {
+                ItemFile file = fileSnapshot.getValue(ItemFile.class);
+                file.setDbKey(fileSnapshot.getKey());
+                newItem.addFile(file);
+            }
+            ApplicationData.getInstance().addDeletedItem(newItem);
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            Item newItem = dataSnapshot.getValue(Item.class);
+            newItem.setReference((String)dataSnapshot.child("reference").getValue());
+            newItem.setDbKey(dataSnapshot.getKey());
+            for(DataSnapshot fileSnapshot: dataSnapshot.child("files").getChildren()){
+                ItemFile file = fileSnapshot.getValue(ItemFile.class);
+                file.setDbKey(fileSnapshot.getKey());
+                newItem.addFile(file);
+            }
+            ApplicationData.getInstance().addDeletedItem(newItem);
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            ApplicationData.getInstance().deleteDeletedItem(dataSnapshot.getKey());
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
+    public void writeDeletedItem(Item item){
+        System.out.println(item);
+        DatabaseReference itemRef = deletedItemsReference.getRef();
+        Map<String, Object> values = new HashMap<>();
+        if(item.getDbKey() == null || item.getDbKey().isEmpty()){
+            itemRef = itemRef.push();
+            item.setDbKey(itemRef.getKey());
+        }else{
+            itemRef = itemRef.child(item.getDbKey());
+        }
+        DatabaseReference itemFileRef = itemRef.child("files");
+        Map<String, Object> fileList = new HashMap<>();
+        for(ItemFile file: item.getFiles()){
+            Map<String, Object> itemFile = new HashMap<>();
+            if(file.getDbKey() == null || file.getDbKey().isEmpty()){
+                itemFileRef = itemFileRef.push();
+                file.setDbKey(itemFileRef.getKey());
+            }else{
+                itemFileRef = itemFileRef.child(file.getDbKey());
+            }
+            itemFile.put("filename", file.getFilename());
+            itemFile.put("deleted", file.isDeleted());
+            fileList.put(file.getDbKey(), itemFile);
+        }
+        values.put("files", fileList);
+        values.put("reference", item.getCategoryReference());
+        values.put("description", item.getDescription());
+        itemRef.setValue(values);
+    }
+
+    public void deleteItem(final Item item){
+        writeDeletedItem(item);
+        itemsReference.child(item.getDbKey()).removeValue(new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                System.out.println("Item deleted: " + itemKey);
+                System.out.println("Item deleted: " + item.getDbKey());
             }
         });
+    }
+
+    public void permanentlyDeleteItem(final Item item){
+        deletedItemsReference.child(item.getDbKey()).removeValue(new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                System.out.println("Item permanently deleted: " + item.getDbKey());
+            }
+        });
+    }
+
+    public void restoreItem(Item item){
+        writeItem(item);
+        permanentlyDeleteItem(item);
     }
 
 }

@@ -7,6 +7,8 @@ import android.net.Uri;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.FirebaseHandler;
+
 import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
 
 /**
@@ -30,8 +32,7 @@ public class ApplicationData {
     private List<Area> areas;
     private List<Criteria> criterias;
     private List<Item> items;
-
-    private List<Email> lockedEmails = new LinkedList<>();
+    private List<Item> deletedItems;
 
     public void fillTestData(Context context) {
 
@@ -93,6 +94,7 @@ public class ApplicationData {
         areas = new LinkedList<>();
         items = new LinkedList<>();
         emails = new LinkedList<>();
+        deletedItems = new LinkedList<>();
     }
 
     public static ApplicationData getInstance() {
@@ -133,16 +135,7 @@ public class ApplicationData {
         this.emails = emails;
     }
 
-    public List<Item> getItems(boolean includeDeleted) {
-        if(includeDeleted){
-            return items;
-        }
-        List<Item> items = new LinkedList<>();
-        for(Item item: this.items){
-            if(!item.isDeleted()){
-                items.add(item);
-            }
-        }
+    public List<Item> getItems() {
         return items;
     }
 
@@ -334,53 +327,65 @@ public class ApplicationData {
         }
     }
 
-    public void permanentlyDeleteItem(String key){
-        for(int i = 0; i < items.size(); i++){
-            Item item = items.get(i);
-            if(item.getDbKey() != null &&
-                    item.getDbKey().equals(key)){
-                items.remove(item);
-                item.getCriteria().deleteItem(item);
+    public void addDeletedItem(Item newItem) {
+        for(int i = 0; i < deletedItems.size(); i++){
+            if(deletedItems.get(i).getDbKey() != null &&
+                    newItem.getDbKey() != null &&
+                    deletedItems.get(i).getDbKey().equals(newItem.getDbKey())){
+                deletedItems.remove(i);
+                deletedItems.add(i, newItem);
                 return;
             }
         }
+        if(!deletedItems.contains(newItem)){
+            deletedItems.add(newItem);
+        }
     }
 
-    public void deleteItem(String itemKey) {
+    public void permanentlyDeleteItem(Item item){
+        deletedItems.remove(item);
+        FirebaseHandler.getInstance().permanentlyDeleteItem(item);
+    }
+
+    public void deleteItem(String itemKey){
         for(int i = 0; i < items.size(); i++){
             Item item = items.get(i);
             if(item.getDbKey() != null &&
                     item.getDbKey().equals(itemKey)){
-                item.setDeleted(true);
-                //todo move files to trash directory
+                items.remove(i);
                 return;
             }
         }
     }
 
-    public void restoreItem(String key){
-        for(int i = 0; i < items.size(); i++) {
-            Item item = items.get(i);
-            if (item.getDbKey() != null &&
-                    item.getDbKey().equals(key)) {
-                item.setDeleted(false);
+    public void deleteDeletedItem(Item item){
+        deletedItems.remove(item);
+    }
+
+    public void deleteDeletedItem(String itemKey) {
+        for(int i = 0; i < deletedItems.size(); i++){
+            Item item = deletedItems.get(i);
+            if(item.getDbKey() != null &&
+                    item.getDbKey().equals(itemKey)){
+                deletedItems.remove(i);
+                return;
             }
         }
     }
 
+    public void deleteItem(Item item) {
+        items.remove(item);
+        deletedItems.add(item);
+        FirebaseHandler.getInstance().deleteItem(item);
+    }
+
+    public void restoreItem(Item item){
+        deletedItems.remove(item);
+        items.add(item);
+        FirebaseHandler.getInstance().restoreItem(item);
+    }
+
     public List<Item> getDeletedItems(){
-        List<Item> deletedItems = new LinkedList<>();
-        for(Item item: items){
-            if(item.isDeleted()){
-                deletedItems.add(item);
-            }else {
-                for (ItemFile file : item.getFiles()) {
-                    if (file.isDeleted()) {
-                        deletedItems.add(item);
-                    }
-                }
-            }
-        }
         return deletedItems;
     }
 

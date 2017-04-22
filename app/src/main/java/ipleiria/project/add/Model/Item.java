@@ -12,7 +12,6 @@ public class Item {
     private List<ItemFile> filenames;
     private String description;
     private Criteria criteria;
-    private boolean deleted = false;
     private String dbKey;
 
     public Item(){
@@ -31,17 +30,6 @@ public class Item {
     public Item(List<ItemFile> filenames, String description, Criteria criteria){
         this(filenames, description);
         this.criteria = criteria;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        for(ItemFile file: filenames){
-            file.setDeleted(deleted);
-        }
-        this.deleted = deleted;
     }
 
     public String getDbKey() {
@@ -103,7 +91,7 @@ public class Item {
 
     @Override
     public String toString(){
-        return getCategoryReference() + ":" + description + ":" + dbKey + ":" + deleted;
+        return getCategoryReference() + ":" + description + ":" + dbKey;
     }
 
 }

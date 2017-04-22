@@ -88,7 +88,7 @@ public class DeletedItemAdapter extends BaseSwipeAdapter {
                 Item item = (Item)getItem(position);
                 Toast.makeText(context, "click permanently delete " + item, Toast.LENGTH_SHORT).show();
                 listItems.remove(item);
-                FirebaseHandler.getInstance().permanentlyDeleteItem(item.getDbKey());
+                ApplicationData.getInstance().permanentlyDeleteItem(item);
                 if(NetworkState.isOnline(context)){
                     for(ItemFile file: item.getFiles()) {
                         if (MEOCloudClient.isClientInitialized()) {
@@ -133,7 +133,6 @@ public class DeletedItemAdapter extends BaseSwipeAdapter {
             public void onClick(View v) {
                 Item item = (Item)getItem(position);
                 Toast.makeText(context, "click restore " + item, Toast.LENGTH_SHORT).show();
-                item.setDeleted(false);
                 if(NetworkState.isOnline(context)){
                     for(ItemFile file: item.getFiles()){
                         if(MEOCloudClient.isClientInitialized()){
@@ -172,7 +171,7 @@ public class DeletedItemAdapter extends BaseSwipeAdapter {
                         }
                     }
                 }
-                FirebaseHandler.getInstance().writeItem(item);
+                ApplicationData.getInstance().restoreItem(item);
                 updateListItems(ApplicationData.getInstance().getDeletedItems());
             }
         });

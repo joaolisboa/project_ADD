@@ -2,8 +2,11 @@ package ipleiria.project.add;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.daimajia.swipe.SwipeLayout;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -19,14 +22,21 @@ public class TrashActivity extends AppCompatActivity {
 
     private ListView listView;
     private DeletedItemAdapter listViewAdapter;
-    private List<Item> deletedItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trash);
 
+        FirebaseHandler.getInstance().getDeletedItemsReference().addChildEventListener(itemsEventListener);
         updateListView();
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ((SwipeLayout)(listView.getChildAt(position - listView.getFirstVisiblePosition()))).open(true);
+            }
+        });
     }
 
     private void updateListView() {
@@ -39,7 +49,7 @@ public class TrashActivity extends AppCompatActivity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        FirebaseHandler.getInstance().getItemsReference().removeEventListener(itemsEventListener);
+        FirebaseHandler.getInstance().getDeletedItemsReference().removeEventListener(itemsEventListener);
         FirebaseHandler.getInstance().readItems();
     }
 
@@ -48,9 +58,14 @@ public class TrashActivity extends AppCompatActivity {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
             Item newItem = dataSnapshot.getValue(Item.class);
-            newItem.setReference((String)dataSnapshot.child("reference").getValue());
+            newItem.setReference((String) dataSnapshot.child("reference").getValue());
             newItem.setDbKey(dataSnapshot.getKey());
-            ApplicationData.getInstance().addItem(newItem);
+            for (DataSnapshot fileSnapshot : dataSnapshot.child("files").getChildren()) {
+                ItemFile file = fileSnapshot.getValue(ItemFile.class);
+                file.setDbKey(fileSnapshot.getKey());
+                newItem.addFile(file);
+            }
+            ApplicationData.getInstance().addDeletedItem(newItem);
             ((DeletedItemAdapter)listView.getAdapter()).updateListItems(ApplicationData.getInstance().getDeletedItems());
         }
 
@@ -59,13 +74,18 @@ public class TrashActivity extends AppCompatActivity {
             Item newItem = dataSnapshot.getValue(Item.class);
             newItem.setReference((String)dataSnapshot.child("reference").getValue());
             newItem.setDbKey(dataSnapshot.getKey());
-            ApplicationData.getInstance().addItem(newItem);
+            for(DataSnapshot fileSnapshot: dataSnapshot.child("files").getChildren()){
+                ItemFile file = fileSnapshot.getValue(ItemFile.class);
+                file.setDbKey(fileSnapshot.getKey());
+                newItem.addFile(file);
+            }
+            ApplicationData.getInstance().addDeletedItem(newItem);
             ((DeletedItemAdapter)listView.getAdapter()).updateListItems(ApplicationData.getInstance().getDeletedItems());
         }
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
-            ApplicationData.getInstance().deleteItem(dataSnapshot.getKey());
+            ApplicationData.getInstance().deleteDeletedItem(dataSnapshot.getKey());
             ((DeletedItemAdapter)listView.getAdapter()).updateListItems(ApplicationData.getInstance().getDeletedItems());
         }
 

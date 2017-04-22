@@ -27,6 +27,7 @@ import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
 import ipleiria.project.add.MEOCloud.Tasks.MEOMoveFile;
 import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFile;
+import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.NetworkState;
@@ -89,8 +90,7 @@ public class ListItemAdapter extends BaseSwipeAdapter {
             public void onClick(View view) {
                 final Item item = (Item)getItem(position);
                 Toast.makeText(context, "click delete " + item, Toast.LENGTH_SHORT).show();
-                item.setDeleted(true);
-                FirebaseHandler.getInstance().writeItem(item);
+                ApplicationData.getInstance().deleteItem(item);
                 if(NetworkState.isOnline(context)){
                     for(final ItemFile file: item.getFiles()){
                         if(MEOCloudClient.isClientInitialized()){

@@ -257,8 +257,6 @@ public class AddItemActivity extends AppCompatActivity {
         // the code below is absolutely atrocious
         // because MEOCloud doesn't create the directory to a file being uploaded
         // the folders need to be added manually and one... by one
-        // which in a tree structure like this means 3! damn calls to CreateFolder
-        // so 4! asynctasks to upload a file...
         if(MEOCloudClient.isClientInitialized()) {
             // create folder for dimension
             new MEOCreateFolderTree(new MEOCallback<MEOMetadata>() {

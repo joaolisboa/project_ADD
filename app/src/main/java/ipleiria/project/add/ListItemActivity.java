@@ -38,8 +38,7 @@ public class ListItemActivity extends AppCompatActivity {
 
     private void updateListView() {
         listView = (ListView) findViewById(R.id.listview);
-        //list = ApplicationData.getInstance().getItems();
-        listViewAdapter = new ListItemAdapter(this, ApplicationData.getInstance().getItems(false));
+        listViewAdapter = new ListItemAdapter(this, ApplicationData.getInstance().getItems());
         listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
         listView.setAdapter(listViewAdapter);
     }
@@ -83,7 +82,7 @@ public class ListItemActivity extends AppCompatActivity {
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
-            ApplicationData.getInstance().permanentlyDeleteItem(dataSnapshot.getKey());
+            ApplicationData.getInstance().deleteItem(dataSnapshot.getKey());
             updateListView();
         }
 
