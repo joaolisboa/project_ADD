@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.daimajia.swipe.SwipeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="88dp"
+    android:id="@+id/bottom_layout_actions">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:tag="bottom_layout_actions">
+
+        <ImageView
+            android:id="@+id/action_1"
+            app:srcCompat="@drawable/share_white"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:background="#FFEB3B"
+            android:contentDescription="Share Item"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp" />
+
+        <ImageView
+            android:id="@+id/action_2"
+            app:srcCompat="@drawable/edit_icon"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:background="#38DC32"
+            android:contentDescription="Edit Item"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp" />
+
+        <ImageView
+            android:id="@+id/action_3"
+            app:srcCompat="@drawable/delete_item_icon"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/holo_red_dark"
+            android:contentDescription="Delete Item"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/item_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:paddingBottom="8dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp">
+
+        <ImageView
+            android:id="@+id/file_thumbnail"
+            app:srcCompat="@drawable/ic_menu_share"
+            android:layout_width="56dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/filename"
+            android:layout_width="280dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="80dp"
+            android:textSize="14sp" />
+    </FrameLayout>
+
+
+</com.daimajia.swipe.SwipeLayout>

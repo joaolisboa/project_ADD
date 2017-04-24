@@ -1,30 +1,26 @@
 package ipleiria.project.add.Dropbox;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.FileMetadata;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import ipleiria.project.add.Utils.RemotePath;
 
 /**
- * Task to download a file from Dropbox and put it in the Downloads folder
+ * Created by J on 24/04/2017.
  */
-public class DropboxDownloadFile extends AsyncTask<String, Void, File> {
+
+public class DropboxGetThumbnail  extends AsyncTask<String, Void, File> {
 
     private final Context mContext;
     private final DbxClientV2 mDbxClient;
-    private final Callback mCallback;
+    private final DropboxGetThumbnail.Callback mCallback;
     private Exception mException;
 
     public interface Callback {
@@ -32,7 +28,7 @@ public class DropboxDownloadFile extends AsyncTask<String, Void, File> {
         void onError(Exception e);
     }
 
-    public DropboxDownloadFile(Context context, DbxClientV2 dbxClient, Callback callback) {
+    public DropboxGetThumbnail(Context context, DbxClientV2 dbxClient, DropboxGetThumbnail.Callback callback) {
         mContext = context;
         mDbxClient = dbxClient;
         mCallback = callback;
@@ -56,13 +52,12 @@ public class DropboxDownloadFile extends AsyncTask<String, Void, File> {
             }
 
             String filename = params[0];
-
-            String filenameWithoutPath = RemotePath.filename(filename);
-            try (OutputStream outputStream = mContext.openFileOutput(filenameWithoutPath, Context.MODE_PRIVATE)) {
-                mDbxClient.files().download("/" + filename).download(outputStream);
+            String thumbnailFilename = "thumb_" + RemotePath.filename(filename);
+            try (OutputStream outputStream = mContext.openFileOutput(thumbnailFilename, Context.MODE_PRIVATE)) {
+                mDbxClient.files().getThumbnail("/" + filename).download(outputStream);
             }
 
-            return new File(mContext.getFilesDir().getAbsolutePath() + "/" + filenameWithoutPath);
+            return new File(mContext.getFilesDir().getAbsolutePath() + "/" + thumbnailFilename);
         } catch (DbxException | IOException e) {
             mException = e;
         }

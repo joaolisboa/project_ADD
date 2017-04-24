@@ -60,6 +60,8 @@ public class ListItemActivity extends AppCompatActivity {
     private Spinner spinner;
     private List<Uri> receivedFiles;
 
+    private String action;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +99,7 @@ public class ListItemActivity extends AppCompatActivity {
                             items.add(i);
                         }
                     }
-                    listViewAdapter = new ListItemAdapter(ListItemActivity.this, items, listDeleted);
+                    listViewAdapter = new ListItemAdapter(ListItemActivity.this, items, listDeleted, action);
                     listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
                     listView.setAdapter(listViewAdapter);
                 }
@@ -120,17 +122,16 @@ public class ListItemActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //
                 if(action != null){
                     addFilesToItem((Item)parent.getItemAtPosition(position), intent);
                 }else{
                     ((SwipeLayout)(listView.getChildAt(position - listView.getFirstVisiblePosition()))).open(true);
                 }
-                //Toast.makeText(getApplicationContext(), "clicked item", Toast.LENGTH_SHORT).show();
             }
         });
 
         if(action != null){
+            this.action = action;
             Button addNew = (Button) findViewById(R.id.add_new_button);
             addNew.setVisibility(View.VISIBLE);
             addNew.setOnClickListener(new View.OnClickListener() {
@@ -223,7 +224,7 @@ public class ListItemActivity extends AppCompatActivity {
                     }
 
                 }
-                listViewAdapter = new ListItemAdapter(ListItemActivity.this, pesquisa, listDeleted);
+                listViewAdapter = new ListItemAdapter(ListItemActivity.this, pesquisa, listDeleted, action);
                 listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
                 listView.setAdapter(listViewAdapter);
                 return false;
@@ -239,7 +240,7 @@ public class ListItemActivity extends AppCompatActivity {
         } else {
             items = ApplicationData.getInstance().getDeletedItems();
         }
-        listViewAdapter = new ListItemAdapter(this, items, listDeleted);
+        listViewAdapter = new ListItemAdapter(this, items, listDeleted, action);
         listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
         listView.setAdapter(listViewAdapter);
     }

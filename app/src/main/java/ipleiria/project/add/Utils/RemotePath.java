@@ -28,6 +28,10 @@ public class RemotePath {
         return remotePath.substring(0, remotePath.lastIndexOf("/"));
     }
 
+    public static String filename(String path){
+        return path.substring(path.lastIndexOf("/")+1, path.length());
+    }
+
     public static List<String> getRemoteFilePaths(Item item){
         List<String> paths = new LinkedList<>();
         for(ItemFile file: item.getFiles()){

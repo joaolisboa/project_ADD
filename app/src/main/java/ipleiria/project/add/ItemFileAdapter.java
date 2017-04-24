@@ -2,6 +2,8 @@ package ipleiria.project.add;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
+import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,11 +17,15 @@ import android.widget.Toast;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.dropbox.core.v2.files.Metadata;
+import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.DropboxDeleteFile;
+import ipleiria.project.add.Dropbox.DropboxDownloadFile;
+import ipleiria.project.add.Dropbox.DropboxGetThumbnail;
 import ipleiria.project.add.Dropbox.DropboxMoveFile;
 import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
@@ -28,41 +34,41 @@ import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
 import ipleiria.project.add.MEOCloud.Tasks.MEODeleteFile;
 import ipleiria.project.add.MEOCloud.Tasks.MEOMoveFile;
-import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFile;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.Utils.RemotePath;
 
 import static ipleiria.project.add.Utils.RemotePath.TRASH_FOLDER;
 
 /**
- * Created by Lisboa on 18-Apr-17.
+ * Created by J on 24/04/2017.
  */
 
-public class ListItemAdapter extends BaseSwipeAdapter {
+public class ItemFileAdapter extends BaseSwipeAdapter {
 
     private Context context;
-    private List<Item> listItems;
+    private Item item;
+    private List<ItemFile> listItemsFiles;
     private boolean listDeleted;
-    private String action;
 
-    public ListItemAdapter(Context context, List<Item> objects, boolean listDeleted, String action) {
+    public ItemFileAdapter(Context context, Item item, boolean listDeleted) {
         this.context = context;
-        this.listItems = objects;
+        this.item = item;
+        this.listItemsFiles = item.getFiles();
         this.listDeleted = listDeleted;
-        this.action = action;
     }
 
     @Override
     public int getCount() {
-        return listItems.size();
+        return listItemsFiles.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return listItems.get(position);
+        return listItemsFiles.get(position);
     }
 
     @Override
@@ -77,36 +83,44 @@ public class ListItemAdapter extends BaseSwipeAdapter {
 
     @Override
     public View generateView(final int position, ViewGroup parent) {
-        View itemView = LayoutInflater.from(context).inflate(R.layout.listview_item, null);
-        Item item = listItems.get(position);
+        View itemView = LayoutInflater.from(context).inflate(R.layout.list_file_item, null);
+        ItemFile itemFile = listItemsFiles.get(position);
 
         SwipeLayout swipeLayout = (SwipeLayout) itemView.findViewById(R.id.bottom_layout_actions);
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
         swipeLayout.setClickToClose(true);
-        if(action != null){
-            swipeLayout.setSwipeEnabled(false);
-        }
         FrameLayout itemLayout = (FrameLayout) itemView.findViewById(R.id.item_view);
-        TextView itemName = (TextView) itemLayout.findViewById(R.id.title_text_view);
-        TextView itemCriteria = (TextView) itemLayout.findViewById(R.id.category_text_view);
-        TextView numFiles = (TextView) itemLayout.findViewById(R.id.num_files);
-        ImageView infoIcon = (ImageView) itemLayout.findViewById(R.id.info_icon);
+        final ImageView fileThumb = (ImageView) itemLayout.findViewById(R.id.file_thumbnail);
+        TextView filename = (TextView) itemLayout.findViewById(R.id.filename);
 
-        itemName.setText(item.getDescription());
-        itemCriteria.setText(item.getCategoryReference() + ". " + item.getCriteria().getName());
-        numFiles.setText(context.getString(R.string.num_files, item.getFiles().size()));
+        filename.setText(itemFile.getFilename());
+        // TODO: 24/04/2017 get file thumbnail from drop/meo and set with Picasso
+        if(NetworkState.isOnline(context)){
+            if(MEOCloudClient.isClientInitialized()){
 
-        infoIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: 23-Apr-17 open activity with details, files and tags
-                final Item item = (Item) getItem(position);
-                Intent intent = new Intent(context, ItemDetailActivity.class);
-                intent.putExtra("item_key", item.getDbKey());
-                context.startActivity(intent);
-                Toast.makeText(context, "clicked info icon", Toast.LENGTH_SHORT).show();
             }
-        });
+            if(DropboxClientFactory.isClientInitialized()){
+                new DropboxGetThumbnail(context, DropboxClientFactory.getClient(),
+                        new DropboxGetThumbnail.Callback(){
+                            @Override
+                            public void onDownloadComplete(File result) {
+                                System.out.println("THUMBNAIL: " + result.toString());
+                                Picasso.with(context)
+                                        .load(result.getAbsolutePath())
+                                        .resize(100, 100)
+                                        .transform(new CircleTransformation())
+                                        .placeholder(R.drawable.ic_profile_placeholder)
+                                        .error(R.drawable.ic_profile_placeholder)
+                                        .into(fileThumb);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Log.e("DownloadError", e.getMessage(), e);
+                            }
+                        }).execute(RemotePath.getRemoteFilePath(itemFile, item.getCriteria()));
+            }
+        }
 
         if(!listDeleted){
             setDefaultListeners(position, itemView);
@@ -118,10 +132,47 @@ public class ListItemAdapter extends BaseSwipeAdapter {
     }
 
     private void setDefaultListeners(final int position, View itemView){
-        ImageView buttonEdit = (ImageView) itemView.findViewById(R.id.action_1);
+        ImageView buttonShare = (ImageView) itemView.findViewById(R.id.action_1);
+        buttonShare.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.share_white));
+        ImageView buttonEdit = (ImageView) itemView.findViewById(R.id.action_2);
         buttonEdit.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_icon));
-        ImageView buttonDelete = (ImageView) itemView.findViewById(R.id.action_2);
+        ImageView buttonDelete = (ImageView) itemView.findViewById(R.id.action_3);
         buttonDelete.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_item_icon));
+
+        buttonShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final ItemFile file = (ItemFile) getItem(position);
+                // TODO: 24/04/2017 download file and open intent to open in another app
+                if(NetworkState.isOnline(context)){
+                    if(MEOCloudClient.isClientInitialized()){
+
+                    }
+                    if(DropboxClientFactory.isClientInitialized()){
+                        new DropboxDownloadFile(context, DropboxClientFactory.getClient(),
+                                new DropboxDownloadFile.Callback(){
+
+                                    @Override
+                                    public void onDownloadComplete(File result) {
+                                        Intent shareIntent = new Intent();
+                                        shareIntent.setAction(Intent.ACTION_SEND);
+                                        shareIntent.putExtra(Intent.EXTRA_STREAM, result.toURI());
+                                        shareIntent.setType("*/*");
+                                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                        context.startActivity(Intent.createChooser(shareIntent, "Open file"));
+                                    }
+
+                                    @Override
+                                    public void onError(Exception e) {
+                                        Log.e("DownloadError", e.getMessage(), e);
+                                    }
+                                }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()));
+                    }
+                }else{
+                    Toast.makeText(context, "No internet", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,7 +261,7 @@ public class ListItemAdapter extends BaseSwipeAdapter {
             public void onClick(View view) {
                 Item item = (Item) getItem(position);
                 Toast.makeText(context, "click permanently delete " + item, Toast.LENGTH_SHORT).show();
-                listItems.remove(item);
+                listItemsFiles.remove(item);
                 ApplicationData.getInstance().permanentlyDeleteItem(item);
                 if (NetworkState.isOnline(context)) {
                     for (ItemFile file : item.getFiles()) {
@@ -295,13 +346,13 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                     }
                 }
                 ApplicationData.getInstance().restoreItem(item);
-                updateListItems(ApplicationData.getInstance().getDeletedItems());
+                //updateListItems(ApplicationData.getInstance().getDeletedItems());
             }
         });
     }
 
-    public void updateListItems(List<Item> items) {
-        this.listItems = items;
+    public void updateListItems(List<ItemFile> itemFiles) {
+        this.listItemsFiles = itemFiles;
         notifyDataSetChanged();
     }
 
