@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestCode == REQUEST_TAKE_PHOTO) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
-                Intent photo = new Intent(MainActivity.this, AddItemActivity.class);
+                Intent photo = new Intent(MainActivity.this, ListItemActivity.class);
                 photo.putExtra("photo_uri",photoURI.toString());
                 startActivity(photo.setAction(SENDING_PHOTO));
 

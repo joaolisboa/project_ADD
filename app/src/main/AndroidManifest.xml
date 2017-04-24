@@ -54,7 +54,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AddItemActivity"
+            android:name=".AddItemActivity">
+        </activity>
+        <activity
+            android:name=".ListItemActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             android:label="@string/share_activity_label"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -72,10 +77,6 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ListItemActivity"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".SelectCategoryActivity" />
         <activity
             android:name=".SettingsActivity"

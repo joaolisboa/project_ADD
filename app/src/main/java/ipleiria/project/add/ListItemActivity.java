@@ -1,5 +1,9 @@
 package ipleiria.project.add;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.net.Uri;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -7,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -21,10 +27,12 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +41,11 @@ import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.Utils.CloudHandler;
+import ipleiria.project.add.Utils.NetworkState;
+import ipleiria.project.add.Utils.UriHelper;
+
+import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 
 public class ListItemActivity extends AppCompatActivity {
 
@@ -42,11 +55,16 @@ public class ListItemActivity extends AppCompatActivity {
     private ListItemAdapter listViewAdapter;
 
     private Spinner spinner;
+    private List<Uri> receivedFiles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+
+        final Intent intent = getIntent();
+        final String action = intent.getAction();
+
         Toolbar t = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(t);
         getSupportActionBar().setTitle(null);
@@ -75,10 +93,75 @@ public class ListItemActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //((SwipeLayout)(listView.getChildAt(position - listView.getFirstVisiblePosition()))).open(true);
-                Toast.makeText(getApplicationContext(), "clicked item", Toast.LENGTH_SHORT).show();
+                //
+                if(action != null){
+                    addFilesToItem((Item)parent.getItemAtPosition(position), intent);
+                }else{
+                    ((SwipeLayout)(listView.getChildAt(position - listView.getFirstVisiblePosition()))).open(true);
+                }
+                //Toast.makeText(getApplicationContext(), "clicked item", Toast.LENGTH_SHORT).show();
             }
         });
+
+        if(action != null){
+            Button addNew = (Button) findViewById(R.id.add_new_button);
+            addNew.setVisibility(View.VISIBLE);
+            addNew.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    intent.setComponent(new ComponentName(ListItemActivity.this, AddItemActivity.class));
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+
+    private void addFilesToItem(Item itemAtPosition, Intent intent) {
+        receivedFiles = new LinkedList<>();
+        String action = intent.getAction();
+        String type = intent.getType();
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            handleSingleFile(intent);
+        } else if (SENDING_PHOTO.equals(action)){
+            handleFile(Uri.parse(intent.getStringExtra( "photo_uri")));
+
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+            handleMultipleFiles(intent);
+        }
+        List<ItemFile> itemFiles = new LinkedList<>();
+        for (Uri uri : receivedFiles) {
+            itemFiles.add(new ItemFile(UriHelper.getFileName(ListItemActivity.this, uri)));
+        }
+        itemAtPosition.addFiles(itemFiles);
+        if (NetworkState.isOnline(this)) {
+            for(int i = 0; i < receivedFiles.size(); i++){
+                Log.d("FILE_UPLOAD", "uploading file: " + UriHelper.getFileName(ListItemActivity.this, receivedFiles.get(i)));
+                CloudHandler.uploadFileToCloud(this, receivedFiles.get(i),
+                        itemFiles.get(i), itemAtPosition.getCriteria());
+            }
+        }
+        if (ApplicationData.getInstance().getUserUID() != null) {
+            FirebaseHandler.getInstance().writeItem(itemAtPosition);
+        }
+        Toast.makeText(this, "File added to item", Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+    private void handleFile(Uri uri) {
+        receivedFiles.add(uri);
+    }
+
+    private void handleSingleFile(Intent intent) {
+        handleFile((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
+    }
+
+    private void handleMultipleFiles(Intent intent) {
+        ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+        if (uris != null) {
+            for (Uri uri : uris) {
+                handleFile(uri);
+            }
+        }
     }
 
     @Override

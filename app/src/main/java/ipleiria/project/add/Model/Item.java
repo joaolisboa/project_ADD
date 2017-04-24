@@ -94,4 +94,7 @@ public class Item {
         return getCategoryReference() + ":" + description + ":" + dbKey;
     }
 
+    public void addFiles(List<ItemFile> itemFiles) {
+        filenames.addAll(itemFiles);
+    }
 }

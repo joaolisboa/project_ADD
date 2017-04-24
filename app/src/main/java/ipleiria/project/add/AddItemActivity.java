@@ -48,6 +48,7 @@ import ipleiria.project.add.Model.Criteria;
 import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.Utils.CloudHandler;
 import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.Utils.RemotePath;
 import ipleiria.project.add.Utils.StringUtils;
@@ -249,7 +250,8 @@ public class AddItemActivity extends AppCompatActivity {
                 ApplicationData.getInstance().addItem(item);
                 if (NetworkState.isOnline(this)) {
                     for(int i = 0; i < receivedFiles.size(); i++){
-                        uploadFileToCloud(receivedFiles.get(i), item.getFiles().get(i), item.getCriteria());
+                        CloudHandler.uploadFileToCloud(this, receivedFiles.get(i),
+                                item.getFiles().get(i), item.getCriteria());
                     }
                 }
             }
@@ -261,58 +263,6 @@ public class AddItemActivity extends AppCompatActivity {
             } else {
                 finish();
             }
-        }
-    }
-
-    private void uploadFileToCloud(final Uri uri, ItemFile file, final Criteria criteria) {
-        final String remotePath = RemotePath.getRemoteFilePath(file, criteria);
-        // the code below is absolutely atrocious
-        // because MEOCloud doesn't create the directory to a file being uploaded
-        // the folders need to be added manually and one... by one
-        if(MEOCloudClient.isClientInitialized()) {
-            // create folder for dimension
-            new MEOCreateFolderTree(new MEOCallback<MEOMetadata>() {
-                @Override
-                public void onComplete(MEOMetadata result) {
-                    new MEOUploadFile(AddItemActivity.this, new MEOCallback<MEOMetadata>() {
-
-                        @Override
-                        public void onComplete(MEOMetadata result) {
-                            System.out.println("MEO Upload successful: " + result.getPath());
-                        }
-
-                        @Override
-                        public void onRequestError(HttpErrorException httpE) {
-                            Log.e("UploadError", httpE.getMessage(), httpE);
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e("UploadError", e.getMessage(), e);
-                        }
-                    }).execute(uri.toString(), remotePath);
-                }
-                @Override
-                public void onRequestError(HttpErrorException httpE) {}
-                @Override
-                public void onError(Exception e) {}
-            }).execute(String.valueOf(criteria.getDimension().getReference()),
-                    String.valueOf(criteria.getArea().getReference()),
-                    String.valueOf(criteria.getReference()));
-        }
-        if (DropboxClientFactory.isClientInitialized()) {
-            new DropboxUploadFile(AddItemActivity.this, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
-
-                @Override
-                public void onUploadComplete(FileMetadata result) {
-                    System.out.println("Dropbox Upload successful :" + result.getName());
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.e("UploadDropError", e.getMessage(), e);
-                }
-            }).execute(uri.toString(), remotePath);
         }
     }
 
