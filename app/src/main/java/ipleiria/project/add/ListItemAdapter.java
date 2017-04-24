@@ -99,12 +99,10 @@ public class ListItemAdapter extends BaseSwipeAdapter {
         infoIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: 23-Apr-17 open activity with details, files and tags
                 final Item item = (Item) getItem(position);
                 Intent intent = new Intent(context, ItemDetailActivity.class);
                 intent.putExtra("item_key", item.getDbKey());
                 context.startActivity(intent);
-                Toast.makeText(context, "clicked info icon", Toast.LENGTH_SHORT).show();
             }
         });
 

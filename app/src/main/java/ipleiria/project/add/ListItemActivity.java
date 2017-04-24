@@ -83,7 +83,7 @@ public class ListItemActivity extends AppCompatActivity {
         for(Dimension d: ApplicationData.getInstance().getDimensions()){
             filters.add(d.getName());
         }
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, filters);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, filters);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerArrayAdapter);
 

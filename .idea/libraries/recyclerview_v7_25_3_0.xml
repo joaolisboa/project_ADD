@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="recyclerview-v7-25.3.0">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.android/build-cache/dca32ca0698bb7853d3c49534afea3274147a299/output/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.android/build-cache/dca32ca0698bb7853d3c49534afea3274147a299/output/res" />
+      <root url="file://$USER_HOME$/.android/build-cache/de50715cfb09122d4ec40f1a3bd0a3d2aff76424/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/de50715cfb09122d4ec40f1a3bd0a3d2aff76424/output/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

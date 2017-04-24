@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
+import com.dropbox.core.v2.files.ThumbnailFormat;
+import com.dropbox.core.v2.files.ThumbnailSize;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +56,10 @@ public class DropboxGetThumbnail  extends AsyncTask<String, Void, File> {
             String filename = params[0];
             String thumbnailFilename = "thumb_" + RemotePath.filename(filename);
             try (OutputStream outputStream = mContext.openFileOutput(thumbnailFilename, Context.MODE_PRIVATE)) {
-                mDbxClient.files().getThumbnail("/" + filename).download(outputStream);
+                mDbxClient.files().getThumbnailBuilder("/" + filename)
+                        .withFormat(ThumbnailFormat.JPEG)
+                        .withSize(ThumbnailSize.W128H128)
+                        .download(outputStream);
             }
 
             return new File(mContext.getFilesDir().getAbsolutePath() + "/" + thumbnailFilename);

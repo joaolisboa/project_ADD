@@ -1,5 +1,6 @@
 package ipleiria.project.add;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.media.Image;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -27,12 +29,16 @@ import ipleiria.project.add.Dropbox.DropboxDeleteFile;
 import ipleiria.project.add.Dropbox.DropboxDownloadFile;
 import ipleiria.project.add.Dropbox.DropboxGetThumbnail;
 import ipleiria.project.add.Dropbox.DropboxMoveFile;
+import ipleiria.project.add.MEOCloud.Data.FileResponse;
 import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
 import ipleiria.project.add.MEOCloud.Tasks.MEODeleteFile;
+import ipleiria.project.add.MEOCloud.Tasks.MEODownloadFile;
+import ipleiria.project.add.MEOCloud.Tasks.MEOGetThumbnail;
 import ipleiria.project.add.MEOCloud.Tasks.MEOMoveFile;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Item;
@@ -97,20 +103,37 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         // TODO: 24/04/2017 get file thumbnail from drop/meo and set with Picasso
         if(NetworkState.isOnline(context)){
             if(MEOCloudClient.isClientInitialized()){
+                new MEOGetThumbnail(context, new MEOCallback<File>() {
+                    @Override
+                    public void onComplete(File result) {
+                        Picasso.with(context)
+                                .load(result)
+                                .resize(100, 100)
+                                .placeholder(R.drawable.file_placeholder)
+                                .error(R.drawable.file_placeholder)
+                                .into(fileThumb);
+                    }
 
-            }
-            if(DropboxClientFactory.isClientInitialized()){
+                    @Override
+                    public void onRequestError(HttpErrorException httpE) {
+                        Log.e("DownloadError", httpE.getMessage(), httpE);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e("DownloadError", e.getMessage(), e);
+                    }
+                }).execute(RemotePath.getRemoteFilePath(itemFile, item.getCriteria()), null, MEOCloudAPI.THUMBNAIL_SIZE_M);
+            } else if(DropboxClientFactory.isClientInitialized()){
                 new DropboxGetThumbnail(context, DropboxClientFactory.getClient(),
                         new DropboxGetThumbnail.Callback(){
                             @Override
                             public void onDownloadComplete(File result) {
-                                System.out.println("THUMBNAIL: " + result.toString());
                                 Picasso.with(context)
-                                        .load(result.getAbsolutePath())
+                                        .load(result)
                                         .resize(100, 100)
-                                        .transform(new CircleTransformation())
-                                        .placeholder(R.drawable.ic_profile_placeholder)
-                                        .error(R.drawable.ic_profile_placeholder)
+                                        .placeholder(R.drawable.file_placeholder)
+                                        .error(R.drawable.file_placeholder)
                                         .into(fileThumb);
                             }
 
@@ -143,27 +166,44 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
             @Override
             public void onClick(View v) {
                 final ItemFile file = (ItemFile) getItem(position);
-                // TODO: 24/04/2017 download file and open intent to open in another app
+                final ProgressDialog progressDialog = new ProgressDialog(context);
+                progressDialog.setMessage("Downloading file");
+                progressDialog.setIndeterminate(true);
+                progressDialog.show();
                 if(NetworkState.isOnline(context)){
                     if(MEOCloudClient.isClientInitialized()){
+                        new MEODownloadFile(context, new MEOCallback<FileResponse>() {
+                            @Override
+                            public void onComplete(FileResponse result) {
+                                progressDialog.dismiss();
+                                shareFile(result);
+                            }
 
-                    }
-                    if(DropboxClientFactory.isClientInitialized()){
+                            @Override
+                            public void onRequestError(HttpErrorException httpE) {
+                                progressDialog.dismiss();
+                                Log.e("DownloadError", httpE.getMessage(), httpE);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                progressDialog.dismiss();
+                                Log.e("DownloadError", e.getMessage(), e);
+                            }
+                        }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()));
+                    } else if(DropboxClientFactory.isClientInitialized()){
                         new DropboxDownloadFile(context, DropboxClientFactory.getClient(),
                                 new DropboxDownloadFile.Callback(){
 
                                     @Override
                                     public void onDownloadComplete(File result) {
-                                        Intent shareIntent = new Intent();
-                                        shareIntent.setAction(Intent.ACTION_SEND);
-                                        shareIntent.putExtra(Intent.EXTRA_STREAM, result.toURI());
-                                        shareIntent.setType("*/*");
-                                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                        context.startActivity(Intent.createChooser(shareIntent, "Open file"));
+                                        progressDialog.dismiss();
+                                        shareFile(result);
                                     }
 
                                     @Override
                                     public void onError(Exception e) {
+                                        progressDialog.dismiss();
                                         Log.e("DownloadError", e.getMessage(), e);
                                     }
                                 }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()));
@@ -248,6 +288,18 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                 notifyDataSetChanged();
             }
         });
+    }
+
+    private void shareFile(File file){
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, file.toURI());
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        String ext = file.getName().substring(file.getName().indexOf(".") + 1);
+        String type = mime.getMimeTypeFromExtension(ext);
+        shareIntent.setType(type);
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        context.startActivity(Intent.createChooser(shareIntent, "Open file"));
     }
 
     private void setListenerForDeletedItems(final int position, View itemView) {

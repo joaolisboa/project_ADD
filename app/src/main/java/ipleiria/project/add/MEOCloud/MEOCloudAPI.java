@@ -39,7 +39,14 @@ public class MEOCloudAPI {
     public static final String API_METHOD_ACOUNT_INFO = "Account/Info";
     public static final String API_METHOD_DISABLE_TOKEN = "DisableAccessToken";
 
+    public static final String THUMBNAIL_FORMAT_JPEG = "jpeg";
+    public static final String THUMBNAIL_FORMAT_PNG = "png";
 
+    public static final String THUMBNAIL_SIZE_XS = "xs";
+    public static final String THUMBNAIL_SIZE_S = "s";
+    public static final String THUMBNAIL_SIZE_M = "m";
+    public static final String THUMBNAIL_SIZE_L = "l";
+    public static final String THUMBNAIL_SIZE_XL = "xl";
 
     public static final String API_ENDPOINT = "api.meocloud.pt";
     public static final String API_CONTENT_ENDPOINT = "api-content.meocloud.pt";

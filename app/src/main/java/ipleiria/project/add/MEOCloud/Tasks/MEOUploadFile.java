@@ -78,8 +78,8 @@ public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<MEOM
             if (params.length > 3 && params[3] != null) {
                 map.put("parent_rev", params[3]);
             }
+            // DOES NOT CREATE FOLDERS TO THE FILE PATH, NO FOLDER = 4 0 4 !!!
             String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
-            System.out.println("meo upload file to: " + path);
             InputStream is = context.getContentResolver().openInputStream(localFile);
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 

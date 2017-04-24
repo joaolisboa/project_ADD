@@ -55,7 +55,7 @@
         <activity
             android:name=".ListItemActivity"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/share_activity_label"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -89,9 +89,6 @@
             android:label="@string/title_activity_item_detail"
             android:parentActivityName=".ListItemActivity"
             android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="ipleiria.project.add.ListItemActivity" />
         </activity>
 
         <provider
