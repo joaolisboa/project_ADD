@@ -27,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,6 +50,7 @@ import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.Utils.RemotePath;
+import ipleiria.project.add.Utils.StringUtils;
 import ipleiria.project.add.Utils.UriHelper;
 
 import static ipleiria.project.add.SettingsActivity.DROPBOX_PREFS_KEY;
@@ -57,6 +59,7 @@ import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
 public class AddItemActivity extends AppCompatActivity {
 
     private static final String TAG = "AddItemActivity";
+    public static final String SENDING_PHOTO = "SendingPhotoAction";
 
     private ViewGroup containerView;
     private EditText descriptionEditText;
@@ -143,6 +146,11 @@ public class AddItemActivity extends AppCompatActivity {
 
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             handleSingleFile(intent);
+        } else if (SENDING_PHOTO.equals(action)){
+            handleFile(Uri.parse(intent.getStringExtra( "photo_uri")));
+            String filename = UriHelper.getFileName(AddItemActivity.this, receivedFiles.get(0));
+            filenameView.setText(filename);
+
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
             handleMultipleFiles(intent);
         } else {
@@ -159,6 +167,9 @@ public class AddItemActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
 
     private void readCategories() {
         FirebaseHandler.getInstance().getCategoryReference().addListenerForSingleValueEvent(new ValueEventListener() {
@@ -196,6 +207,7 @@ public class AddItemActivity extends AppCompatActivity {
 
     private void handleFile(Uri uri) {
         receivedFiles.add(uri);
+
     }
 
     private void handleSingleFile(Intent intent) {
@@ -336,6 +348,10 @@ public class AddItemActivity extends AppCompatActivity {
         @Override
         public boolean onQueryTextChange(String newText) {
             searchResults.clear();
+
+
+            newText = StringUtils.removeDiacriticalMarks(newText);
+
             if (TextUtils.isEmpty(newText)) {
                 searchListView.setVisibility(View.GONE);
                 containerView.setVisibility(View.VISIBLE);
@@ -343,7 +359,8 @@ public class AddItemActivity extends AppCompatActivity {
             } else {
                 String query = newText.toLowerCase();
                 for (Criteria criterio : criterias) {
-                    if (criterio.contains(query)) {
+                    String stringcriterio = StringUtils.removeDiacriticalMarks(criterio.getName().toLowerCase());
+                    if (stringcriterio.contains(query)) {
                         searchResults.add(criterio);
                     }
                 }

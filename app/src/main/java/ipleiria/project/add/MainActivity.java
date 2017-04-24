@@ -44,6 +44,7 @@ import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.Utils.NetworkState;
 
+import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
 import static ipleiria.project.add.SettingsActivity.DROPBOX_PREFS_KEY;
 import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private NavigationView navigationView;
     String mCurrentPhotoPath;
+    Uri photoURI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
+                photoURI = FileProvider.getUriForFile(this,
                         "com.example.android.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -215,6 +217,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == REQUEST_TAKE_PHOTO) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                Intent photo = new Intent(MainActivity.this, AddItemActivity.class);
+                photo.putExtra("photo_uri",photoURI.toString());
+                startActivity(photo.setAction(SENDING_PHOTO));
+
+            }
+        }
     }
     @Override
     public void onStart() {
