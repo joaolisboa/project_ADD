@@ -48,7 +48,8 @@
 
                 <data
                     android:path="/oauth2redirect"
-                    android:scheme="ipleiria.project.add" />
+                    android:scheme="http"
+                    android:host="ipleiria.project.add" />
             </intent-filter>
         </activity>
         <activity android:name=".AddItemActivity"></activity>
@@ -93,12 +94,19 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.example.android.fileprovider"
+            android:authorities="ipleiria.project.add.store"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
+        </provider>
+        <provider
+            android:name=".Utils.MyProvider"
+            android:authorities="ipleiria.project.add"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            tools:ignore="ExportedContentProvider">
         </provider>
 
     </application>

@@ -19,6 +19,10 @@ public final class UriHelper {
 
     private UriHelper() {}
 
+    public static Uri getUriFromAppfile(String filepath){
+        return Uri.parse("content://ipleiria.project.add/" + filepath);
+    }
+
     /**
      * Get the file path for a uri. This is a convoluted way to get the path for an Uri created using the
      * StorageAccessFramework. This in no way is the official way to do this but there does not seem to be a better

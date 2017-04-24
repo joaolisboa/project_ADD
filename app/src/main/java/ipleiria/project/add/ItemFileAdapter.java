@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.media.Image;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +47,7 @@ import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.Utils.RemotePath;
+import ipleiria.project.add.Utils.UriHelper;
 
 import static ipleiria.project.add.Utils.RemotePath.TRASH_FOLDER;
 
@@ -291,14 +293,13 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
     }
 
     private void shareFile(File file){
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, file.toURI());
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         String ext = file.getName().substring(file.getName().indexOf(".") + 1);
         String type = mime.getMimeTypeFromExtension(ext);
-        shareIntent.setType(type);
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_VIEW);
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        shareIntent.setDataAndType(UriHelper.getUriFromAppfile(file.getPath()), type);
         context.startActivity(Intent.createChooser(shareIntent, "Open file"));
     }
 

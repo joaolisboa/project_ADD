@@ -60,13 +60,6 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     private void setFileListView(){
-        List<ItemFile> files = new LinkedList<>();
-        /*if (!listDeleted) {
-            items = ApplicationData.getInstance().getItems();
-        } else {
-            items = ApplicationData.getInstance().getDeletedItems();
-        }*/
-        files = item.getFiles();
         listFileAdapter = new ItemFileAdapter(this, item, false);
         listFileAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
         listView.setAdapter(listFileAdapter);

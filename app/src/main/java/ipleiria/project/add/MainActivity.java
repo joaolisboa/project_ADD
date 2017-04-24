@@ -43,6 +43,7 @@ import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.Utils.NetworkState;
+import ipleiria.project.add.Utils.UriHelper;
 
 import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
@@ -190,12 +191,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 photoFile = createImageFile();
             } catch (Exception ex) {
                 // Error occurred while creating the File
-
+                Log.e(TAG, ex.getMessage(), ex);
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider",
+                        "ipleiria.project.add.store",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);

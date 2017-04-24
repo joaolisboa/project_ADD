@@ -12,7 +12,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:paddingStart="16dp"
+        android:paddingStart="72dp"
         android:text="Files"
         android:textSize="18sp"
         android:gravity="center"/>
