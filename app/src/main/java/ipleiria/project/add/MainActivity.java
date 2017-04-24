@@ -5,9 +5,20 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -18,45 +29,60 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.picasso.Picasso;
 
-import java.io.File;
-
-import ipleiria.project.add.Dropbox.DropboxDownloadFile;
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.MEOCloud.Data.FileResponse;
-import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.Tasks.MEOGetMetadata;
-import ipleiria.project.add.MEOCloud.MEOCallback;
-import ipleiria.project.add.MEOCloud.Tasks.MEODownloadFile;
 import ipleiria.project.add.Model.ApplicationData;
+import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.Utils.NetworkState;
 
 import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
 import static ipleiria.project.add.SettingsActivity.DROPBOX_PREFS_KEY;
 import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private static final String AUTH_TAG = "AnonymousAuth";
     private static final String TAG = "MainActivity";
 
     private FirebaseAuth firebaseAuth;
     private Boolean authFlag = false;
-    private FirebaseDatabase database;
     private FirebaseAuth.AuthStateListener authListener;
+
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO: 23-Apr-17 open intent to take picture
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
         try {
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         }catch(DatabaseException e){
-            // set persistence must only be run once and be run before any call to FirebaseDatabase
+            // if any subsequent calls to setPersistence occur it won't crash...
             Log.d(TAG, e.getMessage());
         }
         SharedPreferences preferences = getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE);
@@ -86,12 +112,52 @@ public class MainActivity extends AppCompatActivity {
             FirebaseHandler.getInstance().readEmails(this);
             FirebaseHandler.getInstance().readCategories();
             FirebaseHandler.getInstance().readItems();
+            FirebaseHandler.getInstance().readDeletedItems();
             FirebaseHandler.getInstance().readUserData();
         }
     }
 
-    public void goToSettings(View view) {
-        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_settings) {
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     public void listFiles(View view) {
@@ -100,59 +166,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void selectCriteria(View view) {
         startActivity(new Intent(this, SelectCategoryActivity.class));
-    }
-
-    public void downloadFile(View view) {
-        new MEODownloadFile(MainActivity.this, new MEOCallback<FileResponse>() {
-
-            @Override
-            public void onComplete(FileResponse result) {
-                System.out.println(result.getPath());
-                System.out.println(result.length());
-            }
-
-            @Override
-            public void onRequestError(HttpErrorException httpE) {
-
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.e("DownloadError", e.getMessage(), e);
-            }
-        }).execute("/image.jpg");
-
-        new MEOGetMetadata(new MEOCallback<MEOMetadata>() {
-
-            @Override
-            public void onComplete(MEOMetadata result) {
-                System.out.println(result.toJson());
-            }
-
-            @Override
-            public void onRequestError(HttpErrorException httpE) {
-
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.e("MetadataError", e.getMessage(), e);
-            }
-        }).execute("/");
-
-        new DropboxDownloadFile(MainActivity.this, DropboxClientFactory.getClient(), new DropboxDownloadFile.Callback() {
-
-            @Override
-            public void onDownloadComplete(File result) {
-                System.out.println(result.getName());
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.e("ServiceError", e.getMessage(), e);
-            }
-        }).execute("/sample.csv");
-
     }
 
     @Override
@@ -202,6 +215,16 @@ public class MainActivity extends AppCompatActivity {
                         authFlag = true;
                         FirebaseHandler.getInstance().initReferences();
                         FirebaseHandler.getInstance().writeUserInfo();
+                        View navHeader = navigationView.getHeaderView(0);
+                        ((TextView) navHeader.findViewById(R.id.user_name)).setText(ApplicationData.getInstance().getDisplayName());
+                        ((TextView) navHeader.findViewById(R.id.user_mail)).setText(user.getEmail());
+                        Picasso.with(MainActivity.this)
+                                .load(ApplicationData.getInstance().getProfileUri())
+                                .resize(150, 150)
+                                .transform(new CircleTransformation())
+                                .placeholder(R.drawable.ic_profile_placeholder)
+                                .error(R.drawable.ic_profile_placeholder)
+                                .into((ImageView)navHeader.findViewById(R.id.profile_pic));
                         /*FirebaseHandler.getInstance().writeItems();
                         FirebaseHandler.getInstance().writeEmails();*/
                     }

@@ -262,6 +262,8 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void openTrash(View view) {
-        startActivity(new Intent(this, TrashActivity.class));
+        Intent intent = new Intent(this, ListItemActivity.class);
+        intent.putExtra("list_deleted", true);
+        startActivity(intent);
     }
 }

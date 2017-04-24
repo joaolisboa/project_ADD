@@ -438,4 +438,7 @@ public class FirebaseHandler {
         permanentlyDeleteItem(item);
     }
 
+    public void readDeletedItems() {
+        deletedItemsReference.addChildEventListener(deletedItemsEventListener);
+    }
 }

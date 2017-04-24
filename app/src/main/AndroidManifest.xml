@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -68,12 +69,30 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
-        <activity android:name=".ListItemActivity" />
+        <activity
+            android:name=".ListItemActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".SelectCategoryActivity" />
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".GoogleSignInActivity" />
-        <activity android:name=".ListEmailActivity" />
-        <activity android:name=".TrashActivity"></activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="Settings"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".GoogleSignInActivity"
+            android:parentActivityName=".SettingsActivity" />
+        <activity
+            android:name=".ListEmailActivity"
+            android:parentActivityName=".SettingsActivity" />
+        <activity
+            android:name=".ItemDetailActivity"
+            android:label="@string/title_activity_item_detail"
+            android:parentActivityName=".ListItemActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ipleiria.project.add.ListItemActivity" />
+        </activity>
     </application>
 
 </manifest>
