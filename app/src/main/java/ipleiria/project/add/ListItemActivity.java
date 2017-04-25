@@ -57,7 +57,6 @@ public class ListItemActivity extends AppCompatActivity {
     private ListItemAdapter listViewAdapter;
     private List<Item> items;
 
-    private Spinner spinner;
     private List<Uri> receivedFiles;
 
     private String action;
@@ -74,7 +73,7 @@ public class ListItemActivity extends AppCompatActivity {
         setSupportActionBar(t);
         getSupportActionBar().setTitle(null);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        spinner = (Spinner) t.findViewById(R.id.spinner_nav);
+        Spinner spinner = (Spinner) t.findViewById(R.id.spinner_nav);
         listView = (ListView) findViewById(R.id.listview);
         listDeleted = getIntent().getBooleanExtra("list_deleted", false);
 
@@ -110,12 +109,6 @@ public class ListItemActivity extends AppCompatActivity {
 
             }
         });
-
-        if(!listDeleted){
-            FirebaseHandler.getInstance().getItemsReference().addChildEventListener(itemsEventListener);
-        }else{
-            FirebaseHandler.getInstance().getDeletedItemsReference().addChildEventListener(itemsEventListener);
-        }
 
         updateListView();
 
@@ -244,74 +237,4 @@ public class ListItemActivity extends AppCompatActivity {
         listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
         listView.setAdapter(listViewAdapter);
     }
-
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        if(!listDeleted){
-            FirebaseHandler.getInstance().getItemsReference().removeEventListener(itemsEventListener);
-        }else{
-            FirebaseHandler.getInstance().getDeletedItemsReference().removeEventListener(itemsEventListener);
-        }
-        FirebaseHandler.getInstance().readItems();
-
-    }
-
-    private ChildEventListener itemsEventListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            Item newItem = dataSnapshot.getValue(Item.class);
-            newItem.setReference((String) dataSnapshot.child("reference").getValue());
-            newItem.setDbKey(dataSnapshot.getKey());
-            for (DataSnapshot fileSnapshot : dataSnapshot.child("files").getChildren()) {
-                ItemFile file = fileSnapshot.getValue(ItemFile.class);
-                file.setDbKey(fileSnapshot.getKey());
-                newItem.addFile(file);
-            }
-            if(!listDeleted){
-                ApplicationData.getInstance().addItem(newItem);
-            }else{
-                ApplicationData.getInstance().addDeletedItem(newItem);
-            }
-            updateListView();
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            Item newItem = dataSnapshot.getValue(Item.class);
-            newItem.setReference((String)dataSnapshot.child("reference").getValue());
-            newItem.setDbKey(dataSnapshot.getKey());
-            for(DataSnapshot fileSnapshot: dataSnapshot.child("files").getChildren()){
-                ItemFile file = fileSnapshot.getValue(ItemFile.class);
-                file.setDbKey(fileSnapshot.getKey());
-                newItem.addFile(file);
-            }
-            if(!listDeleted){
-                ApplicationData.getInstance().addItem(newItem);
-            }else{
-                ApplicationData.getInstance().addDeletedItem(newItem);
-            }
-            updateListView();
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
-            if(!listDeleted){
-                ApplicationData.getInstance().deleteItem(dataSnapshot.getKey());
-            }else{
-                ApplicationData.getInstance().deleteDeletedItem(dataSnapshot.getKey());
-            }
-            updateListView();
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
-    };
 }

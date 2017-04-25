@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.dropbox.core.v2.files.Metadata;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -92,7 +93,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
     @Override
     public View generateView(final int position, ViewGroup parent) {
         View itemView = LayoutInflater.from(context).inflate(R.layout.list_file_item, null);
-        ItemFile itemFile = listItemsFiles.get(position);
+        final ItemFile itemFile = listItemsFiles.get(position);
 
         SwipeLayout swipeLayout = (SwipeLayout) itemView.findViewById(R.id.bottom_layout_actions);
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
@@ -102,12 +103,47 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         TextView filename = (TextView) itemLayout.findViewById(R.id.filename);
 
         filename.setText(itemFile.getFilename());
-        // TODO: 24/04/2017 get file thumbnail from drop/meo and set with Picasso
-        if(NetworkState.isOnline(context)){
-            if(MEOCloudClient.isClientInitialized()){
+        // TODO: 24/04/2017 fix thumbnail from dropbox not downloading
+        File localFileThumb = new File(context.getFilesDir().getAbsolutePath() + "/thumb_" + itemFile.getFilename());
+        if (localFileThumb.exists()) {
+            Log.d("THUMBNAIL", "local thumbnail exists, opening local thumb");
+            Picasso.with(context)
+                    .load(localFileThumb)
+                    .resize(100, 100)
+                    .placeholder(R.drawable.file_placeholder)
+                    .error(R.drawable.file_placeholder)
+                    .into(fileThumb, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d("THUMBNAIL", "Successfully created thumbnail from local file");
+                        }
+
+                        @Override
+                        public void onError() {
+                            Log.d("THUMBNAIL", "Failed to create thumbnail from local file, downloading...");
+                            downloadThumbnailFromCloud(fileThumb, itemFile);
+                        }
+                    });
+        }else{
+            downloadThumbnailFromCloud(fileThumb, itemFile);
+        }
+
+        if (!listDeleted) {
+            setDefaultListeners(position, itemView);
+        } else {
+            setListenerForDeletedItems(position, itemView);
+        }
+
+        return itemView;
+    }
+
+    private void downloadThumbnailFromCloud(final ImageView fileThumb, ItemFile itemFile){
+        if (NetworkState.isOnline(context)) {
+            if (MEOCloudClient.isClientInitialized()) {
                 new MEOGetThumbnail(context, new MEOCallback<File>() {
                     @Override
                     public void onComplete(File result) {
+                    Log.d("THUMBNAIL", "Loading thumbnail from MEOCloud");
                         Picasso.with(context)
                                 .load(result)
                                 .resize(100, 100)
@@ -126,13 +162,14 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                         Log.e("DownloadError", e.getMessage(), e);
                     }
                 }).execute(RemotePath.getRemoteFilePath(itemFile, item.getCriteria()), null, MEOCloudAPI.THUMBNAIL_SIZE_M);
-            } else if(DropboxClientFactory.isClientInitialized()){
+            } else if (DropboxClientFactory.isClientInitialized()) {
                 new DropboxGetThumbnail(context, DropboxClientFactory.getClient(),
-                        new DropboxGetThumbnail.Callback(){
+                        new DropboxGetThumbnail.Callback() {
                             @Override
                             public void onDownloadComplete(File result) {
+                                Log.d("THUMBNAIL", "Loading thumbnail from Dropbox");
                                 Picasso.with(context)
-                                        .load(result)
+                                        .load(Uri.fromFile(result))
                                         .resize(100, 100)
                                         .placeholder(R.drawable.file_placeholder)
                                         .error(R.drawable.file_placeholder)
@@ -146,17 +183,9 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                         }).execute(RemotePath.getRemoteFilePath(itemFile, item.getCriteria()));
             }
         }
-
-        if(!listDeleted){
-            setDefaultListeners(position, itemView);
-        }else{
-            setListenerForDeletedItems(position, itemView);
-        }
-
-        return itemView;
     }
 
-    private void setDefaultListeners(final int position, View itemView){
+    private void setDefaultListeners(final int position, View itemView) {
         ImageView buttonShare = (ImageView) itemView.findViewById(R.id.action_1);
         buttonShare.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.share_white));
         ImageView buttonEdit = (ImageView) itemView.findViewById(R.id.action_2);
@@ -172,8 +201,8 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                 progressDialog.setMessage("Downloading file");
                 progressDialog.setIndeterminate(true);
                 progressDialog.show();
-                if(NetworkState.isOnline(context)){
-                    if(MEOCloudClient.isClientInitialized()){
+                if (NetworkState.isOnline(context)) {
+                    if (MEOCloudClient.isClientInitialized()) {
                         new MEODownloadFile(context, new MEOCallback<FileResponse>() {
                             @Override
                             public void onComplete(FileResponse result) {
@@ -193,9 +222,9 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                 Log.e("DownloadError", e.getMessage(), e);
                             }
                         }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()));
-                    } else if(DropboxClientFactory.isClientInitialized()){
+                    } else if (DropboxClientFactory.isClientInitialized()) {
                         new DropboxDownloadFile(context, DropboxClientFactory.getClient(),
-                                new DropboxDownloadFile.Callback(){
+                                new DropboxDownloadFile.Callback() {
 
                                     @Override
                                     public void onDownloadComplete(File result) {
@@ -210,7 +239,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                     }
                                 }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()));
                     }
-                }else{
+                } else {
                     Toast.makeText(context, "No internet", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -219,62 +248,61 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final Item item = (Item) getItem(position);
+                final ItemFile itemfile = (ItemFile) getItem(position);
                 Toast.makeText(context, "click delete " + item, Toast.LENGTH_SHORT).show();
-                ApplicationData.getInstance().deleteItem(item);
+                item.deleteFile(itemfile);
                 if (NetworkState.isOnline(context)) {
-                    for (final ItemFile file : item.getFiles()) {
-                        if (MEOCloudClient.isClientInitialized()) {
-                            new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
-                                @Override
-                                public void onComplete(MEOMetadata result) {
-                                    new MEOMoveFile(new MEOCallback<MEOMetadata>() {
-                                        @Override
-                                        public void onComplete(MEOMetadata result) {
-                                            System.out.println("successfully moved file: " + result.getPath());
-                                        }
+                    if (MEOCloudClient.isClientInitialized()) {
+                        new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
+                            @Override
+                            public void onComplete(MEOMetadata result) {
+                                new MEOMoveFile(new MEOCallback<MEOMetadata>() {
+                                    @Override
+                                    public void onComplete(MEOMetadata result) {
+                                        System.out.println("successfully moved file: " + result.getPath());
+                                    }
 
-                                        @Override
-                                        public void onRequestError(HttpErrorException httpE) {
-                                            Log.e("MoveFile", httpE.getMessage(), httpE);
-                                        }
+                                    @Override
+                                    public void onRequestError(HttpErrorException httpE) {
+                                        Log.e("MoveFile", httpE.getMessage(), httpE);
+                                    }
 
-                                        @Override
-                                        public void onError(Exception e) {
-                                            Log.e("MoveFile", e.getMessage(), e);
-                                        }
-                                    }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()),
-                                            RemotePath.trashPath(file));
-                                }
+                                    @Override
+                                    public void onError(Exception e) {
+                                        Log.e("MoveFile", e.getMessage(), e);
+                                    }
+                                }).execute(RemotePath.getRemoteFilePath(itemfile, item.getCriteria()),
+                                        RemotePath.trashPath(itemfile));
+                            }
 
-                                @Override
-                                public void onRequestError(HttpErrorException httpE) {
-                                    Log.e("UploadDropError", httpE.getMessage(), httpE);
-                                }
+                            @Override
+                            public void onRequestError(HttpErrorException httpE) {
+                                Log.e("UploadDropError", httpE.getMessage(), httpE);
+                            }
 
-                                @Override
-                                public void onError(Exception e) {
-                                    Log.e("UploadDropError", e.getMessage(), e);
-                                }
-                            }).execute(TRASH_FOLDER);
+                            @Override
+                            public void onError(Exception e) {
+                                Log.e("UploadDropError", e.getMessage(), e);
+                            }
+                        }).execute(TRASH_FOLDER);
 
-                        }
-                        if (DropboxClientFactory.isClientInitialized()) {
-                            new DropboxMoveFile(DropboxClientFactory.getClient(), new DropboxMoveFile.Callback() {
-
-                                @Override
-                                public void onMoveComplete(Metadata result) {
-                                    System.out.println("successfully moved file: " + result.getPathLower());
-                                }
-
-                                @Override
-                                public void onError(Exception e) {
-                                    Log.e("MoveFile", e.getMessage(), e);
-                                }
-                            }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()),
-                                    RemotePath.trashPath(file));
-                        }
                     }
+                    if (DropboxClientFactory.isClientInitialized()) {
+                        new DropboxMoveFile(DropboxClientFactory.getClient(), new DropboxMoveFile.Callback() {
+
+                            @Override
+                            public void onMoveComplete(Metadata result) {
+                                System.out.println("successfully moved file: " + result.getPathLower());
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Log.e("MoveFile", e.getMessage(), e);
+                            }
+                        }).execute(RemotePath.getRemoteFilePath(itemfile, item.getCriteria()),
+                                RemotePath.trashPath(itemfile));
+                    }
+
                 }
                 notifyDataSetChanged();
             }
@@ -282,17 +310,12 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         buttonEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Item item = (Item) getItem(position);
-                Toast.makeText(context, "click edit " + item, Toast.LENGTH_SHORT).show();
-                Intent editIntent = new Intent(context, AddItemActivity.class);
-                editIntent.putExtra("itemKey", item.getDbKey());
-                context.startActivity(editIntent);
-                notifyDataSetChanged();
+                // TODO: 25-Apr-17 open dialog for user to change username
             }
         });
     }
 
-    private void shareFile(File file){
+    private void shareFile(File file) {
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         String ext = file.getName().substring(file.getName().indexOf(".") + 1);
         String type = mime.getMimeTypeFromExtension(ext);
