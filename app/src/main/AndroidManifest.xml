@@ -52,7 +52,8 @@
                     android:host="ipleiria.project.add" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddItemActivity"></activity>
+        <activity android:name=".AddItemActivity"
+            android:windowSoftInputMode="stateHidden"/>
         <activity
             android:name=".ListItemActivity"
             android:parentActivityName=".MainActivity"

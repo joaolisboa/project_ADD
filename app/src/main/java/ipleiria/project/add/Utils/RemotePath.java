@@ -24,6 +24,14 @@ public class RemotePath {
 
     }
 
+    public static String getRemoteFilePath(String file, Criteria criteria){
+        return "/" + criteria.getDimension().getReference() +
+                "/" + criteria.getArea().getReference() +
+                "/" + criteria.getReference() +
+                "/" + file;
+
+    }
+
     public static String folderPath(String remotePath){
         return remotePath.substring(0, remotePath.lastIndexOf("/"));
     }

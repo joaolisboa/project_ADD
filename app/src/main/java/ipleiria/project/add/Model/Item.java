@@ -1,7 +1,11 @@
 package ipleiria.project.add.Model;
 
+import android.util.Log;
+
 import java.util.LinkedList;
 import java.util.List;
+
+import ipleiria.project.add.FirebaseHandler;
 
 /**
  * Created by Lisboa on 04-Apr-17.
@@ -42,6 +46,40 @@ public class Item {
 
     public List<ItemFile> getFiles() {
         return filenames;
+    }
+
+    public List<ItemFile> getDeletedFiles(){
+        List<ItemFile> deletedItems = new LinkedList<>();
+        for(ItemFile file: filenames){
+            if(file.isDeleted()){
+                deletedItems.add(file);
+            }
+        }
+        return deletedItems;
+    }
+
+    public boolean isItemDeleted(){
+        // item is considered deleted if all files are deleted
+        for(ItemFile file: filenames){
+            if(!file.isDeleted()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean hasDeletedFiles(){
+        return !getDeletedFiles().isEmpty();
+    }
+
+    public List<ItemFile> getFiles(boolean flag){
+        List<ItemFile> files = new LinkedList<>();
+        for(ItemFile file: filenames){
+            if(file.isDeleted() == flag){
+                files.add(file);
+            }
+        }
+        return files;
     }
 
     public void addFile(ItemFile filename) {
@@ -96,5 +134,26 @@ public class Item {
 
     public void addFiles(List<ItemFile> itemFiles) {
         filenames.addAll(itemFiles);
+    }
+
+    public void deleteFile(ItemFile file) {
+        file.setDeleted(true);
+        FirebaseHandler.getInstance().writeItem(this);
+    }
+
+    public void restoreFile(ItemFile file){
+        file.setDeleted(false);
+        FirebaseHandler.getInstance().writeItem(this);
+    }
+
+    public void permanentlyDeleteFile(ItemFile file){
+        filenames.remove(file);
+        FirebaseHandler.getInstance().writeItem(this);
+    }
+
+    public void clearDeleteFiles() {
+        for(int i = 0; i < getDeletedFiles().size(); i++) {
+            filenames.remove(getDeletedFiles().get(i));
+        }
     }
 }

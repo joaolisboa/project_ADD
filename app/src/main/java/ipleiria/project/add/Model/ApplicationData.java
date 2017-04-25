@@ -139,6 +139,10 @@ public class ApplicationData {
         return items;
     }
 
+    public List<Item> getItems(boolean flag) {
+        return !flag ? items : getDeletedItems();
+    }
+
     public List<Item> sortItems(){
 
 
@@ -349,6 +353,9 @@ public class ApplicationData {
     }
 
     public void permanentlyDeleteItem(Item item){
+        if(items.contains(item)){
+            items.remove(item);
+        }
         deletedItems.remove(item);
         FirebaseHandler.getInstance().permanentlyDeleteItem(item);
     }
@@ -392,11 +399,38 @@ public class ApplicationData {
     }
 
     public List<Item> getDeletedItems(){
-        return deletedItems;
+        List<Item> itemsWithFilesDeleted = new LinkedList<>();
+        itemsWithFilesDeleted.addAll(deletedItems);
+        for(Item item: items){
+            if(item.hasDeletedFiles()){
+                itemsWithFilesDeleted.add(item);
+            }
+        }
+        return itemsWithFilesDeleted;
+    }
+
+    public Item getItemNonDescript(String itemDbKey){
+        for(Item item: items){
+            if(item.getDbKey() != null &&
+                    item.getDbKey().equals(itemDbKey)){
+                return item;
+            }
+        }
+        return getDeletedItem(itemDbKey);
     }
 
     public Item getItem(String itemDbKey) {
         for(Item item: items){
+            if(item.getDbKey() != null &&
+                    item.getDbKey().equals(itemDbKey)){
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public Item getDeletedItem(String itemDbKey) {
+        for(Item item: deletedItems){
             if(item.getDbKey() != null &&
                     item.getDbKey().equals(itemDbKey)){
                 return item;

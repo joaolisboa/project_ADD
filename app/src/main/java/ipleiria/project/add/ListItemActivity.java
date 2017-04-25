@@ -3,38 +3,26 @@ package ipleiria.project.add;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,6 +39,7 @@ import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 
 public class ListItemActivity extends AppCompatActivity {
 
+    public static final int CHANGING_DATA_SET = 2001;
     private boolean listDeleted;
 
     private ListView listView;
@@ -60,6 +49,8 @@ public class ListItemActivity extends AppCompatActivity {
     private List<Uri> receivedFiles;
 
     private String action;
+
+    private Spinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +64,7 @@ public class ListItemActivity extends AppCompatActivity {
         setSupportActionBar(t);
         getSupportActionBar().setTitle(null);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Spinner spinner = (Spinner) t.findViewById(R.id.spinner_nav);
+        spinner = (Spinner) t.findViewById(R.id.spinner_nav);
         listView = (ListView) findViewById(R.id.listview);
         listDeleted = getIntent().getBooleanExtra("list_deleted", false);
 
@@ -85,23 +76,12 @@ public class ListItemActivity extends AppCompatActivity {
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, filters);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerArrayAdapter);
+        spinner.setSelection(0);
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                items = new LinkedList<>();
-                if (position == 0) {
-                    updateListView();
-                } else {
-                    for (Item i : ApplicationData.getInstance().getItems()) {
-                        if (i.getDimension().getReference() == position) {
-                            items.add(i);
-                        }
-                    }
-                    listViewAdapter = new ListItemAdapter(ListItemActivity.this, items, listDeleted, action);
-                    listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
-                    listView.setAdapter(listViewAdapter);
-                }
+                filterItems();
             }
 
             @Override
@@ -134,6 +114,23 @@ public class ListItemActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
+        }
+    }
+
+    public void filterItems(){
+        int position = spinner.getSelectedItemPosition();
+        items = new LinkedList<>();
+        if (position == 0) {
+            updateListView();
+        } else {
+            for (Item i : ApplicationData.getInstance().getItems()) {
+                if (i.getDimension().getReference() == position) {
+                    items.add(i);
+                }
+            }
+            listViewAdapter = new ListItemAdapter(ListItemActivity.this, items, listDeleted, action);
+            listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
+            listView.setAdapter(listViewAdapter);
         }
     }
 
@@ -226,15 +223,22 @@ public class ListItemActivity extends AppCompatActivity {
 
         return true;
     }
-    private void updateListView() {
-        items = new LinkedList<>();
-        if (!listDeleted) {
-            items = ApplicationData.getInstance().getItems();
-        } else {
-            items = ApplicationData.getInstance().getDeletedItems();
-        }
+
+    public void updateListView() {
+        items = ApplicationData.getInstance().getItems(listDeleted);
         listViewAdapter = new ListItemAdapter(this, items, listDeleted, action);
         listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
         listView.setAdapter(listViewAdapter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == CHANGING_DATA_SET) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                filterItems();
+            }
+        }
     }
 }

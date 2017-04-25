@@ -1,5 +1,6 @@
 package ipleiria.project.add;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.ContextCompat;
@@ -16,6 +17,7 @@ import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.dropbox.core.v2.files.Metadata;
 
+import java.io.File;
 import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
@@ -35,6 +37,7 @@ import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.Utils.RemotePath;
 
+import static ipleiria.project.add.ListItemActivity.CHANGING_DATA_SET;
 import static ipleiria.project.add.Utils.RemotePath.TRASH_FOLDER;
 
 /**
@@ -94,7 +97,11 @@ public class ListItemAdapter extends BaseSwipeAdapter {
 
         itemName.setText(item.getDescription());
         itemCriteria.setText(item.getCategoryReference() + ". " + item.getCriteria().getName());
-        numFiles.setText(context.getString(R.string.num_files, item.getFiles().size()));
+        if(!listDeleted) {
+            numFiles.setText(context.getString(R.string.num_files, item.getFiles(listDeleted).size()));
+        }else{
+            numFiles.setText(context.getString(R.string.num_deleted_files, item.getDeletedFiles().size()));
+        }
 
         infoIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,7 +109,8 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                 final Item item = (Item) getItem(position);
                 Intent intent = new Intent(context, ItemDetailActivity.class);
                 intent.putExtra("item_key", item.getDbKey());
-                context.startActivity(intent);
+                intent.putExtra("list_deleted", listDeleted);
+                ((Activity)context).startActivityForResult(intent, CHANGING_DATA_SET);
             }
         });
 
@@ -126,9 +134,9 @@ public class ListItemAdapter extends BaseSwipeAdapter {
             public void onClick(View view) {
                 final Item item = (Item) getItem(position);
                 Toast.makeText(context, "click delete " + item, Toast.LENGTH_SHORT).show();
-                ApplicationData.getInstance().deleteItem(item);
                 if (NetworkState.isOnline(context)) {
                     for (final ItemFile file : item.getFiles()) {
+                        file.setDeleted(true);
                         if (MEOCloudClient.isClientInitialized()) {
                             new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
                                 @Override
@@ -181,7 +189,9 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                         }
                     }
                 }
-                notifyDataSetChanged();
+                ApplicationData.getInstance().deleteItem(item);
+                ListItemActivity act = (ListItemActivity) context;
+                act.filterItems();
             }
         });
         buttonEdit.setOnClickListener(new View.OnClickListener() {
@@ -191,10 +201,17 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                 Toast.makeText(context, "click edit " + item, Toast.LENGTH_SHORT).show();
                 Intent editIntent = new Intent(context, AddItemActivity.class);
                 editIntent.putExtra("itemKey", item.getDbKey());
-                context.startActivity(editIntent);
-                notifyDataSetChanged();
+                ((Activity)context).startActivityForResult(editIntent, CHANGING_DATA_SET);
             }
         });
+    }
+
+    private void deleteFileThumbnail(ItemFile itemFile){
+        File localFileThumb = new File(context.getFilesDir().getAbsolutePath() + "/thumb_" + itemFile.getFilename());
+        if(localFileThumb.exists()){
+            boolean success = localFileThumb.delete();
+            Log.d("THUMBNAIL", "thumbnail delete successful?: " + success);
+        }
     }
 
     private void setListenerForDeletedItems(final int position, View itemView) {
@@ -208,10 +225,9 @@ public class ListItemAdapter extends BaseSwipeAdapter {
             public void onClick(View view) {
                 Item item = (Item) getItem(position);
                 Toast.makeText(context, "click permanently delete " + item, Toast.LENGTH_SHORT).show();
-                listItems.remove(item);
-                ApplicationData.getInstance().permanentlyDeleteItem(item);
                 if (NetworkState.isOnline(context)) {
-                    for (ItemFile file : item.getFiles()) {
+                    for (ItemFile file :  item.isItemDeleted() ? item.getFiles() : item.getDeletedFiles()) {
+                        deleteFileThumbnail(file);
                         if (MEOCloudClient.isClientInitialized()) {
                             new MEODeleteFile(new MEOCallback<MEOMetadata>() {
                                 @Override
@@ -246,7 +262,15 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                         }
                     }
                 }
-                notifyDataSetChanged();
+                listItems.remove(item);
+                item.clearDeleteFiles();
+                if(item.isItemDeleted()){
+                    ApplicationData.getInstance().permanentlyDeleteItem(item);
+                }else{
+                    FirebaseHandler.getInstance().writeItem(item);
+                }
+                ListItemActivity act = (ListItemActivity) context;
+                act.filterItems();
             }
         });
         restoreButton.setOnClickListener(new View.OnClickListener() {
@@ -256,6 +280,7 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                 Toast.makeText(context, "click restore " + item, Toast.LENGTH_SHORT).show();
                 if (NetworkState.isOnline(context)) {
                     for (ItemFile file : item.getFiles()) {
+                        file.setDeleted(false);
                         if (MEOCloudClient.isClientInitialized()) {
                             new MEOMoveFile(new MEOCallback<MEOMetadata>() {
                                 @Override
@@ -292,15 +317,13 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                         }
                     }
                 }
-                ApplicationData.getInstance().restoreItem(item);
-                updateListItems(ApplicationData.getInstance().getDeletedItems());
+                if(item.isItemDeleted()){
+                    ApplicationData.getInstance().restoreItem(item);
+                }
+                ListItemActivity act = (ListItemActivity) context;
+                act.filterItems();
             }
         });
-    }
-
-    public void updateListItems(List<Item> items) {
-        this.listItems = items;
-        notifyDataSetChanged();
     }
 
     @Override
