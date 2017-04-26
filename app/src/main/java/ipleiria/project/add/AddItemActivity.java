@@ -1,5 +1,6 @@
 package ipleiria.project.add;
 
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
@@ -8,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -261,6 +263,7 @@ public class AddItemActivity extends AppCompatActivity {
             if (editingItem == null) {
                 startActivity(new Intent(this, MainActivity.class));
             } else {
+                setResult(Activity.RESULT_OK);
                 finish();
             }
         }
