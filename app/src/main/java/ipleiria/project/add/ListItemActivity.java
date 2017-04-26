@@ -3,7 +3,9 @@ package ipleiria.project.add;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SearchView;
@@ -42,6 +44,7 @@ public class ListItemActivity extends AppCompatActivity {
     public static final int CHANGING_DATA_SET = 2001;
     private boolean listDeleted;
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private ListView listView;
     private ListItemAdapter listViewAdapter;
     private List<Item> items;
@@ -66,6 +69,12 @@ public class ListItemActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         spinner = (Spinner) t.findViewById(R.id.spinner_nav);
         listView = (ListView) findViewById(R.id.listview);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
+        swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorPrimary),
+                                                ContextCompat.getColor(this, R.color.colorAccent));
+
         listDeleted = getIntent().getBooleanExtra("list_deleted", false);
 
         List<String> filters = new LinkedList<>();
@@ -123,7 +132,7 @@ public class ListItemActivity extends AppCompatActivity {
         if (position == 0) {
             updateListView();
         } else {
-            for (Item i : ApplicationData.getInstance().getItems()) {
+            for (Item i : ApplicationData.getInstance().getItems(listDeleted)) {
                 if (i.getDimension().getReference() == position) {
                     items.add(i);
                 }
@@ -223,6 +232,14 @@ public class ListItemActivity extends AppCompatActivity {
 
         return true;
     }
+
+    private SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
+        @Override
+        public void onRefresh() {
+            filterItems();
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    };
 
     public void updateListView() {
         items = ApplicationData.getInstance().getItems(listDeleted);

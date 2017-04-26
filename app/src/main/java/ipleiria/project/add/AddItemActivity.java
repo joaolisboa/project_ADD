@@ -2,6 +2,7 @@ package ipleiria.project.add;
 
 import android.app.Activity;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -263,6 +265,9 @@ public class AddItemActivity extends AppCompatActivity {
             if (editingItem == null) {
                 startActivity(new Intent(this, MainActivity.class));
             } else {
+                descriptionEditText.clearFocus();
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(descriptionEditText.getWindowToken(), 0);
                 setResult(Activity.RESULT_OK);
                 finish();
             }
