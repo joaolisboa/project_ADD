@@ -9,6 +9,7 @@ public class ItemFile {
     private String filename;
     private boolean deleted = false;
     private String dbKey;
+    private Item parent;
 
     public ItemFile(){
 
@@ -21,6 +22,11 @@ public class ItemFile {
     public ItemFile(String filename, String dbKey){
         this.filename = filename;
         this.dbKey = dbKey;
+    }
+
+    public ItemFile(String filename, Item item) {
+        this.filename = filename;
+        this.parent = item;
     }
 
     public String getFilename() {
@@ -45,6 +51,14 @@ public class ItemFile {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public Item getParent() {
+        return parent;
+    }
+
+    public void setParent(Item parent) {
+        this.parent = parent;
     }
 
     @Override

@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
@@ -20,7 +19,7 @@ import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Utils.HttpStatus;
-import ipleiria.project.add.Utils.RemotePath;
+import ipleiria.project.add.Utils.PathUtils;
 import okhttp3.Response;
 
 /**
@@ -67,7 +66,7 @@ public class MEOGetThumbnail extends AsyncTask<String, Void, MEOCloudResponse<Fi
 
             String token = MEOCloudClient.getAccessToken();
             String remoteFilePath = params[0];
-            String thumbnailFilename = "thumb_" + RemotePath.filename(remoteFilePath);
+            String thumbnailFilename = "thumb_" + PathUtils.filename(remoteFilePath);
 
             HashMap<String, String> map = new HashMap<>();
             if (params.length > 1 && params[1] != null) {

@@ -19,7 +19,7 @@ import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Utils.HttpStatus;
-import ipleiria.project.add.Utils.RemotePath;
+import ipleiria.project.add.Utils.PathUtils;
 import okhttp3.Response;
 
 /**
@@ -66,7 +66,7 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
 
             String token = MEOCloudClient.getAccessToken();
             String filePath = params[0];
-            String filenameWithoutPath = RemotePath.filename(filePath);
+            String filenameWithoutPath = PathUtils.filename(filePath);
 
             HashMap<String, String> map = new HashMap<>();
             System.out.println(params.length);

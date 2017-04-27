@@ -30,15 +30,14 @@ import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
 import ipleiria.project.add.MEOCloud.Tasks.MEODeleteFile;
 import ipleiria.project.add.MEOCloud.Tasks.MEOMoveFile;
-import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFile;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.NetworkState;
-import ipleiria.project.add.Utils.RemotePath;
+import ipleiria.project.add.Utils.PathUtils;
 
 import static ipleiria.project.add.ListItemActivity.CHANGING_DATA_SET;
-import static ipleiria.project.add.Utils.RemotePath.TRASH_FOLDER;
+import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;
 
 /**
  * Created by Lisboa on 18-Apr-17.
@@ -156,8 +155,8 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                         public void onError(Exception e) {
                                             Log.e("MoveFile", e.getMessage(), e);
                                         }
-                                    }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()),
-                                            RemotePath.trashPath(file));
+                                    }).execute(PathUtils.getRemoteFilePath(file),
+                                            PathUtils.trashPath(file));
                                 }
 
                                 @Override
@@ -184,8 +183,8 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                 public void onError(Exception e) {
                                     Log.e("MoveFile", e.getMessage(), e);
                                 }
-                            }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()),
-                                    RemotePath.trashPath(file));
+                            }).execute(PathUtils.getRemoteFilePath(file),
+                                    PathUtils.trashPath(file));
                         }
                     }
                 }
@@ -244,7 +243,7 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                 public void onError(Exception e) {
                                     Log.e("PermanentDelete", e.getMessage(), e);
                                 }
-                            }).execute(RemotePath.trashPath(file));
+                            }).execute(PathUtils.trashPath(file));
                         }
                         if (DropboxClientFactory.isClientInitialized()) {
                             new DropboxDeleteFile(DropboxClientFactory.getClient(), new DropboxDeleteFile.Callback() {
@@ -258,7 +257,7 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                 public void onError(Exception e) {
                                     Log.e("PermanentDelete", e.getMessage(), e);
                                 }
-                            }).execute(RemotePath.trashPath(file));
+                            }).execute(PathUtils.trashPath(file));
                         }
                     }
                 }
@@ -297,8 +296,8 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                 public void onError(Exception e) {
                                     Log.e("MoveFile", e.getMessage(), e);
                                 }
-                            }).execute(RemotePath.trashPath(file),
-                                    RemotePath.getRemoteFilePath(file, item.getCriteria()));
+                            }).execute(PathUtils.trashPath(file),
+                                    PathUtils.getRemoteFilePath(file));
                         }
                         if (DropboxClientFactory.isClientInitialized()) {
                             new DropboxMoveFile(DropboxClientFactory.getClient(), new DropboxMoveFile.Callback() {
@@ -312,8 +311,8 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                 public void onError(Exception e) {
                                     Log.e("MoveFile", e.getMessage(), e);
                                 }
-                            }).execute(RemotePath.trashPath(file),
-                                    RemotePath.getRemoteFilePath(file, item.getCriteria()));
+                            }).execute(PathUtils.trashPath(file),
+                                    PathUtils.getRemoteFilePath(file));
                         }
                     }
                 }

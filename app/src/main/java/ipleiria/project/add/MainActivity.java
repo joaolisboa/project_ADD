@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -37,11 +38,15 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Utils.CircleTransformation;
+import ipleiria.project.add.Utils.CloudHandler;
+import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.Utils.UriHelper;
 
@@ -101,8 +106,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         SharedPreferences preferences = getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE);
         ApplicationData.getInstance().setSharedPreferences(preferences);
-        ApplicationData.getInstance().fillTestData(MainActivity.this);
         FirebaseHandler.newInstance();
+        FirebaseHandler.getInstance().readCategories();
 
         if (NetworkState.isOnline(this)) {
             firebaseAuth = FirebaseAuth.getInstance();
@@ -113,6 +118,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (!preferences.getString(MEO_PREFS_KEY, "").isEmpty()) {
                 MEOCloudClient.init(preferences.getString(MEO_PREFS_KEY, null));
             }
+            // delay to guarantee dimensions will be read before scanning the dirs
+            // TODO: 27-Apr-17 run as a background service while app is running to upload local files?
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    List<File> localFiles = FileUtils.getLocalFiles(MainActivity.this);
+                    if(!localFiles.isEmpty()){
+                        if(NetworkState.isOnline(MainActivity.this)) {
+                            for (int i = 0; i < localFiles.size(); i++) {
+                                System.out.println("LOCAL FILE: " + localFiles.get(i).getName());
+                                CloudHandler.uploadFileToCloud(MainActivity.this, localFiles.get(i));
+                                localFiles.remove(i);
+                            }
+                        }
+                    }
+                    ApplicationData.getInstance().setLocalPendingFiles(localFiles);
+                }
+            }, 3000);
         }else{
             String userUID = preferences.getString(FIREBASE_UID_KEY, null);
             if(userUID != null){
@@ -122,14 +145,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
         if(ApplicationData.getInstance().getUserUID() != null){
-            // firebase should keep data offline
+            // firebase should keep data offline so we don't need a connection to read bd
             FirebaseHandler.getInstance().readEmails(this);
-            FirebaseHandler.getInstance().readCategories();
             FirebaseHandler.getInstance().readItems();
             FirebaseHandler.getInstance().readDeletedItems();
             FirebaseHandler.getInstance().readUserData();
         }
     }
+
+
 
     @Override
     public void onBackPressed() {

@@ -28,6 +28,9 @@ public class Item {
 
     public Item(List<ItemFile> filenames, String description) {
         this.filenames = filenames;
+        for(ItemFile files: filenames){
+            files.setParent(this);
+        }
         this.description = description;
     }
 
@@ -84,10 +87,11 @@ public class Item {
 
     public void addFile(ItemFile filename) {
         filenames.add(filename);
+        filename.setParent(this);
     }
 
     public void addFile(String filename){
-        filenames.add(new ItemFile(filename));
+        filenames.add(new ItemFile(filename, this));
     }
 
     public String getDescription() {
@@ -134,6 +138,9 @@ public class Item {
 
     public void addFiles(List<ItemFile> itemFiles) {
         filenames.addAll(itemFiles);
+        for(ItemFile files: itemFiles){
+            files.setParent(this);
+        }
     }
 
     public void deleteFile(ItemFile file) {

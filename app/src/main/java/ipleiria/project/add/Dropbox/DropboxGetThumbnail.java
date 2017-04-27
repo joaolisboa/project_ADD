@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import ipleiria.project.add.Utils.RemotePath;
+import ipleiria.project.add.Utils.PathUtils;
 
 /**
  * Created by J on 24/04/2017.
@@ -54,7 +54,7 @@ public class DropboxGetThumbnail  extends AsyncTask<String, Void, File> {
             }
 
             String filename = params[0];
-            String thumbnailFilename = "thumb_" + RemotePath.filename(filename);
+            String thumbnailFilename = "thumb_" + PathUtils.filename(filename);
             try (OutputStream outputStream = mContext.openFileOutput(thumbnailFilename, Context.MODE_PRIVATE)) {
                 mDbxClient.files().getThumbnailBuilder("/" + filename)
                         .withFormat(ThumbnailFormat.JPEG)

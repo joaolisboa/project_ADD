@@ -10,7 +10,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -22,7 +21,6 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dropbox.core.v2.files.FileMetadata;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseException;
@@ -31,20 +29,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.Dropbox.DropboxUploadFile;
-import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
-import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolderTree;
-import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFile;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Area;
 import ipleiria.project.add.Model.Category;
@@ -53,8 +43,8 @@ import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.CloudHandler;
+import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
-import ipleiria.project.add.Utils.RemotePath;
 import ipleiria.project.add.Utils.StringUtils;
 import ipleiria.project.add.Utils.UriHelper;
 
@@ -244,18 +234,21 @@ public class AddItemActivity extends AppCompatActivity {
             for (Uri uri : receivedFiles) {
                 itemFiles.add(new ItemFile(UriHelper.getFileName(AddItemActivity.this, uri)));
             }
-            Item item = new Item(itemFiles, description);
+            Item item = new Item(itemFiles, description, selectedCriteria);
             if (editingItem != null) {
                 editingItem.setCriteria(selectedCriteria);
                 editingItem.setDescription(description);
                 ApplicationData.getInstance().addItem(editingItem);
             } else {
-                item.setCriteria(selectedCriteria);
                 ApplicationData.getInstance().addItem(item);
                 if (NetworkState.isOnline(this)) {
                     for(int i = 0; i < receivedFiles.size(); i++){
                         CloudHandler.uploadFileToCloud(this, receivedFiles.get(i),
                                 item.getFiles().get(i), item.getCriteria());
+                    }
+                }else{
+                    for(int i = 0; i < receivedFiles.size(); i++){
+                        FileUtils.copyFileToLocalDir(this, receivedFiles.get(i), item.getCriteria());
                     }
                 }
             }

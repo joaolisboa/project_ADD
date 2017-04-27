@@ -1,6 +1,7 @@
 package ipleiria.project.add;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,13 +35,17 @@ import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.CloudHandler;
+import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
+import ipleiria.project.add.Utils.PathUtils;
 import ipleiria.project.add.Utils.StringUtils;
 import ipleiria.project.add.Utils.UriHelper;
 
 import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 
 public class ListItemActivity extends AppCompatActivity {
+
+    private static final String TAG = "LIST_ITEM_ACTIVITY";
 
     public static final int CHANGING_DATA_SET = 2001;
     private boolean listDeleted;
@@ -165,6 +171,10 @@ public class ListItemActivity extends AppCompatActivity {
                 Log.d("FILE_UPLOAD", "uploading file: " + UriHelper.getFileName(ListItemActivity.this, receivedFiles.get(i)));
                 CloudHandler.uploadFileToCloud(this, receivedFiles.get(i),
                         itemFiles.get(i), itemAtPosition.getCriteria());
+            }
+        }else{
+            for(int i = 0; i < receivedFiles.size(); i++){
+                FileUtils.copyFileToLocalDir(this, receivedFiles.get(i), itemAtPosition.getCriteria());
             }
         }
         if (ApplicationData.getInstance().getUserUID() != null) {

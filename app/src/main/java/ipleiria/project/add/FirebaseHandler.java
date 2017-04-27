@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.dropbox.core.v2.users.FullAccount;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -11,6 +12,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +32,12 @@ import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Email;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.Utils.CloudHandler;
+import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
+
+import static ipleiria.project.add.SettingsActivity.DROPBOX_PREFS_KEY;
+import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
 
 /**
  * Created by Lisboa on 15-Apr-17.
@@ -50,6 +57,9 @@ public class FirebaseHandler {
 
     private FirebaseHandler() {
         database = FirebaseDatabase.getInstance();
+        categoryReference = database.getReference().child("categories");
+        categoryReference.keepSynced(true);
+
         String userUID = ApplicationData.getInstance().getSharedPreferences().getString(FIREBASE_UID_KEY, null);
         if(userUID != null){
             ApplicationData.getInstance().setUserUID(userUID);
@@ -68,8 +78,6 @@ public class FirebaseHandler {
             deletedItemsReference = database.getReference().child("deleted-items").child(ApplicationData.getInstance().getUserUID());
             deletedItemsReference.keepSynced(true);
         }
-        categoryReference = database.getReference().child("categories");
-        categoryReference.keepSynced(true);
     }
 
     public static FirebaseHandler getInstance() {

@@ -51,8 +51,6 @@ public class MEOGetAccount extends AsyncTask<String, Void, MEOCloudResponse<Acco
                 MEOCloudResponse<Account> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if(response.code() == HttpStatus.OK) {
-                    // reading the body() will result in closure so
-                    // any other calls to, ie., body().string() will fail
                     String responseBody = response.body().string();
                     Account account = Account.fromJson(responseBody, Account.class);
                     meoCloudResponse.setResponse(account);

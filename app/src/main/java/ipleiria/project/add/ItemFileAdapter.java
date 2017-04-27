@@ -4,23 +4,18 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.DataSetObserver;
-import android.media.Image;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +26,6 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
@@ -50,16 +44,15 @@ import ipleiria.project.add.MEOCloud.Tasks.MEODeleteFile;
 import ipleiria.project.add.MEOCloud.Tasks.MEODownloadFile;
 import ipleiria.project.add.MEOCloud.Tasks.MEOGetThumbnail;
 import ipleiria.project.add.MEOCloud.Tasks.MEOMoveFile;
-import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.Model.Email;
+import ipleiria.project.add.Model.Criteria;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
-import ipleiria.project.add.Utils.CircleTransformation;
+import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
-import ipleiria.project.add.Utils.RemotePath;
+import ipleiria.project.add.Utils.PathUtils;
 import ipleiria.project.add.Utils.UriHelper;
 
-import static ipleiria.project.add.Utils.RemotePath.TRASH_FOLDER;
+import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;
 
 /**
  * Created by J on 24/04/2017.
@@ -150,7 +143,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                     public void onError(Exception e) {
                         Log.e("DownloadError", e.getMessage(), e);
                     }
-                }).execute(RemotePath.getRemoteFilePath(itemFile, item.getCriteria()), null, MEOCloudAPI.THUMBNAIL_SIZE_M);
+                }).execute(PathUtils.getRemoteFilePath(itemFile), null, MEOCloudAPI.THUMBNAIL_SIZE_M);
             } else if (DropboxClientFactory.isClientInitialized()) {
                 new DropboxGetThumbnail(context, DropboxClientFactory.getClient(),
                         new DropboxGetThumbnail.Callback() {
@@ -169,29 +162,21 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                             public void onError(Exception e) {
                                 Log.e("DownloadError", e.getMessage(), e);
                             }
-                        }).execute(RemotePath.getRemoteFilePath(itemFile, item.getCriteria()));
+                        }).execute(PathUtils.getRemoteFilePath(itemFile));
             }
         }
     }
 
     private void renameFileThumbnail(String from, String to){
-        File localFileThumb = new File(context.getFilesDir().getAbsolutePath() + "/thumb_" + from);
-        if(localFileThumb.exists()) {
-            boolean success = localFileThumb.renameTo(new File(context.getFilesDir().getAbsolutePath() + "/thumb_" + to));
-            Log.d("THUMBNAIL", "thumbnail rename successful?: " + success);
-        }
+        FileUtils.renameFile(PathUtils.getThumbFilename(context, from), PathUtils.getThumbFilename(context, to));
     }
 
     private void deleteFileThumbnail(ItemFile itemFile){
-        File localFileThumb = new File(context.getFilesDir().getAbsolutePath() + "/thumb_" + itemFile.getFilename());
-        if(localFileThumb.exists()){
-            boolean success = localFileThumb.delete();
-            Log.d("THUMBNAIL", "thumbnail delete successful?: " + success);
-        }
+        FileUtils.deleteFile(PathUtils.getThumbFilename(context, itemFile.getFilename()));
     }
 
     private void setThumbnail(final ItemFile itemFile, final ImageView fileThumb){
-        File localFileThumb = new File(context.getFilesDir().getAbsolutePath() + "/thumb_" + itemFile.getFilename());
+        File localFileThumb = new File(PathUtils.getThumbFilename(context, itemFile.getFilename()));
         if (localFileThumb.exists()) {
             Log.d("THUMBNAIL", "local thumbnail exists, opening local thumb");
             Picasso.with(context)
@@ -212,7 +197,29 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                         }
                     });
         } else {
-            downloadThumbnailFromCloud(fileThumb, itemFile);
+            Criteria criteria = itemFile.getParent().getCriteria();
+            File file = new File(PathUtils.getLocalFilePath(context, itemFile.getFilename(), criteria));
+            if (file.exists()) {
+                Picasso.with(context)
+                        .load(file)
+                        .resize(100, 100)
+                        .placeholder(R.drawable.file_placeholder)
+                        .error(R.drawable.file_placeholder)
+                        .into(fileThumb, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                                Log.d("THUMBNAIL", "Successfully created thumbnail from local file");
+                            }
+
+                            @Override
+                            public void onError() {
+                                Log.d("THUMBNAIL", "Failed to create thumbnail from local file, downloading...");
+                                downloadThumbnailFromCloud(fileThumb, itemFile);
+                            }
+                        });
+            } else {
+                downloadThumbnailFromCloud(fileThumb, itemFile);
+            }
         }
     }
 
@@ -252,7 +259,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                 progressDialog.dismiss();
                                 Log.e("DownloadError", e.getMessage(), e);
                             }
-                        }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()));
+                        }).execute(PathUtils.getRemoteFilePath(file));
                     } else if (DropboxClientFactory.isClientInitialized()) {
                         new DropboxDownloadFile(context, DropboxClientFactory.getClient(),
                                 new DropboxDownloadFile.Callback() {
@@ -268,7 +275,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                         progressDialog.dismiss();
                                         Log.e("DownloadError", e.getMessage(), e);
                                     }
-                                }).execute(RemotePath.getRemoteFilePath(file, item.getCriteria()));
+                                }).execute(PathUtils.getRemoteFilePath(file));
                     }
                 } else {
                     Toast.makeText(context, "No internet", Toast.LENGTH_SHORT).show();
@@ -288,8 +295,8 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                         new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
                             @Override
                             public void onComplete(MEOMetadata result) {
-                                moveFileMEO(RemotePath.getRemoteFilePath(itemfile, item.getCriteria()),
-                                        RemotePath.trashPath(itemfile));
+                                moveFileMEO(PathUtils.getRemoteFilePath(itemfile),
+                                        PathUtils.trashPath(itemfile));
                             }
 
                             @Override
@@ -304,8 +311,8 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                         }).execute(TRASH_FOLDER);
                     }
                     if (DropboxClientFactory.isClientInitialized()) {
-                        moveFileDropbox(RemotePath.getRemoteFilePath(itemfile, item.getCriteria()),
-                                RemotePath.trashPath(itemfile));
+                        moveFileDropbox(PathUtils.getRemoteFilePath(itemfile),
+                                PathUtils.trashPath(itemfile));
                     }
                 }
                 ItemDetailActivity act = (ItemDetailActivity) context;
@@ -345,12 +352,12 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                 file.setFilename(newFilename);
                                 if (NetworkState.isOnline(context)) {
                                     if (MEOCloudClient.isClientInitialized()) {
-                                        moveFileMEO(RemotePath.getRemoteFilePath(oldFilename, item.getCriteria()),
-                                                RemotePath.getRemoteFilePath(newFilename, item.getCriteria()));
+                                        moveFileMEO(PathUtils.getRemoteFilePath(oldFilename, item.getCriteria()),
+                                                PathUtils.getRemoteFilePath(newFilename, item.getCriteria()));
                                     }
                                     if (DropboxClientFactory.isClientInitialized()) {
-                                        moveFileDropbox(RemotePath.getRemoteFilePath(oldFilename, item.getCriteria()),
-                                                RemotePath.getRemoteFilePath(newFilename, item.getCriteria()));
+                                        moveFileDropbox(PathUtils.getRemoteFilePath(oldFilename, item.getCriteria()),
+                                                PathUtils.getRemoteFilePath(newFilename, item.getCriteria()));
                                     }
                                 }
                                 FirebaseHandler.getInstance().writeItem(item);
@@ -452,7 +459,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                 progressDialog.dismiss();
                                 Log.e("DownloadError", e.getMessage(), e);
                             }
-                        }).execute(RemotePath.trashPath(file));
+                        }).execute(PathUtils.trashPath(file));
                     } else if (DropboxClientFactory.isClientInitialized()) {
                         new DropboxDownloadFile(context, DropboxClientFactory.getClient(),
                                 new DropboxDownloadFile.Callback() {
@@ -467,7 +474,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                 progressDialog.dismiss();
                                 Log.e("DownloadError", e.getMessage(), e);
                             }
-                        }).execute(RemotePath.trashPath(file));
+                        }).execute(PathUtils.trashPath(file));
                     }
                 } else {
                     Toast.makeText(context, "No internet", Toast.LENGTH_SHORT).show();
@@ -499,7 +506,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                             public void onError(Exception e) {
                                 Log.e("PermanentDelete", e.getMessage(), e);
                             }
-                        }).execute(RemotePath.trashPath(itemFile));
+                        }).execute(PathUtils.trashPath(itemFile));
                     }
                     if (DropboxClientFactory.isClientInitialized()) {
                         new DropboxDeleteFile(DropboxClientFactory.getClient(), new DropboxDeleteFile.Callback() {
@@ -513,7 +520,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                             public void onError(Exception e) {
                                 Log.e("PermanentDelete", e.getMessage(), e);
                             }
-                        }).execute(RemotePath.trashPath(itemFile));
+                        }).execute(PathUtils.trashPath(itemFile));
                     }
                 }
                 deleteFileThumbnail(itemFile);
@@ -530,12 +537,12 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                 Toast.makeText(context, "click restore " + item, Toast.LENGTH_SHORT).show();
                 if (NetworkState.isOnline(context)) {
                     if (MEOCloudClient.isClientInitialized()) {
-                        moveFileMEO(RemotePath.trashPath(itemFile),
-                                RemotePath.getRemoteFilePath(itemFile, item.getCriteria()));
+                        moveFileMEO(PathUtils.trashPath(itemFile),
+                                PathUtils.getRemoteFilePath(itemFile));
                     }
                     if (DropboxClientFactory.isClientInitialized()) {
-                        moveFileDropbox(RemotePath.trashPath(itemFile),
-                                RemotePath.getRemoteFilePath(itemFile, item.getCriteria()));
+                        moveFileDropbox(PathUtils.trashPath(itemFile),
+                                PathUtils.getRemoteFilePath(itemFile));
                     }
                 }
                 item.restoreFile(itemFile);

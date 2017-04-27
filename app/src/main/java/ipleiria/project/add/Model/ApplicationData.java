@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,60 +34,7 @@ public class ApplicationData {
     private List<Criteria> criterias;
     private List<Item> items;
     private List<Item> deletedItems;
-
-    public void fillTestData(Context context) {
-
-        //region CATEGORY/CRITERIA
-        /*Dimension c1 = new Dimension("dimension1", 1);
-        Dimension c2 = new Dimension("dimension2", 2);
-
-        c1.addAreas(new Area("area" + 1, 1), new Area("area" + 2, 2), new Area("area" + 3, 3));
-        c2.addAreas(new Area("area" + 1, 1), new Area("area" + 2, 2), new Area("area" + 3, 3));
-
-        for (Area cat : c1.getAreas()) {
-            for (int i = 1; i < 4; i++) {
-                Criteria child1_1 = new Criteria("criteria" + cat.getReference() + "_" + i, i);
-                cat.addCriterias(child1_1);
-            }
-        }
-        for (Area cat1 : c2.getAreas()) {
-            for (int i = 1; i < 4; i++) {
-                Criteria child1_2 = new Criteria("criteria" + cat1.getReference() + "_" + i, i);
-                cat1.addCriterias(child1_2);
-            }
-        }
-        ApplicationData.getInstance().addDimensions(c1, c2);*/
-        //endregion
-
-        //region ITEMS
-        /*File dir = context.getFilesDir();
-        for(File f: dir.listFiles()){
-            items.add(new Item(f.getName(), "description"));
-        }
-        for(int i = 0; i < 15; i++){
-            items.add(new Item("Dummy item " + i, "description"));
-        }*/
-        //endregion
-
-        //region EMAILS
-        //emails.add(new Email("dummymail@gmail.com", false));
-        //endregion
-
-    }
-
-    /*public LinkedList<String> getAllCriterias (){
-        // get all criterias
-        LinkedList<String> criterias;
-        criterias = new LinkedList<>();
-        for (Dimension d : ApplicationData.getInstance().getDimensions()) {
-            for (Area a : d.getAreas()) {
-                for (Criteria c : a.getCriterias()) {
-                    criterias.add(c.getName().toLowerCase());
-                }
-            }
-        }
-        return criterias;
-    }*/
+    private List<File> localPendingFiles;
 
     private ApplicationData() {
         criterias = new LinkedList<>();
@@ -95,6 +43,7 @@ public class ApplicationData {
         items = new LinkedList<>();
         emails = new LinkedList<>();
         deletedItems = new LinkedList<>();
+        localPendingFiles = new LinkedList<>();
     }
 
     public static ApplicationData getInstance() {
@@ -107,6 +56,14 @@ public class ApplicationData {
     public static ApplicationData newInstance() {
         instance = new ApplicationData();
         return instance;
+    }
+
+    public List<File> getLocalPendingFiles() {
+        return localPendingFiles;
+    }
+
+    public void setLocalPendingFiles(List<File> localPendingFiles) {
+        this.localPendingFiles = localPendingFiles;
     }
 
     public Uri getProfileUri() {
