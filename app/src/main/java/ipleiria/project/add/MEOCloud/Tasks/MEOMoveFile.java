@@ -18,6 +18,8 @@ import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Utils.HttpStatus;
 import okhttp3.Response;
 
+import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;
+
 /**
  * Created by Lisboa on 19-Apr-17.
  */
@@ -37,9 +39,9 @@ public class MEOMoveFile extends AsyncTask<String, Void, MEOCloudResponse<MEOMet
         if (exception != null) {
             callback.onError(exception);
         } else {
-            if(result.responseSuccessful()){
+            if (result.responseSuccessful()) {
                 callback.onComplete(result.getResponse());
-            }else{
+            } else {
                 callback.onRequestError(new HttpErrorException(result.getError()));
             }
         }
@@ -71,8 +73,28 @@ public class MEOMoveFile extends AsyncTask<String, Void, MEOCloudResponse<MEOMet
             bodyMap.put("root", MEOCloudAPI.API_MODE);
             bodyMap.put("from_path", "/" + fromPath);
             bodyMap.put("to_path", "/" + toPath);
-            System.out.println("from path: " + fromPath);
-            System.out.println("to path: " + toPath);
+
+            String trash = MEOCloudAPI.API_METHOD_METADATA + "/" + MEOCloudAPI.API_MODE + TRASH_FOLDER;
+
+            // if destination file already exists with same name delete source file
+            Response metaResponse = HttpRequestor.get(token, trash, null);
+            if (metaResponse != null) {
+                if (metaResponse.code() == HttpStatus.OK) {
+                    String responseBody = metaResponse.body().string();
+                    MEOMetadata metadata = MEOMetadata.fromJson(responseBody, MEOMetadata.class);
+                    for (MEOMetadata fileInSourceDir : metadata.getContents()) {
+                        String sourceFilename = fileInSourceDir.getPath();
+                        if (sourceFilename.substring(sourceFilename.lastIndexOf("/") + 1, sourceFilename.length()).equals(
+                                toPath.substring(toPath.lastIndexOf("/") + 1, toPath.length()))) {
+                            HashMap<String, String> map = new HashMap<>();
+                            bodyMap.put("root", MEOCloudAPI.API_MODE);
+                            bodyMap.put("path", "/" + fromPath);
+                            HttpRequestor.post(token, MEOCloudAPI.API_METHOD_DELETE, null, map);
+                            return null;
+                        }
+                    }
+                }
+            }
 
             Response response = HttpRequestor.post(token, MEOCloudAPI.API_METHOD_MOVE, null, bodyMap);
             if (response != null) {

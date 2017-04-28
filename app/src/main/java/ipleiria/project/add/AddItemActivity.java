@@ -163,9 +163,6 @@ public class AddItemActivity extends AppCompatActivity {
         }
     }
 
-
-
-
     private void readCategories() {
         FirebaseHandler.getInstance().getCategoryReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -236,9 +233,14 @@ public class AddItemActivity extends AppCompatActivity {
             }
             Item item = new Item(itemFiles, description, selectedCriteria);
             if (editingItem != null) {
-                editingItem.setCriteria(selectedCriteria);
-                editingItem.setDescription(description);
+                editingItem.addFiles(itemFiles);
                 ApplicationData.getInstance().addItem(editingItem);
+                // user changed items category so we need to move the files
+                if(!editingItem.getCriteria().equals(selectedCriteria)){
+                    FileUtils.moveFilesToNewDir(this, editingItem.getFiles(), editingItem.getCriteria());
+                    editingItem.setCriteria(selectedCriteria);
+                }
+                editingItem.setDescription(description);
             } else {
                 ApplicationData.getInstance().addItem(item);
                 if (NetworkState.isOnline(this)) {

@@ -10,7 +10,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -38,7 +37,6 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
@@ -48,14 +46,13 @@ import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.Utils.CloudHandler;
 import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
-import ipleiria.project.add.Utils.UriHelper;
 
 import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
 import static ipleiria.project.add.SettingsActivity.DROPBOX_PREFS_KEY;
 import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String AUTH_TAG = "AnonymousAuth";
     private static final String TAG = "MainActivity";
@@ -84,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view) {
                 // TODO: 23-Apr-17 open intent to take picture
                 //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                 //       .setAction("Action", null).show();
+                //       .setAction("Action", null).show();
                 addItemOpeningCam();
             }
         });
@@ -100,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         try {
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        }catch(DatabaseException e){
+        } catch (DatabaseException e) {
             // if any subsequent calls to setPersistence occur it won't crash...
             Log.d(TAG, e.getMessage());
         }
@@ -108,6 +105,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ApplicationData.getInstance().setSharedPreferences(preferences);
         FirebaseHandler.newInstance();
         FirebaseHandler.getInstance().readCategories();
+
+        String userUID = preferences.getString(FIREBASE_UID_KEY, null);
+        if (userUID != null) {
+            ApplicationData.getInstance().setUserUID(userUID);
+            // firebase should keep data offline so we don't need a connection to read bd
+            FirebaseHandler.getInstance().readUserData(this);
+            FirebaseHandler.getInstance().readEmails(this);
+            FirebaseHandler.getInstance().readItems();
+            FirebaseHandler.getInstance().readDeletedItems();
+        } else {
+            Log.e(TAG, "User is offline and has no UID stored in app - first time opening and offline?");
+        }
 
         if (NetworkState.isOnline(this)) {
             firebaseAuth = FirebaseAuth.getInstance();
@@ -119,40 +128,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 MEOCloudClient.init(preferences.getString(MEO_PREFS_KEY, null));
             }
             // delay to guarantee dimensions will be read before scanning the dirs
-            // TODO: 27-Apr-17 run as a background service while app is running to upload local files?
+            // TODO: 27-Apr-17 upload local files with background service while app is running
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     List<File> localFiles = FileUtils.getLocalFiles(MainActivity.this);
-                    if(!localFiles.isEmpty()){
-                        if(NetworkState.isOnline(MainActivity.this)) {
+                    if (!localFiles.isEmpty()) {
+                        if (NetworkState.isOnline(MainActivity.this)) {
                             for (int i = 0; i < localFiles.size(); i++) {
                                 System.out.println("LOCAL FILE: " + localFiles.get(i).getName());
                                 CloudHandler.uploadFileToCloud(MainActivity.this, localFiles.get(i));
-                                localFiles.remove(i);
                             }
+                            localFiles.clear();
+                        }
+                    }
+                    List<File> localDeletedFiles = FileUtils.getLocalDeletedFiles(MainActivity.this);
+                    if (!localDeletedFiles.isEmpty()) {
+                        if (NetworkState.isOnline(MainActivity.this)) {
+                            for (int i = 0; i < localDeletedFiles.size(); i++) {
+                                System.out.println("LOCAL FILE: " + localDeletedFiles.get(i).getName());
+                                CloudHandler.uploadFileToCloudTrash(MainActivity.this, localDeletedFiles.get(i));
+                            }
+                            localDeletedFiles.clear();
                         }
                     }
                     ApplicationData.getInstance().setLocalPendingFiles(localFiles);
                 }
             }, 3000);
-        }else{
-            String userUID = preferences.getString(FIREBASE_UID_KEY, null);
-            if(userUID != null){
-                ApplicationData.getInstance().setUserUID(userUID);
-            }else{
-                Log.e(TAG, "User is offline and has not UID stored in app - never opened app offline?");
-            }
-        }
-        if(ApplicationData.getInstance().getUserUID() != null){
-            // firebase should keep data offline so we don't need a connection to read bd
-            FirebaseHandler.getInstance().readEmails(this);
-            FirebaseHandler.getInstance().readItems();
-            FirebaseHandler.getInstance().readDeletedItems();
-            FirebaseHandler.getInstance().readUserData();
         }
     }
-
 
 
     @Override
@@ -205,7 +209,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void selectCriteria(View view) {
         startActivity(new Intent(this, SelectCategoryActivity.class));
     }
-    public void addItemOpeningCam () {
+
+    public void addItemOpeningCam() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -226,7 +231,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
-    };
+    }
+
+    ;
 
     private File createImageFile() throws Exception {
         // Create an image file name
@@ -251,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 Intent photo = new Intent(MainActivity.this, ListItemActivity.class);
-                photo.putExtra("photo_uri",photoURI.toString());
+                photo.putExtra("photo_uri", photoURI.toString());
                 startActivity(photo.setAction(SENDING_PHOTO));
 
             }
@@ -261,12 +268,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onStart() {
         super.onStart();
-        if(NetworkState.isOnline(this)) {
+        if (NetworkState.isOnline(this)) {
             if (firebaseAuth == null) {
                 firebaseAuth = FirebaseAuth.getInstance();
             }
-            if(firebaseAuth != null){
-                if(authListener == null){
+            if (firebaseAuth != null) {
+                if (authListener == null) {
                     initAuthListener();
                 }
                 firebaseAuth.addAuthStateListener(authListener);
@@ -281,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    if(!authFlag){
+                    if (!authFlag) {
                         // User is signed in
                         ApplicationData.getInstance().setUserUID(user.getUid());
                         Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
@@ -298,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 profileUri = userInfo.getPhotoUrl();
                             }
                         }
-                        if(displayName == null || displayName.isEmpty()){
+                        if (displayName == null || displayName.isEmpty()) {
                             displayName = "Anonymous";
                         }
                         ApplicationData.getInstance().setDisplayName(displayName);
@@ -307,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         FirebaseHandler.getInstance().initReferences();
                         FirebaseHandler.getInstance().writeUserInfo();
                         View navHeader = navigationView.getHeaderView(0);
-                        ((TextView) navHeader.findViewById(R.id.user_name)).setText(ApplicationData.getInstance().getDisplayName());
+                        ((TextView) navHeader.findViewById(R.id.user_name)).setText(displayName);
                         ((TextView) navHeader.findViewById(R.id.user_mail)).setText(user.getEmail());
                         Picasso.with(MainActivity.this)
                                 .load(ApplicationData.getInstance().getProfileUri())
@@ -315,9 +322,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 .transform(new CircleTransformation())
                                 .placeholder(R.drawable.ic_profile_placeholder)
                                 .error(R.drawable.ic_profile_placeholder)
-                                .into((ImageView)navHeader.findViewById(R.id.profile_pic));
-                        /*FirebaseHandler.getInstance().writeItems();
-                        FirebaseHandler.getInstance().writeEmails();*/
+                                .into((ImageView) navHeader.findViewById(R.id.profile_pic));
                     }
                 } else {
                     // User is signed out or there's no credentials
@@ -333,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     if (!task.isSuccessful()) {
                                         Log.w(AUTH_TAG, "signInAnonymously", task.getException());
                                         Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                                    }else{
+                                    } else {
                                         authFlag = true;
                                     }
 
@@ -351,6 +356,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStop();
         if (authListener != null) {
             firebaseAuth.removeAuthStateListener(authListener);
+        }
+    }
+
+    public void updateUserInfo() {
+        View navHeader = navigationView.getHeaderView(0);
+        ((TextView) navHeader.findViewById(R.id.user_name)).setText(ApplicationData.getInstance().getDisplayName());
+        if(!ApplicationData.getInstance().getEmails().isEmpty()){
+            String text = ApplicationData.getInstance().getEmails().get(0).getEmail();
+            if(ApplicationData.getInstance().getEmails().size() > 1){
+                text += " (+" + String.valueOf(ApplicationData.getInstance().getEmails().size()-1) + ")";
+            }
+            ((TextView) navHeader.findViewById(R.id.user_mail)).setText(text);
         }
     }
 }

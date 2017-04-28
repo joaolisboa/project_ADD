@@ -1,7 +1,5 @@
 package ipleiria.project.add.MEOCloud;
 
-import ipleiria.project.add.MEOCloud.Data.FileResponse;
-import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 
 /**

@@ -1,14 +1,5 @@
 package ipleiria.project.add.Model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import com.unnamed.b.atv.model.TreeNode;
-
-import java.util.LinkedList;
-import java.util.List;
-
-import ipleiria.project.add.Utils.JsonObject;
-
 /**
  * Created by Lisboa on 11-Apr-17.
  */

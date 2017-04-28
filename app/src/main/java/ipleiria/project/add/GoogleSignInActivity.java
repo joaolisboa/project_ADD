@@ -31,11 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserInfo;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Model.ApplicationData;
 
 /**
@@ -168,7 +164,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
     }
 
     private void signOut() {
-        // dirty but works
         AlertDialog.Builder builder = new AlertDialog.Builder(GoogleSignInActivity.this);
         builder.setMessage("Signing out of Google means data will no longer be synced across devices.")
                 .setTitle("Confirm");
@@ -180,7 +175,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
         });
         builder.setNegativeButton(R.string.cancel, null);
         builder.create().show();
-
     }
 
 

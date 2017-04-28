@@ -4,11 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.http.OkHttp3Requestor;
 import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.ListFolderResult;
 
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.SettingsActivity;

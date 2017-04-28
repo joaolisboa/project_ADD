@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.ListFolderResult;
-import com.dropbox.core.v2.files.Metadata;
 
 /**
  * Created by J on 03/04/2017.

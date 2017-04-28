@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.Tasks.MEORevokeToken;

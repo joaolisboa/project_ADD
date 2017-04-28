@@ -3,8 +3,6 @@ package ipleiria.project.add;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -15,14 +13,8 @@ import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Item;
-import ipleiria.project.add.Model.ItemFile;
-
-import static ipleiria.project.add.ListItemActivity.CHANGING_DATA_SET;
 
 public class ItemDetailActivity extends AppCompatActivity {
 

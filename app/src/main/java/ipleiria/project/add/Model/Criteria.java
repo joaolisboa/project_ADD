@@ -1,16 +1,7 @@
 package ipleiria.project.add.Model;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-
-import com.unnamed.b.atv.model.TreeNode;
-
 import java.util.LinkedList;
 import java.util.List;
-
-import ipleiria.project.add.R;
 
 /**
  * Created by Lisboa on 12-Apr-17.

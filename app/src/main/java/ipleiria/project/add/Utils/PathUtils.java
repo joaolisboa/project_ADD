@@ -48,6 +48,10 @@ public class PathUtils {
         return context.getFilesDir().getAbsolutePath() + getRemoteFilePath(filename, criteria);
     }
 
+    public static String getLocalTrashPath(Context context, String filename){
+        return context.getFilesDir().getAbsolutePath() + TRASH_FOLDER + "/" + filename;
+    }
+
     public static String getLocalFilePath(Context context, String filename){
         return context.getFilesDir().getAbsolutePath() + "/" + filename;
     }

@@ -1,14 +1,13 @@
 package ipleiria.project.add;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -25,7 +24,6 @@ import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +35,6 @@ import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.CloudHandler;
 import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
-import ipleiria.project.add.Utils.PathUtils;
 import ipleiria.project.add.Utils.StringUtils;
 import ipleiria.project.add.Utils.UriHelper;
 

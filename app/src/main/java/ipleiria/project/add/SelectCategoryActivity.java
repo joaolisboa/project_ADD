@@ -1,8 +1,8 @@
 package ipleiria.project.add;
 
 import android.app.SearchManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +15,6 @@ import android.widget.Toast;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
-import java.sql.SQLOutput;
 import java.util.LinkedList;
 import java.util.List;
 

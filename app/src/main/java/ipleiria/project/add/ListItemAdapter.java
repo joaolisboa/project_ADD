@@ -17,7 +17,6 @@ import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.dropbox.core.v2.files.Metadata;
 
-import java.io.File;
 import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
@@ -33,6 +32,7 @@ import ipleiria.project.add.MEOCloud.Tasks.MEOMoveFile;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.Utils.PathUtils;
 
@@ -85,7 +85,7 @@ public class ListItemAdapter extends BaseSwipeAdapter {
         SwipeLayout swipeLayout = (SwipeLayout) itemView.findViewById(R.id.bottom_layout_actions);
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
         swipeLayout.setClickToClose(true);
-        if(action != null){
+        if (action != null) {
             swipeLayout.setSwipeEnabled(false);
         }
         FrameLayout itemLayout = (FrameLayout) itemView.findViewById(R.id.item_view);
@@ -96,9 +96,9 @@ public class ListItemAdapter extends BaseSwipeAdapter {
 
         itemName.setText(item.getDescription());
         itemCriteria.setText(item.getCategoryReference() + ". " + item.getCriteria().getName());
-        if(!listDeleted) {
+        if (!listDeleted) {
             numFiles.setText(context.getString(R.string.num_files, item.getFiles(listDeleted).size()));
-        }else{
+        } else {
             numFiles.setText(context.getString(R.string.num_deleted_files, item.getDeletedFiles().size()));
         }
 
@@ -109,20 +109,20 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                 Intent intent = new Intent(context, ItemDetailActivity.class);
                 intent.putExtra("item_key", item.getDbKey());
                 intent.putExtra("list_deleted", listDeleted);
-                ((Activity)context).startActivityForResult(intent, CHANGING_DATA_SET);
+                ((Activity) context).startActivityForResult(intent, CHANGING_DATA_SET);
             }
         });
 
-        if(!listDeleted){
+        if (!listDeleted) {
             setDefaultListeners(position, itemView);
-        }else{
+        } else {
             setListenerForDeletedItems(position, itemView);
         }
 
         return itemView;
     }
 
-    private void setDefaultListeners(final int position, View itemView){
+    private void setDefaultListeners(final int position, View itemView) {
         ImageView buttonEdit = (ImageView) itemView.findViewById(R.id.action_1);
         buttonEdit.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_icon));
         ImageView buttonDelete = (ImageView) itemView.findViewById(R.id.action_2);
@@ -133,9 +133,8 @@ public class ListItemAdapter extends BaseSwipeAdapter {
             public void onClick(View view) {
                 final Item item = (Item) getItem(position);
                 Toast.makeText(context, "click delete " + item, Toast.LENGTH_SHORT).show();
-                if (NetworkState.isOnline(context)) {
-                    for (final ItemFile file : item.getFiles()) {
-                        file.setDeleted(true);
+                for (final ItemFile itemFile : item.getFiles()) {
+                    if (NetworkState.isOnline(context)) {
                         if (MEOCloudClient.isClientInitialized()) {
                             new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
                                 @Override
@@ -155,8 +154,8 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                         public void onError(Exception e) {
                                             Log.e("MoveFile", e.getMessage(), e);
                                         }
-                                    }).execute(PathUtils.getRemoteFilePath(file),
-                                            PathUtils.trashPath(file));
+                                    }).execute(PathUtils.getRemoteFilePath(itemFile),
+                                            PathUtils.trashPath(itemFile));
                                 }
 
                                 @Override
@@ -183,11 +182,15 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                 public void onError(Exception e) {
                                     Log.e("MoveFile", e.getMessage(), e);
                                 }
-                            }).execute(PathUtils.getRemoteFilePath(file),
-                                    PathUtils.trashPath(file));
+                            }).execute(PathUtils.getRemoteFilePath(itemFile),
+                                    PathUtils.trashPath(itemFile));
                         }
                     }
+                    itemFile.setDeleted(true);
+                    FileUtils.renameFile(PathUtils.getLocalFilePath(context, itemFile.getFilename(), item.getCriteria()),
+                            PathUtils.getLocalTrashPath(context, itemFile.getFilename()));
                 }
+
                 ApplicationData.getInstance().deleteItem(item);
                 ListItemActivity act = (ListItemActivity) context;
                 act.filterItems();
@@ -200,17 +203,9 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                 Toast.makeText(context, "click edit " + item, Toast.LENGTH_SHORT).show();
                 Intent editIntent = new Intent(context, AddItemActivity.class);
                 editIntent.putExtra("itemKey", item.getDbKey());
-                ((Activity)context).startActivityForResult(editIntent, CHANGING_DATA_SET);
+                ((Activity) context).startActivityForResult(editIntent, CHANGING_DATA_SET);
             }
         });
-    }
-
-    private void deleteFileThumbnail(ItemFile itemFile){
-        File localFileThumb = new File(context.getFilesDir().getAbsolutePath() + "/thumb_" + itemFile.getFilename());
-        if(localFileThumb.exists()){
-            boolean success = localFileThumb.delete();
-            Log.d("THUMBNAIL", "thumbnail delete successful?: " + success);
-        }
     }
 
     private void setListenerForDeletedItems(final int position, View itemView) {
@@ -224,9 +219,8 @@ public class ListItemAdapter extends BaseSwipeAdapter {
             public void onClick(View view) {
                 Item item = (Item) getItem(position);
                 Toast.makeText(context, "click permanently delete " + item, Toast.LENGTH_SHORT).show();
-                if (NetworkState.isOnline(context)) {
-                    for (ItemFile file :  item.isItemDeleted() ? item.getFiles() : item.getDeletedFiles()) {
-                        deleteFileThumbnail(file);
+                for (ItemFile itemFile : item.isItemDeleted() ? item.getFiles() : item.getDeletedFiles()) {
+                    if (NetworkState.isOnline(context)) {
                         if (MEOCloudClient.isClientInitialized()) {
                             new MEODeleteFile(new MEOCallback<MEOMetadata>() {
                                 @Override
@@ -236,14 +230,14 @@ public class ListItemAdapter extends BaseSwipeAdapter {
 
                                 @Override
                                 public void onRequestError(HttpErrorException httpE) {
-                                    Log.e("PermanentDelete", httpE.getMessage(), httpE);
+                                    Log.e("PERMANENT_DELETE", httpE.getMessage(), httpE);
                                 }
 
                                 @Override
                                 public void onError(Exception e) {
-                                    Log.e("PermanentDelete", e.getMessage(), e);
+                                    Log.e("PERMANENT_DELETE", e.getMessage(), e);
                                 }
-                            }).execute(PathUtils.trashPath(file));
+                            }).execute(PathUtils.trashPath(itemFile));
                         }
                         if (DropboxClientFactory.isClientInitialized()) {
                             new DropboxDeleteFile(DropboxClientFactory.getClient(), new DropboxDeleteFile.Callback() {
@@ -255,17 +249,19 @@ public class ListItemAdapter extends BaseSwipeAdapter {
 
                                 @Override
                                 public void onError(Exception e) {
-                                    Log.e("PermanentDelete", e.getMessage(), e);
+                                    Log.e("PERMANENT_DELETE", e.getMessage(), e);
                                 }
-                            }).execute(PathUtils.trashPath(file));
+                            }).execute(PathUtils.trashPath(itemFile));
                         }
                     }
+                    FileUtils.deleteFile(PathUtils.getLocalFilePath(context, itemFile.getFilename(), itemFile.getParent().getCriteria()));
+                    FileUtils.deleteFile(PathUtils.getThumbFilename(context, itemFile.getFilename()));
                 }
                 listItems.remove(item);
                 item.clearDeleteFiles();
-                if(item.isItemDeleted()){
+                if (item.isItemDeleted()) {
                     ApplicationData.getInstance().permanentlyDeleteItem(item);
-                }else{
+                } else {
                     FirebaseHandler.getInstance().writeItem(item);
                 }
                 ListItemActivity act = (ListItemActivity) context;
@@ -277,9 +273,8 @@ public class ListItemAdapter extends BaseSwipeAdapter {
             public void onClick(View v) {
                 Item item = (Item) getItem(position);
                 Toast.makeText(context, "click restore " + item, Toast.LENGTH_SHORT).show();
-                if (NetworkState.isOnline(context)) {
-                    for (ItemFile file : item.getFiles()) {
-                        file.setDeleted(false);
+                for (ItemFile itemFile : item.getFiles()) {
+                    if (NetworkState.isOnline(context)) {
                         if (MEOCloudClient.isClientInitialized()) {
                             new MEOMoveFile(new MEOCallback<MEOMetadata>() {
                                 @Override
@@ -296,8 +291,8 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                 public void onError(Exception e) {
                                     Log.e("MoveFile", e.getMessage(), e);
                                 }
-                            }).execute(PathUtils.trashPath(file),
-                                    PathUtils.getRemoteFilePath(file));
+                            }).execute(PathUtils.trashPath(itemFile),
+                                    PathUtils.getRemoteFilePath(itemFile));
                         }
                         if (DropboxClientFactory.isClientInitialized()) {
                             new DropboxMoveFile(DropboxClientFactory.getClient(), new DropboxMoveFile.Callback() {
@@ -311,12 +306,16 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                 public void onError(Exception e) {
                                     Log.e("MoveFile", e.getMessage(), e);
                                 }
-                            }).execute(PathUtils.trashPath(file),
-                                    PathUtils.getRemoteFilePath(file));
+                            }).execute(PathUtils.trashPath(itemFile),
+                                    PathUtils.getRemoteFilePath(itemFile));
                         }
                     }
+                    itemFile.setDeleted(false);
+                    FileUtils.renameFile(PathUtils.getLocalTrashPath(context, itemFile.getFilename()),
+                            PathUtils.getLocalFilePath(context, itemFile.getFilename(), item.getCriteria()));
                 }
-                if(item.isItemDeleted()){
+
+                if (item.isItemDeleted() || ApplicationData.getInstance().getDeletedItems().contains(item)) {
                     ApplicationData.getInstance().restoreItem(item);
                 }
                 ListItemActivity act = (ListItemActivity) context;

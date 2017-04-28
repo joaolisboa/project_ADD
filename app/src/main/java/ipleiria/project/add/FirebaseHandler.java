@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.dropbox.core.v2.users.FullAccount;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -12,7 +11,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,12 +30,7 @@ import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Email;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
-import ipleiria.project.add.Utils.CloudHandler;
-import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
-
-import static ipleiria.project.add.SettingsActivity.DROPBOX_PREFS_KEY;
-import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
 
 /**
  * Created by Lisboa on 15-Apr-17.
@@ -268,11 +261,19 @@ public class FirebaseHandler {
         itemRef.setValue(values);
     }
 
-    public void readUserData(){
+    public void readUserData(final Context context){
         userReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ApplicationData.getInstance().setDisplayName((String)dataSnapshot.child("name").getValue());
+                for (DataSnapshot emailsSnapshot : dataSnapshot.child("emails").getChildren()) {
+                    Email newEmail = emailsSnapshot.getValue(Email.class);
+                    newEmail.setDbKey(emailsSnapshot.getKey());
+                    ApplicationData.getInstance().addEmail(newEmail);
+                }
+                if(context instanceof MainActivity){
+                    ((MainActivity)context).updateUserInfo();
+                }
             }
 
             @Override

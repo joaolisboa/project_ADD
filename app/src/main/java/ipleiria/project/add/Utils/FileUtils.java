@@ -5,17 +5,25 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.FileChannel;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.Dropbox.DropboxClientFactory;
+import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
+import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
+import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolderTree;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Criteria;
 import ipleiria.project.add.Model.Dimension;
+import ipleiria.project.add.Model.ItemFile;
+
+import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;
 
 /**
  * Created by Lisboa on 26-Apr-17.
@@ -24,12 +32,13 @@ import ipleiria.project.add.Model.Dimension;
 public class FileUtils {
 
     public static void copyFileToLocalDir(Context context, Uri src, Criteria criteria){
-        String path = context.getFilesDir().getAbsolutePath() + PathUtils.getRemotePath(criteria);
-        File dir = new File(path);
+        String filename = UriHelper.getFileName(context, src);
+        String path = PathUtils.getLocalFilePath(context, filename, criteria);
+        File dir = new File(path.substring(0, path.lastIndexOf("/")));
         if(!dir.exists()){
             dir.mkdirs();
         }
-        File destFile = new File(path + "/" + UriHelper.getFileName(context, src));
+        File destFile = new File(path);
         try {
             InputStream is = context.getContentResolver().openInputStream(src);
             FileOutputStream outStream = new FileOutputStream(destFile);
@@ -58,19 +67,22 @@ public class FileUtils {
     }
 
     public static void renameFile(String from, String to){
-        File localFileThumb = new File(from);
-        if(localFileThumb.exists()) {
-            boolean success = localFileThumb.renameTo(new File(to));
+        File src = new File(from);
+        if(src.exists()) {
+            File dir = new File(to.substring(0, to.lastIndexOf("/")));
+            if(!dir.exists()){
+                dir.mkdirs();
+            }
+            File dest = new File(to);
+            boolean success = src.renameTo(dest);
             Log.d("FILE_ACTION", "file rename successful: " + success);
         }
     }
 
     public static List<File> getLocalFiles(Context context){
         List<File> files = new LinkedList<>();
-        System.out.println("Dimensions: " + ApplicationData.getInstance().getDimensions());
         for(Dimension dimension: ApplicationData.getInstance().getDimensions()){
             File dimensiondir = new File(context.getFilesDir().getAbsolutePath() + "/" + dimension.getReference());
-            System.out.println("Dimension path: " + dimensiondir.getPath());
             if(dimensiondir.isDirectory()){
                 goThroughFolder(dimensiondir, files);
             }
@@ -89,4 +101,54 @@ public class FileUtils {
         }
     }
 
+    public static File getUserThumbnail(Context context){
+        return new File(context.getFilesDir() + "/user_thumb.jpg");
+    }
+
+    public static void moveFilesToNewDir(final Context context, List<ItemFile> files, Criteria oldCriteria) {
+        if(NetworkState.isOnline(context)){
+            for(ItemFile itemFile: files){
+                final String newPath = PathUtils.getLocalFilePath(context, itemFile.getFilename(), itemFile.getParent().getCriteria());
+                final String oldPath = PathUtils.getLocalFilePath(context, itemFile.getFilename(), oldCriteria);
+
+                if(MEOCloudClient.isClientInitialized()) {
+                    String[] splitPath = newPath.substring(1, newPath.lastIndexOf("/")).split("/");
+                    String dimensionPath = splitPath[0];
+                    String areaPath = splitPath[1];
+                    String criteriaPath = splitPath[2];
+
+                    new MEOCreateFolderTree(new MEOCallback<MEOMetadata>() {
+                        @Override
+                        public void onComplete(MEOMetadata result) {
+                            CloudHandler.moveFileMEO(oldPath, newPath);
+                        }
+
+                        @Override
+                        public void onRequestError(HttpErrorException httpE) {
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                        }
+                    }).execute(dimensionPath, areaPath, criteriaPath);
+                }
+                if(DropboxClientFactory.isClientInitialized()){
+                    CloudHandler.moveFileMEO(oldPath, newPath);
+                }
+            }
+        }else{
+            for(ItemFile itemFile: files){
+                renameFile(PathUtils.getLocalFilePath(context, itemFile.getFilename(), itemFile.getParent().getCriteria()),
+                        PathUtils.getLocalFilePath(context, itemFile.getFilename(), itemFile.getParent().getCriteria()));
+            }
+        }
+    }
+
+    public static List<File> getLocalDeletedFiles(Context context) {
+        List<File> files = new LinkedList<>();
+        File trashDir = new File(context.getFilesDir() + TRASH_FOLDER);
+        Collections.addAll(files, trashDir.listFiles());
+        System.out.println(files);
+        return files;
+    }
 }

@@ -78,7 +78,6 @@ public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<MEO
                 map.put("rev", params[5]);
             }
 
-
             String path = MEOCloudAPI.API_METHOD_METADATA + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
             System.out.println(path);
 

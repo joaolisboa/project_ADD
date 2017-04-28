@@ -1,58 +1,34 @@
 package ipleiria.project.add;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.audiofx.BassBoost;
-import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dropbox.core.DbxException;
 import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.users.FullAccount;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
-import com.unnamed.b.atv.model.TreeNode;
-import com.unnamed.b.atv.view.AndroidTreeView;
-
-import java.util.List;
-import java.util.Map;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.DropboxGetAccount;
 import ipleiria.project.add.MEOCloud.Data.Account;
-import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
 import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOGetAccount;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Email;
-import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.Utils.NetworkState;
 
@@ -247,7 +223,7 @@ public class SettingsActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && !user.isAnonymous()) {
             ((TextView) findViewById(R.id.account_description)).setText(getString(R.string.account_syncing_status, user.getEmail()));
-            System.out.println("loading picasso profile pic");
+
             Picasso.with(SettingsActivity.this)
                     .load(ApplicationData.getInstance().getProfileUri())
                     .resize(100, 100)
