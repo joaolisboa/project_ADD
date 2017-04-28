@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 MEOCloudClient.init(preferences.getString(MEO_PREFS_KEY, null));
             }
             // delay to guarantee dimensions will be read before scanning the dirs
-            // TODO: 27-Apr-17 upload local files with background service while app is running
+            // TODO: 27-Apr-17 upload local files with background service while app is running?
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -157,7 +157,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }, 3000);
         }
     }
-
 
     @Override
     public void onBackPressed() {

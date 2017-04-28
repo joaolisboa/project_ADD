@@ -147,7 +147,12 @@ public class FileUtils {
     public static List<File> getLocalDeletedFiles(Context context) {
         List<File> files = new LinkedList<>();
         File trashDir = new File(context.getFilesDir() + TRASH_FOLDER);
-        Collections.addAll(files, trashDir.listFiles());
+        if(!trashDir.exists()){
+            trashDir.mkdirs();
+            if(trashDir.list() != null && trashDir.list().length == 0){
+                Collections.addAll(files, trashDir.listFiles());
+            }
+        }
         System.out.println(files);
         return files;
     }
