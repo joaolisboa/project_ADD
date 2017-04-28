@@ -45,6 +45,7 @@ import ipleiria.project.add.Model.ItemFile;
 import ipleiria.project.add.Utils.CloudHandler;
 import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
+import ipleiria.project.add.Utils.PathUtils;
 import ipleiria.project.add.Utils.StringUtils;
 import ipleiria.project.add.Utils.UriHelper;
 
@@ -234,13 +235,14 @@ public class AddItemActivity extends AppCompatActivity {
             Item item = new Item(itemFiles, description, selectedCriteria);
             if (editingItem != null) {
                 editingItem.addFiles(itemFiles);
-                ApplicationData.getInstance().addItem(editingItem);
                 // user changed items category so we need to move the files
                 if(!editingItem.getCriteria().equals(selectedCriteria)){
-                    FileUtils.moveFilesToNewDir(this, editingItem.getFiles(), editingItem.getCriteria());
+                    String oldPath = PathUtils.getRemotePath(editingItem.getCriteria());
                     editingItem.setCriteria(selectedCriteria);
+                    FileUtils.moveFilesToNewDir(this, editingItem.getFiles(), oldPath);
                 }
                 editingItem.setDescription(description);
+                ApplicationData.getInstance().addItem(editingItem);
             } else {
                 ApplicationData.getInstance().addItem(item);
                 if (NetworkState.isOnline(this)) {

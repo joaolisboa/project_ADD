@@ -31,6 +31,8 @@ import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;
 
 public class FileUtils {
 
+    private static final String TAG  ="FILE_UTILS";
+
     public static void copyFileToLocalDir(Context context, Uri src, Criteria criteria){
         String filename = UriHelper.getFileName(context, src);
         String path = PathUtils.getLocalFilePath(context, filename, criteria);
@@ -87,7 +89,7 @@ public class FileUtils {
                 goThroughFolder(dimensiondir, files);
             }
         }
-        System.out.println(files);
+        Log.d(TAG, "Local files found: " + files);
         return files;
     }
 
@@ -105,11 +107,11 @@ public class FileUtils {
         return new File(context.getFilesDir() + "/user_thumb.jpg");
     }
 
-    public static void moveFilesToNewDir(final Context context, List<ItemFile> files, Criteria oldCriteria) {
+    public static void moveFilesToNewDir(final Context context, List<ItemFile> files, String old) {
         if(NetworkState.isOnline(context)){
             for(ItemFile itemFile: files){
-                final String newPath = PathUtils.getLocalFilePath(context, itemFile.getFilename(), itemFile.getParent().getCriteria());
-                final String oldPath = PathUtils.getLocalFilePath(context, itemFile.getFilename(), oldCriteria);
+                final String newPath = PathUtils.getRemoteFilePath(itemFile);
+                final String oldPath = old + "/" + itemFile.getFilename();
 
                 if(MEOCloudClient.isClientInitialized()) {
                     String[] splitPath = newPath.substring(1, newPath.lastIndexOf("/")).split("/");
@@ -153,7 +155,7 @@ public class FileUtils {
                 Collections.addAll(files, trashDir.listFiles());
             }
         }
-        System.out.println(files);
+        Log.d(TAG, "Local deleted files found: " + files);
         return files;
     }
 }

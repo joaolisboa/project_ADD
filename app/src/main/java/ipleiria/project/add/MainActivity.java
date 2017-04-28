@@ -1,5 +1,6 @@
 package ipleiria.project.add;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -34,12 +35,23 @@ import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
+import ipleiria.project.add.Dropbox.DropboxDownloadFile;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Utils.CircleTransformation;
@@ -155,6 +167,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     ApplicationData.getInstance().setLocalPendingFiles(localFiles);
                 }
             }, 3000);
+        }
+        readExcel();
+    }
+
+    private void readExcel() {
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory", "com.fasterxml.aalto.stax.InputFactoryImpl");
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLOutputFactory", "com.fasterxml.aalto.stax.OutputFactoryImpl");
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLEventFactory", "com.fasterxml.aalto.stax.EventFactoryImpl");
+
+        try {
+
+            InputStream inputStream = getResources().openRawResource(R.raw.ficha_avaliacao);
+            Workbook wb = new XSSFWorkbook(inputStream);
+            Sheet sheet = wb.getSheetAt(0);
+            Row row = sheet.createRow(0);
+
+
+
+            wb.close();
+            inputStream.close();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 

@@ -241,11 +241,11 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
             @Override
             public void onClick(View v) {
                 final ItemFile file = (ItemFile) getItem(position);
-                final ProgressDialog progressDialog = new ProgressDialog(context);
-                progressDialog.setMessage("Downloading file");
-                progressDialog.setIndeterminate(true);
-                progressDialog.show();
                 if (NetworkState.isOnline(context)) {
+                    final ProgressDialog progressDialog = new ProgressDialog(context);
+                    progressDialog.setMessage("Downloading file");
+                    progressDialog.setIndeterminate(true);
+                    progressDialog.show();
                     if (MEOCloudClient.isClientInitialized()) {
                         new MEODownloadFile(context, new MEOCallback<FileResponse>() {
                             @Override
@@ -282,6 +282,8 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                         Log.e("DownloadError", e.getMessage(), e);
                                     }
                                 }).execute(PathUtils.getRemoteFilePath(file));
+                    }else{
+                        progressDialog.dismiss();
                     }
                 } else {
                     Toast.makeText(context, "No internet", Toast.LENGTH_SHORT).show();
