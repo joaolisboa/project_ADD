@@ -36,6 +36,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -43,6 +46,9 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -54,6 +60,8 @@ import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.DropboxDownloadFile;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Model.ApplicationData;
+import ipleiria.project.add.Model.Criteria;
+import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.Utils.CloudHandler;
 import ipleiria.project.add.Utils.FileUtils;
@@ -91,9 +99,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: 23-Apr-17 open intent to take picture
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //       .setAction("Action", null).show();
                 addItemOpeningCam();
             }
         });
@@ -116,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences preferences = getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE);
         ApplicationData.getInstance().setSharedPreferences(preferences);
         FirebaseHandler.newInstance();
-        FirebaseHandler.getInstance().readCategories();
+        FirebaseHandler.getInstance().readCategories(this);
 
         String userUID = preferences.getString(FIREBASE_UID_KEY, null);
         if (userUID != null) {
@@ -168,28 +173,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }, 3000);
         }
-        readExcel();
-    }
 
-    private void readExcel() {
-        System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory", "com.fasterxml.aalto.stax.InputFactoryImpl");
-        System.setProperty("org.apache.poi.javax.xml.stream.XMLOutputFactory", "com.fasterxml.aalto.stax.OutputFactoryImpl");
-        System.setProperty("org.apache.poi.javax.xml.stream.XMLEventFactory", "com.fasterxml.aalto.stax.EventFactoryImpl");
-
-        try {
-
-            InputStream inputStream = getResources().openRawResource(R.raw.ficha_avaliacao);
-            Workbook wb = new XSSFWorkbook(inputStream);
-            Sheet sheet = wb.getSheetAt(0);
-            Row row = sheet.createRow(0);
-
-
-
-            wb.close();
-            inputStream.close();
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                FileUtils.readExcel(MainActivity.this);
+            }
+        }, 2000);
     }
 
     @Override
@@ -265,8 +255,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
-
-    ;
 
     private File createImageFile() throws Exception {
         // Create an image file name

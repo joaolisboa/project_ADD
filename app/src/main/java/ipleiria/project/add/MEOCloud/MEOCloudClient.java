@@ -40,19 +40,23 @@ public class MEOCloudClient {
         return accessToken != null && !accessToken.isEmpty();
     }
 
+    public static void removeToken(Context context){
+        SharedPreferences prefs = ApplicationData.getInstance().getSharedPreferences();
+        prefs.edit().remove(MEO_PREFS_KEY).apply();
+        accessToken = null;
+        ((SettingsActivity)context).updateView();
+    }
+
     public static void revokeToken(final Context context) {
         new MEORevokeToken(new MEOCallback<Void>() {
             @Override
             public void onComplete(Void result) {
-                SharedPreferences prefs = ApplicationData.getInstance().getSharedPreferences();
-                prefs.edit().remove(MEO_PREFS_KEY).apply();
-                accessToken = null;
-                ((SettingsActivity)context).updateView();
+                removeToken(context);
             }
 
             @Override
             public void onRequestError(HttpErrorException httpE) {
-                Log.e("REVOKE_TOKEN_HTTP_ERROR", httpE.getMessage(), httpE);
+                removeToken(context);
             }
 
             @Override

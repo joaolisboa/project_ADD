@@ -15,12 +15,15 @@ public class Item {
     private String description;
     private Criteria criteria;
     private String dbKey;
+    private int weight;
 
     public Item(){
         filenames = new LinkedList<>();
+        weight = 1;
     }
 
     public Item(String description){
+        super();
         this.description = description;
     }
 
@@ -30,6 +33,7 @@ public class Item {
             files.setParent(this);
         }
         this.description = description;
+        weight = 1;
     }
 
     public Item(List<ItemFile> filenames, String description, Criteria criteria){
@@ -126,12 +130,7 @@ public class Item {
         int dimension = Integer.valueOf(s[0]) - 1;
         int area = Integer.valueOf(s[1]) - 1;
         int criteria = Integer.valueOf(s[2]) - 1;
-        this.criteria = ApplicationData.getInstance().getCriteria(dimension, area, criteria);
-    }
-
-    @Override
-    public String toString(){
-        return getCategoryReference() + ":" + description + ":" + dbKey;
+        setCriteria(ApplicationData.getInstance().getCriteria(dimension, area, criteria));
     }
 
     public void addFiles(List<ItemFile> itemFiles) {
@@ -160,5 +159,18 @@ public class Item {
         for(int i = 0; i < getDeletedFiles().size(); i++) {
             filenames.remove(getDeletedFiles().get(i));
         }
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    @Override
+    public String toString(){
+        return getCategoryReference() + ":" + description + ":" + dbKey;
     }
 }

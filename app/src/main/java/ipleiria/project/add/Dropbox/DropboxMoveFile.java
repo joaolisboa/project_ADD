@@ -54,6 +54,7 @@ public class DropboxMoveFile extends AsyncTask<String, Void, Metadata> {
 
             // if file with same name already exists in destination delete the source
             try{
+                // should give error if file doesn't exist in destination
                 if(mDbxClient.files().getMetadata(toPath) != null){
                     if(fromPath.substring(fromPath.lastIndexOf("/") + 1, fromPath.length()).equals(
                             toPath.substring(toPath.lastIndexOf("/") + 1, toPath.length()))){

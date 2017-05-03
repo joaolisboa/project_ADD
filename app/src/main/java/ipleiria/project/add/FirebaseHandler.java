@@ -11,6 +11,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +40,7 @@ import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.Email;
 import ipleiria.project.add.Model.Item;
 import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
 
 /**
@@ -85,7 +96,7 @@ public class FirebaseHandler {
         return instance;
     }
 
-    public void readCategories(){
+    public void readCategories(final Context context){
         categoryReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -101,6 +112,12 @@ public class FirebaseHandler {
                         for (DataSnapshot criteriaSnap : areaSnap.child("criterias").getChildren()) {
                             Criteria criteria = new Criteria(criteriaSnap.child("name").getValue(String.class),
                                     criteriaSnap.child("reference").getValue(Integer.class));
+                            int readX = criteriaSnap.child("readX").getValue(Integer.class);
+                            int readY = criteriaSnap.child("readY").getValue(Integer.class);
+                            int writeX = criteriaSnap.child("writeX").getValue(Integer.class);
+                            int writeY = criteriaSnap.child("writeY").getValue(Integer.class);
+                            criteria.setReadCell(new Criteria.Coordinate(readX, readY));
+                            criteria.setWriteCell(new Criteria.Coordinate(writeX, writeY));
                             criteria.setDbKey(criteriaSnap.getKey());
                             area.addCriteria(criteria);
                         }
@@ -109,6 +126,7 @@ public class FirebaseHandler {
                     dimensions.add(dimension);
                 }
                 ApplicationData.getInstance().addDimensions(dimensions);
+                //readExcel(context);
             }
 
             @Override
@@ -116,6 +134,77 @@ public class FirebaseHandler {
                 Log.e(TAG, databaseError.getMessage(), databaseError.toException());
             }
         });
+    }
+
+    private void readExcel(Context context) {
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory", "com.fasterxml.aalto.stax.InputFactoryImpl");
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLOutputFactory", "com.fasterxml.aalto.stax.OutputFactoryImpl");
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLEventFactory", "com.fasterxml.aalto.stax.EventFactoryImpl");
+
+        try {
+            File file = FileUtils.getExcelFile(context);
+            InputStream inputStream = new FileInputStream(file);
+            Workbook wb = new XSSFWorkbook(inputStream);
+            Sheet sheet = wb.getSheetAt(0);
+
+            int y = 12;
+            int writeX = 5;
+            int readX = 14;
+            for(int i = 0; i < 4; i++){
+                Criteria criteria = ApplicationData.getInstance().getCriterias().get(i);
+                criteria.setReadCell(new Criteria.Coordinate(readX, y));
+                criteria.setWriteCell(new Criteria.Coordinate(writeX, y));
+            }
+            y+=4;
+            int lastDimension = 1;
+            for(int i = 4; i < ApplicationData.getInstance().getCriterias().size(); i++){
+                Criteria criteria = ApplicationData.getInstance().getCriterias().get(i);
+                if(criteria.getDimension().getReference() != lastDimension){
+                    lastDimension = criteria.getDimension().getReference();
+                    if(lastDimension==3){
+                        y++;
+                    }
+                    y++;
+                }
+                criteria.setReadCell(new Criteria.Coordinate(readX, y));
+                criteria.setWriteCell(new Criteria.Coordinate(writeX, y));
+                y++;
+            }
+            sheet.getRow(12).getCell(5).setCellValue(10);
+            try (FileOutputStream stream = new FileOutputStream(file)) {
+                wb.write(stream);
+            }
+            wb.close();
+            inputStream.close();
+            //writeCategories();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void writeCategories(){
+        DatabaseReference categoryRef = categoryReference;
+        for (Dimension dimension : ApplicationData.getInstance().getDimensions()) {
+            DatabaseReference dimRef = categoryRef.push();
+            dimRef.child("name").setValue(dimension.getName());
+            dimRef.child("reference").setValue(dimension.getReference());
+
+            for (Area area : dimension.getAreas()) {
+                DatabaseReference areaRef = dimRef.child("areas").push();
+                areaRef.child("name").setValue(area.getName());
+                areaRef.child("reference").setValue(area.getReference());
+
+                for (Criteria criteria : area.getCriterias()) {
+                    DatabaseReference criteriaRef = areaRef.child("criterias").push();
+                    criteriaRef.child("name").setValue(criteria.getName());
+                    criteriaRef.child("reference").setValue(criteria.getReference());
+                    criteriaRef.child("readX").setValue(criteria.getReadCell().x);
+                    criteriaRef.child("readY").setValue(criteria.getReadCell().y);
+                    criteriaRef.child("writeX").setValue(criteria.getWriteCell().x);
+                    criteriaRef.child("writeY").setValue(criteria.getWriteCell().y);
+                }
+            }
+        }
     }
 
     private void setUserReferenceListener(){

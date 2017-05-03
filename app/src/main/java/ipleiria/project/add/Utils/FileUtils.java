@@ -4,7 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +28,7 @@ import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Model.Criteria;
 import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.R;
 
 import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;
 
@@ -135,7 +142,7 @@ public class FileUtils {
                     }).execute(dimensionPath, areaPath, criteriaPath);
                 }
                 if(DropboxClientFactory.isClientInitialized()){
-                    CloudHandler.moveFileMEO(oldPath, newPath);
+                    CloudHandler.moveFileDropbox(oldPath, newPath);
                 }
             }
         }else{
@@ -157,5 +164,90 @@ public class FileUtils {
         }
         Log.d(TAG, "Local deleted files found: " + files);
         return files;
+    }
+
+    public static void readExcel(Context context) {
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory", "com.fasterxml.aalto.stax.InputFactoryImpl");
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLOutputFactory", "com.fasterxml.aalto.stax.OutputFactoryImpl");
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLEventFactory", "com.fasterxml.aalto.stax.EventFactoryImpl");
+
+        try {
+            File file = getExcelFile(context);
+            InputStream inputStream = new FileInputStream(file);
+            Workbook wb = new XSSFWorkbook(inputStream);
+            wb.setForceFormulaRecalculation(true);
+            FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
+            Sheet sheet = wb.getSheetAt(0);
+
+            double points = 0;
+            // first 4 criteria have a special case with a 10 point limit
+            for(int i = 0; i < 4; i++){
+                Criteria criteria = ApplicationData.getInstance().getCriterias().get(i);
+                points += criteria.getPoints();
+                if(points >= 10){
+                    points = 10;
+                }
+                sheet.getRow(criteria.getWriteCell().y)
+                            .getCell(criteria.getWriteCell().x)
+                            .setCellValue(points);
+                System.out.println(sheet.getRow(criteria.getWriteCell().y)
+                        .getCell(criteria.getWriteCell().x).getNumericCellValue());
+            }
+            for(int i = 4; i < ApplicationData.getInstance().getCriterias().size(); i++){
+                Criteria criteria = ApplicationData.getInstance().getCriterias().get(i);
+                if(criteria.getPoints() > 0) {
+                    points = criteria.getPoints();
+                    sheet.getRow(criteria.getWriteCell().y)
+                            .getCell(criteria.getWriteCell().x)
+                            .setCellValue(points);
+                    System.out.println(sheet.getRow(criteria.getWriteCell().y)
+                            .getCell(criteria.getWriteCell().x).getNumericCellValue());
+                }
+            }
+            try (FileOutputStream stream = new FileOutputStream(file)) {
+                wb.write(stream);
+            }
+            evaluator.evaluateAll();
+
+            for(int i = 0; i < ApplicationData.getInstance().getCriterias().size(); i++) {
+                Criteria criteria = ApplicationData.getInstance().getCriterias().get(i);
+                if(criteria.getPoints() > 0) {
+                    double value = sheet.getRow(criteria.getReadCell().y)
+                            .getCell(criteria.getReadCell().x)
+                            .getNumericCellValue();
+                    criteria.setFinalPoints(value);
+                    System.out.println("criteria: " + criteria.getRealReference() + " ;points: " + criteria.getFinalPoints());
+                }
+            }
+
+            wb.close();
+            inputStream.close();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static File getExcelFile(Context context){
+        File file = new File(context.getFilesDir().getAbsolutePath() + "/ficha_avaliacao.xlsx");
+        if(!file.exists()) {
+            try {
+                InputStream is = context.getResources().openRawResource(R.raw.ficha_avaliacao);
+                FileOutputStream outStream = new FileOutputStream(file);
+
+                int nRead;
+                byte[] data = new byte[16384];
+
+                if (is != null) {
+                    while ((nRead = is.read(data, 0, data.length)) != -1) {
+                        outStream.write(data, 0, nRead);
+                    }
+                }
+                outStream.close();
+                is.close();
+            } catch (IOException e) {
+                Log.e("LOCAL_FILE_COPY_OFFLIME", e.getMessage(), e);
+            }
+        }
+        return file;
     }
 }

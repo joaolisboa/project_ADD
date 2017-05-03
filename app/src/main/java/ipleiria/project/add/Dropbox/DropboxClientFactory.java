@@ -54,6 +54,5 @@ public class DropboxClientFactory {
                 Log.e("DROPBOX_REVOKE_ERROR", e.getMessage(), e);
             }
         }).execute();
-
     }
 }
