@@ -53,6 +53,7 @@ dependencies {
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
     compile 'com.daimajia.androidanimations:library:2.2@aar'
     testCompile 'junit:junit:4.12'
+    compile 'javax.inject:javax.inject:1'
 }
 
 apply plugin: 'com.google.gms.google-services'

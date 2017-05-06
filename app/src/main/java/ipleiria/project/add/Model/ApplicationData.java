@@ -9,6 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.FirebaseHandler;
+import ipleiria.project.add.data.model.Area;
+import ipleiria.project.add.data.model.Criteria;
+import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.Item;
 
 import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
 
@@ -359,7 +363,7 @@ public class ApplicationData {
         List<Item> itemsWithFilesDeleted = new LinkedList<>();
         itemsWithFilesDeleted.addAll(deletedItems);
         for(Item item: items){
-            if(item.hasDeletedFiles()){
+            if(item.hasDeletedFiles() && !itemsWithFilesDeleted.contains(item)){
                 itemsWithFilesDeleted.add(item);
             }
         }

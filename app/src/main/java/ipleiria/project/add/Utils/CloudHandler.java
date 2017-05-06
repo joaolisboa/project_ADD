@@ -21,8 +21,8 @@ import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
 import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolderTree;
 import ipleiria.project.add.MEOCloud.Tasks.MEOMoveFile;
 import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFile;
-import ipleiria.project.add.Model.Criteria;
-import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.data.model.Criteria;
+import ipleiria.project.add.data.model.ItemFile;
 
 import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;
 

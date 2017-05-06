@@ -121,6 +121,8 @@
     <string name="title_activity_main2">Main2Activity</string>
 
     <string name="action_settings">Settings</string>
+    <string name="no_items_add">Add a new item</string>
+    <string name="no_items_all">You have no items!</string>
 
 
 </resources>

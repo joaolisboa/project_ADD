@@ -1,4 +1,4 @@
-package ipleiria.project.add.Model;
+package ipleiria.project.add.data.model;
 
 import java.util.LinkedList;
 import java.util.List;

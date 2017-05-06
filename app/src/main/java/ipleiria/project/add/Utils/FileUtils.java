@@ -25,9 +25,9 @@ import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolderTree;
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.Model.Criteria;
-import ipleiria.project.add.Model.Dimension;
-import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.data.model.Criteria;
+import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.R;
 
 import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;

@@ -7,9 +7,9 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import ipleiria.project.add.Model.Criteria;
-import ipleiria.project.add.Model.Item;
-import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.data.model.Criteria;
+import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.model.ItemFile;
 
 /**
  * Created by Lisboa on 19-Apr-17.

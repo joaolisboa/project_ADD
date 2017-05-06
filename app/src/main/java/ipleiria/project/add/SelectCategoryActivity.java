@@ -19,10 +19,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.Model.Area;
-import ipleiria.project.add.Model.Category;
-import ipleiria.project.add.Model.Criteria;
-import ipleiria.project.add.Model.Dimension;
+import ipleiria.project.add.data.model.Area;
+import ipleiria.project.add.data.model.Category;
+import ipleiria.project.add.data.model.Criteria;
+import ipleiria.project.add.data.model.Dimension;
 
 public class SelectCategoryActivity extends AppCompatActivity {
 

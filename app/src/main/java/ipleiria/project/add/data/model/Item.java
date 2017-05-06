@@ -1,9 +1,12 @@
-package ipleiria.project.add.Model;
+package ipleiria.project.add.data.model;
+
+import com.google.firebase.database.DataSnapshot;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.FirebaseHandler;
+import ipleiria.project.add.Model.ApplicationData;
 
 /**
  * Created by Lisboa on 04-Apr-17.
@@ -65,12 +68,13 @@ public class Item {
 
     public boolean isItemDeleted(){
         // item is considered deleted if all files are deleted
+        // and is in AppData.deletedItems
         for(ItemFile file: filenames){
             if(!file.isDeleted()){
                 return false;
             }
         }
-        return true;
+        return ApplicationData.getInstance().getDeletedItems().contains(this);
     }
 
     public boolean hasDeletedFiles(){
@@ -125,14 +129,6 @@ public class Item {
         return criteria.getRealReference();
     }
 
-    public void setReference(String reference) {
-        String[] s = reference.split("\\.");
-        int dimension = Integer.valueOf(s[0]) - 1;
-        int area = Integer.valueOf(s[1]) - 1;
-        int criteria = Integer.valueOf(s[2]) - 1;
-        setCriteria(ApplicationData.getInstance().getCriteria(dimension, area, criteria));
-    }
-
     public void addFiles(List<ItemFile> itemFiles) {
         filenames.addAll(itemFiles);
         for(ItemFile files: itemFiles){
@@ -142,12 +138,16 @@ public class Item {
 
     public void deleteFile(ItemFile file) {
         file.setDeleted(true);
+        if(isItemDeleted()){
+
+        }
         FirebaseHandler.getInstance().writeItem(this);
     }
 
     public void restoreFile(ItemFile file){
         file.setDeleted(false);
         FirebaseHandler.getInstance().writeItem(this);
+
     }
 
     public void permanentlyDeleteFile(ItemFile file){
@@ -172,5 +172,14 @@ public class Item {
     @Override
     public String toString(){
         return getCategoryReference() + ":" + description + ":" + dbKey;
+    }
+
+    @Override
+    public boolean equals(Object object){
+        if(this == object) return true;
+        if(object == null || getClass() != object.getClass())
+            return false;
+
+        return dbKey.equals(((Item) object).getDbKey());
     }
 }

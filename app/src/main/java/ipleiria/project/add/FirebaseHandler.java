@@ -11,7 +11,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -19,7 +18,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,12 +32,12 @@ import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.Tasks.MEOGetAccount;
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.Model.Area;
-import ipleiria.project.add.Model.Criteria;
-import ipleiria.project.add.Model.Dimension;
+import ipleiria.project.add.data.model.Area;
+import ipleiria.project.add.data.model.Criteria;
+import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.Model.Email;
-import ipleiria.project.add.Model.Item;
-import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
 
@@ -372,14 +370,6 @@ public class FirebaseHandler {
         });
     }
 
-    public void removeItemsListener(){
-        itemsReference.removeEventListener(itemsEventListener);
-    }
-
-    public void readItems(){
-        itemsReference.addChildEventListener(itemsEventListener);
-    }
-
     public DatabaseReference getUserReference() {
         return userReference;
     }
@@ -395,92 +385,6 @@ public class FirebaseHandler {
     public DatabaseReference getDeletedItemsReference(){
         return deletedItemsReference;
     }
-
-    private ChildEventListener itemsEventListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            Item newItem = dataSnapshot.getValue(Item.class);
-            newItem.setReference((String) dataSnapshot.child("reference").getValue());
-            newItem.setDbKey(dataSnapshot.getKey());
-            for (DataSnapshot fileSnapshot : dataSnapshot.child("files").getChildren()) {
-                ItemFile file = fileSnapshot.getValue(ItemFile.class);
-                file.setDbKey(fileSnapshot.getKey());
-                newItem.addFile(file);
-            }
-            ApplicationData.getInstance().addItem(newItem);
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            Item newItem = dataSnapshot.getValue(Item.class);
-            newItem.setReference((String)dataSnapshot.child("reference").getValue());
-            newItem.setDbKey(dataSnapshot.getKey());
-            for(DataSnapshot fileSnapshot: dataSnapshot.child("files").getChildren()){
-                ItemFile file = fileSnapshot.getValue(ItemFile.class);
-                file.setDbKey(fileSnapshot.getKey());
-                newItem.addFile(file);
-            }
-            ApplicationData.getInstance().addItem(newItem);
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
-            ApplicationData.getInstance().deleteItem(dataSnapshot.getKey());
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
-    };
-
-    private ChildEventListener deletedItemsEventListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            Item newItem = dataSnapshot.getValue(Item.class);
-            newItem.setReference((String) dataSnapshot.child("reference").getValue());
-            newItem.setDbKey(dataSnapshot.getKey());
-            for (DataSnapshot fileSnapshot : dataSnapshot.child("files").getChildren()) {
-                ItemFile file = fileSnapshot.getValue(ItemFile.class);
-                file.setDbKey(fileSnapshot.getKey());
-                newItem.addFile(file);
-            }
-            ApplicationData.getInstance().addDeletedItem(newItem);
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            Item newItem = dataSnapshot.getValue(Item.class);
-            newItem.setReference((String)dataSnapshot.child("reference").getValue());
-            newItem.setDbKey(dataSnapshot.getKey());
-            for(DataSnapshot fileSnapshot: dataSnapshot.child("files").getChildren()){
-                ItemFile file = fileSnapshot.getValue(ItemFile.class);
-                file.setDbKey(fileSnapshot.getKey());
-                newItem.addFile(file);
-            }
-            ApplicationData.getInstance().addDeletedItem(newItem);
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
-            ApplicationData.getInstance().deleteDeletedItem(dataSnapshot.getKey());
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
-    };
 
     public void writeDeletedItem(Item item){
         System.out.println(item);
@@ -534,9 +438,5 @@ public class FirebaseHandler {
     public void restoreItem(Item item){
         writeItem(item);
         permanentlyDeleteItem(item);
-    }
-
-    public void readDeletedItems() {
-        deletedItemsReference.addChildEventListener(deletedItemsEventListener);
     }
 }

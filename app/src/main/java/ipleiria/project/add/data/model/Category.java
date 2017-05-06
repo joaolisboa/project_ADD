@@ -1,4 +1,4 @@
-package ipleiria.project.add.Model;
+package ipleiria.project.add.data.model;
 
 /**
  * Created by Lisboa on 11-Apr-17.

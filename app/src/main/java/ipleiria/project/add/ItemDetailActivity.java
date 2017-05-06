@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.daimajia.swipe.SwipeLayout;
 
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.Model.Item;
+import ipleiria.project.add.data.model.Item;
 
 public class ItemDetailActivity extends AppCompatActivity {
 

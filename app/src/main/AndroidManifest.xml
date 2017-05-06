@@ -14,14 +14,33 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+        <activity android:name=".view.main.MainActivity"
+            android:theme="@style/AppTheme.OverlapSystemBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".view.items.ItemsActivity"
+            android:parentActivityName=".view.main.MainActivity"
+            android:theme="@style/AppTheme.OverlapSystemBar">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.main.MainActivity" />
+        </activity>
+
+
+
+
+
+
+
+
+        <activity
+            android:name=".MainActivity">
         </activity>
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
@@ -57,7 +76,6 @@
         <activity
             android:name=".ListItemActivity"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/share_activity_label"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -89,8 +107,7 @@
         <activity
             android:name=".ItemDetailActivity"
             android:label="@string/title_activity_item_detail"
-            android:parentActivityName=".ListItemActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".ListItemActivity">
         </activity>
 
         <provider

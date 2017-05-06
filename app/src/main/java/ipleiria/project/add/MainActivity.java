@@ -1,6 +1,5 @@
 package ipleiria.project.add;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -35,33 +34,14 @@ import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.CellValue;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.Dropbox.DropboxDownloadFile;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.Model.Criteria;
-import ipleiria.project.add.Model.Dimension;
 import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.Utils.CloudHandler;
 import ipleiria.project.add.Utils.FileUtils;
@@ -129,8 +109,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // firebase should keep data offline so we don't need a connection to read bd
             FirebaseHandler.getInstance().readUserData(this);
             FirebaseHandler.getInstance().readEmails(this);
-            FirebaseHandler.getInstance().readItems();
-            FirebaseHandler.getInstance().readDeletedItems();
         } else {
             Log.e(TAG, "User is offline and has no UID stored in app - first time opening and offline?");
         }

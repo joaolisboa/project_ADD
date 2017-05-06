@@ -29,9 +29,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.Model.Dimension;
-import ipleiria.project.add.Model.Item;
-import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.Utils.CloudHandler;
 import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;

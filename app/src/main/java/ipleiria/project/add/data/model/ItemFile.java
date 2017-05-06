@@ -1,4 +1,6 @@
-package ipleiria.project.add.Model;
+package ipleiria.project.add.data.model;
+
+import ipleiria.project.add.data.model.Item;
 
 /**
  * Created by J on 19/04/2017.

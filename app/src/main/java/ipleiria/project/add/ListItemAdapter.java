@@ -30,8 +30,8 @@ import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
 import ipleiria.project.add.MEOCloud.Tasks.MEODeleteFile;
 import ipleiria.project.add.MEOCloud.Tasks.MEOMoveFile;
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.Model.Item;
-import ipleiria.project.add.Model.ItemFile;
+import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.Utils.FileUtils;
 import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.Utils.PathUtils;
@@ -310,12 +310,12 @@ public class ListItemAdapter extends BaseSwipeAdapter {
                                     PathUtils.getRemoteFilePath(itemFile));
                         }
                     }
-                    itemFile.setDeleted(false);
+                    item.restoreFile(itemFile);
                     FileUtils.renameFile(PathUtils.getLocalTrashPath(context, itemFile.getFilename()),
                             PathUtils.getLocalFilePath(context, itemFile.getFilename(), item.getCriteria()));
                 }
 
-                if (item.isItemDeleted() || ApplicationData.getInstance().getDeletedItems().contains(item)) {
+                if (item.isItemDeleted()) {
                     ApplicationData.getInstance().restoreItem(item);
                 }
                 ListItemActivity act = (ListItemActivity) context;

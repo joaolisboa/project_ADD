@@ -9,9 +9,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme.AppBarOverlay"
-        app:theme="@style/AppTheme.AppBarOverlay">
+        android:background="?attr/colorPrimary">
 
         <Spinner
             android:id="@+id/spinner_nav"
