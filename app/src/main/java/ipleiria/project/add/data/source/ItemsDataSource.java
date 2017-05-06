@@ -15,9 +15,13 @@ import ipleiria.project.add.data.model.Item;
 
 public interface ItemsDataSource {
 
-    DatabaseReference getItems();
+    DatabaseReference getDeletedItemsReference();
 
-    List<Item> getLocalItems();
+    DatabaseReference getItemsReference();
+
+    List<Item> getItems();
+
+    List<Item> getDeletedItems();
 
     Item getItem(@NonNull String itemID);
 

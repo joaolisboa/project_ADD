@@ -34,6 +34,8 @@ public class CategoryRepository implements CategoryDataSource{
 
     private CategoryRepository() {
         this.databaseRef = FirebaseDatabase.getInstance().getReference().child("categories");
+        this.databaseRef.keepSynced(true);
+
         this.dimensions = new LinkedList<>();
     }
 
@@ -106,6 +108,7 @@ public class CategoryRepository implements CategoryDataSource{
         return dimensions.get(dimension).getArea(area).getCriteria(criteria);
     }
 
+    // prefered over readCategories to get data in the presenter through callbacks
     @Override
     public DatabaseReference getReference() {
         return databaseRef;

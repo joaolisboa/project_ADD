@@ -11,12 +11,15 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseException;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import ipleiria.project.add.ListItemActivity;
@@ -71,6 +74,14 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
         SharedPreferences preferences = getSharedPreferences(USER_DATA, MODE_PRIVATE);
         presenter = new MainPresenter(UserService.initUserInstance(preferences), mainFragment, this);
+ 
+        // should run when app starts
+        try {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        } catch (DatabaseException e) {
+            // if any subsequent calls to setPersistence occur it won't crash...
+            Log.d(TAG, e.getMessage());
+        }
     }
 
     @Override

@@ -12,6 +12,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -36,7 +39,7 @@ import ipleiria.project.add.data.source.ItemsRepository;
 
 import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 
-public class ItemsActivity extends AppCompatActivity {
+public class ItemsActivity extends AppCompatActivity implements ItemsContract.ItemsActivityView{
 
     private static final String TAG = "LIST_ITEM_ACTIVITY";
     private static final String CURRENT_FILTERING_KEY = "ITEMS_FILTER";
@@ -55,7 +58,7 @@ public class ItemsActivity extends AppCompatActivity {
 
     private String action;
 
-    private Spinner spinner;
+    private Spinner spinnerFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +73,7 @@ public class ItemsActivity extends AppCompatActivity {
         setSupportActionBar(t);
         getSupportActionBar().setTitle(null);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        spinner = (Spinner) t.findViewById(R.id.spinner_nav);
-        listView = (ListView) findViewById(R.id.listview);
+        spinnerFilter = (Spinner) t.findViewById(R.id.spinner_nav);
 
         ItemsFragment itemsFragment = (ItemsFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
         if (itemsFragment == null) {
@@ -81,7 +83,7 @@ public class ItemsActivity extends AppCompatActivity {
         }
 
         // Create the presenter
-        itemsPresenter = new ItemsPresenter(ItemsRepository.getInstance(), itemsFragment);
+        itemsPresenter = new ItemsPresenter(ItemsRepository.getInstance(), itemsFragment, this);
 
         // Load previously saved state, if available.
         if (savedInstanceState != null) {
@@ -90,23 +92,7 @@ public class ItemsActivity extends AppCompatActivity {
         }
     }
 
-    public void filterItems(){
-        int position = spinner.getSelectedItemPosition();
-        items = new LinkedList<>();
-        if (position == 0) {
-            updateListView();
-        } else {
-            for (Item i : ApplicationData.getInstance().getItems(listDeleted)) {
-                if (i.getDimension().getReference() == position) {
-                    items.add(i);
-                }
-            }
-            listViewAdapter = new ListItemAdapter(ItemsActivity.this, items, listDeleted, action);
-            listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
-            listView.setAdapter(listViewAdapter);
-        }
-    }
-
+    // TODO: 06-May-17 refactor file share
     private void addFilesToItem(Item itemAtPosition, Intent intent) {
         receivedFiles = new LinkedList<>();
         String action = intent.getAction();
@@ -201,30 +187,9 @@ public class ItemsActivity extends AppCompatActivity {
         return true;
     }
 
-    private SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
-        @Override
-        public void onRefresh() {
-            filterItems();
-            swipeRefreshLayout.setRefreshing(false);
-        }
-    };
-
-    public void updateListView() {
-        items = ApplicationData.getInstance().getItems(listDeleted);
-        listViewAdapter = new ListItemAdapter(this, items, listDeleted, action);
-        listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
-        listView.setAdapter(listViewAdapter);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        if (requestCode == CHANGING_DATA_SET) {
-            // Make sure the request was successful
-            if (resultCode == RESULT_OK) {
-                filterItems();
-            }
-        }
+        itemsPresenter.result(requestCode, resultCode);
     }
 
     @Override
@@ -232,5 +197,25 @@ public class ItemsActivity extends AppCompatActivity {
         outState.putInt(CURRENT_FILTERING_KEY, itemsPresenter.getFiltering());
 
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void setFilters(List<String> filters) {
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, filters);
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerFilter.setAdapter(spinnerArrayAdapter);
+        spinnerFilter.setSelection(0);
+
+        spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                itemsPresenter.setFiltering(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // do nothing
+            }
+        });
     }
 }

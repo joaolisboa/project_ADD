@@ -11,6 +11,8 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -38,8 +40,6 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     private TextView noItemsMainView;
     private TextView noItemsAddView;
     private LinearLayout itemsView;
-    private TextView mFilteringLabelView;
-    private Spinner spinner;
 
     public ItemsFragment() {
         // Requires empty public constructor
@@ -64,16 +64,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         // Set up tasks view
         ListView listView = (ListView) root.findViewById(R.id.items_list);
         listView.setAdapter(listAdapter);
-        mFilteringLabelView = (TextView) root.findViewById(R.id.filteringLabel);
         itemsView = (LinearLayout) root.findViewById(R.id.itemsLL);
-
-        // set up spinner for filtering items
-        // get criteria
-        /*spinner = (Spinner) root.findViewById(R.id.spinner_nav);
-        ArrayAdapter spinnerArrayAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, filters);
-        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(spinnerArrayAdapter);
-        spinner.setSelection(0);*/
 
         // Set up  no tasks view
         noItemsView = root.findViewById(R.id.noItems);
@@ -177,13 +168,13 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     }
 
     @Override
-    public void showNoItemsViews() {
-
+    public void removeDeletedItem(@NonNull Item deletedItem) {
+        listAdapter.onItemRemoved(deletedItem);
     }
 
-    @Override
-    public void filterItems(){
-        presenter.setFiltering(spinner.getSelectedItemPosition());
+    private void showNoItemsViews() {
+        itemsView.setVisibility(View.GONE);
+        noItemsView.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -198,27 +189,27 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
 
         @Override
         public void onDeleteItem(Item deletedItem) {
-
+            presenter.deleteItem(deletedItem);
         }
 
         @Override
         public void onPermanentDeleteItem(Item deletedItem) {
-
+            presenter.permanentlyDeleteItem(deletedItem);
         }
 
         @Override
         public void onEditItem(Item itemToEdit) {
-
+            // TODO: 06-May-17 open addEditAct to edit item
         }
 
         @Override
         public void onRestoreItem(Item restoredItem) {
-
+            presenter.restoreItem(restoredItem);
         }
     };
 
 
-    public interface ItemActionListener {
+    interface ItemActionListener {
 
         void onItemClick(Item clickedIem);
 

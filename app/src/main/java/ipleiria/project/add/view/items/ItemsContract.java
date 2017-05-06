@@ -14,6 +14,12 @@ import ipleiria.project.add.data.model.Item;
  */
 
 public class ItemsContract {
+    interface ItemsActivityView{
+
+        void setFilters(List<String> filters);
+
+    }
+
     interface View extends BaseView<Presenter> {
 
         void setLoadingIndicator(boolean active);
@@ -22,11 +28,9 @@ public class ItemsContract {
 
         void showAddItem();
 
-        void filterItems();
-
         void showAddedItem(@NonNull Item item);
 
-        void showNoItemsViews();
+        void removeDeletedItem(@NonNull Item deletedItem);
 
     }
 
@@ -40,9 +44,9 @@ public class ItemsContract {
 
         void openItemDetails(@NonNull Item item);
 
-        void deleteTask(@NonNull Item completedTask);
+        void deleteItem(@NonNull Item completedTask);
 
-        void permanentlyDeleteTask(@NonNull Item item);
+        void permanentlyDeleteItem(@NonNull Item item);
 
         void restoreItem(@NonNull Item item);
 
