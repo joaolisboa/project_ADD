@@ -37,15 +37,20 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     private int currentFiltering;
     private List<Item> currentFilteredItems;
 
+    private boolean listingDeleted;
+
     private DatabaseReference databaseRef;
     private ChildEventListener itemsListener;
 
-    public ItemsPresenter(@NonNull ItemsRepository itemsRepository, @NonNull ItemsContract.View itemsView, @NonNull ItemsContract.ItemsActivityView activityView) {
+    public ItemsPresenter(@NonNull ItemsRepository itemsRepository, @NonNull ItemsContract.View itemsView,
+                          @NonNull ItemsContract.ItemsActivityView activityView, boolean listingDeleted) {
         this.itemsRepository = itemsRepository;
         this.categoryRepository = CategoryRepository.getInstance();
         this.activityView = activityView;
         this.itemsView = itemsView;
         this.itemsView.setPresenter(this);
+
+        this.listingDeleted = listingDeleted;
 
         this.currentFiltering = 0;
         this.currentFilteredItems = new LinkedList<>();
@@ -91,25 +96,29 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     }
 
     private void setItemsListener() {
-        itemsListener = itemsRepository.getItemsReference().addChildEventListener(
+        DatabaseReference reference = (!listingDeleted ? itemsRepository.getItemsReference() :
+                itemsRepository.getDeletedItemsReference());
+        itemsListener = reference.addChildEventListener(
                 new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                         String key = dataSnapshot.getKey();
-                        itemsRepository.addNewItem(dataSnapshot);
-                        itemsView.showAddedItem(itemsRepository.getItem(key));
+                        itemsRepository.addNewItem(dataSnapshot, listingDeleted);
+                        Item item = (!listingDeleted ? itemsRepository.getItem(key) : itemsRepository.getDeletedItem(key));
+                        itemsView.showAddedItem(item);
                     }
 
                     @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                         String key = dataSnapshot.getKey();
-                        itemsRepository.addNewItem(dataSnapshot);
-                        itemsView.showAddedItem(itemsRepository.getItem(key));
+                        itemsRepository.addNewItem(dataSnapshot, listingDeleted);
+                        Item item = (!listingDeleted ? itemsRepository.getItem(key) : itemsRepository.getDeletedItem(key));
+                        itemsView.showAddedItem(item);
                     }
 
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
-
+                        itemsRepository.deleteItem(dataSnapshot.getKey());
                     }
 
                     @Override
@@ -134,14 +143,18 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     public void showFilteredItems() {
         currentFilteredItems = new LinkedList<>();
         if (currentFiltering == 0) {
-            itemsView.showItems(itemsRepository.getItems());
+            if (!listingDeleted) {
+                processItems(itemsRepository.getItems());
+            } else {
+                processItems(itemsRepository.getDeletedItems());
+            }
         } else {
             for (Item i : itemsRepository.getItems()) {
                 if (i.getDimension().getReference() == currentFiltering) {
                     currentFilteredItems.add(i);
                 }
             }
-            itemsView.showItems(currentFilteredItems);
+            processItems(currentFilteredItems);
         }
     }
 
@@ -160,7 +173,7 @@ public class ItemsPresenter implements ItemsContract.Presenter {
                     matchingItems.add(item);
                 }
             }
-            itemsView.showItems(matchingItems);
+            processItems(matchingItems);
         }
     }
 
@@ -208,6 +221,27 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     @Override
     public int getFiltering() {
         return currentFiltering;
+    }
+
+    @Override
+    public void checkForEmptyList() {
+        if (!listingDeleted) {
+            if(itemsRepository.getItems().isEmpty()) {
+                itemsView.showNoItems();
+            }
+        } else {
+            if(itemsRepository.getDeletedItems().isEmpty()) {
+                itemsView.showNoDeletedItems();
+            }
+        }
+    }
+
+    private void processItems(List<Item> items){
+        if(items.isEmpty()){
+            checkForEmptyList();
+        }else{
+            itemsView.showItems(items);
+        }
     }
 
     private void setItemsFilters() {

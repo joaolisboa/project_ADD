@@ -23,13 +23,17 @@ public interface ItemsDataSource {
 
     List<Item> getDeletedItems();
 
-    Item getItem(@NonNull String itemID);
+    Item getItem(@NonNull String dbKey);
 
-    void addNewItem(@NonNull DataSnapshot itemSnapshot);
+    Item getDeletedItem(@NonNull String dbKey);
+
+    void addNewItem(@NonNull DataSnapshot itemSnapshot, boolean listDeleted);
 
     void saveItem(@NonNull Item item);
 
     void deleteItem(@NonNull Item item);
+
+    void deleteItem(@NonNull String dbKey);
 
     void permanenetlyDeleteItem(@NonNull Item item);
 

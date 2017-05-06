@@ -1,6 +1,5 @@
 package ipleiria.project.add.data.source;
 
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -103,7 +102,17 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     @Override
-    public void addNewItem(@NonNull DataSnapshot itemSnapshot) {
+    public Item getDeletedItem(@NonNull String dbKey) {
+        for(Item item: localDeletedItems){
+            if(item.getDbKey().equals(dbKey)){
+                return item;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void addNewItem(@NonNull DataSnapshot itemSnapshot, boolean listDeleted) {
         Item newItem = itemSnapshot.getValue(Item.class);
         String reference = (String) itemSnapshot.child("reference").getValue();
         String[] s = reference.split("\\.");
@@ -118,22 +127,28 @@ public class ItemsRepository implements ItemsDataSource {
             file.setDbKey(fileSnapshot.getKey());
             newItem.addFile(file);
         }
-        addItem(newItem);
+        addItem(newItem, listDeleted);
     }
 
-    private void addItem(Item item){
-        int pos = localItems.indexOf(item);
+    private void addItem(Item item, boolean listDeleted){
+        List<Item> itemDestination = (!listDeleted ? localItems : localDeletedItems);
+        int pos = itemDestination.indexOf(item);
         if(pos < 0){
-            localItems.add(item);
+            itemDestination.add(item);
         }else{
-            localItems.remove(pos);
-            localItems.add(pos, item);
+            itemDestination.remove(pos);
+            itemDestination.add(pos, item);
         }
     }
 
     @Override
     public void saveItem(@NonNull Item item) {
         // save in firebase
+    }
+
+    @Override
+    public void deleteItem(@NonNull String dbKey){
+        localItems.remove(getItem(dbKey));
     }
 
     @Override
@@ -197,16 +212,14 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     private void writeItem(Item item){
-        DatabaseReference itemRef = itemsReference.getRef();
-        itemRef.setValue(getFormattedItem(item, itemsReference.getRef()));
+        writeItemToRef(item, itemsReference);
     }
 
     private void writeDeletedItem(Item item){
-        DatabaseReference itemRef = deletedItemsReference.getRef();
-        itemRef.setValue(getFormattedItem(item, deletedItemsReference.getRef()));
+        writeItemToRef(item, deletedItemsReference);
     }
 
-    private Map<String, Object> getFormattedItem(Item item, DatabaseReference itemRef){
+    private void writeItemToRef(Item item, DatabaseReference itemRef){
         Map<String, Object> values = new HashMap<>();
         if(item.getDbKey() == null || item.getDbKey().isEmpty()){
             itemRef = itemRef.push();
@@ -231,7 +244,7 @@ public class ItemsRepository implements ItemsDataSource {
         values.put("files", fileList);
         values.put("reference", item.getCategoryReference());
         values.put("description", item.getDescription());
-        return values;
+        itemRef.setValue(values);
     }
 
 }

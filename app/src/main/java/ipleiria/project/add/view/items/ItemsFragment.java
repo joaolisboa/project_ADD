@@ -22,6 +22,7 @@ import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
+import static ipleiria.project.add.view.items.ItemsActivity.LIST_DELETED_KEY;
 
 /**
  * Created by Lisboa on 04-May-17.
@@ -49,7 +50,9 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        listAdapter = new ItemAdapter(new LinkedList<Item>(), mItemListener, false);
+
+        boolean listDeleted = getActivity().getIntent().getBooleanExtra(LIST_DELETED_KEY, false);
+        listAdapter = new ItemAdapter(new LinkedList<Item>(), mItemListener, listDeleted);
     }
 
     @Nullable
@@ -167,15 +170,28 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     @Override
     public void removeDeletedItem(@NonNull Item deletedItem) {
         listAdapter.onItemRemoved(deletedItem);
+        presenter.checkForEmptyList();
     }
 
-    private void showNoItemsViews() {
+    @Override
+    public void showNoItems() {
+        showNoItemsViews(getString(R.string.no_items));
+    }
+
+    @Override
+    public void showNoDeletedItems() {
+        showNoItemsViews(getString(R.string.no_deleted_items));
+    }
+
+    private void showNoItemsViews(String mainText) {
         itemsView.setVisibility(View.GONE);
         noItemsView.setVisibility(View.VISIBLE);
+
+        noItemsMainView.setText(mainText);
     }
 
     /**
-     * Listener for clicks on items in the ListView.
+     * Listener for clicks on item and swipeLayout in the ListView.
      */
     ItemActionListener mItemListener = new ItemActionListener() {
 

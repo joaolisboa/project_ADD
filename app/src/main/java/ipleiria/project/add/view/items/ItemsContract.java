@@ -32,6 +32,10 @@ public class ItemsContract {
 
         void removeDeletedItem(@NonNull Item deletedItem);
 
+        void showNoItems();
+
+        void showNoDeletedItems();
+
     }
 
     interface Presenter extends BasePresenter {
@@ -55,5 +59,7 @@ public class ItemsContract {
         void setFiltering(int requestType);
 
         int getFiltering();
+
+        void checkForEmptyList();
     }
 }

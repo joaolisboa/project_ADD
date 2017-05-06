@@ -30,9 +30,11 @@ import ipleiria.project.add.Utils.ActivityUtils;
 import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.UserService;
+import ipleiria.project.add.view.items.ItemsActivity;
 
 import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 import static ipleiria.project.add.data.source.UserService.USER_DATA;
+import static ipleiria.project.add.view.items.ItemsActivity.LIST_DELETED_KEY;
 
 /**
  * Created by Lisboa on 04-May-17.
@@ -74,7 +76,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
         SharedPreferences preferences = getSharedPreferences(USER_DATA, MODE_PRIVATE);
         presenter = new MainPresenter(UserService.initUserInstance(preferences), mainFragment, this);
- 
+
         // should run when app starts
         try {
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
@@ -101,6 +103,10 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
         if (id == R.id.nav_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
+        }else if(id == R.id.nav_trash) {
+            Intent intent = new Intent(this, ItemsActivity.class);
+            intent.putExtra(LIST_DELETED_KEY, true);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

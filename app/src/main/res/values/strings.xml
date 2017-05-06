@@ -122,7 +122,8 @@
 
     <string name="action_settings">Settings</string>
     <string name="no_items_add">Add a new item</string>
-    <string name="no_items_all">You have no items!</string>
+    <string name="no_deleted_items">You have no deleted items!</string>
+    <string name="no_items">You have no items!</string>
 
 
 </resources>

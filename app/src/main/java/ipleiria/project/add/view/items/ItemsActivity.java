@@ -45,6 +45,8 @@ public class ItemsActivity extends AppCompatActivity implements ItemsContract.It
 
     private static final String TAG = "LIST_ITEM_ACTIVITY";
     private static final String CURRENT_FILTERING_KEY = "ITEMS_FILTER";
+
+    public static final String LIST_DELETED_KEY = "list_deleted";
     public static final int CHANGING_DATA_SET = 2001;
 
     private boolean listDeleted;
@@ -69,7 +71,7 @@ public class ItemsActivity extends AppCompatActivity implements ItemsContract.It
 
         final Intent intent = getIntent();
         final String action = intent.getAction();
-        listDeleted = intent.getBooleanExtra("list_deleted", false);
+        listDeleted = intent.getBooleanExtra(LIST_DELETED_KEY, false);
 
         Toolbar t = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(t);
@@ -85,13 +87,7 @@ public class ItemsActivity extends AppCompatActivity implements ItemsContract.It
         }
 
         // Create the presenter
-        itemsPresenter = new ItemsPresenter(ItemsRepository.getInstance(), itemsFragment, this);
-
-        // Load previously saved state, if available.
-        if (savedInstanceState != null) {
-            int currentFiltering = savedInstanceState.getInt(CURRENT_FILTERING_KEY, 0);
-            itemsPresenter.setFiltering(currentFiltering);
-        }
+        itemsPresenter = new ItemsPresenter(ItemsRepository.getInstance(), itemsFragment, this, listDeleted);
     }
 
     // TODO: 06-May-17 refactor file share
@@ -175,13 +171,6 @@ public class ItemsActivity extends AppCompatActivity implements ItemsContract.It
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         itemsPresenter.result(requestCode, resultCode);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(CURRENT_FILTERING_KEY, itemsPresenter.getFiltering());
-
-        super.onSaveInstanceState(outState);
     }
 
     @Override
