@@ -215,15 +215,15 @@ public class ListItemActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 List<Item> pesquisa = new LinkedList<>();
 
-                newText = StringUtils.removeDiacriticalMarks(newText);
+                newText = StringUtils.replaceDiacriticalMarks(newText);
 
                 if (TextUtils.isEmpty(newText)) {
                     pesquisa = items;
                 } else {
                     String query = newText.toLowerCase();
                     for (Item i : items) {
-                        String iString = StringUtils.removeDiacriticalMarks(i.getCriteria().getName().toLowerCase());
-                        String iDesc = StringUtils.removeDiacriticalMarks(i.getDescription().toLowerCase());
+                        String iString = StringUtils.replaceDiacriticalMarks(i.getCriteria().getName().toLowerCase());
+                        String iDesc = StringUtils.replaceDiacriticalMarks(i.getDescription().toLowerCase());
                         if (iString.contains(query) || iDesc.contains(query)) {
                             pesquisa.add(i);
                         }

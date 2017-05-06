@@ -7,7 +7,11 @@ import java.text.Normalizer;
  */
 
 public class StringUtils {
-    public static String removeDiacriticalMarks(String string) {
+
+    /**
+     * Removes/substitutes special characters, ie. atenção -> atencao
+     */
+    public static String replaceDiacriticalMarks(String string) {
         return Normalizer.normalize(string, Normalizer.Form.NFD)
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
     }

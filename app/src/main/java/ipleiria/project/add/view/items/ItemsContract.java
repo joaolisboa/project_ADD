@@ -38,7 +38,9 @@ public class ItemsContract {
 
         void result(int requestCode, int resultCode);
 
-        void getFilteredItems();
+        void showFilteredItems();
+
+        void searchItems(String query);
 
         void addNewItem();
 

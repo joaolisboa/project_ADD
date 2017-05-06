@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.items;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.firebase.database.ChildEventListener;
@@ -13,7 +14,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.LinkedList;
 import java.util.List;
 
-import ipleiria.project.add.Model.ApplicationData;
+import ipleiria.project.add.Utils.StringUtils;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.CategoryRepository;
@@ -24,7 +25,7 @@ import ipleiria.project.add.data.source.ItemsRepository;
  * Created by Lisboa on 04-May-17.
  */
 
-public class ItemsPresenter implements ItemsContract.Presenter{
+public class ItemsPresenter implements ItemsContract.Presenter {
 
     private static final String TAG = "ITEMS_PRESENTER";
 
@@ -34,6 +35,7 @@ public class ItemsPresenter implements ItemsContract.Presenter{
     private final ItemsContract.ItemsActivityView activityView;
 
     private int currentFiltering;
+    private List<Item> currentFilteredItems;
 
     private DatabaseReference databaseRef;
     private ChildEventListener itemsListener;
@@ -46,18 +48,26 @@ public class ItemsPresenter implements ItemsContract.Presenter{
         this.itemsView.setPresenter(this);
 
         this.currentFiltering = 0;
+        this.currentFilteredItems = new LinkedList<>();
 
         this.databaseRef = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
     public void subscribe() {
-        if(!categoryRepository.getDimensions().isEmpty()) {
+        if (!categoryRepository.getDimensions().isEmpty()) {
             setItemsFilters();
             setItemsListener();
-        }else{
+        } else {
             itemsView.setLoadingIndicator(true);
             readCategories();
+        }
+    }
+
+    @Override
+    public void unsubscribe() {
+        if (itemsListener != null) {
+            databaseRef.removeEventListener(itemsListener);
         }
     }
 
@@ -78,13 +88,6 @@ public class ItemsPresenter implements ItemsContract.Presenter{
                 Log.e(TAG, databaseError.getMessage(), databaseError.toException());
             }
         });
-    }
-
-    @Override
-    public void unsubscribe() {
-        if(itemsListener != null) {
-            databaseRef.removeEventListener(itemsListener);
-        }
     }
 
     private void setItemsListener() {
@@ -128,18 +131,44 @@ public class ItemsPresenter implements ItemsContract.Presenter{
     }
 
     @Override
-    public void getFilteredItems() {
-        List<Item> items = new LinkedList<>();
+    public void showFilteredItems() {
+        currentFilteredItems = new LinkedList<>();
         if (currentFiltering == 0) {
             itemsView.showItems(itemsRepository.getItems());
         } else {
             for (Item i : itemsRepository.getItems()) {
                 if (i.getDimension().getReference() == currentFiltering) {
-                    items.add(i);
+                    currentFilteredItems.add(i);
                 }
             }
-            itemsView.showItems(items);
+            itemsView.showItems(currentFilteredItems);
         }
+    }
+
+    @Override
+    public void searchItems(String query) {
+        List<Item> matchingItems = new LinkedList<>();
+
+        query = StringUtils.replaceDiacriticalMarks(query).toLowerCase();
+
+        if (TextUtils.isEmpty(query)) {
+            showFilteredItems();
+        } else {
+            List<Item> searchingList = (currentFilteredItems.isEmpty() ? itemsRepository.getItems() : currentFilteredItems);
+            for (Item item : searchingList) {
+                if (itemMatchesQuery(item, query)) {
+                    matchingItems.add(item);
+                }
+            }
+            itemsView.showItems(matchingItems);
+        }
+    }
+
+    private boolean itemMatchesQuery(Item item, String query) {
+        String criteriaName = StringUtils.replaceDiacriticalMarks(item.getCriteria().getName().toLowerCase());
+        String itemDescription = StringUtils.replaceDiacriticalMarks(item.getDescription().toLowerCase());
+
+        return criteriaName.contains(query) || itemDescription.contains(query);
     }
 
     @Override
@@ -173,7 +202,7 @@ public class ItemsPresenter implements ItemsContract.Presenter{
     @Override
     public void setFiltering(int requestType) {
         currentFiltering = requestType;
-        getFilteredItems();
+        showFilteredItems();
     }
 
     @Override
@@ -184,7 +213,7 @@ public class ItemsPresenter implements ItemsContract.Presenter{
     private void setItemsFilters() {
         List<String> filters = new LinkedList<>();
         filters.add("All");
-        for(Dimension d: categoryRepository.getDimensions()){
+        for (Dimension d : categoryRepository.getDimensions()) {
             filters.add(d.getName());
         }
         activityView.setFilters(filters);

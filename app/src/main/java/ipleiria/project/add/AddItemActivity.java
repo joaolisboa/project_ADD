@@ -305,7 +305,7 @@ public class AddItemActivity extends AppCompatActivity {
             searchResults.clear();
 
 
-            newText = StringUtils.removeDiacriticalMarks(newText);
+            newText = StringUtils.replaceDiacriticalMarks(newText);
 
             if (TextUtils.isEmpty(newText)) {
                 searchListView.setVisibility(View.GONE);
@@ -314,7 +314,7 @@ public class AddItemActivity extends AppCompatActivity {
             } else {
                 String query = newText.toLowerCase();
                 for (Criteria criterio : criterias) {
-                    String stringcriterio = StringUtils.removeDiacriticalMarks(criterio.getName().toLowerCase());
+                    String stringcriterio = StringUtils.replaceDiacriticalMarks(criterio.getName().toLowerCase());
                     if (stringcriterio.contains(query)) {
                         searchResults.add(criterio);
                     }

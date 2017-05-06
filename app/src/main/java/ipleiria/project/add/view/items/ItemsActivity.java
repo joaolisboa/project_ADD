@@ -1,5 +1,6 @@
 package ipleiria.project.add.view.items;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -150,36 +152,19 @@ public class ItemsActivity extends AppCompatActivity implements ItemsContract.It
         getMenuInflater().inflate(R.menu.list_item_menu, menu);
 
         MenuItem searchItem = menu.findItem(R.id.app_bar_search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                List<Item> pesquisa = new LinkedList<>();
-
-                newText = StringUtils.removeDiacriticalMarks(newText);
-
-                if (TextUtils.isEmpty(newText)) {
-                    pesquisa = items;
-                } else {
-                    String query = newText.toLowerCase();
-                    for (Item i : items) {
-                        String iString = StringUtils.removeDiacriticalMarks(i.getCriteria().getName().toLowerCase());
-                        String iDesc = StringUtils.removeDiacriticalMarks(i.getDescription().toLowerCase());
-                        if (iString.contains(query) || iDesc.contains(query)) {
-                            pesquisa.add(i);
-                        }
-                    }
-
-                }
-                listViewAdapter = new ListItemAdapter(ItemsActivity.this, pesquisa, listDeleted, action);
-                listViewAdapter.setMode(com.daimajia.swipe.util.Attributes.Mode.Single);
-                listView.setAdapter(listViewAdapter);
+                itemsPresenter.searchItems(newText);
                 return false;
             }
         });
