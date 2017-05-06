@@ -15,6 +15,7 @@ public class SettingsContract {
 
     interface Presenter extends BasePresenter{
 
+
     }
 
 }

@@ -35,15 +35,13 @@ public class ItemAdapter extends BaseSwipeAdapter {
     private ItemsFragment.ItemActionListener actionsListener;
 
     public ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listDeleted){
-        this.listItems = new LinkedList<>();
         setList(listItems);
         this.actionsListener = actionsListener;
         this.listDeleted = listDeleted;
     }
 
     private void setList(List<Item> items){
-        listItems.clear();
-        listItems.addAll(items);
+        listItems = items;
     }
 
     public void replaceData(List<Item> items) {
@@ -57,32 +55,24 @@ public class ItemAdapter extends BaseSwipeAdapter {
     }
 
     @Override
-    public View generateView(int position, ViewGroup parent) {
-        return LayoutInflater.from(parent.getContext()).inflate(R.layout.items_adapter_item, null);
-    }
+    public View generateView(final int position, ViewGroup parent) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.items_adapter_item, null);
+        Context context = parent.getContext();
 
-    // update all views with data concerning the item
-    // notifyDataSetChanged won't call generateView unless there's new items
-    // so if a position is already occupied it'll keep old incorrect data
-    @Override
-    public void fillValues(int position, View convertView) {
-        System.out.println("-----------------------filling list with values");
-        final Item item = (Item) getItem(position);
-        Context context = convertView.getContext();
-        final SwipeLayout swipeLayout = (SwipeLayout) convertView.findViewById(R.id.bottom_layout_actions);
+        final SwipeLayout swipeLayout = (SwipeLayout) itemView.findViewById(R.id.bottom_layout_actions);
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
         swipeLayout.setClickToClose(true);
         if (action != null) {
             swipeLayout.setSwipeEnabled(false);
         }
-        FrameLayout itemLayout = (FrameLayout) convertView.findViewById(R.id.item_view);
-        ImageView button1 = (ImageView) convertView.findViewById(R.id.action_1);
-        ImageView button2 = (ImageView) convertView.findViewById(R.id.action_2);
+        FrameLayout itemLayout = (FrameLayout) itemView.findViewById(R.id.item_view);
+        ImageView button1 = (ImageView) itemView.findViewById(R.id.action_1);
+        ImageView button2 = (ImageView) itemView.findViewById(R.id.action_2);
 
         itemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                actionsListener.onItemClick(item);
+                actionsListener.onItemClick((Item) getItem(position));
             }
         });
         if (!listDeleted) {
@@ -97,12 +87,11 @@ public class ItemAdapter extends BaseSwipeAdapter {
             @Override
             public void onClick(View v) {
                 if(!listDeleted) {
-                    actionsListener.onEditItem(item);
-                    swipeLayout.close(false);
+                    actionsListener.onEditItem((Item) getItem(position));
                 }else{
-                    actionsListener.onRestoreItem(item);
-                    swipeLayout.close(false);
+                    actionsListener.onRestoreItem((Item) getItem(position));
                 }
+                swipeLayout.close(false);
             }
         });
 
@@ -110,14 +99,23 @@ public class ItemAdapter extends BaseSwipeAdapter {
             @Override
             public void onClick(View v) {
                 if(!listDeleted) {
-                    actionsListener.onDeleteItem(item);
-                    swipeLayout.close(false);
+                    actionsListener.onDeleteItem((Item) getItem(position));
                 }else{
-                    actionsListener.onPermanentDeleteItem(item);
-                    swipeLayout.close(false);
+                    actionsListener.onPermanentDeleteItem((Item) getItem(position));
                 }
+                swipeLayout.close(false);
             }
         });
+
+        return itemView;
+    }
+
+    // update all views with data concerning the item
+    // notifyDataSetChanged won't call generateView unless there's new items
+    // so if a position is already occupied it'll call this method
+    @Override
+    public void fillValues(int position, View convertView) {
+        Item item = (Item) getItem(position);
         TextView itemName = (TextView) convertView.findViewById(R.id.title_text_view);
         TextView itemCriteria = (TextView) convertView.findViewById(R.id.category_text_view);
         TextView numFilesView = (TextView) convertView.findViewById(R.id.num_files);
