@@ -21,10 +21,10 @@ import com.squareup.picasso.Picasso;
 
 import ipleiria.project.add.*;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
-import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.data.model.User;
+import ipleiria.project.add.view.GoogleSignInActivity;
 
 /**
  * Created by Lisboa on 06-May-17.
