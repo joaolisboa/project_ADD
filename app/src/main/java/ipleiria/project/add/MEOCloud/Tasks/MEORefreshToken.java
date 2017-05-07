@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud.Tasks;
+package ipleiria.project.add.MEOCloud.tasks;
 
 import android.os.AsyncTask;
 import android.util.Log;

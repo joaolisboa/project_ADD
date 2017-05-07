@@ -1,16 +1,16 @@
-package ipleiria.project.add.MEOCloud.Tasks;
+package ipleiria.project.add.MEOCloud.tasks;
 
 import android.os.AsyncTask;
 
 import java.io.IOException;
 import java.util.HashMap;
 
-import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingRemoteFilePathException;
+import ipleiria.project.add.MEOCloud.data.MEOCloudResponse;
+import ipleiria.project.add.MEOCloud.data.MEOMetadata;
+import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.exceptions.MissingAccessTokenException;
+import ipleiria.project.add.MEOCloud.exceptions.MissingParametersException;
+import ipleiria.project.add.MEOCloud.exceptions.MissingRemoteFilePathException;
 import ipleiria.project.add.MEOCloud.HttpRequestor;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;

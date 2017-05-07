@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud.Tasks;
+package ipleiria.project.add.MEOCloud.tasks;
 
 import android.os.AsyncTask;
 
@@ -11,14 +11,14 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 
-import ipleiria.project.add.MEOCloud.Data.MEOCloudResponse;
-import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.Exceptions.InvalidQuerySizeException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingFilePathException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingParametersException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingSearchParameter;
+import ipleiria.project.add.MEOCloud.data.MEOCloudResponse;
+import ipleiria.project.add.MEOCloud.data.MEOMetadata;
+import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.exceptions.InvalidQuerySizeException;
+import ipleiria.project.add.MEOCloud.exceptions.MissingAccessTokenException;
+import ipleiria.project.add.MEOCloud.exceptions.MissingFilePathException;
+import ipleiria.project.add.MEOCloud.exceptions.MissingParametersException;
+import ipleiria.project.add.MEOCloud.exceptions.MissingSearchParameter;
 import ipleiria.project.add.MEOCloud.HttpRequestor;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;

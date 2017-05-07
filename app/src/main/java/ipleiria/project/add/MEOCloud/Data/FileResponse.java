@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud.Data;
+package ipleiria.project.add.MEOCloud.data;
 
 import android.support.annotation.NonNull;
 

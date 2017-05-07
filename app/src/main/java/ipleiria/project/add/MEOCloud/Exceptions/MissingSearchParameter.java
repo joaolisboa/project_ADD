@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud.Exceptions;
+package ipleiria.project.add.MEOCloud.exceptions;
 
 /**
  * Created by J on 28/03/2017.

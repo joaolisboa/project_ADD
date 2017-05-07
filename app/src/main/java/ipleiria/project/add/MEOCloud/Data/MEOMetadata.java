@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud.Data;
+package ipleiria.project.add.MEOCloud.data;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

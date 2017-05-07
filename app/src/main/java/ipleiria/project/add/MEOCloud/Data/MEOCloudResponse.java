@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud.Data;
+package ipleiria.project.add.MEOCloud.data;
 
 import ipleiria.project.add.MEOCloud.ErrorMessageResponse;
 import ipleiria.project.add.Utils.HttpStatus;
@@ -33,7 +33,7 @@ public class MEOCloudResponse<Object> {
     }
 
     public String getError() {
-        return error;
+        return "ERROR_CODE=" + code + ": " + error;
     }
 
     public Object getResponse() {
