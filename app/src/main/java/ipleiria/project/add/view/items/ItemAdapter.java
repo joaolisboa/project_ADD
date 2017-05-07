@@ -21,8 +21,6 @@ import ipleiria.project.add.ItemDetailActivity;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 
-import static ipleiria.project.add.ListItemActivity.CHANGING_DATA_SET;
-
 /**
  * Created by Lisboa on 06-May-17.
  */
@@ -34,17 +32,18 @@ public class ItemAdapter extends BaseSwipeAdapter {
     private String action;
     private ItemsFragment.ItemActionListener actionsListener;
 
-    public ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listDeleted){
+    ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listDeleted, String action){
         setList(listItems);
         this.actionsListener = actionsListener;
         this.listDeleted = listDeleted;
+        this.action = action;
     }
 
     private void setList(List<Item> items){
         listItems = items;
     }
 
-    public void replaceData(List<Item> items) {
+    void replaceData(List<Item> items) {
         setList(items);
         notifyDataSetChanged();
     }

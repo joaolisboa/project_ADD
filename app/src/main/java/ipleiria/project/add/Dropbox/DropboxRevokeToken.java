@@ -12,15 +12,10 @@ import com.dropbox.core.v2.DbxClientV2;
 public class DropboxRevokeToken extends AsyncTask<String, Void, Void> {
 
     private final DbxClientV2 mDbxClient;
-    private final DropboxRevokeToken.Callback mCallback;
+    private final DropboxCallback<Void> mCallback;
     private Exception mException;
 
-    public interface Callback {
-        void onComplete();
-        void onError(Exception e);
-    }
-
-    public DropboxRevokeToken(DbxClientV2 dbxClient, DropboxRevokeToken.Callback callback) {
+    public DropboxRevokeToken(DbxClientV2 dbxClient, DropboxCallback<Void> callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }
@@ -31,7 +26,7 @@ public class DropboxRevokeToken extends AsyncTask<String, Void, Void> {
         if (mException != null) {
             mCallback.onError(mException);
         } else {
-            mCallback.onComplete();
+            mCallback.onComplete(result);
         }
     }
 

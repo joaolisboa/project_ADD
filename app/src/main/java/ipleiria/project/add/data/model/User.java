@@ -23,7 +23,7 @@ public class User {
     String email;
     List<String> secondaryEmails;
     Uri photo_url;
-    boolean isAnonymous = true;
+    boolean isAnonymous;
 
     public User() {
     }
@@ -83,5 +83,10 @@ public class User {
 
     public void setAnonymous(@NonNull boolean anonymous) {
         isAnonymous = anonymous;
+    }
+
+    @Override
+    public String toString(){
+        return name + ":" + email + ":" + isAnonymous;
     }
 }

@@ -38,6 +38,7 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     private List<Item> currentFilteredItems;
 
     private boolean listingDeleted;
+    private String action;
 
     private DatabaseReference databaseRef;
     private ChildEventListener itemsListener;
@@ -234,6 +235,16 @@ public class ItemsPresenter implements ItemsContract.Presenter {
                 itemsView.showNoDeletedItems();
             }
         }
+    }
+
+    @Override
+    public void setIntentAction(String action) {
+        this.action = action;
+    }
+
+    @Override
+    public String getIntentAction() {
+        return action;
     }
 
     private void processItems(List<Item> items){

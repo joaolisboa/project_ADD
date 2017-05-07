@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.items;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,7 +32,7 @@ import static ipleiria.project.add.view.items.ItemsActivity.LIST_DELETED_KEY;
 
 public class ItemsFragment extends Fragment implements ItemsContract.View{
 
-    private ItemsContract.Presenter presenter;
+    private ItemsContract.Presenter itemsPresenter;
 
     private ItemAdapter listAdapter;
 
@@ -52,7 +54,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         super.onCreate(savedInstanceState);
 
         boolean listDeleted = getActivity().getIntent().getBooleanExtra(LIST_DELETED_KEY, false);
-        listAdapter = new ItemAdapter(new LinkedList<Item>(), mItemListener, listDeleted);
+        listAdapter = new ItemAdapter(new LinkedList<Item>(), mItemListener, listDeleted, itemsPresenter.getIntentAction());
     }
 
     @Nullable
@@ -100,7 +102,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                presenter.showFilteredItems();
+                itemsPresenter.showFilteredItems();
             }
         });
 
@@ -112,23 +114,23 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     @Override
     public void onResume() {
         super.onResume();
-        presenter.subscribe();
+        itemsPresenter.subscribe();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        presenter.unsubscribe();
+        itemsPresenter.unsubscribe();
     }
 
     @Override
     public void setPresenter(@NonNull ItemsContract.Presenter presenter) {
-        this.presenter = checkNotNull(presenter);
+        this.itemsPresenter = checkNotNull(presenter);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        presenter.result(requestCode, resultCode);
+        itemsPresenter.result(requestCode, resultCode);
     }
 
     @Override
@@ -170,7 +172,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     @Override
     public void removeDeletedItem(@NonNull Item deletedItem) {
         listAdapter.onItemRemoved(deletedItem);
-        presenter.checkForEmptyList();
+        itemsPresenter.checkForEmptyList();
     }
 
     @Override
@@ -181,6 +183,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     @Override
     public void showNoDeletedItems() {
         showNoItemsViews(getString(R.string.no_deleted_items));
+        noItemsAddView.setVisibility(View.GONE);
     }
 
     private void showNoItemsViews(String mainText) {
@@ -188,6 +191,58 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         noItemsView.setVisibility(View.VISIBLE);
 
         noItemsMainView.setText(mainText);
+    }
+
+    // TODO: 06-May-17 refactor file share
+    private void addFilesToItem(Item itemAtPosition) {
+        /*receivedFiles = new LinkedList<>();
+        String action = intent.getAction();
+        String type = intent.getType();
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            handleSingleFile(intent);
+        } else if (SENDING_PHOTO.equals(action)){
+            handleFile(Uri.parse(intent.getStringExtra( "photo_uri")));
+
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+            handleMultipleFiles(intent);
+        }
+        List<ItemFile> itemFiles = new LinkedList<>();
+        for (Uri uri : receivedFiles) {
+            itemFiles.add(new ItemFile(UriHelper.getFileName(ItemsActivity.this, uri)));
+        }
+        itemAtPosition.addFiles(itemFiles);
+        if (NetworkState.isOnline(this)) {
+            for(int i = 0; i < receivedFiles.size(); i++){
+                Log.d("FILE_UPLOAD", "uploading file: " + UriHelper.getFileName(ItemsActivity.this, receivedFiles.get(i)));
+                CloudHandler.uploadFileToCloud(this, receivedFiles.get(i),
+                        itemFiles.get(i), itemAtPosition.getCriteria());
+            }
+        }else{
+            for(int i = 0; i < receivedFiles.size(); i++){
+                FileUtils.copyFileToLocalDir(this, receivedFiles.get(i), itemAtPosition.getCriteria());
+            }
+        }
+        if (ApplicationData.getInstance().getUserUID() != null) {
+            FirebaseHandler.getInstance().writeItem(itemAtPosition);
+        }
+        Toast.makeText(this, "File added to item", Toast.LENGTH_SHORT).show();*/
+    }
+
+    private void handleFile(Uri uri) {
+        //receivedFiles.add(uri);
+    }
+
+    private void handleSingleFile(Intent intent) {
+        //handleFile((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
+    }
+
+    private void handleMultipleFiles(Intent intent) {
+        ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+        if (uris != null) {
+            for (Uri uri : uris) {
+                handleFile(uri);
+            }
+        }
     }
 
     /**
@@ -198,16 +253,17 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         @Override
         public void onItemClick(Item clickedIem) {
             // TODO: 06-May-17 open item details act
+
         }
 
         @Override
         public void onDeleteItem(Item deletedItem) {
-            presenter.deleteItem(deletedItem);
+            itemsPresenter.deleteItem(deletedItem);
         }
 
         @Override
         public void onPermanentDeleteItem(Item deletedItem) {
-            presenter.permanentlyDeleteItem(deletedItem);
+            itemsPresenter.permanentlyDeleteItem(deletedItem);
         }
 
         @Override
@@ -217,7 +273,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
 
         @Override
         public void onRestoreItem(Item restoredItem) {
-            presenter.restoreItem(restoredItem);
+            itemsPresenter.restoreItem(restoredItem);
         }
     };
 

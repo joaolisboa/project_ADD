@@ -26,11 +26,11 @@ import java.util.Map;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.DropboxGetAccount;
-import ipleiria.project.add.MEOCloud.Data.Account;
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.data.Account;
+import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.Tasks.MEOGetAccount;
+import ipleiria.project.add.MEOCloud.tasks.MEOGetAccount;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Criteria;
@@ -254,36 +254,6 @@ public class FirebaseHandler {
                 Log.e(TAG, databaseError.getMessage(), databaseError.toException());
             }
         });
-        if(NetworkState.isOnline(context)) {
-            if (MEOCloudClient.isClientInitialized()) {
-                new MEOGetAccount(new MEOCallback<Account>() {
-                    @Override
-                    public void onComplete(Account result) {
-                        ApplicationData.getInstance().addEmail(new Email(result.getEmail(), true));
-                    }
-
-                    @Override
-                    public void onRequestError(HttpErrorException httpE) {
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                    }
-                }).execute();
-            }
-            if (DropboxClientFactory.isClientInitialized()) {
-                new DropboxGetAccount(DropboxClientFactory.getClient(), new DropboxGetAccount.Callback() {
-                    @Override
-                    public void onComplete(FullAccount result) {
-                        ApplicationData.getInstance().addEmail(new Email(result.getEmail(), true));
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                    }
-                }).execute();
-            }
-        }
     }
 
     public void writeUserInfo(){

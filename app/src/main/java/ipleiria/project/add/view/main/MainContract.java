@@ -8,6 +8,7 @@ import java.util.List;
 import ipleiria.project.add.BasePresenter;
 import ipleiria.project.add.BaseView;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.view.items.ItemsContract;
 
 /**
@@ -24,7 +25,7 @@ public class MainContract {
 
     interface DrawerView {
 
-        void setUserInfo();
+        void setUserInfo(User user);
 
     }
 

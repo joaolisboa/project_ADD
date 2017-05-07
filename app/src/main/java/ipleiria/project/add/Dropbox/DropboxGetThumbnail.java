@@ -22,15 +22,10 @@ public class DropboxGetThumbnail  extends AsyncTask<String, Void, File> {
 
     private final Context mContext;
     private final DbxClientV2 mDbxClient;
-    private final DropboxGetThumbnail.Callback mCallback;
+    private final DropboxCallback<File> mCallback;
     private Exception mException;
 
-    public interface Callback {
-        void onDownloadComplete(File result);
-        void onError(Exception e);
-    }
-
-    public DropboxGetThumbnail(Context context, DbxClientV2 dbxClient, DropboxGetThumbnail.Callback callback) {
+    public DropboxGetThumbnail(Context context, DbxClientV2 dbxClient, DropboxCallback<File> callback) {
         mContext = context;
         mDbxClient = dbxClient;
         mCallback = callback;
@@ -42,7 +37,7 @@ public class DropboxGetThumbnail  extends AsyncTask<String, Void, File> {
         if (mException != null) {
             mCallback.onError(mException);
         } else {
-            mCallback.onDownloadComplete(result);
+            mCallback.onComplete(result);
         }
     }
 

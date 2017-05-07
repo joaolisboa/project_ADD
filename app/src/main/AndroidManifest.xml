@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.main.MainActivity"
+        <activity
+            android:name=".view.main.MainActivity"
             android:theme="@style/AppTheme.OverlapSystemBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,25 +24,50 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.items.ItemsActivity"
+        <activity
+            android:name=".view.items.ItemsActivity"
+            android:label="@string/share_activity_label"
             android:parentActivityName=".view.main.MainActivity"
-            android:theme="@style/AppTheme.OverlapSystemBar">
+            android:theme="@style/AppTheme.OverlapSystemBar"
+            android:windowSoftInputMode="stateHidden">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.main.MainActivity" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="*/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="*/*" />
+            </intent-filter>
         </activity>
-
-
-
-
-
-
-
-
         <activity
-            android:name=".MainActivity">
+            android:name=".view.settings.SettingsActivity"
+            android:parentActivityName=".view.main.MainActivity"
+            android:theme="@style/AppTheme.OverlapSystemBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.main.MainActivity" />
         </activity>
+        <activity
+            android:name=".GoogleSignInActivity"
+            android:parentActivityName=".view.settings.SettingsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.settings.SettingsActivity" />
+        </activity>
+
+
+        <activity android:name=".MainActivity"></activity>
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
             android:configChanges="orientation|keyboard"
@@ -66,49 +92,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
+                    android:host="ipleiria.project.add"
                     android:path="/oauth2redirect"
-                    android:scheme="http"
-                    android:host="ipleiria.project.add" />
+                    android:scheme="http" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddItemActivity"
-            android:windowSoftInputMode="stateHidden"/>
         <activity
-            android:name=".ListItemActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/share_activity_label"
-            android:windowSoftInputMode="stateHidden">
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="*/*" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND_MULTIPLE" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="*/*" />
-            </intent-filter>
-        </activity>
+            android:name=".AddItemActivity"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".SelectCategoryActivity" />
-        <activity
-            android:name=".SettingsActivity"
-            android:label="Settings"
-            android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".GoogleSignInActivity"
-            android:parentActivityName=".SettingsActivity" />
-        <activity
-            android:name=".ListEmailActivity"
-            android:parentActivityName=".SettingsActivity" />
-        <activity
-            android:name=".ItemDetailActivity"
-            android:label="@string/title_activity_item_detail"
-            android:parentActivityName=".ListItemActivity">
-        </activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -124,8 +116,7 @@
             android:authorities="ipleiria.project.add"
             android:exported="true"
             android:grantUriPermissions="true"
-            tools:ignore="ExportedContentProvider">
-        </provider>
+            tools:ignore="ExportedContentProvider"></provider>
 
     </application>
 

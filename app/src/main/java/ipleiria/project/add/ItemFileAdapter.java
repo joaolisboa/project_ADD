@@ -32,16 +32,16 @@ import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.DropboxDeleteFile;
 import ipleiria.project.add.Dropbox.DropboxDownloadFile;
 import ipleiria.project.add.Dropbox.DropboxGetThumbnail;
-import ipleiria.project.add.MEOCloud.Data.FileResponse;
-import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.data.FileResponse;
+import ipleiria.project.add.MEOCloud.data.MEOMetadata;
+import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudAPI;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
-import ipleiria.project.add.MEOCloud.Tasks.MEODeleteFile;
-import ipleiria.project.add.MEOCloud.Tasks.MEODownloadFile;
-import ipleiria.project.add.MEOCloud.Tasks.MEOGetThumbnail;
+import ipleiria.project.add.MEOCloud.tasks.MEOCreateFolder;
+import ipleiria.project.add.MEOCloud.tasks.MEODeleteFile;
+import ipleiria.project.add.MEOCloud.tasks.MEODownloadFile;
+import ipleiria.project.add.MEOCloud.tasks.MEOGetThumbnail;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
@@ -144,7 +144,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                     }
                 }).execute(PathUtils.getRemoteFilePath(itemFile), null, MEOCloudAPI.THUMBNAIL_SIZE_M);
             } else if (DropboxClientFactory.isClientInitialized()) {
-                new DropboxGetThumbnail(context, DropboxClientFactory.getClient(),
+                /*new DropboxGetThumbnail(context, DropboxClientFactory.getClient(),
                         new DropboxGetThumbnail.Callback() {
                             @Override
                             public void onDownloadComplete(File result) {
@@ -161,7 +161,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                             public void onError(Exception e) {
                                 Log.e("DownloadError", e.getMessage(), e);
                             }
-                        }).execute(PathUtils.getRemoteFilePath(itemFile));
+                        }).execute(PathUtils.getRemoteFilePath(itemFile));*/
             }
         }
     }
@@ -267,7 +267,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                             }
                         }).execute(PathUtils.getRemoteFilePath(file));
                     } else if (DropboxClientFactory.isClientInitialized()) {
-                        new DropboxDownloadFile(context, DropboxClientFactory.getClient(),
+                        /*new DropboxDownloadFile(context, DropboxClientFactory.getClient(),
                                 new DropboxDownloadFile.Callback() {
 
                                     @Override
@@ -281,7 +281,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                         progressDialog.dismiss();
                                         Log.e("DownloadError", e.getMessage(), e);
                                     }
-                                }).execute(PathUtils.getRemoteFilePath(file));
+                                }).execute(PathUtils.getRemoteFilePath(file));*/
                     }else{
                         progressDialog.dismiss();
                     }
@@ -440,7 +440,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                             }
                         }).execute(PathUtils.trashPath(file));
                     } else if (DropboxClientFactory.isClientInitialized()) {
-                        new DropboxDownloadFile(context, DropboxClientFactory.getClient(),
+                        /*new DropboxDownloadFile(context, DropboxClientFactory.getClient(),
                                 new DropboxDownloadFile.Callback() {
                             @Override
                             public void onDownloadComplete(File result) {
@@ -453,7 +453,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                 progressDialog.dismiss();
                                 Log.e("DownloadError", e.getMessage(), e);
                             }
-                        }).execute(PathUtils.trashPath(file));
+                        }).execute(PathUtils.trashPath(file));*/
                     }
                 } else {
                     Toast.makeText(context, "No internet", Toast.LENGTH_SHORT).show();
@@ -488,7 +488,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                         }).execute(PathUtils.trashPath(itemFile));
                     }
                     if (DropboxClientFactory.isClientInitialized()) {
-                        new DropboxDeleteFile(DropboxClientFactory.getClient(), new DropboxDeleteFile.Callback() {
+                        /*new DropboxDeleteFile(DropboxClientFactory.getClient(), new DropboxDeleteFile.Callback() {
 
                             @Override
                             public void onDeleteComplete(Metadata result) {
@@ -499,7 +499,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                             public void onError(Exception e) {
                                 Log.e("PermanentDelete", e.getMessage(), e);
                             }
-                        }).execute(PathUtils.trashPath(itemFile));
+                        }).execute(PathUtils.trashPath(itemFile));*/
                     }
                 }
                 FileUtils.deleteFile(PathUtils.getLocalFilePath(context, itemFile.getFilename(), itemFile.getParent().getCriteria()));

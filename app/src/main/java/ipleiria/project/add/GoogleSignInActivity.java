@@ -33,6 +33,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserInfo;
 
 import ipleiria.project.add.Model.ApplicationData;
+import ipleiria.project.add.data.source.UserService;
 
 /**
  * Created by Lisboa on 13-Apr-17.
@@ -88,36 +89,11 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    ApplicationData.getInstance().setUserUID(user.getUid());
-                    String displayName = user.getDisplayName();
-                    Uri profileUri = user.getPhotoUrl();
-
-                    // If the above were null, iterate the provider data
-                    // and set with the first non null data
-                    for (UserInfo userInfo : user.getProviderData()) {
-                        if (displayName == null && userInfo.getDisplayName() != null) {
-                            displayName = userInfo.getDisplayName();
-                        }
-                        if (profileUri == null && userInfo.getPhotoUrl() != null) {
-                            profileUri = userInfo.getPhotoUrl();
-                        }
-                    }
-                    if(displayName == null || displayName.isEmpty()){
-                        displayName = "Anonymous";
-                    }
-                    ApplicationData.getInstance().setDisplayName(displayName);
-                    ApplicationData.getInstance().setProfileUri(profileUri);
-                    System.out.println("Starting new firebaseHandler instance");
-                    // when signing out of Google write data to new firebase user
-                    FirebaseHandler.getInstance().initReferences();
-                    FirebaseHandler.getInstance().writeUserInfo();
-                    FirebaseHandler.getInstance().writeItems();
-                    FirebaseHandler.getInstance().writeEmails();
+                    UserService.getInstance().initUser(user);
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
-                // ...
             }
         };
 
@@ -258,9 +234,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                     Log.d(TAG, "linkWithCredential:onComplete:" + task.isSuccessful());
-                    // If sign in fails, display a message to the user. If sign in succeeds
-                    // the auth state listener will be notified and logic to handle the
-                    // signed in user can be handled in the listener.
+
                     if (!task.isSuccessful()) {
                         Log.e(TAG, task.getException().getMessage(), task.getException());
                         mAuth.signOut();
@@ -268,6 +242,12 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                         // so we need to log in with the credential
                         // instead of linking with the anonymous account
                         mAuth.signInWithCredential(credential);
+                        // TODO: 07-May-17 delete previous anon user?
+                        // TODO: 07-May-17 items/files added before signing with with google need to be moved to new user?
+                            // when user signs in with google and already has an account
+                            // the accounts will use the google account uid
+                            // leaving an anonymous user empty
+                        hideProgressDialog();
                     } else {
                         System.out.println(mAuth.getCurrentUser().getUid());
                     }

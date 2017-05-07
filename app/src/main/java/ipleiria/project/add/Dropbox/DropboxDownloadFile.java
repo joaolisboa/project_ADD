@@ -19,15 +19,10 @@ public class DropboxDownloadFile extends AsyncTask<String, Void, File> {
 
     private final Context mContext;
     private final DbxClientV2 mDbxClient;
-    private final Callback mCallback;
+    private final DropboxCallback<File> mCallback;
     private Exception mException;
 
-    public interface Callback {
-        void onDownloadComplete(File result);
-        void onError(Exception e);
-    }
-
-    public DropboxDownloadFile(Context context, DbxClientV2 dbxClient, Callback callback) {
+    public DropboxDownloadFile(Context context, DbxClientV2 dbxClient, DropboxCallback<File> callback) {
         mContext = context;
         mDbxClient = dbxClient;
         mCallback = callback;
@@ -39,7 +34,7 @@ public class DropboxDownloadFile extends AsyncTask<String, Void, File> {
         if (mException != null) {
             mCallback.onError(mException);
         } else {
-            mCallback.onDownloadComplete(result);
+            mCallback.onComplete(result);
         }
     }
 

@@ -49,9 +49,6 @@ import ipleiria.project.add.Utils.PathUtils;
 import ipleiria.project.add.Utils.StringUtils;
 import ipleiria.project.add.Utils.UriHelper;
 
-import static ipleiria.project.add.SettingsActivity.DROPBOX_PREFS_KEY;
-import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
-
 public class AddItemActivity extends AppCompatActivity {
 
     private static final String TAG = "AddItemActivity";
@@ -104,6 +101,7 @@ public class AddItemActivity extends AppCompatActivity {
                     .setSharedPreferences(getSharedPreferences(getString(R.string.shared_prefs_user), MODE_PRIVATE));
         }
 
+        /*
         if (NetworkState.isOnline(this)) {
             String dropToken = ApplicationData.getInstance().getSharedPreferences().getString(DROPBOX_PREFS_KEY, "");
             if (!dropToken.isEmpty()) {
@@ -113,7 +111,7 @@ public class AddItemActivity extends AppCompatActivity {
             if (!meoToken.isEmpty()) {
                 MEOCloudClient.init(meoToken);
             }
-        }
+        }*/
 
         try {
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);

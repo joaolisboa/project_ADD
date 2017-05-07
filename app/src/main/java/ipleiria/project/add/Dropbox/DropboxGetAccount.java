@@ -12,15 +12,10 @@ import com.dropbox.core.v2.users.FullAccount;
 public class DropboxGetAccount extends AsyncTask<Void, Void, FullAccount> {
 
     private final DbxClientV2 mDbxClient;
-    private final Callback mCallback;
+    private final DropboxCallback<FullAccount> mCallback;
     private Exception mException;
 
-    public interface Callback {
-        void onComplete(FullAccount result);
-        void onError(Exception e);
-    }
-
-    public DropboxGetAccount(DbxClientV2 dbxClient, Callback callback) {
+    public DropboxGetAccount(DbxClientV2 dbxClient, DropboxCallback<FullAccount> callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }

@@ -28,7 +28,6 @@ public class ItemsRepository implements ItemsDataSource {
     private static final String ITEMS = "items";
     private static ItemsRepository INSTANCE = null;
 
-    private User user;
     private DatabaseReference itemsReference;
     private DatabaseReference deletedItemsReference;
     /**
@@ -45,10 +44,9 @@ public class ItemsRepository implements ItemsDataSource {
 
     // Prevent direct instantiation.
     private ItemsRepository() {
-        this.user = UserService.getInstance().getUser();
-        this.itemsReference = FirebaseDatabase.getInstance().getReference().child(ITEMS).child(user.getUid());
+        this.itemsReference = FirebaseDatabase.getInstance().getReference().child(ITEMS);
         this.itemsReference.keepSynced(true);
-        this.deletedItemsReference = FirebaseDatabase.getInstance().getReference().child(DELETED_ITEMS).child(user.getUid());
+        this.deletedItemsReference = FirebaseDatabase.getInstance().getReference().child(DELETED_ITEMS);
         this.deletedItemsReference.keepSynced(true);
 
         this.localItems = new LinkedList<>();
@@ -73,12 +71,12 @@ public class ItemsRepository implements ItemsDataSource {
 
     @Override
     public DatabaseReference getDeletedItemsReference() {
-        return deletedItemsReference;
+        return deletedItemsReference.child(UserService.getInstance().getUser().getUid());
     }
 
     @Override
     public DatabaseReference getItemsReference() {
-        return itemsReference;
+        return itemsReference.child(UserService.getInstance().getUser().getUid());
     }
 
     @Override
@@ -163,7 +161,7 @@ public class ItemsRepository implements ItemsDataSource {
         }
 
         writeDeletedItem(item);
-        itemsReference.child(item.getDbKey()).removeValue(new DatabaseReference.CompletionListener() {
+        getItemsReference().child(item.getDbKey()).removeValue(new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 Log.d(TAG, "Deleted item: " + item);
@@ -177,7 +175,7 @@ public class ItemsRepository implements ItemsDataSource {
         for(ItemFile file: item.getFiles()){
             // TODO: 06-May-17 delete file
         }
-        deletedItemsReference.child(item.getDbKey()).removeValue(new DatabaseReference.CompletionListener() {
+        getDeletedItemsReference().child(item.getDbKey()).removeValue(new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 Log.d(TAG, "Permanently deleted item: " + item);
@@ -198,10 +196,10 @@ public class ItemsRepository implements ItemsDataSource {
         }
 
         writeItem(item);
-        deletedItemsReference.child(item.getDbKey()).removeValue(new DatabaseReference.CompletionListener() {
+        getDeletedItemsReference().child(item.getDbKey()).removeValue(new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                Log.d(TAG, "Permanently deleted item: " + item);
+                Log.d(TAG, "restore deleted item: " + item);
             }
         });
     }
@@ -212,11 +210,11 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     private void writeItem(Item item){
-        writeItemToRef(item, itemsReference);
+        writeItemToRef(item, getItemsReference());
     }
 
     private void writeDeletedItem(Item item){
-        writeItemToRef(item, deletedItemsReference);
+        writeItemToRef(item, getDeletedItemsReference());
     }
 
     private void writeItemToRef(Item item, DatabaseReference itemRef){

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:paddingTop="8dp"
-    tools:context="ipleiria.project.add.SettingsActivity">
+    tools:context=".view.settings.SettingsActivity">
 
     <LinearLayout
         android:id="@+id/account_info"
         android:layout_width="match_parent"
         android:layout_height="72dp"
-        android:onClick="googleSignIn">
+        android:onClick="onGoogleAccountClick">
 
         <ImageView
             android:id="@+id/profile_pic"
@@ -62,7 +62,8 @@
     <LinearLayout
         android:id="@+id/dropbox"
         android:layout_width="match_parent"
-        android:layout_height="56dp">
+        android:layout_height="56dp"
+        android:onClick="onDropboxClick">
 
         <ImageView
             android:layout_width="40dp"
@@ -95,7 +96,8 @@
     <LinearLayout
         android:id="@+id/meocloud"
         android:layout_width="match_parent"
-        android:layout_height="56dp">
+        android:layout_height="56dp"
+        android:onClick="onMEOCloudClick">
 
         <ImageView
             android:layout_width="40dp"
@@ -159,52 +161,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/number_of_emails"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            app:srcCompat="@drawable/ic_keyboard_arrow_right_black_24dp" />
-
-    </LinearLayout>
-
-    <View
-        style="@style/Divider" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:onClick="openTrash">
-
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="16dp"
-            app:srcCompat="@drawable/delete_icon_black" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:layout_marginStart="16dp"
-            android:paddingTop="10dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Trash"
-                android:textColor="@android:color/primary_text_light"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/num_deleted_items"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/number_of_delete_items"
                 android:textSize="14sp" />
         </LinearLayout>
 

@@ -16,15 +16,10 @@ import com.dropbox.core.v2.files.RelocationErrorException;
 public class DropboxMoveFile extends AsyncTask<String, Void, Metadata> {
 
     private final DbxClientV2 mDbxClient;
-    private final DropboxMoveFile.Callback mCallback;
+    private final DropboxCallback<Metadata> mCallback;
     private Exception mException;
 
-    public interface Callback {
-        void onMoveComplete(Metadata result);
-        void onError(Exception e);
-    }
-
-    public DropboxMoveFile(DbxClientV2 dbxClient, DropboxMoveFile.Callback callback) {
+    public DropboxMoveFile(DbxClientV2 dbxClient, DropboxCallback<Metadata> callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }
@@ -35,7 +30,7 @@ public class DropboxMoveFile extends AsyncTask<String, Void, Metadata> {
         if (mException != null) {
             mCallback.onError(mException);
         } else {
-            mCallback.onMoveComplete(result);
+            mCallback.onComplete(result);
         }
     }
 

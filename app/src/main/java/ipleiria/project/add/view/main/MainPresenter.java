@@ -17,6 +17,7 @@ import ipleiria.project.add.*;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.CategoryRepository;
 import ipleiria.project.add.data.source.UserService;
+import ipleiria.project.add.view.items.ItemsActivity;
 
 import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
@@ -33,7 +34,6 @@ public class MainPresenter implements MainContract.Presenter {
     private final MainContract.View mainView;
     private final MainContract.DrawerView drawerView;
 
-    private User user;
     private Uri photoURI;
     private boolean authFlag = false;
 
@@ -72,7 +72,7 @@ public class MainPresenter implements MainContract.Presenter {
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     authFlag = true;
                     UserService.getInstance().initUser(user);
-                    drawerView.setUserInfo();
+                    drawerView.setUserInfo(UserService.getInstance().getUser());
                 }
             }else{
                 // User is signed out or there's no credentials
@@ -88,10 +88,11 @@ public class MainPresenter implements MainContract.Presenter {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in_anonymously:" + user.getUid());
                     authFlag = true;
-                    UserService.getInstance().initUser(FirebaseAuth.getInstance().getCurrentUser());
-                    drawerView.setUserInfo();
+                    UserService.getInstance().initUser(user);
+                    drawerView.setUserInfo(UserService.getInstance().getUser());
                 }else{
                     Log.d(AUTH_TAG, "onAuthStateChanged:auth_failed");
                 }
@@ -104,7 +105,7 @@ public class MainPresenter implements MainContract.Presenter {
         if (requestCode == REQUEST_TAKE_PHOTO) {
             // Make sure the request was successful
             if (resultCode == Activity.RESULT_OK) {
-                Intent photo = new Intent(context, ListItemActivity.class);
+                Intent photo = new Intent(context, ItemsActivity.class);
                 photo.putExtra("photo_uri", photoURI.toString());
                 context.startActivity(photo.setAction(SENDING_PHOTO));
             }

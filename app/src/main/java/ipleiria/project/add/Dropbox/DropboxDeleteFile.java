@@ -13,15 +13,10 @@ import com.dropbox.core.v2.files.Metadata;
 public class DropboxDeleteFile extends AsyncTask<String, Void, Metadata> {
 
     private final DbxClientV2 mDbxClient;
-    private final DropboxDeleteFile.Callback mCallback;
+    private final DropboxCallback<Metadata> mCallback;
     private Exception mException;
 
-    public interface Callback {
-        void onDeleteComplete(Metadata result);
-        void onError(Exception e);
-    }
-
-    public DropboxDeleteFile(DbxClientV2 dbxClient, DropboxDeleteFile.Callback callback) {
+    public DropboxDeleteFile(DbxClientV2 dbxClient, DropboxCallback<Metadata> callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }
@@ -34,7 +29,7 @@ public class DropboxDeleteFile extends AsyncTask<String, Void, Metadata> {
         } else if (result == null) {
             mCallback.onError(null);
         } else {
-            mCallback.onDeleteComplete(result);
+            mCallback.onComplete(result);
         }
     }
 

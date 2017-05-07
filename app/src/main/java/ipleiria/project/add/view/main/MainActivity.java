@@ -7,12 +7,10 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,18 +20,15 @@ import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
-import ipleiria.project.add.ListItemActivity;
-import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.R;
-import ipleiria.project.add.SettingsActivity;
 import ipleiria.project.add.Utils.ActivityUtils;
 import ipleiria.project.add.Utils.CircleTransformation;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.view.items.ItemsActivity;
+import ipleiria.project.add.view.settings.SettingsActivity;
 
-import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
-import static ipleiria.project.add.data.source.UserService.USER_DATA;
+import static ipleiria.project.add.data.source.UserService.USER_DATA_KEY;
 import static ipleiria.project.add.view.items.ItemsActivity.LIST_DELETED_KEY;
 
 /**
@@ -74,8 +69,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                     getSupportFragmentManager(), mainFragment, R.id.contentFrame);
         }
 
-        SharedPreferences preferences = getSharedPreferences(USER_DATA, MODE_PRIVATE);
-        presenter = new MainPresenter(UserService.initUserInstance(preferences), mainFragment, this);
+        SharedPreferences preferences = getSharedPreferences(USER_DATA_KEY, MODE_PRIVATE);
+        presenter = new MainPresenter(UserService.getInstance(preferences), mainFragment, this);
 
         // should run when app starts
         try {
@@ -115,14 +110,13 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     }
 
     @Override
-    public void setUserInfo() {
-        User user = UserService.getInstance().getUser();
+    public void setUserInfo(User user) {
         View navHeader = navigationView.getHeaderView(0);
         ((TextView) navHeader.findViewById(R.id.user_name)).setText(user.getName());
         ((TextView) navHeader.findViewById(R.id.user_mail)).setText(user.getEmail());
         Picasso.with(this)
                 .load(user.getPhoto_url())
-                .resize(150, 150)
+                .resize(100, 100)
                 .transform(new CircleTransformation())
                 .placeholder(R.drawable.ic_profile_placeholder)
                 .error(R.drawable.ic_profile_placeholder)

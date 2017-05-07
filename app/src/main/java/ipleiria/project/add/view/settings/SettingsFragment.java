@@ -1,32 +1,50 @@
 package ipleiria.project.add.view.settings;
 
-import android.app.Fragment;
+
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import ipleiria.project.add.R;
-import ipleiria.project.add.view.items.ItemsActivity;
-import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
+import com.dropbox.core.android.Auth;
+import com.squareup.picasso.Picasso;
+
+import ipleiria.project.add.*;
+import ipleiria.project.add.MEOCloud.MEOCloudAPI;
+import ipleiria.project.add.Model.ApplicationData;
+import ipleiria.project.add.Utils.CircleTransformation;
+import ipleiria.project.add.Utils.NetworkState;
+import ipleiria.project.add.data.model.User;
 
 /**
  * Created by Lisboa on 06-May-17.
  */
 
-public class SettingsFragment extends Fragment implements SettingsContract.View{
+public class SettingsFragment extends Fragment implements SettingsContract.View {
 
     private SettingsContract.Presenter settingsPresenter;
 
-    public SettingsFragment() {}
+    private ImageView meocloudState;
+    private ImageView dropboxState;
+    private LinearLayout dropboxL;
+    private LinearLayout meoCloudL;
+
+    private ImageView profileImageView;
+    private TextView accountName;
+    private TextView accountDescription;
+
+    public SettingsFragment() {
+    }
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
@@ -41,26 +59,147 @@ public class SettingsFragment extends Fragment implements SettingsContract.View{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.main_frag, container, false);
+        View root = inflater.inflate(R.layout.settings_frag, container, false);
 
+        profileImageView = (ImageView) root.findViewById(R.id.profile_pic);
+        accountName = (TextView) root.findViewById(R.id.account_name);
+        accountDescription = (TextView) root.findViewById(R.id.account_description);
 
+        dropboxL = (LinearLayout) root.findViewById(R.id.dropbox);
+        meoCloudL = (LinearLayout) root.findViewById(R.id.meocloud);
+        dropboxState = (ImageView) root.findViewById(R.id.dropbox_state);
+        meocloudState = (ImageView) root.findViewById(R.id.meocloud_state);
+
+        settingsPresenter.updateUserInfo();
 
         return root;
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        menuInflater.inflate(R.menu.main, menu);
+        settingsPresenter.onActivityResume();
     }
 
     @Override
     public void setPresenter(SettingsContract.Presenter presenter) {
         settingsPresenter = presenter;
+    }
+
+    public void onDropboxClick() {
+        settingsPresenter.onDropboxAction();
+    }
+
+    public void onMEOCloudClick() {
+        settingsPresenter.onMEOCloudAction();
+    }
+
+    public void onGoogleAccountClick() {
+        if (NetworkState.isOnline(getContext())) {
+            settingsPresenter.setLoginIntention(true);
+            startActivity(new Intent(getContext(), GoogleSignInActivity.class));
+        } else {
+            showNoNetworkHint();
+        }
+    }
+
+    @Override
+    public void showDropboxLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage("Do you want to disconnect Dropbox?")
+                .setTitle("Confirm");
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                if (NetworkState.isOnline(getContext())) {
+                    settingsPresenter.signOutDropbox();
+                } else {
+                    showNoNetworkHint();
+                }
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.create().show();
+    }
+
+    @Override
+    public void showMEOCloudLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage("Do you want to disconnect MEO Cloud?")
+                .setTitle("Confirm");
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                if (NetworkState.isOnline(getContext())) {
+                    settingsPresenter.signOutMEOCloud();
+                } else {
+                    showNoNetworkHint();
+                }
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.create().show();
+    }
+
+    @Override
+    public void showDropboxLogin() {
+        if (NetworkState.isOnline(getContext())) {
+            Auth.startOAuth2Authentication(getContext(), getString(R.string.dropbox_app_key));
+            settingsPresenter.setLoginIntention(true);
+        } else {
+            showNoNetworkHint();
+        }
+    }
+
+    @Override
+    public void showMEOCloudLogin() {
+        if (NetworkState.isOnline(getContext())) {
+            MEOCloudAPI.startOAuth2Authentication(getContext(), getString(R.string.meo_consumer_key));
+            settingsPresenter.setLoginIntention(true);
+        } else {
+            showNoNetworkHint();
+        }
+    }
+
+    @Override
+    public void setUserInfo(User user) {
+        accountName.setText(user.getName());
+        accountDescription.setText(getString(R.string.account_syncing_status, user.getEmail()));
+
+        Picasso.with(getContext())
+                .load(user.getPhoto_url())
+                .resize(100, 100)
+                .transform(new CircleTransformation())
+                .placeholder(R.drawable.ic_profile_placeholder)
+                .error(R.drawable.ic_profile_placeholder)
+                .into(profileImageView);
+
+    }
+
+    @Override
+    public void setAnonymousUserInfo() {
+        accountName.setText(R.string.anonymous_name);
+        accountDescription.setText(getString(R.string.google_sign_in_helper));
+        profileImageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_profile_placeholder));
+    }
+
+    @Override
+    public void setMEOCloudStatus(boolean status) {
+        if(status){
+            meocloudState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_check_black_64dp));
+        }else{
+            meocloudState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_link_black_64dp));
+        }
+    }
+
+    @Override
+    public void setDropboxStatus(boolean status) {
+        if(status){
+            dropboxState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_check_black_64dp));
+        }else{
+            dropboxState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_link_black_64dp));
+        }
+    }
+
+    public void showNoNetworkHint() {
+        Toast.makeText(getContext(), "Can't establish connection", Toast.LENGTH_SHORT).show();
     }
 }

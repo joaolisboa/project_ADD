@@ -1,6 +1,6 @@
 package ipleiria.project.add.MEOCloud;
 
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
 
 /**
  * Created by Lisboa on 30-Mar-17.

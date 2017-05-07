@@ -19,11 +19,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.data.MEOMetadata;
+import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolderTree;
+import ipleiria.project.add.MEOCloud.tasks.MEOCreateFolderTree;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;

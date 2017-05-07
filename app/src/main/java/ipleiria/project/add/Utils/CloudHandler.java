@@ -13,14 +13,14 @@ import java.util.Arrays;
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.Dropbox.DropboxMoveFile;
 import ipleiria.project.add.Dropbox.DropboxUploadFile;
-import ipleiria.project.add.MEOCloud.Data.MEOMetadata;
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.data.MEOMetadata;
+import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
 import ipleiria.project.add.MEOCloud.MEOCallback;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolder;
-import ipleiria.project.add.MEOCloud.Tasks.MEOCreateFolderTree;
-import ipleiria.project.add.MEOCloud.Tasks.MEOMoveFile;
-import ipleiria.project.add.MEOCloud.Tasks.MEOUploadFile;
+import ipleiria.project.add.MEOCloud.tasks.MEOCreateFolder;
+import ipleiria.project.add.MEOCloud.tasks.MEOCreateFolderTree;
+import ipleiria.project.add.MEOCloud.tasks.MEOMoveFile;
+import ipleiria.project.add.MEOCloud.tasks.MEOUploadFile;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.ItemFile;
 
@@ -73,7 +73,7 @@ public class CloudHandler {
                     String.valueOf(criteria.getReference()));
         }
         if (DropboxClientFactory.isClientInitialized()) {
-            new DropboxUploadFile(context, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
+            /*new DropboxUploadFile(context, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
 
                 @Override
                 public void onUploadComplete(FileMetadata result) {
@@ -84,7 +84,7 @@ public class CloudHandler {
                 public void onError(Exception e) {
                     Log.e("UploadDropError", e.getMessage(), e);
                 }
-            }).execute(uri.toString(), remotePath);
+            }).execute(uri.toString(), remotePath);*/
         }
     }
 
@@ -108,7 +108,7 @@ public class CloudHandler {
     }
 
     public static void moveFileDropbox(String from, String to) {
-        new DropboxMoveFile(DropboxClientFactory.getClient(), new DropboxMoveFile.Callback() {
+        /*new DropboxMoveFile(DropboxClientFactory.getClient(), new DropboxMoveFile.Callback() {
 
             @Override
             public void onMoveComplete(Metadata result) {
@@ -119,7 +119,7 @@ public class CloudHandler {
             public void onError(Exception e) {
                 Log.e("MoveFile", e.getMessage(), e);
             }
-        }).execute(from, to);
+        }).execute(from, to);*/
     }
 
     public static void uploadFileToCloud(final Context context, final File file) {
@@ -174,7 +174,7 @@ public class CloudHandler {
             }).execute(dimensionPath, areaPath, criteriaPath);
         }
         if (DropboxClientFactory.isClientInitialized()) {
-            new DropboxUploadFile(context, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
+            /*new DropboxUploadFile(context, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
 
                 @Override
                 public void onUploadComplete(FileMetadata result) {
@@ -189,7 +189,7 @@ public class CloudHandler {
                 public void onError(Exception e) {
                     Log.e("UploadDropError", e.getMessage(), e);
                 }
-            }).execute(uri.toString(), remotePath);
+            }).execute(uri.toString(), remotePath);*/
         }
     }
 
@@ -235,7 +235,7 @@ public class CloudHandler {
             }).execute(TRASH_FOLDER);
         }
         if(DropboxClientFactory.isClientInitialized()){
-            new DropboxUploadFile(context, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
+            /*new DropboxUploadFile(context, DropboxClientFactory.getClient(), new DropboxUploadFile.Callback() {
 
                 @Override
                 public void onUploadComplete(FileMetadata result) {
@@ -250,7 +250,7 @@ public class CloudHandler {
                 public void onError(Exception e) {
                     Log.e("UploadDropError", e.getMessage(), e);
                 }
-            }).execute(uri.toString(), remotePath);
+            }).execute(uri.toString(), remotePath);*/
         }
     }
 }

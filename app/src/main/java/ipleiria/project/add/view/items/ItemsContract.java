@@ -61,5 +61,9 @@ public class ItemsContract {
         int getFiltering();
 
         void checkForEmptyList();
+
+        void setIntentAction(String action);
+
+        String getIntentAction();
     }
 }

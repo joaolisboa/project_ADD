@@ -49,8 +49,6 @@ import ipleiria.project.add.Utils.NetworkState;
 
 import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
-import static ipleiria.project.add.SettingsActivity.DROPBOX_PREFS_KEY;
-import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -116,12 +114,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (NetworkState.isOnline(this)) {
             firebaseAuth = FirebaseAuth.getInstance();
             initAuthListener();
-            if (!preferences.getString(DROPBOX_PREFS_KEY, "").isEmpty()) {
+            /*if (!preferences.getString(DROPBOX_PREFS_KEY, "").isEmpty()) {
                 DropboxClientFactory.init(preferences.getString(DROPBOX_PREFS_KEY, null));
             }
             if (!preferences.getString(MEO_PREFS_KEY, "").isEmpty()) {
                 MEOCloudClient.init(preferences.getString(MEO_PREFS_KEY, null));
-            }
+            }*/
             // delay to guarantee dimensions will be read before scanning the dirs
             // TODO: 27-Apr-17 upload local files with background service while app is running?
             new Handler().postDelayed(new Runnable() {
@@ -195,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if (id == R.id.nav_settings) {
-            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            //startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -203,9 +201,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void listFiles(View view) {
+    /*public void listFiles(View view) {
         startActivity(new Intent(this, ListItemActivity.class));
-    }
+    }*/
 
     public void selectCriteria(View view) {
         startActivity(new Intent(this, SelectCategoryActivity.class));
@@ -253,15 +251,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
-        if (requestCode == REQUEST_TAKE_PHOTO) {
+        /*if (requestCode == REQUEST_TAKE_PHOTO) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 Intent photo = new Intent(MainActivity.this, ListItemActivity.class);
                 photo.putExtra("photo_uri", photoURI.toString());
-                startActivity(photo.setAction(SENDING_PHOTO));
+                startActivity(photo.setIntentAction(SENDING_PHOTO));
 
             }
-        }
+        }*/
     }
 
     @Override

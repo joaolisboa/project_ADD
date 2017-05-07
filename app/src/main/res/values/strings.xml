@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Project ADD</string>
-    <string name="share_activity_label">Add to ADD</string>
+    <string name="share_activity_label">Add file</string>
     <string name="service_chooser_label">Connect services</string>
     <string name="title_activity_list">ListActivity</string>
 
@@ -124,6 +124,8 @@
     <string name="no_items_add">Add a new item</string>
     <string name="no_deleted_items">You have no deleted items!</string>
     <string name="no_items">You have no items!</string>
+    <string name="anonymous_name">Anonymous</string>
+    <string name="add_new_item">Add new item</string>
 
 
 </resources>

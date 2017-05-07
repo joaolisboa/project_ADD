@@ -13,15 +13,10 @@ import com.dropbox.core.v2.files.Metadata;
 public class DropboxGetMetadata extends AsyncTask<String, Void, Metadata> {
 
     private final DbxClientV2 mDbxClient;
-    private final DropboxGetMetadata.Callback mCallback;
+    private final DropboxCallback<Metadata> mCallback;
     private Exception mException;
 
-    public interface Callback {
-        void onComplete(Metadata result);
-        void onError(Exception e);
-    }
-
-    public DropboxGetMetadata(DbxClientV2 dbxClient, DropboxGetMetadata.Callback callback) {
+    public DropboxGetMetadata(DbxClientV2 dbxClient, DropboxCallback<Metadata> callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }

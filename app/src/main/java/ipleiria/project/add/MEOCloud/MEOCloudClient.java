@@ -4,13 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import ipleiria.project.add.MEOCloud.Exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.Exceptions.MissingAccessTokenException;
-import ipleiria.project.add.MEOCloud.Tasks.MEORevokeToken;
+import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
+import ipleiria.project.add.MEOCloud.exceptions.MissingAccessTokenException;
+import ipleiria.project.add.MEOCloud.tasks.MEORevokeToken;
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.SettingsActivity;
+import ipleiria.project.add.view.settings.SettingsActivity;
 
-import static ipleiria.project.add.SettingsActivity.MEO_PREFS_KEY;
+import static ipleiria.project.add.data.source.UserService.MEO_PREFS_KEY;
+
 
 /**
  * Created by J on 03/04/2017.
@@ -40,29 +41,7 @@ public class MEOCloudClient {
         return accessToken != null && !accessToken.isEmpty();
     }
 
-    public static void removeToken(Context context){
-        SharedPreferences prefs = ApplicationData.getInstance().getSharedPreferences();
-        prefs.edit().remove(MEO_PREFS_KEY).apply();
+    public static void destroyClient() {
         accessToken = null;
-        ((SettingsActivity)context).updateView();
-    }
-
-    public static void revokeToken(final Context context) {
-        new MEORevokeToken(new MEOCallback<Void>() {
-            @Override
-            public void onComplete(Void result) {
-                removeToken(context);
-            }
-
-            @Override
-            public void onRequestError(HttpErrorException httpE) {
-                removeToken(context);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.e("REVOKE_TOKEN_ERROR", e.getMessage(), e);
-            }
-        }).execute();
     }
 }

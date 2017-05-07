@@ -13,15 +13,10 @@ import com.dropbox.core.v2.files.ListFolderResult;
 public class DropboxListFolder  extends AsyncTask<String, Void, ListFolderResult> {
 
     private final DbxClientV2 mDbxClient;
-    private final DropboxListFolder.Callback mCallback;
+    private final DropboxCallback<ListFolderResult> mCallback;
     private Exception mException;
 
-    public interface Callback {
-        void onComplete(ListFolderResult result);
-        void onError(Exception e);
-    }
-
-    public DropboxListFolder(DbxClientV2 dbxClient, DropboxListFolder.Callback callback) {
+    public DropboxListFolder(DbxClientV2 dbxClient, DropboxCallback<ListFolderResult> callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }

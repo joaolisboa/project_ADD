@@ -57,7 +57,6 @@
 
     </LinearLayout>
 
-    <!--
 
     <View style="@style/Divider" />
 
@@ -65,8 +64,10 @@
         android:id="@+id/add_new_button"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="#FFF"
-        android:text="Add new item"
-        android:visibility="gone" />-->
+        android:textColor="@android:color/white"
+        android:background="@color/colorAccent"
+        android:text="@string/add_new_item"
+        android:onClick="addNewItem"
+        android:visibility="gone" />
 
 </LinearLayout>

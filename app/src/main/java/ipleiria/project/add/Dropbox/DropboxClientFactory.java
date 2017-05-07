@@ -1,15 +1,8 @@
 package ipleiria.project.add.Dropbox;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
-
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.http.OkHttp3Requestor;
 import com.dropbox.core.v2.DbxClientV2;
-
-import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.SettingsActivity;
 
 /**
  * Singleton instance of {@link DbxClientV2} and friends
@@ -39,20 +32,7 @@ public class DropboxClientFactory {
         return sDbxClient != null;
     }
 
-    public static void revokeToken(final Context context){
-        new DropboxRevokeToken(sDbxClient, new DropboxRevokeToken.Callback(){
-            @Override
-            public void onComplete() {
-                SharedPreferences prefs = ApplicationData.getInstance().getSharedPreferences();
-                prefs.edit().remove(SettingsActivity.DROPBOX_PREFS_KEY).apply();
-                sDbxClient = null;
-                ((SettingsActivity)context).updateView();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.e("DROPBOX_REVOKE_ERROR", e.getMessage(), e);
-            }
-        }).execute();
+    public static void destroyClient() {
+        sDbxClient = null;
     }
 }
