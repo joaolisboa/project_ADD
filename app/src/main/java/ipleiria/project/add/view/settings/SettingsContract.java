@@ -29,7 +29,7 @@ public class SettingsContract {
         void setDropboxStatus(boolean status);
     }
 
-    interface Presenter{
+    interface Presenter extends BasePresenter{
         
         void onDropboxAction();
 
@@ -43,7 +43,7 @@ public class SettingsContract {
 
         void setLoginIntention(boolean loginIntent);
 
-        void updateUserInfo();
+        void updateServicesStatus();
     }
 
 }

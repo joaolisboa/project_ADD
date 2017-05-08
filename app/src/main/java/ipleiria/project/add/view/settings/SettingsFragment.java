@@ -65,9 +65,19 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
         dropboxState = (ImageView) root.findViewById(R.id.dropbox_state);
         meocloudState = (ImageView) root.findViewById(R.id.meocloud_state);
 
-        settingsPresenter.updateUserInfo();
-
         return root;
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        settingsPresenter.subscribe();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        settingsPresenter.unsubscribe();
     }
 
     @Override

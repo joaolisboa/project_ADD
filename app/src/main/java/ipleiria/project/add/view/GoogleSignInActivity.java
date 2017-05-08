@@ -98,6 +98,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     UserService.getInstance().initUser(user);
                     ItemsRepository.getInstance().moveItemsToNewUser();
+                    hideProgressDialog();
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -140,6 +141,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                             if (status.isSuccess()) {
                                 System.out.println("Google sign out successfull");
                             }
+                            hideProgressDialog();
                         }
                     });
         }else{
@@ -223,6 +225,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                                     Toast.LENGTH_SHORT).show();
                             Log.e(TAG, task.getException().getMessage(), task.getException());
                         }
+                        hideProgressDialog();
                     }
                 });
             }
@@ -255,10 +258,10 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                             // when user signs in with google and already has an account
                             // the accounts will use the google account uid
                             // leaving an anonymous user empty
-                        hideProgressDialog();
                     } else {
                         System.out.println(mAuth.getCurrentUser().getUid());
                     }
+                    hideProgressDialog();
                     }
                 });
     }

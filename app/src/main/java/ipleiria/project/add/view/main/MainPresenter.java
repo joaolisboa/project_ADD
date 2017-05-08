@@ -64,8 +64,8 @@ public class MainPresenter implements MainContract.Presenter {
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     authFlag = true;
                     UserService.getInstance().initUser(user);
-                    drawerView.setUserInfo(UserService.getInstance().getUser());
                 }
+                drawerView.setUserInfo(UserService.getInstance().getUser());
             }else{
                 // User is signed out or there's no credentials
                 // try to sign in anonymously

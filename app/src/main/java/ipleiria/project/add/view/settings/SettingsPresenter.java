@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.dropbox.core.android.Auth;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import ipleiria.project.add.Dropbox.DropboxCallback;
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
@@ -13,9 +15,10 @@ import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.DropboxService;
-import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.MEOCloudService;
 import ipleiria.project.add.data.source.UserService;
+
+import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
 
 /**
  * Created by Lisboa on 06-May-17.
@@ -41,7 +44,7 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     // could cause issues in the future
     private boolean loginIntent = false;
 
-    public SettingsPresenter(@NonNull SettingsContract.View settingsView){
+    public SettingsPresenter(@NonNull SettingsContract.View settingsView) {
         this.userService = UserService.getInstance();
         this.dropboxService = DropboxService.getInstance(userService.getDropboxToken());
         this.meoCloudService = MEOCloudService.getInstance(userService.getMeoCloudToken());
@@ -51,43 +54,71 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     }
 
     @Override
-    public void updateUserInfo(){
-        if(MEOCloudClient.isClientInitialized()){
-            settingsView.setMEOCloudStatus(true);
-        }
-        if(DropboxClientFactory.isClientInitialized()){
-            settingsView.setDropboxStatus(true);
-        }
+    public void subscribe() {
+        FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
+        updateServicesStatus();
+    }
 
+    @Override
+    public void unsubscribe() {
+        if (authStateListener != null) {
+            FirebaseAuth.getInstance().removeAuthStateListener(authStateListener);
+        }
+    }
+
+    private FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
+        @Override
+        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+            if (user != null) {
+                Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+            }
+            updateAccountInfo();
+        }
+    };
+
+
+    private void updateAccountInfo() {
         User user = userService.getUser();
-        if(user.isAnonymous()){
+        if (user.isAnonymous()) {
             settingsView.setAnonymousUserInfo();
-        }else {
+        } else {
             settingsView.setUserInfo(userService.getUser());
         }
     }
 
     @Override
+    public void updateServicesStatus() {
+        if (MEOCloudClient.isClientInitialized()) {
+            settingsView.setMEOCloudStatus(true);
+        }
+
+        if (DropboxClientFactory.isClientInitialized()) {
+            settingsView.setDropboxStatus(true);
+        }
+    }
+
+    @Override
     public void onDropboxAction() {
-        if(DropboxClientFactory.isClientInitialized()) {
+        if (DropboxClientFactory.isClientInitialized()) {
             settingsView.showDropboxLogoutDialog();
-        }else{
+        } else {
             settingsView.showDropboxLogin();
         }
     }
 
     @Override
     public void onMEOCloudAction() {
-        if(MEOCloudClient.isClientInitialized()) {
+        if (MEOCloudClient.isClientInitialized()) {
             settingsView.showMEOCloudLogoutDialog();
-        }else{
+        } else {
             settingsView.showMEOCloudLogin();
         }
     }
 
     @Override
     public void onActivityResume() {
-        if(loginIntent) {
+        if (loginIntent) {
             if (!MEOCloudClient.isClientInitialized()) {
                 String token = MEOCloudAPI.getOAuth2Token();
                 meoCloudService.init(token);
@@ -100,7 +131,7 @@ public class SettingsPresenter implements SettingsContract.Presenter {
                 userService.setDropboxToken(token);
             }
 
-            updateUserInfo();
+            updateServicesStatus();
             loginIntent = false;
         }
     }

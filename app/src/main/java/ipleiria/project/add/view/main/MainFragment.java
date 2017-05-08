@@ -167,20 +167,8 @@ public class MainFragment extends Fragment implements MainContract.View{
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        presenter.subscribe();
-    }
-
-    @Override
     public void onStop() {
         super.onStop();
-        presenter.unsubscribe();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
         presenter.unsubscribe();
     }
 
