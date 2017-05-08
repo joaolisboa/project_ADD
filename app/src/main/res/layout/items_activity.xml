@@ -53,21 +53,22 @@
                 app:fabSize="normal"
                 app:layout_anchor="@id/contentFrame"
                 app:layout_anchorGravity="bottom|right|end" />
+
+            <!--<View style="@style/Divider" />
+
+            <Button
+                android:id="@+id/add_new_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:textColor="@android:color/white"
+                android:background="@color/colorAccent"
+                android:text="@string/add_new_item"
+                android:onClick="addNewItem"
+                android:layout_gravity="bottom"
+                android:visibility="gone" />-->
+
         </android.support.design.widget.CoordinatorLayout>
 
     </LinearLayout>
-
-
-    <View style="@style/Divider" />
-
-    <Button
-        android:id="@+id/add_new_button"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:textColor="@android:color/white"
-        android:background="@color/colorAccent"
-        android:text="@string/add_new_item"
-        android:onClick="addNewItem"
-        android:visibility="gone" />
 
 </LinearLayout>

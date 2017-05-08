@@ -2,6 +2,7 @@ package ipleiria.project.add.Utils;
 
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -11,6 +12,7 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  *  Utility functions to support Uri conversion and processing.
@@ -112,6 +114,14 @@ public final class UriHelper {
         return result;
     }
 
+    public static ArrayList<Uri> getUriListFromExtra(Intent intent){
+        return intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+    }
+
+    public static Uri getUriFromExtra(Intent intent){
+        return intent.getParcelableExtra(Intent.EXTRA_STREAM);
+    }
+
     public static String getPath(final Context context, final Uri uri) {
 
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
@@ -202,7 +212,6 @@ public final class UriHelper {
         }
         return null;
     }
-
 
     private static boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());

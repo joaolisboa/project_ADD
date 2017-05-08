@@ -1,5 +1,6 @@
 package ipleiria.project.add.data.source;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -13,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import ipleiria.project.add.Application;
+import ipleiria.project.add.Utils.UriHelper;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.model.User;
@@ -26,7 +29,10 @@ public class ItemsRepository implements ItemsDataSource {
     private static final String TAG = "ITEMS_REPO";
     private static final String DELETED_ITEMS = "deleted-items";
     private static final String ITEMS = "items";
+
     private static ItemsRepository INSTANCE = null;
+
+    private final FilesRepository filesRepository;
 
     private DatabaseReference itemsReference;
     private DatabaseReference deletedItemsReference;
@@ -44,13 +50,19 @@ public class ItemsRepository implements ItemsDataSource {
 
     // Prevent direct instantiation.
     private ItemsRepository() {
-        this.itemsReference = FirebaseDatabase.getInstance().getReference().child(ITEMS);
-        this.itemsReference.keepSynced(true);
-        this.deletedItemsReference = FirebaseDatabase.getInstance().getReference().child(DELETED_ITEMS);
-        this.deletedItemsReference.keepSynced(true);
+        initUser(UserService.getInstance().getUser().getUid());
 
         this.localItems = new LinkedList<>();
         this.localDeletedItems = new LinkedList<>();
+
+        this.filesRepository = FilesRepository.getInstance();
+    }
+
+    public void initUser(String userUid){
+        this.itemsReference = FirebaseDatabase.getInstance().getReference().child(ITEMS).child(userUid);
+        this.itemsReference.keepSynced(true);
+        this.deletedItemsReference = FirebaseDatabase.getInstance().getReference().child(DELETED_ITEMS).child(userUid);
+        this.deletedItemsReference.keepSynced(true);
     }
 
     /**
@@ -71,12 +83,12 @@ public class ItemsRepository implements ItemsDataSource {
 
     @Override
     public DatabaseReference getDeletedItemsReference() {
-        return deletedItemsReference.child(UserService.getInstance().getUser().getUid());
+        return deletedItemsReference;
     }
 
     @Override
     public DatabaseReference getItemsReference() {
-        return itemsReference.child(UserService.getInstance().getUser().getUid());
+        return itemsReference;
     }
 
     @Override
@@ -141,7 +153,8 @@ public class ItemsRepository implements ItemsDataSource {
 
     @Override
     public void saveItem(@NonNull Item item) {
-        // save in firebase
+        writeItem(item);
+        addItem(item, false);
     }
 
     @Override
@@ -156,7 +169,7 @@ public class ItemsRepository implements ItemsDataSource {
         localDeletedItems.add(item);
 
         for(ItemFile file: item.getFiles()){
-            // TODO: 06-May-17 move file
+            filesRepository.deleteFile(file);
             file.setDeleted(true);
         }
 
@@ -173,7 +186,7 @@ public class ItemsRepository implements ItemsDataSource {
     public void permanenetlyDeleteItem(@NonNull final Item item) {
         localDeletedItems.remove(item);
         for(ItemFile file: item.getFiles()){
-            // TODO: 06-May-17 delete file
+            filesRepository.permanenetlyDeleteFile(file);
         }
         getDeletedItemsReference().child(item.getDbKey()).removeValue(new DatabaseReference.CompletionListener() {
             @Override
@@ -190,7 +203,7 @@ public class ItemsRepository implements ItemsDataSource {
 
         for(ItemFile file: item.getFiles()){
             if(file.isDeleted()){
-                // TODO: 06-May-17 move file
+                filesRepository.restoreFile(file);
                 file.setDeleted(false);
             }
         }
@@ -207,6 +220,16 @@ public class ItemsRepository implements ItemsDataSource {
     @Override
     public void refreshItems() {
 
+    }
+
+    @Override
+    public void addFilesToItem(Item item, List<Uri> receivedFiles) {
+        for (Uri uri : receivedFiles) {
+            ItemFile file = new ItemFile(UriHelper.getFileName(Application.getAppContext(), uri));
+            item.addFile(file);
+            filesRepository.saveFile(file);
+        }
+        saveItem(item);
     }
 
     private void writeItem(Item item){

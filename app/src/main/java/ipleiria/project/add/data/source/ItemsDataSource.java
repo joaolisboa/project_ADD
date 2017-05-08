@@ -1,5 +1,6 @@
 package ipleiria.project.add.data.source;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
@@ -40,4 +41,6 @@ public interface ItemsDataSource {
     void restoreItem(@NonNull Item item);
 
     void refreshItems();
+
+    void addFilesToItem(Item item, List<Uri> receivedFiles);
 }

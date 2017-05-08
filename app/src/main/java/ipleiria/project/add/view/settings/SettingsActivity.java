@@ -41,9 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
                     getSupportFragmentManager(), settingsFragment, R.id.contentFrame);
         }
 
-        SharedPreferences preferences = getSharedPreferences(USER_DATA_KEY, MODE_PRIVATE);
-        SettingsPresenter presenter = new SettingsPresenter(UserService.getInstance(preferences), settingsFragment,
-                FilesRepository.getInstance());
+        SettingsPresenter presenter = new SettingsPresenter(UserService.getInstance(), settingsFragment);
     }
 
 

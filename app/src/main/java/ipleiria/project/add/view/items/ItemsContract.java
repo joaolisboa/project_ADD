@@ -1,5 +1,6 @@
 package ipleiria.project.add.view.items;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 
 import java.util.List;
@@ -26,16 +27,17 @@ public class ItemsContract {
 
         void showItems(List<Item> items);
 
-        void showAddItem();
-
         void showAddedItem(@NonNull Item item);
 
         void removeDeletedItem(@NonNull Item deletedItem);
+
+        void openItemDetails(Item item);
 
         void showNoItems();
 
         void showNoDeletedItems();
 
+        void finish();
     }
 
     interface Presenter extends BasePresenter {
@@ -58,12 +60,12 @@ public class ItemsContract {
 
         void setFiltering(int requestType);
 
-        int getFiltering();
-
         void checkForEmptyList();
 
-        void setIntentAction(String action);
+        void setIntentInfo(Intent intent);
 
         String getIntentAction();
+
+        void onItemClicked(Item item);
     }
 }

@@ -1,5 +1,6 @@
 package ipleiria.project.add.data.source;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
@@ -13,8 +14,10 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Map;
 
+import ipleiria.project.add.Application;
 import ipleiria.project.add.Dropbox.DropboxClientFactory;
 import ipleiria.project.add.MEOCloud.MEOCloudClient;
+import ipleiria.project.add.Utils.NetworkState;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.User;
 
@@ -30,6 +33,7 @@ public class UserService {
     public static final String AUTH_TAG = "AUTHENTICATION";
 
     public static final String USER_DATA_KEY = "services";
+    public static final String USER_UID_KEY = "user_uid";
     public static final String DROPBOX_PREFS_KEY = "dropbox_access_token";
     public static final String MEO_PREFS_KEY = "meo_access_token";
 
@@ -44,10 +48,11 @@ public class UserService {
 
     private UserService(){
         this.firebaseAuth = FirebaseAuth.getInstance();
-    }
+        this.preferences = Application.getAppContext().getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE);
 
-    private void setPreferences(SharedPreferences preferences){
-        this.preferences = preferences;
+        if(NetworkState.isOnline()){
+            this.user = new User(preferences.getString(USER_UID_KEY, null));
+        }
 
         dropboxToken = preferences.getString(DROPBOX_PREFS_KEY, null);
         meoCloudToken = preferences.getString(MEO_PREFS_KEY, null);
@@ -58,15 +63,7 @@ public class UserService {
      *
      * @return the {@link ItemsRepository} instance
      */
-    public static UserService getInstance(SharedPreferences preferences) {
-        if (INSTANCE == null) {
-            INSTANCE = new UserService();
-        }
-        INSTANCE.setPreferences(preferences);
-        return INSTANCE;
-    }
-
-    public static UserService getInstance(){
+    public static UserService getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new UserService();
         }
@@ -95,6 +92,9 @@ public class UserService {
         user.setPhoto_url(profileUri);
         user.setName(displayName);
         user.setAnonymous(firebaseUser.isAnonymous());
+
+        preferences.edit().putString(USER_UID_KEY, firebaseUser.getUid()).apply();
+        ItemsRepository.getInstance().initUser(firebaseUser.getUid());
 
         this.user = user;
     }

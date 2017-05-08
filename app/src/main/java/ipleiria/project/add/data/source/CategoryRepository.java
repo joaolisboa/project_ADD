@@ -30,13 +30,17 @@ public class CategoryRepository implements CategoryDataSource{
 
     private DatabaseReference databaseRef;
 
-    List<Dimension> dimensions;
+    private List<Dimension> dimensions;
+    private List<Area> areas;
+    private List<Criteria> criterias;
 
     private CategoryRepository() {
         this.databaseRef = FirebaseDatabase.getInstance().getReference().child("categories");
         this.databaseRef.keepSynced(true);
 
         this.dimensions = new LinkedList<>();
+        this.areas = new LinkedList<>();
+        this.criterias = new LinkedList<>();
     }
 
     /**
@@ -90,14 +94,12 @@ public class CategoryRepository implements CategoryDataSource{
                 criteria.setWriteCell(new Criteria.Coordinate(writeX, writeY));
                 criteria.setDbKey(criteriaSnap.getKey());
                 area.addCriteria(criteria);
+                criterias.add(criteria);
             }
             dimension.addArea(area);
+            areas.add(area);
         }
         dimensions.add(dimension);
-    }
-
-    private void addDimensions(List<Dimension> dimensions) {
-        this.dimensions = dimensions;
     }
 
     public List<Dimension> getDimensions() {
@@ -106,6 +108,10 @@ public class CategoryRepository implements CategoryDataSource{
 
     public Criteria getCriteria(int dimension, int area, int criteria){
         return dimensions.get(dimension).getArea(area).getCriteria(criteria);
+    }
+
+    public List<Criteria> getCriterias(){
+        return criterias;
     }
 
     // prefered over readCategories to get data in the presenter through callbacks

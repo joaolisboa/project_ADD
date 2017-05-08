@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".Application"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -67,6 +68,16 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.settings.SettingsActivity" />
+        </activity>
+        <activity
+            android:name=".view.add_edit_item.AddEditActivity"
+            android:label="Add Item"
+            android:windowSoftInputMode="stateHidden"
+            android:parentActivityName=".view.items.ItemsActivity"
+            android:theme="@style/AppTheme.OverlapSystemBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.items.ItemsActivity" />
         </activity>
 
 

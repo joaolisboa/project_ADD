@@ -69,8 +69,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                     getSupportFragmentManager(), mainFragment, R.id.contentFrame);
         }
 
-        SharedPreferences preferences = getSharedPreferences(USER_DATA_KEY, MODE_PRIVATE);
-        presenter = new MainPresenter(UserService.getInstance(preferences), mainFragment, this);
+        presenter = new MainPresenter(UserService.getInstance(), mainFragment, this);
 
         // should run when app starts
         try {

@@ -1,5 +1,7 @@
 package ipleiria.project.add.view.items;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -11,14 +13,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Utils.StringUtils;
+import ipleiria.project.add.Utils.UriHelper;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.CategoryRepository;
+import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.ItemsRepository;
+
+import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 
 
 /**
@@ -39,6 +46,7 @@ public class ItemsPresenter implements ItemsContract.Presenter {
 
     private boolean listingDeleted;
     private String action;
+    private List<Uri> receivedFiles;
 
     private DatabaseReference databaseRef;
     private ChildEventListener itemsListener;
@@ -57,6 +65,8 @@ public class ItemsPresenter implements ItemsContract.Presenter {
         this.currentFilteredItems = new LinkedList<>();
 
         this.databaseRef = FirebaseDatabase.getInstance().getReference();
+
+        this.receivedFiles = new ArrayList<>();
     }
 
     @Override
@@ -220,11 +230,6 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     }
 
     @Override
-    public int getFiltering() {
-        return currentFiltering;
-    }
-
-    @Override
     public void checkForEmptyList() {
         if (!listingDeleted) {
             if(itemsRepository.getItems().isEmpty()) {
@@ -238,13 +243,39 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     }
 
     @Override
-    public void setIntentAction(String action) {
-        this.action = action;
+    public void setIntentInfo(Intent intent) {
+        this.action = intent.getAction();
+
+        if(action != null){
+            switch(action){
+                case Intent.ACTION_SEND:
+                    receivedFiles.add(UriHelper.getUriFromExtra(intent));
+                    break;
+
+                case Intent.ACTION_SEND_MULTIPLE:
+                    receivedFiles.addAll(UriHelper.getUriListFromExtra(intent));
+                    break;
+
+                case SENDING_PHOTO:
+                    receivedFiles.add(Uri.parse(intent.getStringExtra("photo_uri")));
+                    break;
+            }
+        }
     }
 
     @Override
     public String getIntentAction() {
         return action;
+    }
+
+    @Override
+    public void onItemClicked(Item item) {
+        if(action == null){
+            itemsView.openItemDetails(item);
+        }else{
+            itemsRepository.addFilesToItem(item, receivedFiles);
+            itemsView.finish();
+        }
     }
 
     private void processItems(List<Item> items){

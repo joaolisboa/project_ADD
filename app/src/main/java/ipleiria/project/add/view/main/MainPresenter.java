@@ -13,9 +13,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import ipleiria.project.add.*;
-import ipleiria.project.add.data.model.User;
-import ipleiria.project.add.data.source.CategoryRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.view.items.ItemsActivity;
 
@@ -34,7 +31,7 @@ public class MainPresenter implements MainContract.Presenter {
     private final MainContract.View mainView;
     private final MainContract.DrawerView drawerView;
 
-    private Uri photoURI;
+    private Uri photoUri;
     private boolean authFlag = false;
 
     public MainPresenter(@NonNull UserService userService, @NonNull MainContract.View mainView, @NonNull MainContract.DrawerView drawerView){
@@ -106,9 +103,14 @@ public class MainPresenter implements MainContract.Presenter {
             // Make sure the request was successful
             if (resultCode == Activity.RESULT_OK) {
                 Intent photo = new Intent(context, ItemsActivity.class);
-                photo.putExtra("photo_uri", photoURI.toString());
+                photo.putExtra("photo_uri", photoUri.toString());
                 context.startActivity(photo.setAction(SENDING_PHOTO));
             }
         }
+    }
+
+    @Override
+    public void setPhotoUri(Uri photoUri){
+        this.photoUri = photoUri;
     }
 }

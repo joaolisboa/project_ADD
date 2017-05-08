@@ -26,7 +26,7 @@ public class Item {
     }
 
     public Item(String description){
-        super();
+        this();
         this.description = description;
     }
 

@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (resultCode == RESULT_OK) {
                 Intent photo = new Intent(MainActivity.this, ListItemActivity.class);
                 photo.putExtra("photo_uri", photoURI.toString());
-                startActivity(photo.setIntentAction(SENDING_PHOTO));
+                startActivity(photo.setIntentInfo(SENDING_PHOTO));
 
             }
         }*/

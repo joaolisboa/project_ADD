@@ -38,7 +38,6 @@ import static ipleiria.project.add.view.main.MainPresenter.REQUEST_TAKE_PHOTO;
 public class MainFragment extends Fragment implements MainContract.View{
 
     private MainContract.Presenter presenter;
-    private Uri photoURI;
 
     public MainFragment() {}
 
@@ -109,14 +108,14 @@ public class MainFragment extends Fragment implements MainContract.View{
             try {
                 photoFile = createImageFile();
             } catch (Exception ex) {
-                // Error occurred while creating the File
                 Log.e(TAG, ex.getMessage(), ex);
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(getContext(),
+                Uri photoURI = FileProvider.getUriForFile(getContext(),
                         "ipleiria.project.add.store",
                         photoFile);
+                presenter.setPhotoUri(photoURI);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }

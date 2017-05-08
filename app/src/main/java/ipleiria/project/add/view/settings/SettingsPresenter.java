@@ -30,7 +30,6 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     private final UserService userService;
     private final DropboxService dropboxService;
     private final MEOCloudService meoCloudService;
-    private final FilesRepository filesRepository;
     private final SettingsContract.View settingsView;
 
     // both Dropbox and MEO Auth save their tokens when this activity resumes
@@ -42,14 +41,13 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     // could cause issues in the future
     private boolean loginIntent = false;
 
-    public SettingsPresenter(@NonNull UserService userService, @NonNull SettingsContract.View settingsView,
-                             @NonNull FilesRepository filesRepository){
+    public SettingsPresenter(@NonNull UserService userService, @NonNull SettingsContract.View settingsView){
         this.userService = userService;
         this.dropboxService = DropboxService.getInstance(userService.getDropboxToken());
         this.meoCloudService = MEOCloudService.getInstance(userService.getMeoCloudToken());
+
         this.settingsView = settingsView;
         this.settingsView.setPresenter(this);
-        this.filesRepository = filesRepository;
     }
 
     @Override

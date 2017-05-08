@@ -1,5 +1,6 @@
 package ipleiria.project.add.view.items;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -20,10 +22,15 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.AddItemActivity;
+import ipleiria.project.add.ItemDetailActivity;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.view.add_edit_item.AddEditActivity;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
+import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM;
+import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM_KEY;
 import static ipleiria.project.add.view.items.ItemsActivity.LIST_DELETED_KEY;
 
 /**
@@ -75,7 +82,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         noItemsAddView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAddItem();
+                addItem();
             }
         });
 
@@ -85,7 +92,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAddItem();
+                addItem();
             }
         });
 
@@ -157,11 +164,6 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     }
 
     @Override
-    public void showAddItem() {
-        // TODO: 06-May-17 create new item - without file
-    }
-
-    @Override
     public void showAddedItem(@NonNull Item item) {
         listAdapter.onItemAdded(item);
 
@@ -176,6 +178,11 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     }
 
     @Override
+    public void openItemDetails(Item item) {
+        //startActivity(new Intent(getContext(), ItemDetailActivity.class));
+    }
+
+    @Override
     public void showNoItems() {
         showNoItemsViews(getString(R.string.no_items));
     }
@@ -186,6 +193,11 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         noItemsAddView.setVisibility(View.GONE);
     }
 
+    @Override
+    public void finish() {
+        getActivity().finish();
+    }
+
     private void showNoItemsViews(String mainText) {
         itemsView.setVisibility(View.GONE);
         noItemsView.setVisibility(View.VISIBLE);
@@ -193,56 +205,11 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         noItemsMainView.setText(mainText);
     }
 
-    // TODO: 06-May-17 refactor file share
-    private void addFilesToItem(Item itemAtPosition) {
-        /*receivedFiles = new LinkedList<>();
-        String action = intent.getAction();
-        String type = intent.getType();
-        if (Intent.ACTION_SEND.equals(action) && type != null) {
-            handleSingleFile(intent);
-        } else if (SENDING_PHOTO.equals(action)){
-            handleFile(Uri.parse(intent.getStringExtra( "photo_uri")));
-
-        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-            handleMultipleFiles(intent);
-        }
-        List<ItemFile> itemFiles = new LinkedList<>();
-        for (Uri uri : receivedFiles) {
-            itemFiles.add(new ItemFile(UriHelper.getFileName(ItemsActivity.this, uri)));
-        }
-        itemAtPosition.addFiles(itemFiles);
-        if (NetworkState.isOnline(this)) {
-            for(int i = 0; i < receivedFiles.size(); i++){
-                Log.d("FILE_UPLOAD", "uploading file: " + UriHelper.getFileName(ItemsActivity.this, receivedFiles.get(i)));
-                CloudHandler.uploadFileToCloud(this, receivedFiles.get(i),
-                        itemFiles.get(i), itemAtPosition.getCriteria());
-            }
-        }else{
-            for(int i = 0; i < receivedFiles.size(); i++){
-                FileUtils.copyFileToLocalDir(this, receivedFiles.get(i), itemAtPosition.getCriteria());
-            }
-        }
-        if (ApplicationData.getInstance().getUserUID() != null) {
-            FirebaseHandler.getInstance().writeItem(itemAtPosition);
-        }
-        Toast.makeText(this, "File added to item", Toast.LENGTH_SHORT).show();*/
-    }
-
-    private void handleFile(Uri uri) {
-        //receivedFiles.add(uri);
-    }
-
-    private void handleSingleFile(Intent intent) {
-        //handleFile((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
-    }
-
-    private void handleMultipleFiles(Intent intent) {
-        ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-        if (uris != null) {
-            for (Uri uri : uris) {
-                handleFile(uri);
-            }
-        }
+    private void addItem(){
+        Intent intent = getActivity().getIntent();
+        // change intent to use a different activity, keeping extras and action
+        intent.setComponent(new ComponentName(getContext(), AddEditActivity.class));
+        startActivity(intent);
     }
 
     /**
@@ -252,8 +219,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
 
         @Override
         public void onItemClick(Item clickedIem) {
-            // TODO: 06-May-17 open item details act
-
+            itemsPresenter.onItemClicked(clickedIem);
         }
 
         @Override
@@ -268,7 +234,10 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
 
         @Override
         public void onEditItem(Item itemToEdit) {
-            // TODO: 06-May-17 open addEditAct to edit item
+            Intent intent = new Intent(getContext(), AddEditActivity.class);
+            intent.setAction(EDITING_ITEM);
+            intent.putExtra(EDITING_ITEM_KEY, itemToEdit.getDbKey());
+            startActivity(intent);
         }
 
         @Override
@@ -276,7 +245,6 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
             itemsPresenter.restoreItem(restoredItem);
         }
     };
-
 
     interface ItemActionListener {
 

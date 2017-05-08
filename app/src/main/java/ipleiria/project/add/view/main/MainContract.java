@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.main;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import java.util.List;
@@ -31,10 +32,11 @@ public class MainContract {
 
     interface Presenter extends BasePresenter {
 
-        void result(int requestCode, int resultCode, Context context);
-
         void start();
 
+        void result(int requestCode, int resultCode, Context context);
+
+        void setPhotoUri(Uri photoUri);
     }
 
 }

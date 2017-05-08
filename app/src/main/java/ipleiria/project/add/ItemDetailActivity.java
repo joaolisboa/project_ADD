@@ -48,7 +48,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setIntentAction("Action", null).show();
+                        .setIntentInfo("Action", null).show();
             }
         });*/
 
