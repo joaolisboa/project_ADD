@@ -41,8 +41,8 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     // could cause issues in the future
     private boolean loginIntent = false;
 
-    public SettingsPresenter(@NonNull UserService userService, @NonNull SettingsContract.View settingsView){
-        this.userService = userService;
+    public SettingsPresenter(@NonNull SettingsContract.View settingsView){
+        this.userService = UserService.getInstance();
         this.dropboxService = DropboxService.getInstance(userService.getDropboxToken());
         this.meoCloudService = MEOCloudService.getInstance(userService.getMeoCloudToken());
 
@@ -60,7 +60,6 @@ public class SettingsPresenter implements SettingsContract.Presenter {
         }
 
         User user = userService.getUser();
-        System.out.println(user);
         if(user.isAnonymous()){
             settingsView.setAnonymousUserInfo();
         }else {

@@ -70,14 +70,6 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         }
 
         presenter = new MainPresenter(UserService.getInstance(), mainFragment, this);
-
-        // should run when app starts
-        try {
-            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        } catch (DatabaseException e) {
-            // if any subsequent calls to setPersistence occur it won't crash...
-            Log.d(TAG, e.getMessage());
-        }
     }
 
     @Override

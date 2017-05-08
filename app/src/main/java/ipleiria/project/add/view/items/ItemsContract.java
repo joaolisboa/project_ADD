@@ -15,13 +15,10 @@ import ipleiria.project.add.data.model.Item;
  */
 
 public class ItemsContract {
-    interface ItemsActivityView{
-
-        void setFilters(List<String> filters);
-
-    }
 
     interface View extends BaseView<Presenter> {
+
+        void setFilters(List<String> filters);
 
         void setLoadingIndicator(boolean active);
 

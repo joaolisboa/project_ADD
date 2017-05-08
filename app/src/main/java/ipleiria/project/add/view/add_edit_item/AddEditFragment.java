@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.add_edit_item;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.net.Uri;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,7 +91,6 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
         searchListView.setOnItemClickListener(searchItemClickListener);
         searchView.setOnQueryTextListener(searchQueryListener);
 
-
         if (savedInstanceState != null) {
             String state = savedInstanceState.getString("tState");
             if (!TextUtils.isEmpty(state)) {
@@ -106,10 +107,15 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
             }
         });
 
-        addEditPresenter.setIntentInfo(getActivity().getIntent());
         addEditPresenter.createTreeView();
 
         return root;
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        addEditPresenter.subscribe(getActivity().getIntent());
     }
 
     @Override

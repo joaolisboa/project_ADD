@@ -36,7 +36,9 @@ public class AddEditContract {
         void finish();
     }
 
-    interface Presenter{
+    interface Presenter {
+
+        void subscribe(Intent intent);
 
         void createTreeView();
 
@@ -45,8 +47,6 @@ public class AddEditContract {
         void selectedCriteria(Criteria criteria);
 
         void finishAction();
-
-        void setIntentInfo(Intent intent);
 
     }
 

@@ -13,9 +13,12 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -48,6 +51,8 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     private TextView noItemsAddView;
     private LinearLayout itemsView;
 
+    private Spinner spinnerFilter;
+
     public ItemsFragment() {
         // Requires empty public constructor
     }
@@ -69,6 +74,8 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.items_frag, container, false);
+
+        spinnerFilter = (Spinner) getActivity().findViewById(R.id.spinner_nav);
 
         // Set up tasks view
         ListView listView = (ListView) root.findViewById(R.id.items_list);
@@ -125,14 +132,34 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
         itemsPresenter.unsubscribe();
     }
 
     @Override
     public void setPresenter(@NonNull ItemsContract.Presenter presenter) {
         this.itemsPresenter = checkNotNull(presenter);
+    }
+
+    @Override
+    public void setFilters(List<String> filters) {
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, filters);
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerFilter.setAdapter(spinnerArrayAdapter);
+        spinnerFilter.setSelection(0);
+
+        spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                itemsPresenter.setFiltering(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // do nothing
+            }
+        });
     }
 
     @Override

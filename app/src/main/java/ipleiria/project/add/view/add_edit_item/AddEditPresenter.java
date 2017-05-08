@@ -7,6 +7,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.text.TextUtils;
+import android.util.Log;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -32,6 +37,8 @@ import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PH
  */
 
 public class AddEditPresenter implements AddEditContract.Presenter {
+
+    private static final String TAG  ="AddEditPresenter";
 
     public static final String EDITING_ITEM = "editing_item_action";
     public static final String EDITING_ITEM_KEY = "item_key";
@@ -59,8 +66,61 @@ public class AddEditPresenter implements AddEditContract.Presenter {
     }
 
     @Override
+    public void subscribe(Intent intent) {
+        if (!categoryRepository.getDimensions().isEmpty()) {
+            addEditView.createTreeView(categoryRepository.getDimensions());
+        } else {
+            readCategories();
+        }
+        setIntentInfo(intent);
+    }
+
+    private void readCategories() {
+        categoryRepository.getReference().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                categoryRepository.addDimensions(dataSnapshot);
+                addEditView.createTreeView(categoryRepository.getDimensions());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+            }
+        });
+    }
+
+    private void setIntentInfo(Intent intent) {
+        intentAction = intent.getAction();
+
+        if(intentAction != null) {
+            switch (intentAction) {
+                case Intent.ACTION_SEND:
+                    receivedFiles.add(UriHelper.getUriFromExtra(intent));
+                    break;
+
+                case Intent.ACTION_SEND_MULTIPLE:
+                    receivedFiles.addAll(UriHelper.getUriListFromExtra(intent));
+                    break;
+
+                case SENDING_PHOTO:
+                    receivedFiles.add(Uri.parse(intent.getStringExtra("photo_uri")));
+                    break;
+
+                case EDITING_ITEM:
+                    String itemDbKey = intent.getStringExtra(EDITING_ITEM_KEY);
+                    editingItem = itemsRepository.getItem(itemDbKey);
+                    selectedCriteria = editingItem.getCriteria();
+                    addEditView.setItemInfo(editingItem);
+                    break;
+            }
+        }
+        // no action means the app is opening to add a new item without file
+    }
+
+    @Override
     public void createTreeView() {
-        addEditView.createTreeView(categoryRepository.getDimensions());
+
     }
 
     @Override
@@ -115,36 +175,5 @@ public class AddEditPresenter implements AddEditContract.Presenter {
             itemsRepository.saveItem(item);
         }
         addEditView.finish();
-    }
-
-    @Override
-    public void setIntentInfo(Intent intent) {
-        intentAction = intent.getAction();
-
-        if(intentAction != null) {
-            switch (intentAction) {
-                case Intent.ACTION_SEND:
-                    receivedFiles.add(UriHelper.getUriFromExtra(intent));
-                    break;
-
-                case Intent.ACTION_SEND_MULTIPLE:
-                    receivedFiles.addAll(UriHelper.getUriListFromExtra(intent));
-                    break;
-
-                case SENDING_PHOTO:
-                    receivedFiles.add(Uri.parse(intent.getStringExtra("photo_uri")));
-                    break;
-
-                case EDITING_ITEM:
-                    String itemDbKey = intent.getStringExtra(EDITING_ITEM_KEY);
-                    editingItem = itemsRepository.getItem(itemDbKey);
-                    selectedCriteria = editingItem.getCriteria();
-                    addEditView.setItemInfo(editingItem);
-                    break;
-            }
-        }else{
-            // no action means the app is opening to add a new item without file
-
-        }
     }
 }

@@ -39,7 +39,6 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     private final CategoryRepository categoryRepository;
     private final ItemsRepository itemsRepository;
     private final ItemsContract.View itemsView;
-    private final ItemsContract.ItemsActivityView activityView;
 
     private int currentFiltering;
     private List<Item> currentFilteredItems;
@@ -48,14 +47,11 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     private String action;
     private List<Uri> receivedFiles;
 
-    private DatabaseReference databaseRef;
     private ChildEventListener itemsListener;
 
-    public ItemsPresenter(@NonNull ItemsRepository itemsRepository, @NonNull ItemsContract.View itemsView,
-                          @NonNull ItemsContract.ItemsActivityView activityView, boolean listingDeleted) {
+    public ItemsPresenter(@NonNull ItemsRepository itemsRepository, @NonNull ItemsContract.View itemsView, boolean listingDeleted) {
         this.itemsRepository = itemsRepository;
         this.categoryRepository = CategoryRepository.getInstance();
-        this.activityView = activityView;
         this.itemsView = itemsView;
         this.itemsView.setPresenter(this);
 
@@ -63,8 +59,6 @@ public class ItemsPresenter implements ItemsContract.Presenter {
 
         this.currentFiltering = 0;
         this.currentFilteredItems = new LinkedList<>();
-
-        this.databaseRef = FirebaseDatabase.getInstance().getReference();
 
         this.receivedFiles = new ArrayList<>();
     }
@@ -83,7 +77,11 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     @Override
     public void unsubscribe() {
         if (itemsListener != null) {
-            databaseRef.removeEventListener(itemsListener);
+            if(!listingDeleted){
+                itemsRepository.getItemsReference().removeEventListener(itemsListener);
+            }else{
+                itemsRepository.getDeletedItemsReference().removeEventListener(itemsListener);
+            }
         }
     }
 
@@ -91,9 +89,7 @@ public class ItemsPresenter implements ItemsContract.Presenter {
         categoryRepository.getReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot dimensionSnap : dataSnapshot.getChildren()) {
-                    categoryRepository.addDimension(dimensionSnap);
-                }
+                categoryRepository.addDimensions(dataSnapshot);
                 itemsView.setLoadingIndicator(false);
                 setItemsFilters();
                 setItemsListener();
@@ -152,7 +148,6 @@ public class ItemsPresenter implements ItemsContract.Presenter {
 
     @Override
     public void showFilteredItems() {
-        currentFilteredItems = new LinkedList<>();
         if (currentFiltering == 0) {
             if (!listingDeleted) {
                 processItems(itemsRepository.getItems());
@@ -160,7 +155,9 @@ public class ItemsPresenter implements ItemsContract.Presenter {
                 processItems(itemsRepository.getDeletedItems());
             }
         } else {
-            for (Item i : itemsRepository.getItems()) {
+            currentFilteredItems = new LinkedList<>();
+            List<Item> searchList = (!listingDeleted ? itemsRepository.getItems() : itemsRepository.getDeletedItems());
+            for (Item i : searchList) {
                 if (i.getDimension().getReference() == currentFiltering) {
                     currentFilteredItems.add(i);
                 }
@@ -280,7 +277,11 @@ public class ItemsPresenter implements ItemsContract.Presenter {
 
     private void processItems(List<Item> items){
         if(items.isEmpty()){
-            checkForEmptyList();
+            if (!listingDeleted) {
+                itemsView.showNoItems();
+            } else {
+                itemsView.showNoDeletedItems();
+            }
         }else{
             itemsView.showItems(items);
         }
@@ -292,6 +293,6 @@ public class ItemsPresenter implements ItemsContract.Presenter {
         for (Dimension d : categoryRepository.getDimensions()) {
             filters.add(d.getName());
         }
-        activityView.setFilters(filters);
+        itemsView.setFilters(filters);
     }
 }

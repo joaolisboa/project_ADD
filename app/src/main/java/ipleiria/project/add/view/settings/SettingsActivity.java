@@ -41,7 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
                     getSupportFragmentManager(), settingsFragment, R.id.contentFrame);
         }
 
-        SettingsPresenter presenter = new SettingsPresenter(UserService.getInstance(), settingsFragment);
+        SettingsPresenter presenter = new SettingsPresenter(settingsFragment);
     }
 
 

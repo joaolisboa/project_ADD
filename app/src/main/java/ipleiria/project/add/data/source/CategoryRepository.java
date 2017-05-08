@@ -75,6 +75,12 @@ public class CategoryRepository implements CategoryDataSource{
         });
     }
 
+    public void addDimensions(DataSnapshot snapshot){
+        for (DataSnapshot dimensionSnap : snapshot.getChildren()) {
+            addDimension(dimensionSnap);
+        }
+    }
+
     public void addDimension(DataSnapshot snapshot){
         Dimension dimension = new Dimension(snapshot.child("name").getValue(String.class),
                 snapshot.child("reference").getValue(Integer.class));

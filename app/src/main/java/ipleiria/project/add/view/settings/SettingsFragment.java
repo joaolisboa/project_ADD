@@ -36,8 +36,6 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
 
     private ImageView meocloudState;
     private ImageView dropboxState;
-    private LinearLayout dropboxL;
-    private LinearLayout meoCloudL;
 
     private ImageView profileImageView;
     private TextView accountName;
@@ -64,9 +62,6 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
         profileImageView = (ImageView) root.findViewById(R.id.profile_pic);
         accountName = (TextView) root.findViewById(R.id.account_name);
         accountDescription = (TextView) root.findViewById(R.id.account_description);
-
-        dropboxL = (LinearLayout) root.findViewById(R.id.dropbox);
-        meoCloudL = (LinearLayout) root.findViewById(R.id.meocloud);
         dropboxState = (ImageView) root.findViewById(R.id.dropbox_state);
         meocloudState = (ImageView) root.findViewById(R.id.meocloud_state);
 
@@ -95,7 +90,7 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
     }
 
     public void onGoogleAccountClick() {
-        if (NetworkState.isOnline(getContext())) {
+        if (NetworkState.isOnline()) {
             settingsPresenter.setLoginIntention(true);
             startActivity(new Intent(getContext(), GoogleSignInActivity.class));
         } else {
@@ -128,7 +123,7 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
                 .setTitle("Confirm");
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                if (NetworkState.isOnline(getContext())) {
+                if (NetworkState.isOnline()) {
                     settingsPresenter.signOutMEOCloud();
                 } else {
                     showNoNetworkHint();
@@ -141,7 +136,7 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
 
     @Override
     public void showDropboxLogin() {
-        if (NetworkState.isOnline(getContext())) {
+        if (NetworkState.isOnline()) {
             Auth.startOAuth2Authentication(getContext(), getString(R.string.dropbox_app_key));
             settingsPresenter.setLoginIntention(true);
         } else {
@@ -151,7 +146,7 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
 
     @Override
     public void showMEOCloudLogin() {
-        if (NetworkState.isOnline(getContext())) {
+        if (NetworkState.isOnline()) {
             MEOCloudAPI.startOAuth2Authentication(getContext(), getString(R.string.meo_consumer_key));
             settingsPresenter.setLoginIntention(true);
         } else {
