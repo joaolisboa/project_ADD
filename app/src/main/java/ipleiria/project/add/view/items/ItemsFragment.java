@@ -145,7 +145,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     @Override
     public void setFilters(List<String> filters) {
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, filters);
-        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerArrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spinnerFilter.setAdapter(spinnerArrayAdapter);
         spinnerFilter.setSelection(0);
 

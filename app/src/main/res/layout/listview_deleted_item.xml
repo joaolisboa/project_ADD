@@ -13,7 +13,7 @@
 
         <ImageView
             android:id="@+id/restore"
-            app:srcCompat="@drawable/restore_item_white"
+            app:srcCompat="@drawable/restore_white"
             android:layout_width="70dp"
             android:background="#38DC32"
             android:paddingLeft="20dp"

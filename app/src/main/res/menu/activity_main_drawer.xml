@@ -9,7 +9,7 @@
             />
         <item
             android:id="@+id/nav_trash"
-            android:icon="@drawable/delete_icon_black"
+            android:icon="@drawable/delete_black"
             android:title="Trash"
             />
 

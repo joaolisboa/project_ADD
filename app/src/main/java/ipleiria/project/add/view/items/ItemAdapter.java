@@ -75,10 +75,10 @@ public class ItemAdapter extends BaseSwipeAdapter {
             }
         });
         if (!listDeleted) {
-            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_icon));
-            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_item_icon));
+            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_white));
+            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_white));
         } else {
-            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_item_white));
+            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_white));
             button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_forever_white));
         }
 

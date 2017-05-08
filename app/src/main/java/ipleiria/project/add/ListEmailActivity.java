@@ -140,7 +140,7 @@ public class ListEmailActivity extends AppCompatActivity {
 
             private void init() {
                 background = new ColorDrawable(Color.RED);
-                deleteIcon = ContextCompat.getDrawable(ListEmailActivity.this, R.drawable.delete_item_icon);
+                deleteIcon = ContextCompat.getDrawable(ListEmailActivity.this, R.drawable.delete_white);
                 deleteIcon.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
                 deleteIconMargin = (int) ListEmailActivity.this.getResources().getDimension(R.dimen.ic_clear_margin);
                 initiated = true;

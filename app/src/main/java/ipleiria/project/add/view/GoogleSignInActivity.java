@@ -32,12 +32,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import ipleiria.project.add.R;
+import ipleiria.project.add.data.source.ItemsRepository;
 import ipleiria.project.add.data.source.UserService;
 
 /**
  * Created by Lisboa on 13-Apr-17.
  */
 
+// Google's own Google Auth Activity example modified with FirebaseAuth
 // TODO: 07-May-17 refactor activity - to mvp or maybe even remove(similar to drop/meo)?
 public class GoogleSignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
@@ -95,6 +97,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     UserService.getInstance().initUser(user);
+                    ItemsRepository.getInstance().moveItemsToNewUser();
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");

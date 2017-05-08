@@ -163,8 +163,8 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
                 .load(user.getPhoto_url())
                 .resize(100, 100)
                 .transform(new CircleTransformation())
-                .placeholder(R.drawable.ic_profile_placeholder)
-                .error(R.drawable.ic_profile_placeholder)
+                .placeholder(R.drawable.profile_placeholder)
+                .error(R.drawable.profile_placeholder)
                 .into(profileImageView);
 
     }
@@ -173,24 +173,24 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
     public void setAnonymousUserInfo() {
         accountName.setText(R.string.anonymous_name);
         accountDescription.setText(getString(R.string.google_sign_in_helper));
-        profileImageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_profile_placeholder));
+        profileImageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.profile_placeholder));
     }
 
     @Override
     public void setMEOCloudStatus(boolean status) {
         if(status){
-            meocloudState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_check_black_64dp));
+            meocloudState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.check_black));
         }else{
-            meocloudState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_link_black_64dp));
+            meocloudState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.check_black));
         }
     }
 
     @Override
     public void setDropboxStatus(boolean status) {
         if(status){
-            dropboxState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_check_black_64dp));
+            dropboxState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.check_black));
         }else{
-            dropboxState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_link_black_64dp));
+            dropboxState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.check_black));
         }
     }
 

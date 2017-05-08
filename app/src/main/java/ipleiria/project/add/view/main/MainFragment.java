@@ -1,6 +1,8 @@
 package ipleiria.project.add.view.main;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -22,6 +24,7 @@ import android.widget.Button;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import ipleiria.project.add.*;
 import ipleiria.project.add.view.items.ItemsActivity;
@@ -117,6 +120,16 @@ public class MainFragment extends Fragment implements MainContract.View{
                         photoFile);
                 presenter.setPhotoUri(photoURI);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
+                // give permission to camera to read/write to URI - required for Android 4.4
+                List<ResolveInfo> resolvedIntentActivities = getContext().getPackageManager().
+                        queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolvedIntentInfo : resolvedIntentActivities) {
+                    String packageName = resolvedIntentInfo.activityInfo.packageName;
+                    getContext().grantUriPermission(packageName, photoURI,
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
@@ -150,7 +163,7 @@ public class MainFragment extends Fragment implements MainContract.View{
     @Override
     public void onStart(){
         super.onStart();
-        presenter.start();
+        presenter.subscribe();
     }
 
     @Override
@@ -162,6 +175,12 @@ public class MainFragment extends Fragment implements MainContract.View{
     @Override
     public void onStop() {
         super.onStop();
+        presenter.unsubscribe();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
         presenter.unsubscribe();
     }
 

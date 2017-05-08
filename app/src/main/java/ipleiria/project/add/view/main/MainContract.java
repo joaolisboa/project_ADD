@@ -32,8 +32,6 @@ public class MainContract {
 
     interface Presenter extends BasePresenter {
 
-        void start();
-
         void result(int requestCode, int resultCode, Context context);
 
         void setPhotoUri(Uri photoUri);

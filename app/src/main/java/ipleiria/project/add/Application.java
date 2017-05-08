@@ -2,6 +2,8 @@ package ipleiria.project.add;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 import com.google.firebase.database.DatabaseException;
@@ -38,6 +40,12 @@ public class Application extends android.app.Application {
         }
 
         mContext = getApplicationContext();
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     public static Context getAppContext() {

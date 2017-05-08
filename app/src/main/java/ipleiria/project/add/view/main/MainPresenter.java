@@ -42,13 +42,8 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void start(){
-        FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
-    }
-
-    @Override
     public void subscribe() {
-        // TODO: 05-May-17 subscribe to user info ?
+        FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
     }
 
     @Override

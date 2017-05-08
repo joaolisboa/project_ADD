@@ -50,12 +50,12 @@ public class ItemsRepository implements ItemsDataSource {
 
     // Prevent direct instantiation.
     private ItemsRepository() {
-        initUser(UserService.getInstance().getUser().getUid());
-
         this.localItems = new LinkedList<>();
         this.localDeletedItems = new LinkedList<>();
 
         this.filesRepository = FilesRepository.getInstance();
+
+        initUser(UserService.getInstance().getUser().getUid());
     }
 
     public void initUser(String userUid){
@@ -89,6 +89,19 @@ public class ItemsRepository implements ItemsDataSource {
     @Override
     public DatabaseReference getItemsReference() {
         return itemsReference;
+    }
+
+    // local items will be moved to new user
+    // ie. when he upgrades from anon to Google account
+    @Override
+    public void moveItemsToNewUser() {
+        Log.d(TAG, "Moving files to new user: " + UserService.getInstance().getUser().getUid());
+        for(Item item: localItems){
+            writeItem(item);
+        }
+        for(Item deletedItem: localDeletedItems){
+            writeDeletedItem(deletedItem);
+        }
     }
 
     @Override

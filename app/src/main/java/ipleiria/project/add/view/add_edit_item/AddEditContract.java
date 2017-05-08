@@ -34,6 +34,10 @@ public class AddEditContract {
         String getDescriptionText();
 
         void finish();
+
+        void showEmptyDescriptionError();
+
+        void showNoSelectedCriteriaError();
     }
 
     interface Presenter {

@@ -41,8 +41,6 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
     private NavigationView navigationView;
 
-    private MainPresenter presenter;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +67,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                     getSupportFragmentManager(), mainFragment, R.id.contentFrame);
         }
 
-        presenter = new MainPresenter(UserService.getInstance(), mainFragment, this);
+        new MainPresenter(UserService.getInstance(), mainFragment, this);
     }
 
     @Override
@@ -109,8 +107,8 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                 .load(user.getPhoto_url())
                 .resize(100, 100)
                 .transform(new CircleTransformation())
-                .placeholder(R.drawable.ic_profile_placeholder)
-                .error(R.drawable.ic_profile_placeholder)
+                .placeholder(R.drawable.profile_placeholder)
+                .error(R.drawable.profile_placeholder)
                 .into((ImageView) navHeader.findViewById(R.id.profile_pic));
     }
 }

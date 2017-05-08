@@ -20,6 +20,8 @@ public interface ItemsDataSource {
 
     DatabaseReference getItemsReference();
 
+    void moveItemsToNewUser();
+
     List<Item> getItems();
 
     List<Item> getDeletedItems();

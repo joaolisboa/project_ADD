@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
@@ -166,8 +167,17 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     public void finish() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(descriptionEditText.getWindowToken(), 0);
-        //setResult(Activity.RESULT_OK);
         getActivity().finish();
+    }
+
+    @Override
+    public void showEmptyDescriptionError() {
+        Toast.makeText(getContext(), "Description is empty", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showNoSelectedCriteriaError() {
+        Toast.makeText(getContext(), "No criteria selected", Toast.LENGTH_SHORT).show();
     }
 
     @Override

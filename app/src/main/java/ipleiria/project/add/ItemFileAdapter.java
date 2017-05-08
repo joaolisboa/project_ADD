@@ -233,9 +233,9 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         ImageView buttonShare = (ImageView) itemView.findViewById(R.id.action_1);
         buttonShare.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.share_white));
         ImageView buttonEdit = (ImageView) itemView.findViewById(R.id.action_2);
-        buttonEdit.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_icon));
+        buttonEdit.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_white));
         ImageView buttonDelete = (ImageView) itemView.findViewById(R.id.action_3);
-        buttonDelete.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_item_icon));
+        buttonDelete.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_white));
 
         buttonShare.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -406,7 +406,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         ImageView buttonShare = (ImageView) itemView.findViewById(R.id.action_1);
         buttonShare.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.share_white));
         ImageView restoreButton = (ImageView) itemView.findViewById(R.id.action_2);
-        restoreButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_item_white));
+        restoreButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_white));
         ImageView buttonDelete = (ImageView) itemView.findViewById(R.id.action_3);
         buttonDelete.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_forever_white));
 

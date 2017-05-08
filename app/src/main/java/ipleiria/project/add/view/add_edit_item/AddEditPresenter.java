@@ -151,6 +151,15 @@ public class AddEditPresenter implements AddEditContract.Presenter {
     @Override
     public void finishAction() {
         String description = addEditView.getDescriptionText();
+        if(description == null || description.isEmpty()){
+            addEditView.showEmptyDescriptionError();
+            return;
+        }
+        if(selectedCriteria == null){
+            addEditView.showNoSelectedCriteriaError();
+            return;
+        }
+
         if(intentAction != null) {
             switch (intentAction) {
                 case Intent.ACTION_SEND:
