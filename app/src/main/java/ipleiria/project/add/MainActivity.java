@@ -39,12 +39,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import ipleiria.project.add.Dropbox.DropboxClientFactory;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.utils.CircleTransformation;
-import ipleiria.project.add.utils.CloudHandler;
-import ipleiria.project.add.utils.FileUtils;
-import ipleiria.project.add.utils.NetworkState;
+import ipleiria.project.add.Utils.CircleTransformation;
+import ipleiria.project.add.Utils.CloudHandler;
+import ipleiria.project.add.Utils.FileUtils;
+import ipleiria.project.add.Utils.NetworkState;
 
+import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {

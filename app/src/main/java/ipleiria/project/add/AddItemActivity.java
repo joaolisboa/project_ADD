@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.Dropbox.DropboxClientFactory;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Category;
@@ -40,12 +42,12 @@ import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
-import ipleiria.project.add.utils.CloudHandler;
-import ipleiria.project.add.utils.FileUtils;
-import ipleiria.project.add.utils.NetworkState;
-import ipleiria.project.add.utils.PathUtils;
-import ipleiria.project.add.utils.StringUtils;
-import ipleiria.project.add.utils.UriHelper;
+import ipleiria.project.add.Utils.CloudHandler;
+import ipleiria.project.add.Utils.FileUtils;
+import ipleiria.project.add.Utils.NetworkState;
+import ipleiria.project.add.Utils.PathUtils;
+import ipleiria.project.add.Utils.StringUtils;
+import ipleiria.project.add.Utils.UriHelper;
 
 public class AddItemActivity extends AppCompatActivity {
 

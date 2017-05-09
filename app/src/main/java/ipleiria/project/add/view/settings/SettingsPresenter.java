@@ -7,12 +7,12 @@ import com.dropbox.core.android.Auth;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import ipleiria.project.add.dropbox.DropboxCallback;
-import ipleiria.project.add.dropbox.DropboxClientFactory;
-import ipleiria.project.add.meocloud.MEOCallback;
-import ipleiria.project.add.meocloud.MEOCloudAPI;
-import ipleiria.project.add.meocloud.MEOCloudClient;
-import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
+import ipleiria.project.add.Dropbox.DropboxCallback;
+import ipleiria.project.add.Dropbox.DropboxClientFactory;
+import ipleiria.project.add.MEOCloud.MEOCallback;
+import ipleiria.project.add.MEOCloud.MEOCloudAPI;
+import ipleiria.project.add.MEOCloud.MEOCloudClient;
+import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.DropboxService;
 import ipleiria.project.add.data.source.MEOCloudService;
