@@ -2,10 +2,10 @@ package ipleiria.project.add.data.source;
 
 import android.support.annotation.NonNull;
 
-import ipleiria.project.add.MEOCloud.MEOCallback;
-import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.tasks.MEORevokeToken;
+import ipleiria.project.add.meocloud.MEOCallback;
+import ipleiria.project.add.meocloud.MEOCloudClient;
+import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
+import ipleiria.project.add.meocloud.tasks.MEORevokeToken;
 
 /**
  * Created by Lisboa on 06-May-17.

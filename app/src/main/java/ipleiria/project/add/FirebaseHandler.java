@@ -3,7 +3,6 @@ package ipleiria.project.add;
 import android.content.Context;
 import android.util.Log;
 
-import com.dropbox.core.v2.users.FullAccount;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,13 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.Dropbox.DropboxGetAccount;
-import ipleiria.project.add.MEOCloud.data.Account;
-import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.MEOCallback;
-import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.tasks.MEOGetAccount;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Criteria;
@@ -38,8 +30,7 @@ import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.Model.Email;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
-import ipleiria.project.add.Utils.FileUtils;
-import ipleiria.project.add.Utils.NetworkState;
+import ipleiria.project.add.utils.FileUtils;
 
 /**
  * Created by Lisboa on 15-Apr-17.

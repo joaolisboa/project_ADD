@@ -2,11 +2,9 @@ package ipleiria.project.add.data.source;
 
 import android.support.annotation.NonNull;
 
-import com.dropbox.core.v2.files.Metadata;
-
-import ipleiria.project.add.Dropbox.DropboxCallback;
-import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.Dropbox.DropboxRevokeToken;
+import ipleiria.project.add.dropbox.DropboxCallback;
+import ipleiria.project.add.dropbox.DropboxClientFactory;
+import ipleiria.project.add.dropbox.DropboxRevokeToken;
 
 /**
  * Created by Lisboa on 06-May-17.

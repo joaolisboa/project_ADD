@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -21,37 +20,33 @@ import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
-import com.dropbox.core.v2.files.Metadata;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.List;
 
-import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.Dropbox.DropboxDeleteFile;
-import ipleiria.project.add.Dropbox.DropboxDownloadFile;
-import ipleiria.project.add.Dropbox.DropboxGetThumbnail;
-import ipleiria.project.add.MEOCloud.data.FileResponse;
-import ipleiria.project.add.MEOCloud.data.MEOMetadata;
-import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.MEOCallback;
-import ipleiria.project.add.MEOCloud.MEOCloudAPI;
-import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.tasks.MEOCreateFolder;
-import ipleiria.project.add.MEOCloud.tasks.MEODeleteFile;
-import ipleiria.project.add.MEOCloud.tasks.MEODownloadFile;
-import ipleiria.project.add.MEOCloud.tasks.MEOGetThumbnail;
+import ipleiria.project.add.dropbox.DropboxClientFactory;
+import ipleiria.project.add.meocloud.data.FileResponse;
+import ipleiria.project.add.meocloud.data.MEOMetadata;
+import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
+import ipleiria.project.add.meocloud.MEOCallback;
+import ipleiria.project.add.meocloud.MEOCloudAPI;
+import ipleiria.project.add.meocloud.MEOCloudClient;
+import ipleiria.project.add.meocloud.tasks.MEOCreateFolder;
+import ipleiria.project.add.meocloud.tasks.MEODeleteFile;
+import ipleiria.project.add.meocloud.tasks.MEODownloadFile;
+import ipleiria.project.add.meocloud.tasks.MEOGetThumbnail;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
-import ipleiria.project.add.Utils.CloudHandler;
-import ipleiria.project.add.Utils.FileUtils;
-import ipleiria.project.add.Utils.NetworkState;
-import ipleiria.project.add.Utils.PathUtils;
-import ipleiria.project.add.Utils.UriHelper;
+import ipleiria.project.add.utils.CloudHandler;
+import ipleiria.project.add.utils.FileUtils;
+import ipleiria.project.add.utils.NetworkState;
+import ipleiria.project.add.utils.PathUtils;
+import ipleiria.project.add.utils.UriHelper;
 
-import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;
+import static ipleiria.project.add.utils.PathUtils.TRASH_FOLDER;
 
 /**
  * Created by J on 24/04/2017.

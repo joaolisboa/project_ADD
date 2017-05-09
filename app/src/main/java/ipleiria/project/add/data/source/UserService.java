@@ -9,19 +9,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.Map;
 
 import ipleiria.project.add.Application;
-import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.Utils.NetworkState;
-import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.utils.NetworkState;
 import ipleiria.project.add.data.model.User;
-
-import static ipleiria.project.add.FirebaseHandler.FIREBASE_UID_KEY;
 
 /**
  * Created by Lisboa on 04-May-17.

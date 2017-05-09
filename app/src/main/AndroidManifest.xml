@@ -96,7 +96,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MEOCloud.MEOAuth"
+            android:name=".meocloud.MEOAuth"
             android:configChanges="orientation|keyboard"
             android:launchMode="singleTask">
             <intent-filter>
@@ -126,7 +126,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
         <provider
-            android:name=".Utils.MyProvider"
+            android:name=".utils.MyProvider"
             android:authorities="ipleiria.project.add"
             android:exported="true"
             android:grantUriPermissions="true"

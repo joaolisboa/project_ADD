@@ -34,7 +34,8 @@ captures/
 
 # IDEA/Android Studio project files
 *.iml
-.idea/*
+.idea/workspace.xml
+.idea/libraries/
 
 # Keystore files
 *.jks
