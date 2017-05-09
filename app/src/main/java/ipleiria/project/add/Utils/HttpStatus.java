@@ -1,4 +1,4 @@
-package ipleiria.project.add.Utils;
+package ipleiria.project.add.utils;
 
 /**
  * Created by J on 22/03/2017.

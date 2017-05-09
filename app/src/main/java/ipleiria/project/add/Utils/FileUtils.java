@@ -1,4 +1,4 @@
-package ipleiria.project.add.Utils;
+package ipleiria.project.add.utils;
 
 import android.content.Context;
 import android.net.Uri;
@@ -18,19 +18,19 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.MEOCloud.data.MEOMetadata;
-import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.MEOCallback;
-import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.tasks.MEOCreateFolderTree;
+import ipleiria.project.add.dropbox.DropboxClientFactory;
+import ipleiria.project.add.meocloud.data.MEOMetadata;
+import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
+import ipleiria.project.add.meocloud.MEOCallback;
+import ipleiria.project.add.meocloud.MEOCloudClient;
+import ipleiria.project.add.meocloud.tasks.MEOCreateFolderTree;
 import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.R;
 
-import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;
+import static ipleiria.project.add.utils.PathUtils.TRASH_FOLDER;
 
 /**
  * Created by Lisboa on 26-Apr-17.

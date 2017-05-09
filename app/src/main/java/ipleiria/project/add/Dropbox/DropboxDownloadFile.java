@@ -1,4 +1,4 @@
-package ipleiria.project.add.Dropbox;
+package ipleiria.project.add.dropbox;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import ipleiria.project.add.Utils.PathUtils;
+import ipleiria.project.add.utils.PathUtils;
 
 /**
  * Task to download a file from Dropbox and put it in the Downloads folder

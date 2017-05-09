@@ -1,4 +1,4 @@
-package ipleiria.project.add.Dropbox;
+package ipleiria.project.add.dropbox;
 
 import android.content.Context;
 import android.net.Uri;
@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.Metadata;
 
 import java.io.IOException;
 import java.io.InputStream;

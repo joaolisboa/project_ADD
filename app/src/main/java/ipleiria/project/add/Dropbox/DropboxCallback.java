@@ -1,6 +1,4 @@
-package ipleiria.project.add.Dropbox;
-
-import com.dropbox.core.v2.files.Metadata;
+package ipleiria.project.add.dropbox;
 
 /**
  * Created by Lisboa on 06-May-17.

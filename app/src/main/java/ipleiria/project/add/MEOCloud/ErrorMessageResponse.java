@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud;
+package ipleiria.project.add.meocloud;
 
 /**
  * Created by Lisboa on 26-Mar-17.

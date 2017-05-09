@@ -1,4 +1,4 @@
-package ipleiria.project.add.Dropbox;
+package ipleiria.project.add.dropbox;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import ipleiria.project.add.Utils.PathUtils;
+import ipleiria.project.add.utils.PathUtils;
 
 /**
  * Created by J on 24/04/2017.

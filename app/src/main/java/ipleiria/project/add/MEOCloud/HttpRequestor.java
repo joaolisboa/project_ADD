@@ -1,4 +1,4 @@
-package ipleiria.project.add.MEOCloud;
+package ipleiria.project.add.meocloud;
 
 import android.support.annotation.Nullable;
 import android.util.Log;

@@ -1,4 +1,4 @@
-package ipleiria.project.add.Dropbox;
+package ipleiria.project.add.dropbox;
 
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.http.OkHttp3Requestor;

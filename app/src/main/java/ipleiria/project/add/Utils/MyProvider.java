@@ -1,4 +1,4 @@
-package ipleiria.project.add.Utils;
+package ipleiria.project.add.utils;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;

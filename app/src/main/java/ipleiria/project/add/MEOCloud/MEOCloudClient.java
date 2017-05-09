@@ -1,14 +1,7 @@
-package ipleiria.project.add.MEOCloud;
+package ipleiria.project.add.meocloud;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
-
-import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.exceptions.MissingAccessTokenException;
-import ipleiria.project.add.MEOCloud.tasks.MEORevokeToken;
+import ipleiria.project.add.meocloud.exceptions.MissingAccessTokenException;
 import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.view.settings.SettingsActivity;
 
 import static ipleiria.project.add.data.source.UserService.MEO_PREFS_KEY;
 

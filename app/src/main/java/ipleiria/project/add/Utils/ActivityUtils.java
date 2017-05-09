@@ -1,4 +1,4 @@
-package ipleiria.project.add.Utils;
+package ipleiria.project.add.utils;
 
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;

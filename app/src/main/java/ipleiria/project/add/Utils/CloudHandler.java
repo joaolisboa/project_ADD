@@ -1,30 +1,25 @@
-package ipleiria.project.add.Utils;
+package ipleiria.project.add.utils;
 
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.Metadata;
-
 import java.io.File;
 import java.util.Arrays;
 
-import ipleiria.project.add.Dropbox.DropboxClientFactory;
-import ipleiria.project.add.Dropbox.DropboxMoveFile;
-import ipleiria.project.add.Dropbox.DropboxUploadFile;
-import ipleiria.project.add.MEOCloud.data.MEOMetadata;
-import ipleiria.project.add.MEOCloud.exceptions.HttpErrorException;
-import ipleiria.project.add.MEOCloud.MEOCallback;
-import ipleiria.project.add.MEOCloud.MEOCloudClient;
-import ipleiria.project.add.MEOCloud.tasks.MEOCreateFolder;
-import ipleiria.project.add.MEOCloud.tasks.MEOCreateFolderTree;
-import ipleiria.project.add.MEOCloud.tasks.MEOMoveFile;
-import ipleiria.project.add.MEOCloud.tasks.MEOUploadFile;
+import ipleiria.project.add.dropbox.DropboxClientFactory;
+import ipleiria.project.add.meocloud.data.MEOMetadata;
+import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
+import ipleiria.project.add.meocloud.MEOCallback;
+import ipleiria.project.add.meocloud.MEOCloudClient;
+import ipleiria.project.add.meocloud.tasks.MEOCreateFolder;
+import ipleiria.project.add.meocloud.tasks.MEOCreateFolderTree;
+import ipleiria.project.add.meocloud.tasks.MEOMoveFile;
+import ipleiria.project.add.meocloud.tasks.MEOUploadFile;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.ItemFile;
 
-import static ipleiria.project.add.Utils.PathUtils.TRASH_FOLDER;
+import static ipleiria.project.add.utils.PathUtils.TRASH_FOLDER;
 
 /**
  * Created by J on 24/04/2017.
