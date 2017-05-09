@@ -1,7 +1,6 @@
 package ipleiria.project.add.view.main;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -10,25 +9,21 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.database.DatabaseException;
-import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import ipleiria.project.add.R;
-import ipleiria.project.add.Utils.ActivityUtils;
-import ipleiria.project.add.Utils.CircleTransformation;
+import ipleiria.project.add.utils.ActivityUtils;
+import ipleiria.project.add.utils.CircleTransformation;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.view.items.ItemsActivity;
 import ipleiria.project.add.view.settings.SettingsActivity;
 
-import static ipleiria.project.add.data.source.UserService.USER_DATA_KEY;
 import static ipleiria.project.add.view.items.ItemsActivity.LIST_DELETED_KEY;
 
 /**

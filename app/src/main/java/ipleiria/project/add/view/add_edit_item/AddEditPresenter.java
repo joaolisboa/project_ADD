@@ -1,11 +1,8 @@
 package ipleiria.project.add.view.add_edit_item;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -17,18 +14,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import ipleiria.project.add.AddItemActivity;
-import ipleiria.project.add.Model.ApplicationData;
-import ipleiria.project.add.R;
-import ipleiria.project.add.Utils.StringUtils;
-import ipleiria.project.add.Utils.UriHelper;
+import ipleiria.project.add.utils.StringUtils;
+import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.CategoryRepository;
-import ipleiria.project.add.data.source.DropboxService;
 import ipleiria.project.add.data.source.ItemsRepository;
-import ipleiria.project.add.data.source.MEOCloudService;
-import ipleiria.project.add.data.source.UserService;
 
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 

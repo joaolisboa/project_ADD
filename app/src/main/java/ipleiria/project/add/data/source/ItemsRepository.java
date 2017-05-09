@@ -15,10 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 import ipleiria.project.add.Application;
-import ipleiria.project.add.Utils.UriHelper;
+import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
-import ipleiria.project.add.data.model.User;
 
 /**
  * Created by Lisboa on 04-May-17.

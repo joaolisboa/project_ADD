@@ -1,7 +1,7 @@
-package ipleiria.project.add.MEOCloud.data;
+package ipleiria.project.add.meocloud.data;
 
-import ipleiria.project.add.MEOCloud.ErrorMessageResponse;
-import ipleiria.project.add.Utils.HttpStatus;
+import ipleiria.project.add.meocloud.ErrorMessageResponse;
+import ipleiria.project.add.utils.HttpStatus;
 
 /**
  * Created by J on 21/03/2017.

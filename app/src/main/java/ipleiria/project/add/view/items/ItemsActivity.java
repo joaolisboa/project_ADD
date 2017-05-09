@@ -1,6 +1,5 @@
 package ipleiria.project.add.view.items;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,19 +9,11 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
-
-import java.util.List;
 
 import ipleiria.project.add.R;
-import ipleiria.project.add.Utils.ActivityUtils;
+import ipleiria.project.add.utils.ActivityUtils;
 import ipleiria.project.add.data.source.ItemsRepository;
-import ipleiria.project.add.view.add_edit_item.AddEditActivity;
 
 public class ItemsActivity extends AppCompatActivity{
 

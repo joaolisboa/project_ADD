@@ -1,17 +1,12 @@
 package ipleiria.project.add.view.settings;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import ipleiria.project.add.R;
-import ipleiria.project.add.Utils.ActivityUtils;
-import ipleiria.project.add.data.source.FilesRepository;
-import ipleiria.project.add.data.source.UserService;
-
-import static ipleiria.project.add.data.source.UserService.USER_DATA_KEY;
+import ipleiria.project.add.utils.ActivityUtils;
 
 /**
  * Created by Lisboa on 06-May-17.

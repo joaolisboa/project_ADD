@@ -1,16 +1,12 @@
 package ipleiria.project.add.view.add_edit_item;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import ipleiria.project.add.R;
-import ipleiria.project.add.Utils.ActivityUtils;
+import ipleiria.project.add.utils.ActivityUtils;
 import ipleiria.project.add.data.source.ItemsRepository;
-import ipleiria.project.add.data.source.UserService;
-
-import static ipleiria.project.add.data.source.UserService.USER_DATA_KEY;
 
 /**
  * Created by Lisboa on 07-May-17.

@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,9 +19,9 @@ import com.dropbox.core.android.Auth;
 import com.squareup.picasso.Picasso;
 
 import ipleiria.project.add.*;
-import ipleiria.project.add.MEOCloud.MEOCloudAPI;
-import ipleiria.project.add.Utils.CircleTransformation;
-import ipleiria.project.add.Utils.NetworkState;
+import ipleiria.project.add.meocloud.MEOCloudAPI;
+import ipleiria.project.add.utils.CircleTransformation;
+import ipleiria.project.add.utils.NetworkState;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.view.GoogleSignInActivity;
 

@@ -1,13 +1,13 @@
-package ipleiria.project.add.MEOCloud.data;
+package ipleiria.project.add.meocloud.data;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import ipleiria.project.add.MEOCloud.ErrorMessageResponse;
-import ipleiria.project.add.Utils.HttpStatus;
-import ipleiria.project.add.Utils.JsonObject;
+import ipleiria.project.add.meocloud.ErrorMessageResponse;
+import ipleiria.project.add.utils.HttpStatus;
+import ipleiria.project.add.utils.JsonObject;
 
 /**
  * Created by Lisboa on 26-Mar-17.

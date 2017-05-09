@@ -10,19 +10,17 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import ipleiria.project.add.Utils.StringUtils;
-import ipleiria.project.add.Utils.UriHelper;
+import ipleiria.project.add.utils.StringUtils;
+import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.CategoryRepository;
-import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.ItemsRepository;
 
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
