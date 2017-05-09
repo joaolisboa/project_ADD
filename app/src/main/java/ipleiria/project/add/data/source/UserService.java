@@ -3,6 +3,7 @@ package ipleiria.project.add.data.source;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -84,8 +85,11 @@ public class UserService {
         user.setName(displayName);
         user.setAnonymous(firebaseUser.isAnonymous());
 
-        preferences.edit().putString(USER_UID_KEY, firebaseUser.getUid()).apply();
-        ItemsRepository.getInstance().initUser(firebaseUser.getUid());
+        String uid = firebaseUser.getUid();
+        if(TextUtils.isEmpty(uid)){
+            preferences.edit().putString(USER_UID_KEY, firebaseUser.getUid()).apply();
+            ItemsRepository.getInstance().initUser(firebaseUser.getUid());
+        }
 
         this.user = user;
     }

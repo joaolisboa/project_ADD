@@ -79,6 +79,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.items.ItemsActivity" />
         </activity>
+        <activity android:name=".view.google_sign_in.GoogleSignInActivity"
+            android:label="@string/google_title_text"
+            android:parentActivityName=".view.settings.SettingsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.settings.SettingsActivity"/>
+        </activity>
 
 
         <activity android:name=".MainActivity"></activity>

@@ -23,7 +23,7 @@ import ipleiria.project.add.meocloud.MEOCloudAPI;
 import ipleiria.project.add.utils.CircleTransformation;
 import ipleiria.project.add.utils.NetworkState;
 import ipleiria.project.add.data.model.User;
-import ipleiria.project.add.view.GoogleSignInActivity;
+import ipleiria.project.add.view.google_sign_in.GoogleSignInActivity;
 
 /**
  * Created by Lisboa on 06-May-17.

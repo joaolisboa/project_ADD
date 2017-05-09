@@ -41,8 +41,8 @@ import ipleiria.project.add.data.source.UserService;
 
 // Google's own Google Auth Activity example modified with FirebaseAuth
 // TODO: 07-May-17 refactor activity - to mvp or maybe even remove(similar to drop/meo)?
-public class GoogleSignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
-        View.OnClickListener {
+    public class GoogleSignInActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
+            View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;

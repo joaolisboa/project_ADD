@@ -24,9 +24,9 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include
+    <FrameLayout
+        android:id="@+id/contentFrame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/google_frag" />
+        android:layout_height="match_parent" />
 
 </LinearLayout>

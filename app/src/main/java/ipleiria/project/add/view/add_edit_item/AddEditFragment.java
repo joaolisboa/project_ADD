@@ -103,8 +103,6 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
             }
         });
 
-        addEditPresenter.createTreeView();
-
         return root;
     }
 

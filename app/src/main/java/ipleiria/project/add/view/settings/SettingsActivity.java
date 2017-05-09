@@ -36,9 +36,8 @@ public class SettingsActivity extends AppCompatActivity {
                     getSupportFragmentManager(), settingsFragment, R.id.contentFrame);
         }
 
-        SettingsPresenter presenter = new SettingsPresenter(settingsFragment);
+        new SettingsPresenter(settingsFragment);
     }
-
 
     public void onDropboxClick(View view) {
         settingsFragment.onDropboxClick();
