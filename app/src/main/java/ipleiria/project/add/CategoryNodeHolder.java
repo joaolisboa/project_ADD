@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import com.unnamed.b.atv.model.TreeNode;
 
-import ipleiria.project.add.Model.Category;
+import ipleiria.project.add.data.model.Category;
 
 /**
  * Created by Lisboa on 12-Apr-17.
