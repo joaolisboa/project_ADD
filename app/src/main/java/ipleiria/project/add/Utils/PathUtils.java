@@ -19,7 +19,7 @@ public class PathUtils {
 
     public final static String TRASH_FOLDER = "/trash";
 
-    public static String getRemoteFilePath(ItemFile file) {
+    public static String getRelativeFilePath(ItemFile file) {
         Criteria criteria = file.getParent().getCriteria();
         return "/" + criteria.getDimension().getReference() +
                 "/" + criteria.getArea().getReference() +
@@ -33,7 +33,7 @@ public class PathUtils {
                 "/" + criteria.getReference();
     }
 
-    public static String getRemoteFilePath(String file, Criteria criteria){
+    public static String getRelativeFilePath(String file, Criteria criteria){
         return "/" + criteria.getDimension().getReference() +
                 "/" + criteria.getArea().getReference() +
                 "/" + criteria.getReference() +
@@ -45,7 +45,7 @@ public class PathUtils {
     }
 
     public static String getLocalFilePath(Context context, String filename, Criteria criteria){
-        return context.getFilesDir().getAbsolutePath() + getRemoteFilePath(filename, criteria);
+        return context.getFilesDir().getAbsolutePath() + getRelativeFilePath(filename, criteria);
     }
 
     public static String getLocalTrashPath(Context context, String filename){
@@ -70,7 +70,7 @@ public class PathUtils {
     public static List<String> getRemoteFilePaths(Item item){
         List<String> paths = new LinkedList<>();
         for(ItemFile file: item.getFiles()){
-            paths.add(getRemoteFilePath(file));
+            paths.add(getRelativeFilePath(file));
         }
         return paths;
     }

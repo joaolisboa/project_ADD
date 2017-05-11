@@ -117,7 +117,7 @@ public class FileUtils {
     public static void moveFilesToNewDir(final Context context, List<ItemFile> files, String old) {
         if(NetworkState.isOnline(context)){
             for(ItemFile itemFile: files){
-                final String newPath = PathUtils.getRemoteFilePath(itemFile);
+                final String newPath = PathUtils.getRelativeFilePath(itemFile);
                 final String oldPath = old + "/" + itemFile.getFilename();
 
                 if(MEOCloudClient.isClientInitialized()) {

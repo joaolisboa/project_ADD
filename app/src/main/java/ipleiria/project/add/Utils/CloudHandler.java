@@ -28,7 +28,7 @@ import static ipleiria.project.add.utils.PathUtils.TRASH_FOLDER;
 public class CloudHandler {
 
     public static void uploadFileToCloud(final Context context, final Uri uri, ItemFile file, final Criteria criteria) {
-        final String remotePath = PathUtils.getRemoteFilePath(file);
+        final String remotePath = PathUtils.getRelativeFilePath(file);
         // the code below is just dumb
         // because MEOCloud doesn't create the directory to a file being uploaded
         // the folders need to be added manually and one... by one

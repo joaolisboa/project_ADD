@@ -11,6 +11,8 @@ import com.dropbox.core.v2.files.FileMetadata;
 import java.io.IOException;
 import java.io.InputStream;
 
+import ipleiria.project.add.Application;
+
 /**
  * Async task to upload a file to a directory
  */
@@ -48,7 +50,7 @@ public class DropboxUploadFile extends AsyncTask<String, Void, FileMetadata> {
         }
         String remoteFilePath = params[1];
 
-        try (InputStream is = mContext.getContentResolver().openInputStream(localUri)) {
+        try (InputStream is = Application.getAppContext().getContentResolver().openInputStream(localUri)) {
             return mDbxClient.files().upload("/" + remoteFilePath).uploadAndFinish(is);
         } catch (DbxException | IOException e) {
             mException = e;
