@@ -9,7 +9,7 @@ import ipleiria.project.add.data.model.ItemFile;
 
 public interface ItemFilesDataSource {
 
-    void saveItemFile(ItemFile file);
+    void renameItemFile(ItemFile file);
 
     void deleteItemFile(ItemFile file);
 

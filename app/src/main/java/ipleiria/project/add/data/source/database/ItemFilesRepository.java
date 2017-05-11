@@ -54,23 +54,35 @@ public class ItemFilesRepository implements ItemFilesDataSource {
     }
 
     @Override
-    public void saveItemFile(ItemFile file) {
+    public void renameItemFile(ItemFile file) {
+        // just like an item the file can't be renamed if deleted
+        /*if (itemsRepository.getItems().contains(item)) {
+            // get original item
+            int pos = itemsRepository.getItems().indexOf(item);
+            Item originalItem = itemsRepository.getItems().get(pos);
+            //check for file
 
+        }else{
+            Log.wtf(TAG, "Shouldn't happen - a file being renamed should always exist in this list");
+        }*/
+
+        //
+        itemsRepository.saveItemToDatabase(item);
     }
 
     @Override
     public void deleteItemFile(ItemFile file) {
         file.setDeleted(true);
 
-        if(itemsRepository.getItems().contains(item)){
+        if (itemsRepository.getItems().contains(item)) {
             int pos = itemsRepository.getItems().indexOf(item);
             Item originalItem = itemsRepository.getItems().get(pos);
             // delete file from deleted list
-            if(!originalItem.getFiles().remove(file)){
+            if (!originalItem.getFiles().remove(file)) {
                 Log.d(TAG, "file isn't in list");
             }
             itemsRepository.saveItemToDatabase(originalItem);
-        }else{
+        } else {
             Log.wtf(TAG, "Really shouldn't happen, an item with a deleted file should always be in the deleted Items list");
         }
 
@@ -80,7 +92,7 @@ public class ItemFilesRepository implements ItemFilesDataSource {
             // restore file in original list
             originalItem.addDeletedFile(file);
             item = originalItem;
-        }else{
+        } else {
             // if item in the 'opposite' list is missing create it
             item.addDeletedFile(file);
             itemsRepository.addItem(item, true);
@@ -94,18 +106,20 @@ public class ItemFilesRepository implements ItemFilesDataSource {
     @Override
     public void permanentlyDeleteItemFile(ItemFile file) {
 
-        if(itemsRepository.getDeletedItems().contains(item)){
+        if (itemsRepository.getDeletedItems().contains(item)) {
             int pos = itemsRepository.getDeletedItems().indexOf(item);
             Item originalItem = itemsRepository.getDeletedItems().get(pos);
             originalItem.getDeletedFiles().remove(file);
-        }else{
+        } else {
             Log.wtf(TAG, "Really shouldn't happen, an item with a deleted file should always be in the deleted Items list");
         }
 
         itemDeletedFilesReference.child(file.getDbKey()).removeValue();
 
+        // if the delete item has no more files it'll be deleted
         if (item.getDeletedFiles().isEmpty()) {
             itemsRepository.deleteLocalItem(item, true);
+            itemsRepository.getDeletedItemsReference().child(item.getDbKey()).removeValue();
         }
     }
 
@@ -113,15 +127,15 @@ public class ItemFilesRepository implements ItemFilesDataSource {
     public void restoreItemFile(ItemFile file) {
         file.setDeleted(false);
 
-        if(itemsRepository.getDeletedItems().contains(item)){
+        if (itemsRepository.getDeletedItems().contains(item)) {
             int pos = itemsRepository.getDeletedItems().indexOf(item);
             Item originalItem = itemsRepository.getDeletedItems().get(pos);
             // delete file from deleted list
-            if(!originalItem.getDeletedFiles().remove(file)){
+            if (!originalItem.getDeletedFiles().remove(file)) {
                 Log.d(TAG, "file isn't in list");
             }
             itemsRepository.saveDeletedItemToDatabase(originalItem);
-        }else{
+        } else {
             Log.wtf(TAG, "Probably shouldn't happen, an item with a deleted file should be in the deleted Items list");
         }
 
@@ -131,7 +145,7 @@ public class ItemFilesRepository implements ItemFilesDataSource {
             // restore file in original list
             originalItem.addFile(file);
             item = originalItem;
-        }else{
+        } else {
             // if item in the 'opposite' list is missing create it
             item.addFile(file);
             itemsRepository.addItem(item, false);

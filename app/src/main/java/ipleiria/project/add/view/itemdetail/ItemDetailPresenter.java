@@ -10,7 +10,6 @@ import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.database.ItemFilesRepository;
-import ipleiria.project.add.data.source.database.ItemsRepository;
 
 /**
  * Created by Lisboa on 10-May-17.
@@ -29,8 +28,8 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     private Item item;
     private boolean listingDeleted;
 
-    public ItemDetailPresenter(@NonNull ItemDetailContract.View itemDetailView, FilesRepository filesRepository,
-                               Item item, boolean listingDeleted){
+    ItemDetailPresenter(@NonNull ItemDetailContract.View itemDetailView, FilesRepository filesRepository,
+                        Item item, boolean listingDeleted){
         this.filesRepository = filesRepository;
         this.itemDetailView = itemDetailView;
         this.itemDetailView.setPresenter(this);
@@ -94,7 +93,7 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     public void renameFile(@NonNull ItemFile file, @NonNull String newFilename) {
         String oldFilename = file.getFilename();
         file.setFilename(newFilename);
-        itemFilesRepository.saveItemFile(file);
+        itemFilesRepository.renameItemFile(file);
         filesRepository.renameFile(file, oldFilename, newFilename);
         itemDetailView.showAddedFile(file);
     }
@@ -129,7 +128,8 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
     @Override
     public void onItemClicked(ItemFile clickedFile) {
-        // download file
         itemDetailView.showLoadingIndicator();
+        // download file
+        itemDetailView.hideLoadingIndicator();
     }
 }
