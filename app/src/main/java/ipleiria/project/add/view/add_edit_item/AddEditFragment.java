@@ -1,7 +1,9 @@
 package ipleiria.project.add.view.add_edit_item;
 
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -33,6 +35,7 @@ import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.view.items.ItemsActivity;
 
 import static android.content.Context.SEARCH_SERVICE;
 
@@ -160,6 +163,8 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     public void finish() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(descriptionEditText.getWindowToken(), 0);
+        Intent intent = new Intent(getContext(), ItemsActivity.class);
+        startActivity(intent);
         getActivity().finish();
     }
 

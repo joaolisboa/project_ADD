@@ -1,12 +1,20 @@
 package ipleiria.project.add.data.source;
 
+import java.io.File;
+
+import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.ItemFile;
+import ipleiria.project.add.utils.PathUtils;
 
 /**
  * Created by Lisboa on 06-May-17.
  */
 
+// FilesRepository responsibility will be dealing with local/remote files while itemfilesRepository with Firebase
 public class FilesRepository implements FilesDataSource {
+
+    private static final String TRASH_PATH = "/trash";
+    private static final String THUMBNAIL_PREFIX = "/thumb_";
 
     private static FilesRepository INSTANCE = null;
 
@@ -31,6 +39,36 @@ public class FilesRepository implements FilesDataSource {
         INSTANCE = null;
     }
 
+    @Override
+    public void addFile(ItemFile newFile) {
+
+    }
+
+    @Override
+    public File getFileThumbnail(ItemFile file) {
+        return new File(Application.getAppContext().getCacheDir().getAbsolutePath().concat(THUMBNAIL_PREFIX).concat(file.getFilename()));
+    }
+
+    @Override
+    public File getLocalFile(ItemFile file) {
+        String relativeFilePath = PathUtils.getRelativeFilePath(file);
+        String appdir = Application.getAppContext().getFilesDir().getAbsolutePath();
+
+        if(!file.isDeleted()){
+            return new File(appdir.concat(relativeFilePath));
+        }
+        return new File(appdir.concat(TRASH_PATH).concat(relativeFilePath));
+    }
+
+    @Override
+    public File downloadThumbnail(ItemFile file){
+        return new File("");
+    }
+
+    @Override
+    public File downloadFile(ItemFile file) {
+        return new File("");
+    }
 
     @Override
     public void deleteFile(ItemFile file) {
@@ -38,7 +76,7 @@ public class FilesRepository implements FilesDataSource {
     }
 
     @Override
-    public void permanenetlyDeleteFile(ItemFile file) {
+    public void permanentlyDeleteFile(ItemFile file) {
 
     }
 
@@ -48,7 +86,7 @@ public class FilesRepository implements FilesDataSource {
     }
 
     @Override
-    public void saveFile(ItemFile file) {
+    public void renameFile(ItemFile file, String oldFilename, String newFilename) {
 
     }
 }

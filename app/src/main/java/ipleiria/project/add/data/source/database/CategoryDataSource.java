@@ -1,4 +1,4 @@
-package ipleiria.project.add.data.source;
+package ipleiria.project.add.data.source.database;
 
 import com.google.firebase.database.DatabaseReference;
 

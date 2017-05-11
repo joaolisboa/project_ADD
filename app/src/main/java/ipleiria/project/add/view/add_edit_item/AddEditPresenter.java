@@ -18,8 +18,8 @@ import ipleiria.project.add.utils.StringUtils;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Item;
-import ipleiria.project.add.data.source.CategoryRepository;
-import ipleiria.project.add.data.source.ItemsRepository;
+import ipleiria.project.add.data.source.database.CategoryRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 
@@ -158,21 +158,21 @@ public class AddEditPresenter implements AddEditContract.Presenter {
                 case SENDING_PHOTO:
                     Item item = new Item(description);
                     item.setCriteria(selectedCriteria);
-                    itemsRepository.saveItem(item);
+                    itemsRepository.saveItem(item, false);
                     itemsRepository.addFilesToItem(item, receivedFiles);
                     break;
 
                 case EDITING_ITEM:
                     editingItem.setDescription(description);
                     editingItem.setCriteria(selectedCriteria);
-                    itemsRepository.saveItem(editingItem);
+                    itemsRepository.saveItem(editingItem, false);
                     break;
             }
         }else{
             // creating new item
             Item item = new Item(description);
             item.setCriteria(selectedCriteria);
-            itemsRepository.saveItem(item);
+            itemsRepository.saveItem(item, false);
         }
         addEditView.finish();
     }

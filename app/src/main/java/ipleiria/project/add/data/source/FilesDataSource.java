@@ -1,5 +1,7 @@
 package ipleiria.project.add.data.source;
 
+import java.io.File;
+
 import ipleiria.project.add.data.model.ItemFile;
 
 /**
@@ -8,12 +10,22 @@ import ipleiria.project.add.data.model.ItemFile;
 
 public interface FilesDataSource {
 
-    void deleteFile(ItemFile file);
+    void addFile(ItemFile newFile);
 
-    void permanenetlyDeleteFile(ItemFile file);
+    File getFileThumbnail(ItemFile file);
 
-    void restoreFile(ItemFile file);
+    File downloadThumbnail(ItemFile file);
 
-    void saveFile(ItemFile file);
+    File getLocalFile(ItemFile file);
+
+    File downloadFile(ItemFile file);
+
+    void deleteFile(ItemFile deletedFile);
+
+    void permanentlyDeleteFile(ItemFile file);
+
+    void restoreFile(ItemFile restoredFile);
+
+    void renameFile(ItemFile file, String oldFilename, String newFilename);
 
 }

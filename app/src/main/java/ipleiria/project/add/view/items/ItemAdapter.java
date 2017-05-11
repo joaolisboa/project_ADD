@@ -1,8 +1,6 @@
 package ipleiria.project.add.view.items;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +12,8 @@ import android.widget.TextView;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 
-import java.util.LinkedList;
 import java.util.List;
 
-import ipleiria.project.add.ItemDetailActivity;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 
@@ -28,14 +24,14 @@ import ipleiria.project.add.data.model.Item;
 public class ItemAdapter extends BaseSwipeAdapter {
 
     private List<Item> listItems;
-    private boolean listDeleted;
+    private boolean listingDeleted;
     private String action;
     private ItemsFragment.ItemActionListener actionsListener;
 
-    ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listDeleted, String action){
+    ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listingDeleted, String action){
         setList(listItems);
         this.actionsListener = actionsListener;
-        this.listDeleted = listDeleted;
+        this.listingDeleted = listingDeleted;
         this.action = action;
     }
 
@@ -64,17 +60,20 @@ public class ItemAdapter extends BaseSwipeAdapter {
         if (action != null) {
             swipeLayout.setSwipeEnabled(false);
         }
-        FrameLayout itemLayout = (FrameLayout) itemView.findViewById(R.id.item_view);
-        ImageView button1 = (ImageView) itemView.findViewById(R.id.action_1);
-        ImageView button2 = (ImageView) itemView.findViewById(R.id.action_2);
 
+        FrameLayout itemLayout = (FrameLayout) itemView.findViewById(R.id.item_view);
         itemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 actionsListener.onItemClick((Item) getItem(position));
             }
         });
-        if (!listDeleted) {
+
+        ImageView button1 = (ImageView) itemView.findViewById(R.id.action_1);
+        ImageView button2 = (ImageView) itemView.findViewById(R.id.action_2);
+
+
+        if (!listingDeleted) {
             button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_white));
             button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_white));
         } else {
@@ -85,24 +84,24 @@ public class ItemAdapter extends BaseSwipeAdapter {
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!listDeleted) {
+                if(!listingDeleted) {
                     actionsListener.onEditItem((Item) getItem(position));
                 }else{
                     actionsListener.onRestoreItem((Item) getItem(position));
                 }
-                swipeLayout.close(false);
+                closeItem(position);
             }
         });
 
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!listDeleted) {
+                if(!listingDeleted) {
                     actionsListener.onDeleteItem((Item) getItem(position));
                 }else{
                     actionsListener.onPermanentDeleteItem((Item) getItem(position));
                 }
-                swipeLayout.close(false);
+                closeItem(position);
             }
         });
 
@@ -113,8 +112,9 @@ public class ItemAdapter extends BaseSwipeAdapter {
     // notifyDataSetChanged won't call generateView unless there's new items
     // so if a position is already occupied it'll call this method
     @Override
-    public void fillValues(int position, View convertView) {
+    public void fillValues(final int position, View convertView) {
         Item item = (Item) getItem(position);
+
         TextView itemName = (TextView) convertView.findViewById(R.id.title_text_view);
         TextView itemCriteria = (TextView) convertView.findViewById(R.id.category_text_view);
         TextView numFilesView = (TextView) convertView.findViewById(R.id.num_files);
@@ -122,11 +122,10 @@ public class ItemAdapter extends BaseSwipeAdapter {
         itemName.setText(item.getDescription());
         itemCriteria.setText(item.getCategoryReference() + ". " + item.getCriteria().getName());
 
-        int numFiles = item.getFiles(listDeleted).size();
-        if (!listDeleted) {
-            numFilesView.setText(convertView.getContext().getString(R.string.num_files, numFiles));
+        if (!listingDeleted) {
+            numFilesView.setText(convertView.getContext().getString(R.string.num_files, item.getFiles().size()));
         } else {
-            numFilesView.setText(convertView.getContext().getString(R.string.num_deleted_files, numFiles));
+            numFilesView.setText(convertView.getContext().getString(R.string.num_deleted_files, item.getDeletedFiles().size()));
         }
     }
 

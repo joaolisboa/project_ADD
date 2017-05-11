@@ -62,7 +62,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
     public ItemFileAdapter(Context context, Item item, boolean listDeleted) {
         this.context = context;
         this.item = item;
-        this.listItemsFiles = item.getFiles(listDeleted);
+        //this.listItemsFiles = item.getFiles(listDeleted);
         this.listDeleted = listDeleted;
     }
 
@@ -137,7 +137,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                     public void onError(Exception e) {
                         Log.e("DownloadError", e.getMessage(), e);
                     }
-                }).execute(PathUtils.getRemoteFilePath(itemFile), null, MEOCloudAPI.THUMBNAIL_SIZE_M);
+                }).execute(PathUtils.getRelativeFilePath(itemFile), null, MEOCloudAPI.THUMBNAIL_SIZE_M);
             } else if (DropboxClientFactory.isClientInitialized()) {
                 /*new DropboxGetThumbnail(context, DropboxClientFactory.getClient(),
                         new DropboxGetThumbnail.Callback() {
@@ -156,7 +156,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                             public void onError(Exception e) {
                                 Log.e("DownloadError", e.getMessage(), e);
                             }
-                        }).execute(PathUtils.getRemoteFilePath(itemFile));*/
+                        }).execute(PathUtils.getRelativeFilePath(itemFile));*/
             }
         }
     }
@@ -260,7 +260,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                 progressDialog.dismiss();
                                 Log.e("DownloadError", e.getMessage(), e);
                             }
-                        }).execute(PathUtils.getRemoteFilePath(file));
+                        }).execute(PathUtils.getRelativeFilePath(file));
                     } else if (DropboxClientFactory.isClientInitialized()) {
                         /*new DropboxDownloadFile(context, DropboxClientFactory.getClient(),
                                 new DropboxDownloadFile.Callback() {
@@ -276,7 +276,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                         progressDialog.dismiss();
                                         Log.e("DownloadError", e.getMessage(), e);
                                     }
-                                }).execute(PathUtils.getRemoteFilePath(file));*/
+                                }).execute(PathUtils.getRelativeFilePath(file));*/
                     }else{
                         progressDialog.dismiss();
                     }
@@ -291,14 +291,14 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
             public void onClick(View view) {
                 final ItemFile itemfile = (ItemFile) getItem(position);
                 Toast.makeText(context, "click delete " + item, Toast.LENGTH_SHORT).show();
-                item.deleteFile(itemfile);
+                //item.deleteFile(itemfile);
                 if (NetworkState.isOnline(context)) {
                     if (MEOCloudClient.isClientInitialized()) {
                         // meo doesn't create folder so we need to ensure it's created/exists
                         new MEOCreateFolder(new MEOCallback<MEOMetadata>() {
                             @Override
                             public void onComplete(MEOMetadata result) {
-                                CloudHandler.moveFileMEO(PathUtils.getRemoteFilePath(itemfile),
+                                CloudHandler.moveFileMEO(PathUtils.getRelativeFilePath(itemfile),
                                         PathUtils.trashPath(itemfile));
                             }
 
@@ -314,7 +314,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                         }).execute(TRASH_FOLDER);
                     }
                     if (DropboxClientFactory.isClientInitialized()) {
-                        CloudHandler.moveFileDropbox(PathUtils.getRemoteFilePath(itemfile),
+                        CloudHandler.moveFileDropbox(PathUtils.getRelativeFilePath(itemfile),
                                 PathUtils.trashPath(itemfile));
                     }
                 }
@@ -357,12 +357,12 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                                 file.setFilename(newFilename);
                                 if (NetworkState.isOnline(context)) {
                                     if (MEOCloudClient.isClientInitialized()) {
-                                        CloudHandler.moveFileMEO(PathUtils.getRemoteFilePath(oldFilename, item.getCriteria()),
-                                                PathUtils.getRemoteFilePath(newFilename, item.getCriteria()));
+                                        CloudHandler.moveFileMEO(PathUtils.getRelativeFilePath(oldFilename, item.getCriteria()),
+                                                PathUtils.getRelativeFilePath(newFilename, item.getCriteria()));
                                     }
                                     if (DropboxClientFactory.isClientInitialized()) {
-                                        CloudHandler.moveFileDropbox(PathUtils.getRemoteFilePath(oldFilename, item.getCriteria()),
-                                                PathUtils.getRemoteFilePath(newFilename, item.getCriteria()));
+                                        CloudHandler.moveFileDropbox(PathUtils.getRelativeFilePath(oldFilename, item.getCriteria()),
+                                                PathUtils.getRelativeFilePath(newFilename, item.getCriteria()));
                                     }
                                 }
                                 FileUtils.renameFile(PathUtils.getLocalFilePath(context, oldFilename, item.getCriteria()),
@@ -500,7 +500,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                 FileUtils.deleteFile(PathUtils.getLocalFilePath(context, itemFile.getFilename(), itemFile.getParent().getCriteria()));
 
                 deleteFileThumbnail(itemFile);
-                item.permanentlyDeleteFile(itemFile);
+                //item.permanentlyDeleteFile(itemFile);
                 ItemDetailActivity act = (ItemDetailActivity) context;
                 act.setFileListView();
             }
@@ -514,17 +514,17 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                 if (NetworkState.isOnline(context)) {
                     if (MEOCloudClient.isClientInitialized()) {
                         CloudHandler.moveFileMEO(PathUtils.trashPath(itemFile),
-                                PathUtils.getRemoteFilePath(itemFile));
+                                PathUtils.getRelativeFilePath(itemFile));
                     }
                     if (DropboxClientFactory.isClientInitialized()) {
                         CloudHandler.moveFileDropbox(PathUtils.trashPath(itemFile),
-                                PathUtils.getRemoteFilePath(itemFile));
+                                PathUtils.getRelativeFilePath(itemFile));
                     }
                 }
                 FileUtils.renameFile(PathUtils.getLocalTrashPath(context, itemFile.getFilename()),
                             PathUtils.getLocalFilePath(context, itemFile.getFilename(), item.getCriteria()));
 
-                item.restoreFile(itemFile);
+                //item.restoreFile(itemFile);
                 ItemDetailActivity act = (ItemDetailActivity) context;
                 act.setFileListView();
             }

@@ -35,13 +35,14 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     private final MEOCloudService meoCloudService;
     private final SettingsContract.View settingsView;
 
+    private final FirebaseAuth firebaseAuth;
+
     // both Dropbox and MEO Auth save their tokens when this activity resumes
     // and since the tokens no longer exist in the preferences and the clients
     // aren't initialized when returning to the activity after loging in the save***Token
     // method is run and since the Auth.result still has the token the app assumes the user actually
     // logged in again with an invalid token
-    // this can be fixed with MEO but Dropbox would require change to their code which
-    // could cause issues in the future
+    // this can be fixed with MEO but Dropbox would require change to their code
     private boolean loginIntent = false;
 
     public SettingsPresenter(@NonNull SettingsContract.View settingsView) {
@@ -51,18 +52,20 @@ public class SettingsPresenter implements SettingsContract.Presenter {
 
         this.settingsView = settingsView;
         this.settingsView.setPresenter(this);
+
+        this.firebaseAuth = FirebaseAuth.getInstance();
     }
 
     @Override
     public void subscribe() {
-        FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
+        firebaseAuth.addAuthStateListener(authStateListener);
         updateServicesStatus();
     }
 
     @Override
     public void unsubscribe() {
         if (authStateListener != null) {
-            FirebaseAuth.getInstance().removeAuthStateListener(authStateListener);
+            firebaseAuth.removeAuthStateListener(authStateListener);
         }
     }
 
@@ -122,13 +125,13 @@ public class SettingsPresenter implements SettingsContract.Presenter {
             if (!MEOCloudClient.isClientInitialized()) {
                 String token = MEOCloudAPI.getOAuth2Token();
                 meoCloudService.init(token);
-                userService.setMEOCloudToken(token);
+                userService.saveMEOCloudToken(token);
             }
 
             if (!DropboxClientFactory.isClientInitialized()) {
                 String token = Auth.getOAuth2Token();
                 dropboxService.init(token);
-                userService.setDropboxToken(token);
+                userService.saveDropboxToken(token);
             }
 
             updateServicesStatus();

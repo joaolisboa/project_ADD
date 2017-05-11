@@ -1,4 +1,4 @@
-package ipleiria.project.add.data.source;
+package ipleiria.project.add.data.source.database;
 
 import android.util.Log;
 
@@ -11,13 +11,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.LinkedList;
 import java.util.List;
 
-import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.data.model.Area;
-import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
-import ipleiria.project.add.data.model.Item;
-import ipleiria.project.add.data.model.User;
 
 /**
  * Created by Lisboa on 06-May-17.

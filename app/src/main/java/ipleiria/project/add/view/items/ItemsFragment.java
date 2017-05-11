@@ -1,8 +1,8 @@
 package ipleiria.project.add.view.items;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,18 +15,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import ipleiria.project.add.AddItemActivity;
-import ipleiria.project.add.ItemDetailActivity;
+import ipleiria.project.add.view.itemdetail.ItemDetailActivity;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.view.add_edit_item.AddEditActivity;
@@ -34,7 +31,8 @@ import ipleiria.project.add.view.add_edit_item.AddEditActivity;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM_KEY;
-import static ipleiria.project.add.view.items.ItemsActivity.LIST_DELETED_KEY;
+import static ipleiria.project.add.view.itemdetail.ItemDetailPresenter.ITEM_KEY;
+import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
 
 /**
  * Created by Lisboa on 04-May-17.
@@ -42,6 +40,7 @@ import static ipleiria.project.add.view.items.ItemsActivity.LIST_DELETED_KEY;
 
 public class ItemsFragment extends Fragment implements ItemsContract.View{
 
+    private static final int FINISH_ON_NEW_ITEM = 9101;
     private ItemsContract.Presenter itemsPresenter;
 
     private ItemAdapter listAdapter;
@@ -66,7 +65,11 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         super.onCreate(savedInstanceState);
 
         boolean listDeleted = getActivity().getIntent().getBooleanExtra(LIST_DELETED_KEY, false);
-        listAdapter = new ItemAdapter(new LinkedList<Item>(), mItemListener, listDeleted, itemsPresenter.getIntentAction());
+        listAdapter = new ItemAdapter(new LinkedList<Item>(), itemActionListener, listDeleted, itemsPresenter.getIntentAction());
+
+        if(listDeleted){
+            getActivity().findViewById(R.id.fab_add).setVisibility(View.GONE);
+        }
     }
 
     @Nullable
@@ -80,6 +83,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         // Set up tasks view
         ListView listView = (ListView) root.findViewById(R.id.items_list);
         listView.setAdapter(listAdapter);
+
         itemsView = (LinearLayout) root.findViewById(R.id.itemsLL);
 
         // Set up  no tasks view
@@ -126,14 +130,14 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         itemsPresenter.subscribe();
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        super.onStop();
         itemsPresenter.unsubscribe();
     }
 
@@ -160,11 +164,6 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
                 // do nothing
             }
         });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        itemsPresenter.result(requestCode, resultCode);
     }
 
     @Override
@@ -205,8 +204,11 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     }
 
     @Override
-    public void openItemDetails(Item item) {
-        //startActivity(new Intent(getContext(), ItemDetailActivity.class));
+    public void openItemDetails(Item item, boolean listingDeleted) {
+        Intent intent = new Intent(getContext(), ItemDetailActivity.class);
+        intent.putExtra(LIST_DELETED_KEY, listingDeleted);
+        intent.putExtra(ITEM_KEY, item.getDbKey());
+        startActivity(intent);
     }
 
     @Override
@@ -237,12 +239,13 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         // change intent to use a different activity, keeping extras and action
         intent.setComponent(new ComponentName(getContext(), AddEditActivity.class));
         startActivity(intent);
+        finish();
     }
 
     /**
      * Listener for clicks on item and swipeLayout in the ListView.
      */
-    ItemActionListener mItemListener = new ItemActionListener() {
+    ItemActionListener itemActionListener = new ItemActionListener() {
 
         @Override
         public void onItemClick(Item clickedIem) {
@@ -260,10 +263,10 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         }
 
         @Override
-        public void onEditItem(Item itemToEdit) {
+        public void onEditItem(Item editedItem) {
             Intent intent = new Intent(getContext(), AddEditActivity.class);
             intent.setAction(EDITING_ITEM);
-            intent.putExtra(EDITING_ITEM_KEY, itemToEdit.getDbKey());
+            intent.putExtra(EDITING_ITEM_KEY, editedItem.getDbKey());
             startActivity(intent);
         }
 
@@ -281,7 +284,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
 
         void onPermanentDeleteItem(Item deletedItem);
 
-        void onEditItem(Item itemToEdit);
+        void onEditItem(Item editedItem);
 
         void onRestoreItem(Item restoredItem);
     }

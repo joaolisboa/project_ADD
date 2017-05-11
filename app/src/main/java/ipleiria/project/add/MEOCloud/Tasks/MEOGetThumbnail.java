@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
+import ipleiria.project.add.Application;
 import ipleiria.project.add.meocloud.data.MEOCloudResponse;
 import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
 import ipleiria.project.add.meocloud.exceptions.MissingAccessTokenException;
@@ -87,7 +88,7 @@ public class MEOGetThumbnail extends AsyncTask<String, Void, MEOCloudResponse<Fi
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
                     InputStream is = response.body().byteStream();
-                    FileOutputStream fos = context.openFileOutput(thumbnailFilename, Context.MODE_PRIVATE);
+                    FileOutputStream fos = Application.getAppContext().openFileOutput(thumbnailFilename, Context.MODE_PRIVATE);
                     byte[] buffer = new byte[1024 * 100];
                     int nBytes;
                     while((nBytes = is.read(buffer)) != -1){
@@ -96,7 +97,7 @@ public class MEOGetThumbnail extends AsyncTask<String, Void, MEOCloudResponse<Fi
                     }
                     is.close();
                     fos.close();
-                    String downloadPath = context.getFilesDir().getAbsolutePath() + "/" + thumbnailFilename;
+                    String downloadPath = Application.getAppContext().getFilesDir().getAbsolutePath() + "/" + thumbnailFilename;
                     meoCloudResponse.setResponse(new File(downloadPath));
                 }
                 return meoCloudResponse;

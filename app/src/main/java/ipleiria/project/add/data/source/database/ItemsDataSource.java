@@ -1,4 +1,4 @@
-package ipleiria.project.add.data.source;
+package ipleiria.project.add.data.source.database;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -32,13 +32,15 @@ public interface ItemsDataSource {
 
     void addNewItem(@NonNull DataSnapshot itemSnapshot, boolean listDeleted);
 
-    void saveItem(@NonNull Item item);
+    void addItem(Item item, boolean flag);
+
+    void saveItem(@NonNull Item item, boolean flag);
 
     void deleteItem(@NonNull Item item);
 
-    void deleteItem(@NonNull String dbKey);
+    void deleteLocalItem(@NonNull Item item, boolean listingDeleted);
 
-    void permanenetlyDeleteItem(@NonNull Item item);
+    void permanentlyDeleteItem(@NonNull Item item);
 
     void restoreItem(@NonNull Item item);
 

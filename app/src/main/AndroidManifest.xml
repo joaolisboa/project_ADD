@@ -86,6 +86,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.settings.SettingsActivity"/>
         </activity>
+        <activity android:name=".view.itemdetail.ItemDetailActivity"
+            android:parentActivityName=".view.items.ItemsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.items.ItemsActivity"/>
+        </activity>
 
 
         <activity android:name=".MainActivity"></activity>

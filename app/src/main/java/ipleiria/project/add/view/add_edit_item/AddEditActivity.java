@@ -6,7 +6,7 @@ import android.support.v7.widget.Toolbar;
 
 import ipleiria.project.add.R;
 import ipleiria.project.add.utils.ActivityUtils;
-import ipleiria.project.add.data.source.ItemsRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 
 /**
  * Created by Lisboa on 07-May-17.

@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 
 import ipleiria.project.add.Application;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.NetworkState;
 import ipleiria.project.add.data.model.User;
 
@@ -110,7 +111,7 @@ public class UserService {
         return dropboxToken;
     }
 
-    public void setDropboxToken(String dropboxToken) {
+    public void saveDropboxToken(String dropboxToken) {
         preferences.edit().putString(DROPBOX_PREFS_KEY, dropboxToken).apply();
         this.dropboxToken = dropboxToken;
     }
@@ -119,7 +120,7 @@ public class UserService {
         return meoCloudToken;
     }
 
-    public void setMEOCloudToken(String meoCloudToken) {
+    public void saveMEOCloudToken(String meoCloudToken) {
         preferences.edit().putString(MEO_PREFS_KEY, dropboxToken).apply();
         this.meoCloudToken = meoCloudToken;
     }

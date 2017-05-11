@@ -1,7 +1,5 @@
 package ipleiria.project.add.data.model;
 
-import com.google.firebase.database.DataSnapshot;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,14 +12,17 @@ import ipleiria.project.add.Model.ApplicationData;
 
 public class Item {
 
-    private List<ItemFile> filenames;
+    private List<ItemFile> files;
+    private List<ItemFile> deletedFiles;
+
     private String description;
     private Criteria criteria;
     private String dbKey;
     private int weight;
 
     public Item(){
-        filenames = new LinkedList<>();
+        files = new LinkedList<>();
+        deletedFiles = new LinkedList<>();
         weight = 1;
     }
 
@@ -30,17 +31,18 @@ public class Item {
         this.description = description;
     }
 
-    public Item(List<ItemFile> filenames, String description) {
-        this.filenames = filenames;
-        for(ItemFile files: filenames){
-            files.setParent(this);
+    public Item(List<ItemFile> files, String description) {
+        this.files = files;
+        this.deletedFiles = new LinkedList<>();
+        for(ItemFile file: files){
+            file.setParent(this);
         }
         this.description = description;
         weight = 1;
     }
 
-    public Item(List<ItemFile> filenames, String description, Criteria criteria){
-        this(filenames, description);
+    public Item(List<ItemFile> files, String description, Criteria criteria){
+        this(files, description);
         this.criteria = criteria;
     }
 
@@ -53,51 +55,43 @@ public class Item {
     }
 
     public List<ItemFile> getFiles() {
-        return filenames;
-    }
-
-    public List<ItemFile> getDeletedFiles(){
-        List<ItemFile> deletedItems = new LinkedList<>();
-        for(ItemFile file: filenames){
-            if(file.isDeleted()){
-                deletedItems.add(file);
-            }
-        }
-        return deletedItems;
-    }
-
-    public boolean isItemDeleted(){
-        // item is considered deleted if all files are deleted
-        // and is in AppData.deletedItems
-        for(ItemFile file: filenames){
-            if(!file.isDeleted()){
-                return false;
-            }
-        }
-        return ApplicationData.getInstance().getDeletedItems().contains(this);
-    }
-
-    public boolean hasDeletedFiles(){
-        return !getDeletedFiles().isEmpty();
-    }
-
-    public List<ItemFile> getFiles(boolean flag){
-        List<ItemFile> files = new LinkedList<>();
-        for(ItemFile file: filenames){
-            if(file.isDeleted() == flag){
-                files.add(file);
-            }
-        }
         return files;
     }
 
-    public void addFile(ItemFile filename) {
-        filenames.add(filename);
-        filename.setParent(this);
+    public List<ItemFile> getDeletedFiles(){
+        return deletedFiles;
     }
 
-    public void addFile(String filename){
-        filenames.add(new ItemFile(filename, this));
+    public void addFile(ItemFile file) {
+        files.add(file);
+        file.setParent(this);
+    }
+
+    public void addFiles(List<ItemFile> files) {
+        files.addAll(files);
+        for(ItemFile file: files){
+            file.setParent(this);
+        }
+    }
+
+    public void addDeletedFile(ItemFile file) {
+        deletedFiles.add(file);
+        file.setParent(this);
+    }
+
+    public void addDeletedFiles(List<ItemFile> deletedFiles){
+        files.addAll(deletedFiles);
+        for(ItemFile file: deletedFiles){
+            file.setParent(this);
+        }
+    }
+
+    public void clearFiles() {
+        files = new LinkedList<>();
+    }
+
+    public void clearDeletedFiles() {
+        deletedFiles = new LinkedList<>();
     }
 
     public String getDescription() {
@@ -129,38 +123,6 @@ public class Item {
         return criteria.getRealReference();
     }
 
-    public void addFiles(List<ItemFile> itemFiles) {
-        filenames.addAll(itemFiles);
-        for(ItemFile files: itemFiles){
-            files.setParent(this);
-        }
-    }
-
-    public void deleteFile(ItemFile file) {
-        file.setDeleted(true);
-        if(isItemDeleted()){
-
-        }
-        FirebaseHandler.getInstance().writeItem(this);
-    }
-
-    public void restoreFile(ItemFile file){
-        file.setDeleted(false);
-        FirebaseHandler.getInstance().writeItem(this);
-
-    }
-
-    public void permanentlyDeleteFile(ItemFile file){
-        filenames.remove(file);
-        FirebaseHandler.getInstance().writeItem(this);
-    }
-
-    public void clearDeleteFiles() {
-        for(int i = 0; i < getDeletedFiles().size(); i++) {
-            filenames.remove(getDeletedFiles().get(i));
-        }
-    }
-
     public int getWeight() {
         return weight;
     }
@@ -177,9 +139,17 @@ public class Item {
     @Override
     public boolean equals(Object object){
         if(this == object) return true;
-        if(object == null || getClass() != object.getClass())
+        if(object == null || getClass() != object.getClass()) {
             return false;
-
+        }
+        if(dbKey == null || ((Item) object).getDbKey() == null){
+            return false;
+        }
         return dbKey.equals(((Item) object).getDbKey());
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hashCode(dbKey);
     }
 }

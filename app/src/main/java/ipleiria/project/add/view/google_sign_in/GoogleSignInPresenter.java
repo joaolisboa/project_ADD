@@ -1,12 +1,9 @@
 package ipleiria.project.add.view.google_sign_in;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -24,16 +21,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-import ipleiria.project.add.R;
-import ipleiria.project.add.data.source.DropboxService;
-import ipleiria.project.add.data.source.ItemsRepository;
-import ipleiria.project.add.data.source.MEOCloudService;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.data.source.UserService;
-import ipleiria.project.add.view.*;
-import ipleiria.project.add.view.GoogleSignInActivity;
-import ipleiria.project.add.view.settings.SettingsContract;
 
-import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
 import static ipleiria.project.add.view.google_sign_in.GoogleSignInFragment.RC_SIGN_IN;
 
 /**

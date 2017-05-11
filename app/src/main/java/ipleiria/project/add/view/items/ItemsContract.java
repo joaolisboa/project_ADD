@@ -28,7 +28,7 @@ public class ItemsContract {
 
         void removeDeletedItem(@NonNull Item deletedItem);
 
-        void openItemDetails(Item item);
+        void openItemDetails(Item item, boolean listingDeleted);
 
         void showNoItems();
 
@@ -39,17 +39,11 @@ public class ItemsContract {
 
     interface Presenter extends BasePresenter {
 
-        void result(int requestCode, int resultCode);
-
         void showFilteredItems();
 
         void searchItems(String query);
 
-        void addNewItem();
-
-        void openItemDetails(@NonNull Item item);
-
-        void deleteItem(@NonNull Item completedTask);
+        void deleteItem(@NonNull Item item);
 
         void permanentlyDeleteItem(@NonNull Item item);
 

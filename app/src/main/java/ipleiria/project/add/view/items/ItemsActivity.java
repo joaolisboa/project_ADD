@@ -13,15 +13,11 @@ import android.view.inputmethod.InputMethodManager;
 
 import ipleiria.project.add.R;
 import ipleiria.project.add.utils.ActivityUtils;
-import ipleiria.project.add.data.source.ItemsRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
+
+import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
 
 public class ItemsActivity extends AppCompatActivity{
-
-    private static final String TAG = "LIST_ITEM_ACTIVITY";
-    private static final String CURRENT_FILTERING_KEY = "ITEMS_FILTER";
-
-    public static final String LIST_DELETED_KEY = "list_deleted";
-    public static final int CHANGING_DATA_SET = 2001;
 
     private ItemsPresenter itemsPresenter;
 
@@ -72,11 +68,5 @@ public class ItemsActivity extends AppCompatActivity{
 
         return true;
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        itemsPresenter.result(requestCode, resultCode);
-    }
-
 
 }

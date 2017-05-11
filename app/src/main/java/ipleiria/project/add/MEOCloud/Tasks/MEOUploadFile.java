@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
+import ipleiria.project.add.Application;
 import ipleiria.project.add.meocloud.data.MEOCloudResponse;
 import ipleiria.project.add.meocloud.data.MEOMetadata;
 import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
@@ -80,7 +81,7 @@ public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<MEOM
             }
             // DOES NOT CREATE FOLDERS TO THE FILE PATH, NO FOLDER = 4 0 4 !!!
             String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
-            InputStream is = context.getContentResolver().openInputStream(localFile);
+            InputStream is = Application.getAppContext().getContentResolver().openInputStream(localFile);
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
             int nRead;

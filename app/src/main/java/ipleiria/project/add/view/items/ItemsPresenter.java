@@ -20,8 +20,8 @@ import ipleiria.project.add.utils.StringUtils;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
-import ipleiria.project.add.data.source.CategoryRepository;
-import ipleiria.project.add.data.source.ItemsRepository;
+import ipleiria.project.add.data.source.database.CategoryRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 
@@ -33,6 +33,7 @@ import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PH
 public class ItemsPresenter implements ItemsContract.Presenter {
 
     private static final String TAG = "ITEMS_PRESENTER";
+    public static final String LIST_DELETED_KEY = "list_deleted";
 
     private final CategoryRepository categoryRepository;
     private final ItemsRepository itemsRepository;
@@ -123,7 +124,10 @@ public class ItemsPresenter implements ItemsContract.Presenter {
 
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        itemsRepository.deleteItem(dataSnapshot.getKey());
+                        /*String key = dataSnapshot.getKey();
+                        Item deletedItem = (!listingDeleted ? itemsRepository.getItem(key) : itemsRepository.getDeletedItem(key));
+                        itemsRepository.deleteLocalItem(deletedItem, listingDeleted);
+                        itemsView.removeDeletedItem(deletedItem);*/
                     }
 
                     @Override
@@ -137,11 +141,6 @@ public class ItemsPresenter implements ItemsContract.Presenter {
                     }
                 }
         );
-    }
-
-    @Override
-    public void result(int requestCode, int resultCode) {
-
     }
 
     @Override
@@ -191,16 +190,6 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     }
 
     @Override
-    public void addNewItem() {
-
-    }
-
-    @Override
-    public void openItemDetails(@NonNull Item item) {
-
-    }
-
-    @Override
     public void deleteItem(@NonNull Item item) {
         itemsRepository.deleteItem(item);
         itemsView.removeDeletedItem(item);
@@ -208,7 +197,7 @@ public class ItemsPresenter implements ItemsContract.Presenter {
 
     @Override
     public void permanentlyDeleteItem(@NonNull Item item) {
-        itemsRepository.permanenetlyDeleteItem(item);
+        itemsRepository.permanentlyDeleteItem(item);
         itemsView.removeDeletedItem(item);
     }
 
@@ -266,7 +255,7 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     @Override
     public void onItemClicked(Item item) {
         if(action == null){
-            itemsView.openItemDetails(item);
+            itemsView.openItemDetails(item, listingDeleted);
         }else{
             itemsRepository.addFilesToItem(item, receivedFiles);
             itemsView.finish();

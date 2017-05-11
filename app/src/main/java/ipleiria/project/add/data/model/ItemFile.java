@@ -67,4 +67,21 @@ public class ItemFile {
     public String toString(){
         return filename + ":" + dbKey + ":" + deleted;
     }
+
+    @Override
+    public boolean equals(Object object){
+        if(this == object) return true;
+        if(object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if(dbKey == null || ((ItemFile) object).getDbKey() == null){
+            return false;
+        }
+        return dbKey.equals(((ItemFile) object).getDbKey());
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hashCode(dbKey);
+    }
 }

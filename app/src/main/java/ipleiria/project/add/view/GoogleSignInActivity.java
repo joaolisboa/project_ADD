@@ -32,7 +32,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import ipleiria.project.add.R;
-import ipleiria.project.add.data.source.ItemsRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.data.source.UserService;
 
 /**

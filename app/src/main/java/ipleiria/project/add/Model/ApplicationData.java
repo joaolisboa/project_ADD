@@ -363,9 +363,9 @@ public class ApplicationData {
         List<Item> itemsWithFilesDeleted = new LinkedList<>();
         itemsWithFilesDeleted.addAll(deletedItems);
         for(Item item: items){
-            if(item.hasDeletedFiles() && !itemsWithFilesDeleted.contains(item)){
+            /*if(item.hasDeletedFiles() && !itemsWithFilesDeleted.contains(item)){
                 itemsWithFilesDeleted.add(item);
-            }
+            }*/
         }
         return itemsWithFilesDeleted;
     }

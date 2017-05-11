@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
+import ipleiria.project.add.Application;
 import ipleiria.project.add.meocloud.data.FileResponse;
 import ipleiria.project.add.meocloud.data.MEOCloudResponse;
 import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
@@ -82,7 +83,7 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
                     InputStream is = response.body().byteStream();
-                    FileOutputStream fos = context.openFileOutput(filenameWithoutPath, Context.MODE_PRIVATE);
+                    FileOutputStream fos = Application.getAppContext().openFileOutput(filenameWithoutPath, Context.MODE_PRIVATE);
                     byte[] buffer = new byte[1024 * 100];
                     int nBytes;
                     while((nBytes = is.read(buffer)) != -1){
@@ -91,7 +92,7 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
                     }
                     is.close();
                     fos.close();
-                    String downloadPath = context.getFilesDir().getAbsolutePath() + "/" + filePath;
+                    String downloadPath = Application.getAppContext().getFilesDir().getAbsolutePath() + "/" + filePath;
                     meoCloudResponse.setResponse(new FileResponse(filenameWithoutPath));
                 }
                 return meoCloudResponse;

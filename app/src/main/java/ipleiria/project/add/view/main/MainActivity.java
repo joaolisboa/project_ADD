@@ -24,7 +24,8 @@ import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.view.items.ItemsActivity;
 import ipleiria.project.add.view.settings.SettingsActivity;
 
-import static ipleiria.project.add.view.items.ItemsActivity.LIST_DELETED_KEY;
+import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
+
 
 /**
  * Created by Lisboa on 04-May-17.
