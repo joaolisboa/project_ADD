@@ -268,6 +268,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
             intent.setAction(EDITING_ITEM);
             intent.putExtra(EDITING_ITEM_KEY, editedItem.getDbKey());
             startActivity(intent);
+            finish();
         }
 
         @Override

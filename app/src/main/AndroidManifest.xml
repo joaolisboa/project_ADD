@@ -61,15 +61,6 @@
                 android:value=".view.main.MainActivity" />
         </activity>
         <activity
-            android:name=".view.GoogleSignInActivity"
-            android:label="@string/google_activity_title"
-            android:parentActivityName=".view.settings.SettingsActivity"
-            android:theme="@style/AppTheme.OverlapSystemBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.settings.SettingsActivity" />
-        </activity>
-        <activity
             android:name=".view.add_edit_item.AddEditActivity"
             android:label="Add Item"
             android:windowSoftInputMode="stateHidden"
@@ -94,7 +85,6 @@
         </activity>
 
 
-        <activity android:name=".MainActivity"></activity>
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
             android:configChanges="orientation|keyboard"
@@ -124,10 +114,6 @@
                     android:scheme="http" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".AddItemActivity"
-            android:windowSoftInputMode="stateHidden" />
-        <activity android:name=".SelectCategoryActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"

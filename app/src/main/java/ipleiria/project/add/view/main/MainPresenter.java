@@ -16,8 +16,8 @@ import com.google.firebase.auth.FirebaseUser;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.view.items.ItemsActivity;
 
-import static ipleiria.project.add.AddItemActivity.SENDING_PHOTO;
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
+import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 
 /**
  * Created by Lisboa on 05-May-17.

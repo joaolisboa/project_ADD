@@ -1,7 +1,6 @@
 package ipleiria.project.add.meocloud;
 
 import ipleiria.project.add.meocloud.exceptions.MissingAccessTokenException;
-import ipleiria.project.add.Model.ApplicationData;
 
 import static ipleiria.project.add.data.source.UserService.MEO_PREFS_KEY;
 
@@ -15,9 +14,6 @@ public class MEOCloudClient {
     private static String accessToken;
 
     public static void init(String accessToken){
-        if(accessToken == null){
-            accessToken = ApplicationData.getInstance().getSharedPreferences().getString(MEO_PREFS_KEY, null);
-        }
         if(MEOCloudClient.accessToken == null || MEOCloudClient.accessToken.isEmpty()){
             MEOCloudClient.accessToken = accessToken;
         }

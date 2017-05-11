@@ -180,6 +180,20 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     @Override
+    public void editItem(Item item) {
+        // we can only edit items in the non-deleted list so it should always be false
+        saveItem(item, false);
+        // if the item has a deleted version(one or more files were deleted) we also need to update it
+        if(localDeletedItems.contains(item)){
+            int pos = localDeletedItems.indexOf(item);
+            Item deletedVersion = localDeletedItems.get(pos);
+            deletedVersion.setDescription(item.getDescription());
+            deletedVersion.setCriteria(item.getCriteria());
+            saveDeletedItemToDatabase(deletedVersion);
+        }
+    }
+
+    @Override
     public void deleteLocalItem(@NonNull Item item, boolean listingDeleted) {
         if (!listingDeleted) {
             localItems.remove(item);

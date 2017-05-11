@@ -47,6 +47,7 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     private List<Uri> receivedFiles;
 
     private ChildEventListener itemsListener;
+    private ChildEventListener deletedItemsListener;
 
     public ItemsPresenter(@NonNull ItemsRepository itemsRepository, @NonNull ItemsContract.View itemsView, boolean listingDeleted) {
         this.itemsRepository = itemsRepository;
@@ -76,11 +77,10 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     @Override
     public void unsubscribe() {
         if (itemsListener != null) {
-            if(!listingDeleted){
-                itemsRepository.getItemsReference().removeEventListener(itemsListener);
-            }else{
-                itemsRepository.getDeletedItemsReference().removeEventListener(itemsListener);
-            }
+            itemsRepository.getItemsReference().removeEventListener(itemsListener);
+        }
+        if (deletedItemsListener != null) {
+            itemsRepository.getDeletedItemsReference().removeEventListener(deletedItemsListener);
         }
     }
 
@@ -89,9 +89,9 @@ public class ItemsPresenter implements ItemsContract.Presenter {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 categoryRepository.addDimensions(dataSnapshot);
-                itemsView.setLoadingIndicator(false);
                 setItemsFilters();
                 setItemsListener();
+                itemsView.setLoadingIndicator(false);
             }
 
             @Override
@@ -102,45 +102,87 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     }
 
     private void setItemsListener() {
-        DatabaseReference reference = (!listingDeleted ? itemsRepository.getItemsReference() :
-                itemsRepository.getDeletedItemsReference());
-        itemsListener = reference.addChildEventListener(
+        itemsListener = itemsRepository.getItemsReference().addChildEventListener(
                 new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                         String key = dataSnapshot.getKey();
-                        itemsRepository.addNewItem(dataSnapshot, listingDeleted);
-                        Item item = (!listingDeleted ? itemsRepository.getItem(key) : itemsRepository.getDeletedItem(key));
-                        itemsView.showAddedItem(item);
+                        itemsRepository.addNewItem(dataSnapshot, false);
+                        Item item = itemsRepository.getItem(key);
+                        if(!listingDeleted) {
+                            itemsView.showAddedItem(item);
+                        }
                     }
 
                     @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                         String key = dataSnapshot.getKey();
-                        itemsRepository.addNewItem(dataSnapshot, listingDeleted);
-                        Item item = (!listingDeleted ? itemsRepository.getItem(key) : itemsRepository.getDeletedItem(key));
-                        itemsView.showAddedItem(item);
+                        itemsRepository.addNewItem(dataSnapshot, false);
+                        Item item = itemsRepository.getItem(key);
+                        if(!listingDeleted) {
+                            itemsView.showAddedItem(item);
+                        }
                     }
 
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
-                        /*String key = dataSnapshot.getKey();
-                        Item deletedItem = (!listingDeleted ? itemsRepository.getItem(key) : itemsRepository.getDeletedItem(key));
-                        itemsRepository.deleteLocalItem(deletedItem, listingDeleted);
-                        itemsView.removeDeletedItem(deletedItem);*/
+                        String key = dataSnapshot.getKey();
+                        Item deletedItem = itemsRepository.getItem(key);
+                        itemsRepository.deleteLocalItem(deletedItem, false);
+                        if(!listingDeleted) {
+                            itemsView.removeDeletedItem(deletedItem);
+                        }
                     }
 
                     @Override
                     public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
                     }
                 }
         );
+        deletedItemsListener = itemsRepository.getDeletedItemsReference().addChildEventListener(
+                new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        String key = dataSnapshot.getKey();
+                        itemsRepository.addNewItem(dataSnapshot, true);
+                        Item item = itemsRepository.getDeletedItem(key);
+                        if(listingDeleted) {
+                            itemsView.showAddedItem(item);
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                        String key = dataSnapshot.getKey();
+                        itemsRepository.addNewItem(dataSnapshot, true);
+                        Item item = itemsRepository.getDeletedItem(key);
+                        if(listingDeleted) {
+                            itemsView.showAddedItem(item);
+                        }
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+                        String key = dataSnapshot.getKey();
+                        Item deletedItem = itemsRepository.getDeletedItem(key);
+                        itemsRepository.deleteLocalItem(deletedItem, true);
+                        if(listingDeleted) {
+                            itemsView.removeDeletedItem(deletedItem);
+                        }
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
     }
 
     @Override
@@ -216,11 +258,11 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     @Override
     public void checkForEmptyList() {
         if (!listingDeleted) {
-            if(itemsRepository.getItems().isEmpty()) {
+            if (itemsRepository.getItems().isEmpty()) {
                 itemsView.showNoItems();
             }
         } else {
-            if(itemsRepository.getDeletedItems().isEmpty()) {
+            if (itemsRepository.getDeletedItems().isEmpty()) {
                 itemsView.showNoDeletedItems();
             }
         }
@@ -230,8 +272,8 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     public void setIntentInfo(Intent intent) {
         this.action = intent.getAction();
 
-        if(action != null){
-            switch(action){
+        if (action != null) {
+            switch (action) {
                 case Intent.ACTION_SEND:
                     receivedFiles.add(UriHelper.getUriFromExtra(intent));
                     break;
@@ -254,22 +296,22 @@ public class ItemsPresenter implements ItemsContract.Presenter {
 
     @Override
     public void onItemClicked(Item item) {
-        if(action == null){
+        if (action == null) {
             itemsView.openItemDetails(item, listingDeleted);
-        }else{
+        } else {
             itemsRepository.addFilesToItem(item, receivedFiles);
             itemsView.finish();
         }
     }
 
-    private void processItems(List<Item> items){
-        if(items.isEmpty()){
+    private void processItems(List<Item> items) {
+        if (items.isEmpty()) {
             if (!listingDeleted) {
                 itemsView.showNoItems();
             } else {
                 itemsView.showNoDeletedItems();
             }
-        }else{
+        } else {
             itemsView.showItems(items);
         }
     }

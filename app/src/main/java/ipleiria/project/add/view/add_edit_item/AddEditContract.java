@@ -44,8 +44,6 @@ public class AddEditContract {
 
         void subscribe(Intent intent);
 
-        void createTreeView();
-
         void searchForCriteria(String query);
 
         void selectedCriteria(Criteria criteria);

@@ -18,13 +18,13 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.dropbox.DropboxClientFactory;
 import ipleiria.project.add.meocloud.data.MEOMetadata;
 import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
 import ipleiria.project.add.meocloud.MEOCallback;
 import ipleiria.project.add.meocloud.MEOCloudClient;
 import ipleiria.project.add.meocloud.tasks.MEOCreateFolderTree;
-import ipleiria.project.add.Model.ApplicationData;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.ItemFile;
@@ -88,7 +88,7 @@ public class FileUtils {
         }
     }
 
-    public static List<File> getLocalFiles(Context context){
+    /*public static List<File> getLocalFiles(Context context){
         List<File> files = new LinkedList<>();
         for(Dimension dimension: ApplicationData.getInstance().getDimensions()){
             File dimensiondir = new File(context.getFilesDir().getAbsolutePath() + "/" + dimension.getReference());
@@ -98,7 +98,7 @@ public class FileUtils {
         }
         Log.d(TAG, "Local files found: " + files);
         return files;
-    }
+    }*/
 
     private static void goThroughFolder(File dir, List<File> files){
         for(File fileInDir: dir.listFiles()){
@@ -182,7 +182,7 @@ public class FileUtils {
             double points = 0;
             // first 4 criteria have a special case with a 10 point limit
             for(int i = 0; i < 4; i++){
-                Criteria criteria = ApplicationData.getInstance().getCriterias().get(i);
+                Criteria criteria = CategoryRepository.getInstance().getCriterias().get(i);
                 points += criteria.getPoints();
                 if(points >= 10){
                     points = 10;
@@ -193,8 +193,8 @@ public class FileUtils {
                 System.out.println(sheet.getRow(criteria.getWriteCell().y)
                         .getCell(criteria.getWriteCell().x).getNumericCellValue());
             }
-            for(int i = 4; i < ApplicationData.getInstance().getCriterias().size(); i++){
-                Criteria criteria = ApplicationData.getInstance().getCriterias().get(i);
+            for(int i = 4; i < CategoryRepository.getInstance().getCriterias().size(); i++){
+                Criteria criteria = CategoryRepository.getInstance().getCriterias().get(i);
                 if(criteria.getPoints() > 0) {
                     points = criteria.getPoints();
                     sheet.getRow(criteria.getWriteCell().y)
@@ -209,8 +209,8 @@ public class FileUtils {
             }
             evaluator.evaluateAll();
 
-            for(int i = 0; i < ApplicationData.getInstance().getCriterias().size(); i++) {
-                Criteria criteria = ApplicationData.getInstance().getCriterias().get(i);
+            for(int i = 0; i < CategoryRepository.getInstance().getCriterias().size(); i++) {
+                Criteria criteria = CategoryRepository.getInstance().getCriterias().get(i);
                 if(criteria.getPoints() > 0) {
                     double value = sheet.getRow(criteria.getReadCell().y)
                             .getCell(criteria.getReadCell().x)

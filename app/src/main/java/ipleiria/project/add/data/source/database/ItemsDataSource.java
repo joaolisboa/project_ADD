@@ -36,6 +36,8 @@ public interface ItemsDataSource {
 
     void saveItem(@NonNull Item item, boolean flag);
 
+    void editItem(Item item);
+
     void deleteItem(@NonNull Item item);
 
     void deleteLocalItem(@NonNull Item item, boolean listingDeleted);

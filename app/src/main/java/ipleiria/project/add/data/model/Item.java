@@ -3,9 +3,6 @@ package ipleiria.project.add.data.model;
 import java.util.LinkedList;
 import java.util.List;
 
-import ipleiria.project.add.FirebaseHandler;
-import ipleiria.project.add.Model.ApplicationData;
-
 /**
  * Created by Lisboa on 04-Apr-17.
  */

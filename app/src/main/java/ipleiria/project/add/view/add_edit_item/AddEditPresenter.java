@@ -110,11 +110,6 @@ public class AddEditPresenter implements AddEditContract.Presenter {
     }
 
     @Override
-    public void createTreeView() {
-
-    }
-
-    @Override
     public void searchForCriteria(String query) {
         List<Criteria> results = new LinkedList<>();
 
@@ -165,7 +160,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
                 case EDITING_ITEM:
                     editingItem.setDescription(description);
                     editingItem.setCriteria(selectedCriteria);
-                    itemsRepository.saveItem(editingItem, false);
+                    itemsRepository.editItem(editingItem);
                     break;
             }
         }else{
