@@ -9,6 +9,7 @@ import com.dropbox.core.v2.files.ThumbnailFormat;
 import com.dropbox.core.v2.files.ThumbnailSize;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -21,13 +22,11 @@ import ipleiria.project.add.utils.PathUtils;
 
 public class DropboxGetThumbnail  extends AsyncTask<String, Void, File> {
 
-    private final Context mContext;
     private final DbxClientV2 mDbxClient;
     private final DropboxCallback<File> mCallback;
     private Exception mException;
 
-    public DropboxGetThumbnail(Context context, DbxClientV2 dbxClient, DropboxCallback<File> callback) {
-        mContext = context;
+    public DropboxGetThumbnail(DbxClientV2 dbxClient, DropboxCallback<File> callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }
@@ -51,14 +50,15 @@ public class DropboxGetThumbnail  extends AsyncTask<String, Void, File> {
 
             String filename = params[0];
             String thumbnailFilename = "thumb_" + PathUtils.filename(filename);
-            try (OutputStream outputStream = Application.getAppContext().openFileOutput(thumbnailFilename, Context.MODE_PRIVATE)) {
+            File thumb = new File(Application.getAppContext().getCacheDir(), thumbnailFilename);
+            try (OutputStream outputStream = new FileOutputStream(thumb)) {
                 mDbxClient.files().getThumbnailBuilder("/" + filename)
                         .withFormat(ThumbnailFormat.JPEG)
                         .withSize(ThumbnailSize.W128H128)
                         .download(outputStream);
             }
 
-            return new File(Application.getAppContext().getFilesDir().getAbsolutePath() + "/" + thumbnailFilename);
+            return thumb;
         } catch (DbxException | IOException e) {
             mException = e;
         }

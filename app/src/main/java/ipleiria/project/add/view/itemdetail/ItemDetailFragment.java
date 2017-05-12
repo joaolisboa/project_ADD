@@ -92,14 +92,15 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         itemDetailPresenter.subscribe();
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
+        itemDetailPresenter.unsubscribe();
     }
 
     @Override
@@ -132,7 +133,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     @Override
     public void showAddedFile(ItemFile file) {
         listFileAdapter.onFileAdded(file);
-
         filesHeader.setVisibility(View.VISIBLE);
     }
 

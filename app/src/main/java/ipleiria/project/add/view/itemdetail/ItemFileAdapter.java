@@ -2,6 +2,7 @@ package ipleiria.project.add.view.itemdetail;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
@@ -32,12 +34,15 @@ public class ItemFileAdapter extends BaseSwipeAdapter implements ItemDetailContr
     private ItemDetailContract.Presenter filePresenter;
 
     private List<ItemFile> listFiles;
+    private Map<ItemFile, ImageView> attachedImageViews;
     private boolean listingDeleted;
 
     public ItemFileAdapter(List<ItemFile> listFiles, ItemDetailFragment.FileActionListener actionsListener, boolean listingDeleted) {
         setList(listFiles);
         this.actionsListener = actionsListener;
         this.listingDeleted = listingDeleted;
+
+        this.attachedImageViews = new ArrayMap<>();
     }
 
     public void setFilePresenter(ItemDetailContract.Presenter filePresenter){
@@ -67,6 +72,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter implements ItemDetailContr
 
     void onFileRemoved(ItemFile deletedFile) {
         listFiles.remove(deletedFile);
+        removeAttachedView(deletedFile);
         notifyDataSetChanged();
     }
 
@@ -147,7 +153,8 @@ public class ItemFileAdapter extends BaseSwipeAdapter implements ItemDetailContr
         filename.setText(file.getFilename());
 
         ImageView thumbView = (ImageView) convertView.findViewById(R.id.file_thumbnail);
-        filePresenter.createThumbnail(file, thumbView);
+        thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
+        attachImageViewToFile(file, thumbView);
     }
 
     @Override
@@ -166,12 +173,25 @@ public class ItemFileAdapter extends BaseSwipeAdapter implements ItemDetailContr
     }
 
     @Override
-    public void setThumbnail(final ImageView thumbView, File thumbnail){
-        Picasso.with(thumbView.getContext())
+    public void setThumbnail(ItemFile file, File thumbnail){
+        ImageView imageView = attachedImageViews.get(file);
+        Log.d("THUMB", "Creating thumbnail..." + thumbnail.getAbsolutePath());
+        Picasso.with(imageView.getContext())
                 .load(thumbnail)
                 .resize(100, 100)
                 .placeholder(R.drawable.file_placeholder)
                 .error(R.drawable.file_placeholder)
-                .into(thumbView);
+                .into(imageView);
+    }
+
+    private void attachImageViewToFile(ItemFile file, ImageView imageView){
+        if(!attachedImageViews.containsKey(file)){
+            attachedImageViews.put(file, imageView);
+            filePresenter.createThumbnail(file);
+        }
+    }
+
+    private void removeAttachedView(ItemFile file){
+        attachedImageViews.remove(file);
     }
 }

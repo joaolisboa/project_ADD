@@ -1,7 +1,6 @@
 package ipleiria.project.add.data.source.database;
 
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -284,7 +283,7 @@ public class ItemsRepository implements ItemsDataSource {
         for (Uri uri : receivedFiles) {
             ItemFile file = new ItemFile(UriHelper.getFileName(Application.getAppContext(), uri));
             item.addFile(file);
-            filesRepository.addFile(file);
+            filesRepository.saveFile(file);
         }
         saveItem(item, false);
     }

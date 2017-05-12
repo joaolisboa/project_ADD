@@ -19,8 +19,6 @@ public class ItemDetailContract {
 
     interface View extends BaseView<Presenter>{
 
-        void setAdapterPresenter(Presenter presenter);
-
         void showItemInfo(Item item);
 
         void showFiles(List<ItemFile> files);
@@ -34,6 +32,8 @@ public class ItemDetailContract {
         void showLoadingIndicator();
 
         void hideLoadingIndicator();
+
+        void setAdapterPresenter(Presenter presenter);
 
     }
 
@@ -49,18 +49,16 @@ public class ItemDetailContract {
 
         void renameFile(@NonNull ItemFile file, @NonNull String newFilename);
 
-        void createThumbnail(ItemFile file, ImageView thumbView);
-
-        void downloadThumbnail(ItemFile file, ImageView thumbView);
-
-        void setFileView(ItemDetailContract.FileView fileView);
-
         void onItemClicked(ItemFile clickedFile);
+
+        void setFileView(FileView fileView);
+
+        void createThumbnail(ItemFile file);
     }
 
-    public interface FileView {
+    interface FileView {
 
-        void setThumbnail(ImageView thumbView, File thumbnail);
+        void setThumbnail(ItemFile file, File thumbnail);
 
     }
 }

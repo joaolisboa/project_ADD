@@ -10,15 +10,15 @@ import ipleiria.project.add.data.model.ItemFile;
 
 public interface FilesDataSource {
 
-    void addFile(ItemFile newFile);
+    void saveFile(ItemFile newFile);
 
-    File getFileThumbnail(ItemFile file);
+    File getCachedThumbnail(ItemFile file);
 
-    File downloadThumbnail(ItemFile file);
+    void downloadThumbnail(ItemFile file, FilesRepository.Callback<File> callback);
 
     File getLocalFile(ItemFile file);
 
-    File downloadFile(ItemFile file);
+    void downloadFile(ItemFile file, FilesRepository.Callback<File> callback);
 
     void deleteFile(ItemFile deletedFile);
 

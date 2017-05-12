@@ -58,6 +58,7 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.github.bmelnychuk:atv:1.2.9'
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
+
     testCompile 'junit:junit:4.12'
 
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'

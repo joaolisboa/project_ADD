@@ -11,7 +11,7 @@ import ipleiria.project.add.meocloud.tasks.MEORevokeToken;
  * Created by Lisboa on 06-May-17.
  */
 
-public class MEOCloudService implements FilesService<MEOCallback> {
+public class MEOCloudService implements AccountService<MEOCallback> {
 
     private static MEOCloudService INSTANCE = null;
 
@@ -43,6 +43,11 @@ public class MEOCloudService implements FilesService<MEOCallback> {
     }
 
     @Override
+    public boolean isAvailable() {
+        return MEOCloudClient.isClientInitialized();
+    }
+
+    @Override
     public void revokeToken(final MEOCallback callback) {
         new MEORevokeToken(new MEOCallback<Void>() {
             @Override
@@ -62,30 +67,5 @@ public class MEOCloudService implements FilesService<MEOCallback> {
                 callback.onError(e);
             }
         }).execute();
-    }
-
-    @Override
-    public void uploadFile(MEOCallback callback) {
-
-    }
-
-    @Override
-    public void downloadFile(MEOCallback callback) {
-
-    }
-
-    @Override
-    public void moveFile(MEOCallback callback) {
-
-    }
-
-    @Override
-    public void deleteFile() {
-
-    }
-
-    @Override
-    public void downloadThumbnail(MEOCallback callback) {
-
     }
 }

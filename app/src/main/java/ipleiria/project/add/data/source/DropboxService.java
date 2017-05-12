@@ -10,7 +10,7 @@ import ipleiria.project.add.dropbox.DropboxRevokeToken;
  * Created by Lisboa on 06-May-17.
  */
 
-public class DropboxService implements FilesService<DropboxCallback> {
+public class DropboxService implements AccountService<DropboxCallback> {
 
     private static DropboxService INSTANCE = null;
 
@@ -42,6 +42,11 @@ public class DropboxService implements FilesService<DropboxCallback> {
     }
 
     @Override
+    public boolean isAvailable() {
+        return DropboxClientFactory.isClientInitialized();
+    }
+
+    @Override
     public void revokeToken(final DropboxCallback callback) {
         new DropboxRevokeToken(DropboxClientFactory.getClient(), new DropboxCallback<Void>(){
 
@@ -56,31 +61,6 @@ public class DropboxService implements FilesService<DropboxCallback> {
                 callback.onError(e);
             }
         }).execute();
-    }
-
-    @Override
-    public void uploadFile(DropboxCallback callback) {
-
-    }
-
-    @Override
-    public void downloadFile(DropboxCallback callback) {
-
-    }
-
-    @Override
-    public void moveFile(DropboxCallback callback) {
-
-    }
-
-    @Override
-    public void deleteFile() {
-
-    }
-
-    @Override
-    public void downloadThumbnail(DropboxCallback callback) {
-
     }
 
 }

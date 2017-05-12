@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.widget.ImageView;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.List;
 
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
@@ -41,9 +41,9 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
     @Override
     public void subscribe() {
-        // set firebase listener for item files?
         itemDetailView.setAdapterPresenter(this);
-        itemDetailView.showFiles(!listingDeleted ? item.getFiles() : item.getDeletedFiles());
+        List<ItemFile> files = (!listingDeleted ? item.getFiles() : item.getDeletedFiles());
+        itemDetailView.showFiles(files);
     }
 
     @Override
@@ -97,26 +97,32 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     }
 
     @Override
-    public void createThumbnail(ItemFile file, ImageView thumbView) {
-        File thumbnail = filesRepository.getFileThumbnail(file);
+    public void createThumbnail(ItemFile file) {
+        File thumbnail = filesRepository.getCachedThumbnail(file);
         if(thumbnail.exists()){
-            fileView.setThumbnail(thumbView, thumbnail);
+            fileView.setThumbnail(file, thumbnail);
         }else {
             File localFile = filesRepository.getLocalFile(file);
             if (localFile.exists()) {
-                fileView.setThumbnail(thumbView, localFile);
+                fileView.setThumbnail(file, localFile);
             } else {
-                downloadThumbnail(file, thumbView);
+                downloadThumbnail(file);
             }
         }
     }
 
-    @Override
-    public void downloadThumbnail(ItemFile file, ImageView thumbView) {
-        File downloadedFile = filesRepository.downloadFile(file);
-        if(downloadedFile.exists()){
-            fileView.setThumbnail(thumbView, downloadedFile);
-        }
+    private void downloadThumbnail(final ItemFile file) {
+        filesRepository.downloadThumbnail(file, new FilesRepository.Callback<File>() {
+            @Override
+            public void onComplete(File result) {
+                fileView.setThumbnail(file, result);
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
     }
 
     @Override

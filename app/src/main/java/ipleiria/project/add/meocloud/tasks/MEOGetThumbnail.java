@@ -31,10 +31,8 @@ public class MEOGetThumbnail extends AsyncTask<String, Void, MEOCloudResponse<Fi
 
     private final MEOCallback<File> callback;
     private Exception exception;
-    private Context context;
 
-    public MEOGetThumbnail(Context context, MEOCallback<File> callback) {
-        this.context = context;
+    public MEOGetThumbnail(MEOCallback<File> callback) {
         this.callback = callback;
     }
 
@@ -81,14 +79,15 @@ public class MEOGetThumbnail extends AsyncTask<String, Void, MEOCloudResponse<Fi
             }
 
             String path = MEOCloudAPI.API_METHOD_THUMBNAILS + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
-            System.out.println(path);
             Response response = HttpRequestor.getContent(token, path, map);
             if (response != null) {
                 MEOCloudResponse<File> meoCloudResponse = new MEOCloudResponse<>();
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
                     InputStream is = response.body().byteStream();
-                    FileOutputStream fos = Application.getAppContext().openFileOutput(thumbnailFilename, Context.MODE_PRIVATE);
+                    File thumb = new File(Application.getAppContext().getCacheDir(), thumbnailFilename);
+                    FileOutputStream fos = new FileOutputStream(thumb);
+                    /* Application.getAppContext().openFileOutput(thumbnailFilename, Context.MODE_PRIVATE);*/
                     byte[] buffer = new byte[1024 * 100];
                     int nBytes;
                     while((nBytes = is.read(buffer)) != -1){
@@ -97,8 +96,8 @@ public class MEOGetThumbnail extends AsyncTask<String, Void, MEOCloudResponse<Fi
                     }
                     is.close();
                     fos.close();
-                    String downloadPath = Application.getAppContext().getFilesDir().getAbsolutePath() + "/" + thumbnailFilename;
-                    meoCloudResponse.setResponse(new File(downloadPath));
+                    //String downloadPath = Application.getAppContext().getCacheDir().getAbsolutePath() + "/" + thumbnailFilename;
+                    meoCloudResponse.setResponse(thumb);
                 }
                 return meoCloudResponse;
             }
