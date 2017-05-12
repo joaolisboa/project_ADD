@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.itemdetail;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -39,7 +41,7 @@ import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
  * Created by Lisboa on 10-May-17.
  */
 
-public class ItemDetailFragment extends Fragment implements ItemDetailContract.View{
+public class ItemDetailFragment extends Fragment implements ItemDetailContract.View {
 
     private ItemDetailContract.Presenter itemDetailPresenter;
 
@@ -48,9 +50,10 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
 
     private TextView filesHeader;
 
-    public ItemDetailFragment(){}
+    public ItemDetailFragment() {
+    }
 
-    public static ItemDetailFragment newInstance(){
+    public static ItemDetailFragment newInstance() {
         return new ItemDetailFragment();
     }
 
@@ -89,13 +92,13 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     }
 
     @Override
-    public void onStart(){
+    public void onStart() {
         super.onStart();
         itemDetailPresenter.subscribe();
     }
 
     @Override
-    public void onStop(){
+    public void onStop() {
         super.onStop();
     }
 
@@ -105,7 +108,7 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     }
 
     @Override
-    public void setAdapterPresenter(ItemDetailContract.Presenter presenter){
+    public void setAdapterPresenter(ItemDetailContract.Presenter presenter) {
         listFileAdapter.setFilePresenter(presenter);
     }
 
@@ -163,6 +166,10 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         input.setText(file.getFilename());
         input.setSelection(file.getFilename().lastIndexOf("."));
 
+        final InputMethodManager inputMethodManager = (InputMethodManager)
+                getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
         new AlertDialog.Builder(getContext())
                 .setView(view)
                 .setTitle("Rename file")
@@ -170,16 +177,20 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         itemDetailPresenter.renameFile(file, input.getText().toString());
+                        inputMethodManager.hideSoftInputFromWindow(input.getWindowToken(), 0);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        inputMethodManager.hideSoftInputFromWindow(input.getWindowToken(), 0);
                         dialog.cancel();
                     }
                 })
                 .create()
                 .show();
+
+
     }
 
     FileActionListener fileActionListener = new FileActionListener() {

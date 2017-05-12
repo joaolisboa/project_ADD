@@ -55,18 +55,6 @@ public class ItemFilesRepository implements ItemFilesDataSource {
 
     @Override
     public void renameItemFile(ItemFile file) {
-        // just like an item the file can't be renamed if deleted
-        /*if (itemsRepository.getItems().contains(item)) {
-            // get original item
-            int pos = itemsRepository.getItems().indexOf(item);
-            Item originalItem = itemsRepository.getItems().get(pos);
-            //check for file
-
-        }else{
-            Log.wtf(TAG, "Shouldn't happen - a file being renamed should always exist in this list");
-        }*/
-
-        //
         itemsRepository.saveItemToDatabase(item);
     }
 

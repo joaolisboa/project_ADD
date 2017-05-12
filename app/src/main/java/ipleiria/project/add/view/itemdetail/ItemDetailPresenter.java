@@ -80,10 +80,6 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
     @Override
     public void restoreFile(@NonNull ItemFile file) {
-        System.out.println(item);
-        System.out.println("restoring file: " + file);
-        System.out.println("1" + Arrays.toString(item.getFiles().toArray()));
-        System.out.println("2" + Arrays.toString(item.getDeletedFiles().toArray()));
         itemFilesRepository.restoreItemFile(file);
         filesRepository.restoreFile(file);
         itemDetailView.removeDeletedFile(file);
@@ -92,10 +88,12 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     @Override
     public void renameFile(@NonNull ItemFile file, @NonNull String newFilename) {
         String oldFilename = file.getFilename();
-        file.setFilename(newFilename);
-        itemFilesRepository.renameItemFile(file);
-        filesRepository.renameFile(file, oldFilename, newFilename);
-        itemDetailView.showAddedFile(file);
+        if(!oldFilename.equals(newFilename)) {
+            file.setFilename(newFilename);
+            itemFilesRepository.renameItemFile(file);
+            filesRepository.renameFile(file, oldFilename, newFilename);
+            itemDetailView.showAddedFile(file);
+        }
     }
 
     @Override

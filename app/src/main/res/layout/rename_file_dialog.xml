@@ -8,7 +8,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="18dp"
-        android:id="@+id/new_filename"/>
+        android:maxLines="1"
+        android:id="@+id/new_filename"
+        android:inputType="text" />
 
 
 </LinearLayout>
