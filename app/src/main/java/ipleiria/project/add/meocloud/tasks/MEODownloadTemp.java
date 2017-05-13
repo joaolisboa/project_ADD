@@ -10,30 +10,30 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 import ipleiria.project.add.Application;
+import ipleiria.project.add.meocloud.HttpRequestor;
+import ipleiria.project.add.meocloud.MEOCallback;
+import ipleiria.project.add.meocloud.MEOCloudAPI;
+import ipleiria.project.add.meocloud.MEOCloudClient;
 import ipleiria.project.add.meocloud.data.FileResponse;
 import ipleiria.project.add.meocloud.data.MEOCloudResponse;
 import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
 import ipleiria.project.add.meocloud.exceptions.MissingAccessTokenException;
 import ipleiria.project.add.meocloud.exceptions.MissingFilePathException;
 import ipleiria.project.add.meocloud.exceptions.MissingParametersException;
-import ipleiria.project.add.meocloud.HttpRequestor;
-import ipleiria.project.add.meocloud.MEOCallback;
-import ipleiria.project.add.meocloud.MEOCloudAPI;
-import ipleiria.project.add.meocloud.MEOCloudClient;
 import ipleiria.project.add.utils.HttpStatus;
 import ipleiria.project.add.utils.PathUtils;
 import okhttp3.Response;
 
 /**
- * Created by Lisboa on 26-Mar-17.
+ * Created by Lisboa on 13-May-17.
  */
 
-public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<FileResponse>> {
+public class MEODownloadTemp extends AsyncTask<String, Void, MEOCloudResponse<FileResponse>> {
 
     private final MEOCallback<FileResponse> callback;
     private Exception exception;
 
-    public MEODownloadFile(MEOCallback<FileResponse> callback) {
+    public MEODownloadTemp(MEOCallback<FileResponse> callback) {
         this.callback = callback;
     }
 
@@ -66,6 +66,7 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
 
             String token = MEOCloudClient.getAccessToken();
             String filePath = params[0];
+            String filename = PathUtils.filename(filePath);
 
             HashMap<String, String> map = new HashMap<>();
             if(params.length > 1 && params[1] != null) {
@@ -80,7 +81,9 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
                     InputStream is = response.body().byteStream();
-                    FileOutputStream fos = new FileOutputStream(new File(Application.getAppContext().getFilesDir(), filePath));
+
+                    File tmp = new File(Application.getAppContext().getFilesDir(), filename);
+                    FileOutputStream fos = new FileOutputStream(tmp);
                     byte[] buffer = new byte[1024 * 100];
                     int nBytes;
                     while((nBytes = is.read(buffer)) != -1){
@@ -89,7 +92,7 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
                     }
                     is.close();
                     fos.close();
-                    meoCloudResponse.setResponse(new FileResponse(Application.getAppContext().getFilesDir(), filePath));
+                    meoCloudResponse.setResponse((FileResponse) tmp);
                 }
                 return meoCloudResponse;
             }

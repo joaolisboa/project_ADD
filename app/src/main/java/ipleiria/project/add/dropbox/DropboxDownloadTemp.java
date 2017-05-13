@@ -7,6 +7,7 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -14,15 +15,16 @@ import ipleiria.project.add.Application;
 import ipleiria.project.add.utils.PathUtils;
 
 /**
- * Task to download a file from Dropbox and put it in the Downloads folder
+ * Created by Lisboa on 13-May-17.
  */
-public class DropboxDownloadFile extends AsyncTask<String, Void, File> {
+
+public class DropboxDownloadTemp  extends AsyncTask<String, Void, File> {
 
     private final DbxClientV2 mDbxClient;
     private final DropboxCallback<File> mCallback;
     private Exception mException;
 
-    public DropboxDownloadFile(DbxClientV2 dbxClient, DropboxCallback<File> callback) {
+    public DropboxDownloadTemp(DbxClientV2 dbxClient, DropboxCallback<File> callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }
@@ -46,12 +48,14 @@ public class DropboxDownloadFile extends AsyncTask<String, Void, File> {
 
             String path = params[0];
 
-            String filenameWithoutPath = PathUtils.filename(path);
-            try (OutputStream outputStream = Application.getAppContext().openFileOutput(filenameWithoutPath, Context.MODE_PRIVATE)) {
+            String filename = PathUtils.filename(path);
+            File tmp = new File(Application.getAppContext().getFilesDir(), filename);
+            try (OutputStream outputStream = new FileOutputStream(tmp)) {
                 mDbxClient.files().download("/" + path).download(outputStream);
             }
+            tmp.deleteOnExit();
 
-            return new File(Application.getAppContext().getFilesDir().getAbsolutePath() + "/" + filenameWithoutPath);
+            return tmp;
         } catch (DbxException | IOException e) {
             mException = e;
         }

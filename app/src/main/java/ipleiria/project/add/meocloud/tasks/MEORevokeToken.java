@@ -33,7 +33,7 @@ public class MEORevokeToken extends AsyncTask<String, Void, MEOCloudResponse<Voi
             if(result.responseSuccessful()){
                 callback.onComplete(result.getResponse());
             }else{
-                callback.onRequestError(new HttpErrorException(result.getError()));
+                callback.onRequestError(new HttpErrorException(result));
             }
         }
     }

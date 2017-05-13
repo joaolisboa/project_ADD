@@ -41,7 +41,7 @@ public class MEOCreateFolder extends AsyncTask<String, Void, MEOCloudResponse<ME
                 /*FORBIDDEN = 403 - folder already exists - not a real error*/
                 callback.onComplete(result.getResponse());
             }else{
-                callback.onRequestError(new HttpErrorException(result.getError()));
+                callback.onRequestError(new HttpErrorException(result));
             }
         }
     }

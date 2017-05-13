@@ -48,7 +48,7 @@ public class MEOSearchFile extends AsyncTask<String, Void, MEOCloudResponse<List
             if(result.responseSuccessful()){
                 callback.onComplete(result.getResponse());
             }else{
-                callback.onRequestError(new HttpErrorException(result.getError()));
+                callback.onRequestError(new HttpErrorException(result));
             }
         }
     }
@@ -90,7 +90,6 @@ public class MEOSearchFile extends AsyncTask<String, Void, MEOCloudResponse<List
 
 
             String path = MEOCloudAPI.API_METHOD_SEARCH + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
-            System.out.println(path);
 
             Response response = HttpRequestor.get(token, path, map);
             if (response != null) {

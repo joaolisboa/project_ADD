@@ -40,7 +40,7 @@ public class MEODeleteFile extends AsyncTask<String, Void, MEOCloudResponse<MEOM
             if(result.responseSuccessful()){
                 callback.onComplete(result.getResponse());
             }else{
-                callback.onRequestError(new HttpErrorException(result.getError()));
+                callback.onRequestError(new HttpErrorException(result));
             }
         }
     }

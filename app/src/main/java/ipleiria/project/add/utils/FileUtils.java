@@ -114,45 +114,6 @@ public class FileUtils {
         return new File(context.getFilesDir() + "/user_thumb.jpg");
     }
 
-    public static void moveFilesToNewDir(final Context context, List<ItemFile> files, String old) {
-        if(NetworkState.isOnline(context)){
-            for(ItemFile itemFile: files){
-                final String newPath = PathUtils.getRelativeFilePath(itemFile);
-                final String oldPath = old + "/" + itemFile.getFilename();
-
-                if(MEOCloudClient.isClientInitialized()) {
-                    String[] splitPath = newPath.substring(1, newPath.lastIndexOf("/")).split("/");
-                    String dimensionPath = splitPath[0];
-                    String areaPath = splitPath[1];
-                    String criteriaPath = splitPath[2];
-
-                    new MEOCreateFolderTree(new MEOCallback<MEOMetadata>() {
-                        @Override
-                        public void onComplete(MEOMetadata result) {
-                            CloudHandler.moveFileMEO(oldPath, newPath);
-                        }
-
-                        @Override
-                        public void onRequestError(HttpErrorException httpE) {
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                        }
-                    }).execute(dimensionPath, areaPath, criteriaPath);
-                }
-                if(DropboxClientFactory.isClientInitialized()){
-                    CloudHandler.moveFileDropbox(oldPath, newPath);
-                }
-            }
-        }else{
-            for(ItemFile itemFile: files){
-                renameFile(PathUtils.getLocalFilePath(context, itemFile.getFilename(), itemFile.getParent().getCriteria()),
-                        PathUtils.getLocalFilePath(context, itemFile.getFilename(), itemFile.getParent().getCriteria()));
-            }
-        }
-    }
-
     public static List<File> getLocalDeletedFiles(Context context) {
         List<File> files = new LinkedList<>();
         File trashDir = new File(context.getFilesDir() + TRASH_FOLDER);

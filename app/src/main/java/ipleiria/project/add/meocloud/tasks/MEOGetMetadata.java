@@ -40,7 +40,7 @@ public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<MEO
             if(result.responseSuccessful()){
                 callback.onComplete(result.getResponse());
             }else{
-                callback.onRequestError(new HttpErrorException(result.getError()));
+                callback.onRequestError(new HttpErrorException(result));
             }
         }
     }
@@ -79,7 +79,6 @@ public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<MEO
             }
 
             String path = MEOCloudAPI.API_METHOD_METADATA + "/" + MEOCloudAPI.API_MODE + "/" + remoteFilePath;
-            System.out.println(path);
 
             Response response = HttpRequestor.get(token, path, map);
             if (response != null) {

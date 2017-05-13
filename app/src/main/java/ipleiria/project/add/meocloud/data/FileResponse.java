@@ -2,6 +2,8 @@ package ipleiria.project.add.meocloud.data;
 
 import android.support.annotation.NonNull;
 
+import java.io.File;
+
 import ipleiria.project.add.meocloud.ErrorMessageResponse;
 import ipleiria.project.add.utils.HttpStatus;
 
@@ -13,6 +15,10 @@ public class FileResponse extends java.io.File implements ErrorMessageResponse {
 
     public FileResponse(@NonNull String pathname) {
         super(pathname);
+    }
+
+    public FileResponse(@NonNull File dir, String path){
+        super(dir, path);
     }
 
     @Override

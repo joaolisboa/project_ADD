@@ -32,11 +32,9 @@ public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<MEOM
 
     private final MEOCallback<MEOMetadata> callback;
     private Exception exception;
-    private Context context;
 
-    public MEOUploadFile(Context context, MEOCallback<MEOMetadata> callback) {
+    public MEOUploadFile(MEOCallback<MEOMetadata> callback) {
         this.callback = callback;
-        this.context = context;
     }
 
     @Override
@@ -48,7 +46,7 @@ public class MEOUploadFile extends AsyncTask<String, Void, MEOCloudResponse<MEOM
             if(result.responseSuccessful()){
                 callback.onComplete(result.getResponse());
             }else{
-                callback.onRequestError(new HttpErrorException(result.getError()));
+                callback.onRequestError(new HttpErrorException(result));
             }
         }
     }

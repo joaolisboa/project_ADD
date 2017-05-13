@@ -1,7 +1,10 @@
 package ipleiria.project.add.data.source;
 
+import android.net.Uri;
+
 import java.io.File;
 
+import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.ItemFile;
 
 /**
@@ -10,15 +13,19 @@ import ipleiria.project.add.data.model.ItemFile;
 
 public interface FilesDataSource {
 
-    void saveFile(ItemFile newFile);
+    void saveFile(ItemFile newFile, Uri uri);
 
     File getCachedThumbnail(ItemFile file);
 
-    void downloadThumbnail(ItemFile file, FilesRepository.Callback<File> callback);
+    void downloadThumbnail(ItemFile file, FilesRepository.BaseCallback<File> callback);
 
-    File getLocalFile(ItemFile file);
+    void getThumbnail(ItemFile file, FilesRepository.BaseCallback<File> callback);
 
-    void downloadFile(ItemFile file, FilesRepository.Callback<File> callback);
+    void getFileToShare(ItemFile file, FilesRepository.Callback<File> callback);
+
+    void getFile(ItemFile file, FilesRepository.Callback<File> callback);
+
+    void moveFile(ItemFile file, Criteria newCriteria);
 
     void deleteFile(ItemFile deletedFile);
 

@@ -1,7 +1,7 @@
 package ipleiria.project.add.view.itemdetail;
 
 import android.support.annotation.NonNull;
-import android.widget.ImageView;
+import android.util.Log;
 
 import java.io.File;
 import java.util.List;
@@ -17,12 +17,13 @@ import ipleiria.project.add.data.source.database.ItemFilesRepository;
 
 public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
+    private static final String TAG = "ITEM_DETAIL_PRESENTER";
+
     public static final String ITEM_KEY = "item_key";
 
     private ItemDetailContract.View itemDetailView;
-    private ItemDetailContract.FileView fileView;
 
-    private final ItemFilesRepository itemFilesRepository;
+    private ItemFilesRepository itemFilesRepository;
     private final FilesRepository filesRepository;
 
     private Item item;
@@ -35,13 +36,13 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
         this.itemDetailView.setPresenter(this);
 
         this.item = item;
-        this.itemFilesRepository = ItemFilesRepository.newInstance(item);
         this.listingDeleted = listingDeleted;
     }
 
     @Override
     public void subscribe() {
-        itemDetailView.setAdapterPresenter(this);
+        this.itemFilesRepository = ItemFilesRepository.newInstance(item);
+
         List<ItemFile> files = (!listingDeleted ? item.getFiles() : item.getDeletedFiles());
         itemDetailView.showFiles(files);
     }
@@ -97,43 +98,37 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     }
 
     @Override
-    public void createThumbnail(ItemFile file) {
+    public void createThumbnail(final ItemFile file) {
         File thumbnail = filesRepository.getCachedThumbnail(file);
         if(thumbnail.exists()){
-            fileView.setThumbnail(file, thumbnail);
+            itemDetailView.setFileThumbnail(file, thumbnail);
         }else {
-            File localFile = filesRepository.getLocalFile(file);
-            if (localFile.exists()) {
-                fileView.setThumbnail(file, localFile);
-            } else {
-                downloadThumbnail(file);
-            }
+            filesRepository.getThumbnail(file, new FilesRepository.BaseCallback<File>() {
+                @Override
+                public void onComplete(File result) {
+                    itemDetailView.setFileThumbnail(file, result);
+                }
+            });
         }
-    }
-
-    private void downloadThumbnail(final ItemFile file) {
-        filesRepository.downloadThumbnail(file, new FilesRepository.Callback<File>() {
-            @Override
-            public void onComplete(File result) {
-                fileView.setThumbnail(file, result);
-            }
-
-            @Override
-            public void onError(Exception e) {
-
-            }
-        });
-    }
-
-    @Override
-    public void setFileView(ItemDetailContract.FileView fileView) {
-        this.fileView = fileView;
     }
 
     @Override
     public void onItemClicked(ItemFile clickedFile) {
         itemDetailView.showLoadingIndicator();
-        // download file
-        itemDetailView.hideLoadingIndicator();
+        filesRepository.getFileToShare(clickedFile, new FilesRepository.Callback<File>() {
+            @Override
+            public void onComplete(File result) {
+                itemDetailView.hideLoadingIndicator();
+                itemDetailView.openFileShare(result);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                itemDetailView.hideLoadingIndicator();
+                // show error message for file not found
+                Log.d(TAG, "File not found - missing locally and/or remotely");
+                Log.e(TAG, e.getMessage(), e);
+            }
+        });
     }
 }

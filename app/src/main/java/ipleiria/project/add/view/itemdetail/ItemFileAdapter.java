@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -28,26 +29,23 @@ import ipleiria.project.add.data.model.ItemFile;
  * Created by Lisboa on 10-May-17.
  */
 
-public class ItemFileAdapter extends BaseSwipeAdapter implements ItemDetailContract.FileView {
+public class ItemFileAdapter extends BaseSwipeAdapter{
 
+    private ItemDetailContract.View itemsView;
     private ItemDetailFragment.FileActionListener actionsListener;
-    private ItemDetailContract.Presenter filePresenter;
 
     private List<ItemFile> listFiles;
     private Map<ItemFile, ImageView> attachedImageViews;
     private boolean listingDeleted;
 
-    public ItemFileAdapter(List<ItemFile> listFiles, ItemDetailFragment.FileActionListener actionsListener, boolean listingDeleted) {
+    public ItemFileAdapter(List<ItemFile> listFiles, ItemDetailFragment.FileActionListener actionsListener,
+                           boolean listingDeleted, ItemDetailContract.View itemsView) {
         setList(listFiles);
+        this.itemsView = itemsView;
         this.actionsListener = actionsListener;
         this.listingDeleted = listingDeleted;
 
         this.attachedImageViews = new ArrayMap<>();
-    }
-
-    public void setFilePresenter(ItemDetailContract.Presenter filePresenter){
-        this.filePresenter = filePresenter;
-        this.filePresenter.setFileView(this);
     }
 
     private void setList(List<ItemFile> files){
@@ -142,6 +140,10 @@ public class ItemFileAdapter extends BaseSwipeAdapter implements ItemDetailContr
             }
         });
 
+        ImageView thumbView = (ImageView) itemView.findViewById(R.id.file_thumbnail);
+        thumbView.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.file_placeholder));
+        attachImageViewToFile((ItemFile)getItem(position), thumbView);
+
         return itemView;
     }
 
@@ -151,10 +153,6 @@ public class ItemFileAdapter extends BaseSwipeAdapter implements ItemDetailContr
 
         TextView filename = (TextView) convertView.findViewById(R.id.filename);
         filename.setText(file.getFilename());
-
-        ImageView thumbView = (ImageView) convertView.findViewById(R.id.file_thumbnail);
-        thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
-        attachImageViewToFile(file, thumbView);
     }
 
     @Override
@@ -172,7 +170,6 @@ public class ItemFileAdapter extends BaseSwipeAdapter implements ItemDetailContr
         return position;
     }
 
-    @Override
     public void setThumbnail(ItemFile file, File thumbnail){
         ImageView imageView = attachedImageViews.get(file);
         Log.d("THUMB", "Creating thumbnail..." + thumbnail.getAbsolutePath());
@@ -181,13 +178,14 @@ public class ItemFileAdapter extends BaseSwipeAdapter implements ItemDetailContr
                 .resize(100, 100)
                 .placeholder(R.drawable.file_placeholder)
                 .error(R.drawable.file_placeholder)
+                .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE) // don't cache images
                 .into(imageView);
     }
 
     private void attachImageViewToFile(ItemFile file, ImageView imageView){
         if(!attachedImageViews.containsKey(file)){
             attachedImageViews.put(file, imageView);
-            filePresenter.createThumbnail(file);
+            itemsView.requestThumbnail(file);
         }
     }
 

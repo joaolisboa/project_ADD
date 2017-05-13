@@ -18,13 +18,11 @@ import ipleiria.project.add.Application;
  */
 public class DropboxUploadFile extends AsyncTask<String, Void, FileMetadata> {
 
-    private final Context mContext;
     private final DbxClientV2 mDbxClient;
     private final DropboxCallback<FileMetadata> mCallback;
     private Exception mException;
 
-    public DropboxUploadFile(Context context, DbxClientV2 dbxClient, DropboxCallback<FileMetadata> callback) {
-        mContext = context;
+    public DropboxUploadFile(DbxClientV2 dbxClient, DropboxCallback<FileMetadata> callback) {
         mDbxClient = dbxClient;
         mCallback = callback;
     }

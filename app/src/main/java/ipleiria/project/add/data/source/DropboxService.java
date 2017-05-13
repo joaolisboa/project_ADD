@@ -1,16 +1,31 @@
 package ipleiria.project.add.data.source;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
+
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.Metadata;
+
+import java.io.File;
 
 import ipleiria.project.add.dropbox.DropboxCallback;
 import ipleiria.project.add.dropbox.DropboxClientFactory;
+import ipleiria.project.add.dropbox.DropboxDeleteFile;
+import ipleiria.project.add.dropbox.DropboxDownloadFile;
+import ipleiria.project.add.dropbox.DropboxDownloadTemp;
+import ipleiria.project.add.dropbox.DropboxGetThumbnail;
+import ipleiria.project.add.dropbox.DropboxMoveFile;
 import ipleiria.project.add.dropbox.DropboxRevokeToken;
+import ipleiria.project.add.dropbox.DropboxUploadFile;
 
 /**
  * Created by Lisboa on 06-May-17.
  */
 
-public class DropboxService implements AccountService<DropboxCallback> {
+public class DropboxService implements RemoteFileService<DropboxCallback> {
+
+    private static final String TAG = "DROPBOX_SERVICE";
 
     private static DropboxService INSTANCE = null;
 
@@ -61,6 +76,97 @@ public class DropboxService implements AccountService<DropboxCallback> {
                 callback.onError(e);
             }
         }).execute();
+    }
+
+    @Override
+    public void downloadTempFile(String path, final FilesRepository.Callback<File> callback) {
+        new DropboxDownloadTemp(DropboxClientFactory.getClient(), new DropboxCallback<File>() {
+            @Override
+            public void onComplete(File result) {
+                callback.onComplete(result);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                callback.onError(e);
+            }
+        }).execute(path);
+    }
+
+    @Override
+    public void downloadFile(String path, final FilesRepository.Callback<File> callback) {
+        new DropboxDownloadFile(DropboxClientFactory.getClient(), new DropboxCallback<File>() {
+            @Override
+            public void onComplete(File result) {
+                callback.onComplete(result);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                callback.onError(e);
+            }
+        }).execute(path);
+    }
+
+    @Override
+    public void uploadFile(Uri uri, String path, /*unused by dropbox*/String filename) {
+        new DropboxUploadFile(DropboxClientFactory.getClient(), new DropboxCallback<FileMetadata>() {
+            @Override
+            public void onComplete(FileMetadata result) {
+                Log.d(TAG, "DROPBOX - uploaded " + result.getName());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e(TAG, "DROPBOX - " + e.getMessage(), e);
+            }
+        }).execute(uri.toString(), path);
+    }
+
+    @Override
+    public void moveFile(String from, String to) {
+        new DropboxMoveFile(DropboxClientFactory.getClient(), new DropboxCallback<Metadata>() {
+            @Override
+            public void onComplete(Metadata result) {
+                Log.d(TAG, "DROPBOX - moved file" + result.getName());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e(TAG, "DROPBOX - " + e.getMessage(), e);
+            }
+        }).execute(from, to);
+    }
+
+    @Override
+    public void deleteFile(String path) {
+        new DropboxDeleteFile(DropboxClientFactory.getClient(), new DropboxCallback<Metadata>() {
+            @Override
+            public void onComplete(Metadata result) {
+                Log.d(TAG, "DROPBOX - deleted file" + result.getName());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e(TAG, "DROPBOX - " + e.getMessage(), e);
+            }
+        }).execute(path);
+    }
+
+    @Override
+    public void downloadThumbnail(String path, final FilesRepository.Callback<File> callback) {
+        new DropboxGetThumbnail(DropboxClientFactory.getClient(), new DropboxCallback<File>() {
+            @Override
+            public void onComplete(File result) {
+                callback.onComplete(result);
+                Log.d(TAG, "DROPBOX - downloaded thumbnail " + result.getName());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e(TAG, "DROPBOX - " + e.getMessage(), e);
+            }
+        }).execute(path);
     }
 
 }

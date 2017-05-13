@@ -134,8 +134,6 @@ public class MEOAuth extends Activity {
         // Web auth.
         Uri uri = intent.getData();
         if (uri != null) {
-            System.out.println("Authorization response: ");
-            System.out.println(uri.toString());
             String uriFragment = uri.getFragment();
             HashMap<String, String> map = new HashMap<>();
             for(String s: uriFragment.split("&")){

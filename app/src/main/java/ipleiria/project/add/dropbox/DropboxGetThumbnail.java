@@ -56,10 +56,13 @@ public class DropboxGetThumbnail  extends AsyncTask<String, Void, File> {
                         .withFormat(ThumbnailFormat.JPEG)
                         .withSize(ThumbnailSize.W128H128)
                         .download(outputStream);
+            }catch (DbxException db){
+                thumb.delete();
+                throw new IOException("Thumbnail was created but not written");
             }
 
             return thumb;
-        } catch (DbxException | IOException e) {
+        } catch (IOException e) {
             mException = e;
         }
 

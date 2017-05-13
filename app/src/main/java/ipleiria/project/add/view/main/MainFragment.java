@@ -101,7 +101,6 @@ public class MainFragment extends Fragment implements MainContract.View{
         return root;
     }
 
-    // TODO: 06-May-17 refactor, also avoid photoURI in frag
     public void takePicture() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
@@ -135,7 +134,6 @@ public class MainFragment extends Fragment implements MainContract.View{
         }
     }
 
-    // TODO: 06-May-17 move, can't be here
     private File createImageFile() throws Exception {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date());

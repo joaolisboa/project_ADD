@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import ipleiria.project.add.Application;
+import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.utils.UriHelper;
@@ -179,7 +180,14 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     @Override
-    public void editItem(Item item) {
+    public void editItem(Item item, String newDescription, Criteria newCriteria) {
+        item.setDescription(newDescription);
+        if(!item.getCriteria().equals(newCriteria)){
+            for(ItemFile file: item.getFiles()){
+                filesRepository.moveFile(file, newCriteria);
+            }
+            item.setCriteria(newCriteria);
+        }
         // we can only edit items in the non-deleted list so it should always be false
         saveItem(item, false);
         // if the item has a deleted version(one or more files were deleted) we also need to update it
@@ -187,7 +195,12 @@ public class ItemsRepository implements ItemsDataSource {
             int pos = localDeletedItems.indexOf(item);
             Item deletedVersion = localDeletedItems.get(pos);
             deletedVersion.setDescription(item.getDescription());
-            deletedVersion.setCriteria(item.getCriteria());
+            if(!deletedVersion.getCriteria().equals(newCriteria)){
+                for(ItemFile file: deletedVersion.getDeletedFiles()){
+                    filesRepository.moveFile(file, newCriteria);
+                }
+                deletedVersion.setCriteria(newCriteria);
+            }
             saveDeletedItemToDatabase(deletedVersion);
         }
     }
@@ -283,7 +296,7 @@ public class ItemsRepository implements ItemsDataSource {
         for (Uri uri : receivedFiles) {
             ItemFile file = new ItemFile(UriHelper.getFileName(Application.getAppContext(), uri));
             item.addFile(file);
-            filesRepository.saveFile(file);
+            filesRepository.saveFile(file, uri);
         }
         saveItem(item, false);
     }
@@ -330,7 +343,6 @@ public class ItemsRepository implements ItemsDataSource {
             }
 
             if (!item.getFiles().isEmpty()) {
-                System.out.println("writing files: " + Arrays.toString(item.getFiles().toArray()));
                 Map<String, Object> fileList = getFileList(itemRef.child("files"), item.getFiles());
                 values.put("files", fileList);
             }

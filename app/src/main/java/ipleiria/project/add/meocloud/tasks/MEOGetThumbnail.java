@@ -45,7 +45,7 @@ public class MEOGetThumbnail extends AsyncTask<String, Void, MEOCloudResponse<Fi
             if(result.responseSuccessful()){
                 callback.onComplete(result.getResponse());
             }else{
-                callback.onRequestError(new HttpErrorException(result.getError()));
+                callback.onRequestError(new HttpErrorException(result));
             }
         }
     }
@@ -87,7 +87,6 @@ public class MEOGetThumbnail extends AsyncTask<String, Void, MEOCloudResponse<Fi
                     InputStream is = response.body().byteStream();
                     File thumb = new File(Application.getAppContext().getCacheDir(), thumbnailFilename);
                     FileOutputStream fos = new FileOutputStream(thumb);
-                    /* Application.getAppContext().openFileOutput(thumbnailFilename, Context.MODE_PRIVATE);*/
                     byte[] buffer = new byte[1024 * 100];
                     int nBytes;
                     while((nBytes = is.read(buffer)) != -1){
@@ -96,7 +95,11 @@ public class MEOGetThumbnail extends AsyncTask<String, Void, MEOCloudResponse<Fi
                     }
                     is.close();
                     fos.close();
-                    //String downloadPath = Application.getAppContext().getCacheDir().getAbsolutePath() + "/" + thumbnailFilename;
+                    if(thumb.length() == 0){
+                        thumb.delete();
+                        throw new IOException("Thumbnail was created but not written");
+                    }
+
                     meoCloudResponse.setResponse(thumb);
                 }
                 return meoCloudResponse;

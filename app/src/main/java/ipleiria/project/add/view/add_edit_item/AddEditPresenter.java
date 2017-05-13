@@ -158,9 +158,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
                     break;
 
                 case EDITING_ITEM:
-                    editingItem.setDescription(description);
-                    editingItem.setCriteria(selectedCriteria);
-                    itemsRepository.editItem(editingItem);
+                    itemsRepository.editItem(editingItem, description, selectedCriteria);
                     break;
             }
         }else{

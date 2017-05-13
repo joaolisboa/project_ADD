@@ -44,7 +44,6 @@ public class HttpRequestor {
             for (Header header : headers) {
                 builder.addHeader(header.getKey(), header.getValue());
             }
-            System.out.println(sb.toString());
             return client.newCall(builder.build()).execute();
         } catch (IOException ex) {
             Log.e("tag", "error on method GET", ex);
@@ -71,7 +70,6 @@ public class HttpRequestor {
             for (Header header : headers) {
                 builder.addHeader(header.getKey(), header.getValue());
             }
-            System.out.println(sb.toString());
             return client.newCall(builder.build()).execute();
         } catch (IOException ex) {
             Log.e("tag", "error on method GET", ex);

@@ -37,7 +37,7 @@ public class MEOGetAccount extends AsyncTask<String, Void, MEOCloudResponse<Acco
             if(result.responseSuccessful()){
                 callback.onComplete(result.getResponse());
             }else{
-                callback.onRequestError(new HttpErrorException(result.getError()));
+                callback.onRequestError(new HttpErrorException(result));
             }
         }
     }

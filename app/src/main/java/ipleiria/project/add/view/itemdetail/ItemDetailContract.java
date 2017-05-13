@@ -33,8 +33,11 @@ public class ItemDetailContract {
 
         void hideLoadingIndicator();
 
-        void setAdapterPresenter(Presenter presenter);
+        void setFileThumbnail(ItemFile file, File thumbnail);
 
+        void requestThumbnail(ItemFile file);
+
+        void openFileShare(File file);
     }
 
     interface Presenter extends BasePresenter{
@@ -51,14 +54,6 @@ public class ItemDetailContract {
 
         void onItemClicked(ItemFile clickedFile);
 
-        void setFileView(FileView fileView);
-
         void createThumbnail(ItemFile file);
-    }
-
-    interface FileView {
-
-        void setThumbnail(ItemFile file, File thumbnail);
-
     }
 }

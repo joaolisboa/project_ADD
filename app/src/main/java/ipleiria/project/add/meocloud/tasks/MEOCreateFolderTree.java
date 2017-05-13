@@ -41,7 +41,7 @@ public class MEOCreateFolderTree extends AsyncTask<String, Void, MEOCloudRespons
                 /*FORBIDDEN = 403 - folder already exists - not a real error*/
                 callback.onComplete(result.getResponse());
             }else{
-                callback.onRequestError(new HttpErrorException(result.getError()));
+                callback.onRequestError(new HttpErrorException(result));
             }
         }
     }
@@ -53,6 +53,10 @@ public class MEOCreateFolderTree extends AsyncTask<String, Void, MEOCloudRespons
                 throw new MissingParametersException();
             }else if(params[0] == null || params[0].isEmpty()){
                 throw new MissingRemoteFilePathException();
+            }
+
+            if (params[0].startsWith("/")) {
+                params[0] = params[0].substring(1);
             }
 
             String token = MEOCloudClient.getAccessToken();

@@ -49,6 +49,7 @@ public class UserService {
 
         dropboxToken = preferences.getString(DROPBOX_PREFS_KEY, null);
         meoCloudToken = preferences.getString(MEO_PREFS_KEY, null);
+        System.out.println("meocloud token:" + meoCloudToken);
     }
 
     /**

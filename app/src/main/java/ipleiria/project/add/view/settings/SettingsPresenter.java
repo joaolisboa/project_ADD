@@ -17,6 +17,7 @@ import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.DropboxService;
 import ipleiria.project.add.data.source.MEOCloudService;
 import ipleiria.project.add.data.source.UserService;
+import ipleiria.project.add.utils.HttpStatus;
 
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
 
@@ -149,6 +150,7 @@ public class SettingsPresenter implements SettingsContract.Presenter {
 
             @Override
             public void onRequestError(HttpErrorException httpE) {
+                settingsView.setMEOCloudStatus(false);
                 Log.e(TAG, httpE.getMessage(), httpE);
             }
 

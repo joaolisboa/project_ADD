@@ -8,6 +8,7 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.List;
 
+import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Item;
 
 /**
@@ -36,7 +37,7 @@ public interface ItemsDataSource {
 
     void saveItem(@NonNull Item item, boolean flag);
 
-    void editItem(Item item);
+    void editItem(Item item, String description, Criteria criteria);
 
     void deleteItem(@NonNull Item item);
 
