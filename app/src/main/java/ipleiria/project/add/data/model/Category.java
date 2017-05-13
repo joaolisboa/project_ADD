@@ -1,5 +1,7 @@
 package ipleiria.project.add.data.model;
 
+import java.util.Objects;
+
 /**
  * Created by Lisboa on 11-Apr-17.
  */
@@ -41,5 +43,15 @@ public class Category{
 
     public void setReference(int reference) {
         this.reference = reference;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj.getClass() == getClass() && dbKey.equals(((Category) obj).getDbKey());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(dbKey);
     }
 }

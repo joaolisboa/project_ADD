@@ -37,7 +37,7 @@ public class ItemDetailContract {
 
         void requestThumbnail(ItemFile file);
 
-        void openFileShare(File file);
+        void openFileShare(String filePath);
     }
 
     interface Presenter extends BasePresenter{

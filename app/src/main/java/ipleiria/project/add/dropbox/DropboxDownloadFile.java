@@ -7,6 +7,7 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -44,14 +45,25 @@ public class DropboxDownloadFile extends AsyncTask<String, Void, File> {
                 params[0] = params[0].substring(1);
             }
 
+
             String path = params[0];
 
-            String filenameWithoutPath = PathUtils.filename(path);
-            try (OutputStream outputStream = Application.getAppContext().openFileOutput(filenameWithoutPath, Context.MODE_PRIVATE)) {
+            File dFile;
+            if(params.length > 1 && params[1] != null){
+                if (params[1].startsWith("/")) {
+                    params[1] = params[1].substring(1);
+                }
+                dFile = new File(Application.getAppContext().getFilesDir(), params[1]);
+            }else{
+                dFile = new File(Application.getAppContext().getFilesDir(), path);
+            }
+
+            dFile.getParentFile().mkdirs();
+            try (OutputStream outputStream = new FileOutputStream(dFile)) {
                 mDbxClient.files().download("/" + path).download(outputStream);
             }
 
-            return new File(Application.getAppContext().getFilesDir().getAbsolutePath() + "/" + filenameWithoutPath);
+            return dFile;
         } catch (DbxException | IOException e) {
             mException = e;
         }

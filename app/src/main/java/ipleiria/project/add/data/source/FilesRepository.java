@@ -1,10 +1,15 @@
 package ipleiria.project.add.data.source;
 
+import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.Metadata;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -12,27 +17,10 @@ import java.util.List;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Criteria;
+import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.ItemFile;
-import ipleiria.project.add.dropbox.DropboxCallback;
-import ipleiria.project.add.dropbox.DropboxClientFactory;
-import ipleiria.project.add.dropbox.DropboxDeleteFile;
-import ipleiria.project.add.dropbox.DropboxDownloadFile;
-import ipleiria.project.add.dropbox.DropboxGetThumbnail;
-import ipleiria.project.add.dropbox.DropboxMoveFile;
-import ipleiria.project.add.dropbox.DropboxUploadFile;
-import ipleiria.project.add.meocloud.MEOCallback;
-import ipleiria.project.add.meocloud.MEOCloudAPI;
-import ipleiria.project.add.meocloud.data.FileResponse;
-import ipleiria.project.add.meocloud.data.MEOMetadata;
-import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
-import ipleiria.project.add.meocloud.tasks.MEOCreateFolderTree;
-import ipleiria.project.add.meocloud.tasks.MEODeleteFile;
-import ipleiria.project.add.meocloud.tasks.MEODownloadFile;
-import ipleiria.project.add.meocloud.tasks.MEOGetThumbnail;
-import ipleiria.project.add.meocloud.tasks.MEOMoveFile;
-import ipleiria.project.add.meocloud.tasks.MEOUploadFile;
+import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.utils.NetworkState;
-import ipleiria.project.add.utils.PathUtils;
 
 /**
  * Created by Lisboa on 06-May-17.
@@ -58,6 +46,30 @@ public class FilesRepository implements FilesDataSource {
         this.meoCloudService = MEOCloudService.getInstance(userService.getMeoCloudToken());
 
         localFiles = new LinkedList<>();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                final CategoryRepository categoryRepository = CategoryRepository.getInstance();
+
+                if (categoryRepository.getDimensions().isEmpty()) {
+                    categoryRepository.readCriteria();
+                    categoryRepository.getReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            categoryRepository.addDimensions(dataSnapshot);
+                            searchForLocalFiles(categoryRepository.getDimensions());
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
+                } else {
+                    searchForLocalFiles(categoryRepository.getDimensions());
+                }
+            }
+        }, 750);
     }
 
     public static FilesRepository getInstance() {
@@ -71,11 +83,31 @@ public class FilesRepository implements FilesDataSource {
         INSTANCE = null;
     }
 
+    private void searchForLocalFiles(List<Dimension> dimensions) {
+        for (Dimension dimension : dimensions) {
+            File dimensiondir = new File(Application.getAppContext().getFilesDir() + "/" + dimension.getReference());
+            if (dimensiondir.isDirectory()) {
+                goThroughFolder(dimensiondir);
+            }
+        }
+        Log.d(TAG, "Local files found: " + localFiles);
+    }
+
+    private void goThroughFolder(File dir) {
+        for (File fileInDir : dir.listFiles()) {
+            if (fileInDir.isDirectory()) {
+                goThroughFolder(fileInDir);
+            } else {
+                localFiles.add(new ItemFile(fileInDir.getName()));
+            }
+        }
+    }
+
     private String getFilePath(ItemFile file) {
         return getFilePath(file, file.isDeleted());
     }
 
-    private String getRelativePath(Criteria criteria){
+    private String getRelativePath(Criteria criteria) {
         return "/" + criteria.getDimension().getReference() +
                 "/" + criteria.getArea().getReference() +
                 "/" + criteria.getReference();
@@ -91,27 +123,33 @@ public class FilesRepository implements FilesDataSource {
         return path;
     }
 
-    private String getFilePath(ItemFile file, Criteria newCriteria){
+    private String getFilePath(ItemFile file, Criteria newCriteria) {
         return getRelativePath(newCriteria) + "/" + file.getFilename();
     }
 
-    private String getFilePath(ItemFile file, String newFilename){
+    private String getFilePath(ItemFile file, String newFilename) {
         return getRelativePath(file.getParent().getCriteria()) + "/" + newFilename;
     }
 
     @Override
+    public String getRelativePath(File file) {
+        int start = Application.getAppContext().getFilesDir().getAbsolutePath().length();
+        return file.getAbsolutePath().substring(start, file.getAbsolutePath().length());
+    }
+
+    @Override
     public void saveFile(final ItemFile newFile, final Uri uri) {
-        if (meoCloudService.isAvailable()){
+        if (meoCloudService.isAvailable()) {
             String relativePath = getRelativePath(newFile.getParent().getCriteria());
             meoCloudService.uploadFile(uri, relativePath.substring(1), newFile.getFilename());
         }
-        if (dropboxService.isAvailable()){
+        if (dropboxService.isAvailable()) {
             // dropbox creates folders automatically so we don't need to seperate the path and filename
             dropboxService.uploadFile(uri, getFilePath(newFile), null);
         }
     }
 
-    private File getCachedThumbnail(String filename){
+    private File getCachedThumbnail(String filename) {
         return new File(Application.getAppContext().getCacheDir().getAbsolutePath().concat(THUMBNAIL_PREFIX).concat(filename));
     }
 
@@ -120,11 +158,11 @@ public class FilesRepository implements FilesDataSource {
         return new File(appdir.concat(getFilePath(file)));
     }
 
-    private void renameLocalFile(File from, File to){
-        if(from.exists()) {
+    private void renameLocalFile(File from, File to) {
+        if (from.exists()) {
             String toPath = to.getAbsolutePath();
             File dir = new File(toPath.substring(0, toPath.lastIndexOf("/")));
-            if(!dir.exists()){
+            if (!dir.exists()) {
                 dir.mkdirs();
             }
             boolean success = from.renameTo(to);
@@ -138,21 +176,21 @@ public class FilesRepository implements FilesDataSource {
     }
 
     @Override
-    public void getThumbnail(ItemFile file, BaseCallback<File> callback){
+    public void getThumbnail(ItemFile file, BaseCallback<File> callback) {
         File localThumb = getCachedThumbnail(file);
-        if(localThumb.exists()){
+        if (localThumb.exists()) {
             callback.onComplete(localThumb);
-        }else{
+        } else {
             downloadThumbnail(file, callback);
         }
     }
 
     @Override
-    public void getFileToShare(ItemFile file, Callback<File> callback) {
+    public void getFileToShare(ItemFile file, Callback<File> callback){
         File localFile = getLocalFile(file);
-        if(localFile.exists()){
+        if (localFile.exists()) {
             callback.onComplete(localFile);
-        }else if(NetworkState.isOnline()){
+        } else if (NetworkState.isOnline()) {
             downloadTempFile(file, callback);
         }
     }
@@ -160,9 +198,9 @@ public class FilesRepository implements FilesDataSource {
     @Override
     public void getFile(ItemFile file, Callback<File> callback) {
         File localFile = getLocalFile(file);
-        if(localFile.exists()){
+        if (localFile.exists()) {
             callback.onComplete(localFile);
-        }else if(NetworkState.isOnline()){
+        } else if (NetworkState.isOnline()) {
             downloadFile(file, callback);
         }
     }
@@ -171,10 +209,10 @@ public class FilesRepository implements FilesDataSource {
     public void moveFile(ItemFile file, Criteria newCriteria) {
         String from = getFilePath(file);
         String to = getFilePath(file, newCriteria);
-        if(meoCloudService.isAvailable()){
+        if (meoCloudService.isAvailable()) {
             meoCloudService.moveFile(from, to);
         }
-        if(dropboxService.isAvailable()){
+        if (dropboxService.isAvailable()) {
             dropboxService.moveFile(from, to);
         }
     }
@@ -194,7 +232,7 @@ public class FilesRepository implements FilesDataSource {
 
                 @Override
                 public void onError(Exception e) {
-                    if(dropboxService.isAvailable()){
+                    if (dropboxService.isAvailable()) {
                         dropboxService.downloadThumbnail(filePath, new Callback<File>() {
                             @Override
                             public void onComplete(File result) {
@@ -224,12 +262,12 @@ public class FilesRepository implements FilesDataSource {
         }
     }
 
-    private void downloadTempFile(ItemFile file, final Callback<File> callback){
+    private void downloadTempFile(ItemFile file, final Callback<File> callback) {
         final String path = getFilePath(file);
-
+        final String toFile = "tmp_" + file.getFilename();
         if (meoCloudService.isAvailable()) {
             // dropbox will serve as a fallback
-            meoCloudService.downloadTempFile(path, new Callback<File>() {
+            meoCloudService.downloadTempFile(path, toFile, new Callback<File>() {
                 @Override
                 public void onComplete(File result) {
                     callback.onComplete(result);
@@ -237,13 +275,13 @@ public class FilesRepository implements FilesDataSource {
 
                 @Override
                 public void onError(Exception e) {
-                    if(dropboxService.isAvailable()){
-                        dropboxService.downloadTempFile(path, callback);
+                    if (dropboxService.isAvailable()) {
+                        dropboxService.downloadTempFile(path, toFile, callback);
                     }
                 }
             });
         } else if (dropboxService.isAvailable()) {
-            dropboxService.downloadTempFile(path, callback);
+            dropboxService.downloadTempFile(path, toFile, callback);
         }
     }
 
@@ -260,7 +298,7 @@ public class FilesRepository implements FilesDataSource {
 
                 @Override
                 public void onError(Exception e) {
-                    if(dropboxService.isAvailable()){
+                    if (dropboxService.isAvailable()) {
                         dropboxService.downloadFile(path, callback);
                     }
                 }
@@ -318,7 +356,7 @@ public class FilesRepository implements FilesDataSource {
             dropboxService.deleteFile(path);
         }
         File localThumb = getCachedThumbnail(file);
-        if(localThumb.exists()){
+        if (localThumb.exists()) {
             localThumb.delete();
         }
     }

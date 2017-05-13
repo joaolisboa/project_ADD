@@ -19,7 +19,7 @@ import ipleiria.project.add.data.model.Dimension;
  * Created by Lisboa on 06-May-17.
  */
 
-public class CategoryRepository implements CategoryDataSource{
+public class CategoryRepository implements CategoryDataSource {
 
     private static final String TAG = "CATEGORY_REPO";
     private static CategoryRepository INSTANCE = null;
@@ -55,13 +55,11 @@ public class CategoryRepository implements CategoryDataSource{
         INSTANCE = null;
     }
 
-    private void readCriteria(){
+    public void readCriteria() {
         databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot dimensionSnap : dataSnapshot.getChildren()) {
-                    addDimension(dimensionSnap);
-                }
+                addDimensions(dataSnapshot);
             }
 
             @Override
@@ -71,13 +69,13 @@ public class CategoryRepository implements CategoryDataSource{
         });
     }
 
-    public void addDimensions(DataSnapshot snapshot){
+    public void addDimensions(DataSnapshot snapshot) {
         for (DataSnapshot dimensionSnap : snapshot.getChildren()) {
             addDimension(dimensionSnap);
         }
     }
 
-    public void addDimension(DataSnapshot snapshot){
+    private void addDimension(DataSnapshot snapshot) {
         Dimension dimension = new Dimension(snapshot.child("name").getValue(String.class),
                 snapshot.child("reference").getValue(Integer.class));
         dimension.setDbKey(snapshot.getKey());
@@ -95,24 +93,30 @@ public class CategoryRepository implements CategoryDataSource{
                 criteria.setReadCell(new Criteria.Coordinate(readX, readY));
                 criteria.setWriteCell(new Criteria.Coordinate(writeX, writeY));
                 criteria.setDbKey(criteriaSnap.getKey());
-                area.addCriteria(criteria);
-                criterias.add(criteria);
+                if (!criterias.contains(criteria)) {
+                    area.addCriteria(criteria);
+                    criterias.add(criteria);
+                }
             }
-            dimension.addArea(area);
-            areas.add(area);
+            if (!areas.contains(area)) {
+                dimension.addArea(area);
+                areas.add(area);
+            }
         }
-        dimensions.add(dimension);
+        if(!dimensions.contains(dimension)) {
+            dimensions.add(dimension);
+        }
     }
 
     public List<Dimension> getDimensions() {
         return dimensions;
     }
 
-    public Criteria getCriteria(int dimension, int area, int criteria){
+    public Criteria getCriteria(int dimension, int area, int criteria) {
         return dimensions.get(dimension).getArea(area).getCriteria(criteria);
     }
 
-    public List<Criteria> getCriterias(){
+    public List<Criteria> getCriterias() {
         return criterias;
     }
 

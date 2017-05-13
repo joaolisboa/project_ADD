@@ -72,6 +72,16 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
                 map.put("rev", params[1]);
             }
 
+            File dFile;
+            if(params.length > 2 && params[2] != null){
+                if (params[2].startsWith("/")) {
+                    params[2] = params[2].substring(1);
+                }
+                dFile = new File(Application.getAppContext().getFilesDir(), params[2]);
+            }else{
+                dFile = new File(Application.getAppContext().getFilesDir(), filePath);
+            }
+
             String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + filePath;
 
             Response response = HttpRequestor.getContent(token, path, map);
@@ -80,7 +90,8 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
                 meoCloudResponse.setCode(response.code());
                 if (response.code() == HttpStatus.OK) {
                     InputStream is = response.body().byteStream();
-                    FileOutputStream fos = new FileOutputStream(new File(Application.getAppContext().getFilesDir(), filePath));
+                    dFile.getParentFile().mkdirs();
+                    FileOutputStream fos = new FileOutputStream(dFile);
                     byte[] buffer = new byte[1024 * 100];
                     int nBytes;
                     while((nBytes = is.read(buffer)) != -1){
@@ -89,7 +100,7 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
                     }
                     is.close();
                     fos.close();
-                    meoCloudResponse.setResponse(new FileResponse(Application.getAppContext().getFilesDir(), filePath));
+                    meoCloudResponse.setResponse((FileResponse) dFile);
                 }
                 return meoCloudResponse;
             }

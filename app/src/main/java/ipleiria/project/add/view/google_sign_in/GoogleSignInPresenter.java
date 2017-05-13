@@ -107,7 +107,6 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
                 Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 UserService.getInstance().initUser(user);
                 ItemsRepository.getInstance().moveItemsToNewUser();
-                signInView.hideProgressDialog();
             }
         }
     };

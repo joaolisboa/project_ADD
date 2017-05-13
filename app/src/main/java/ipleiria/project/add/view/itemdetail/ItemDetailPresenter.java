@@ -29,6 +29,8 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     private Item item;
     private boolean listingDeleted;
 
+    private File sharedFile;
+
     ItemDetailPresenter(@NonNull ItemDetailContract.View itemDetailView, FilesRepository filesRepository,
                         Item item, boolean listingDeleted){
         this.filesRepository = filesRepository;
@@ -45,6 +47,16 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
         List<ItemFile> files = (!listingDeleted ? item.getFiles() : item.getDeletedFiles());
         itemDetailView.showFiles(files);
+
+        // android doesn't seem to ever delete temp file or files with deleteOnExit()
+        // so when activity resumes if a file was shared we delete it
+        // ps: in case the user uses the app offline or already has a local file
+        // we only delete the file if it start with tmp_ since that is the prefix added when
+        // downloading the file
+        if(sharedFile != null && sharedFile.exists() && sharedFile.getName().startsWith("tmp_")){
+            sharedFile.delete();
+            sharedFile = null;
+        }
     }
 
     @Override
@@ -113,13 +125,14 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     }
 
     @Override
-    public void onItemClicked(ItemFile clickedFile) {
+    public void onItemClicked(final ItemFile clickedFile) {
         itemDetailView.showLoadingIndicator();
         filesRepository.getFileToShare(clickedFile, new FilesRepository.Callback<File>() {
             @Override
             public void onComplete(File result) {
                 itemDetailView.hideLoadingIndicator();
-                itemDetailView.openFileShare(result);
+                sharedFile = result;
+                itemDetailView.openFileShare(filesRepository.getRelativePath(result));
             }
 
             @Override

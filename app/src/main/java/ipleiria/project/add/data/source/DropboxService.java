@@ -13,7 +13,6 @@ import ipleiria.project.add.dropbox.DropboxCallback;
 import ipleiria.project.add.dropbox.DropboxClientFactory;
 import ipleiria.project.add.dropbox.DropboxDeleteFile;
 import ipleiria.project.add.dropbox.DropboxDownloadFile;
-import ipleiria.project.add.dropbox.DropboxDownloadTemp;
 import ipleiria.project.add.dropbox.DropboxGetThumbnail;
 import ipleiria.project.add.dropbox.DropboxMoveFile;
 import ipleiria.project.add.dropbox.DropboxRevokeToken;
@@ -79,8 +78,8 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
     }
 
     @Override
-    public void downloadTempFile(String path, final FilesRepository.Callback<File> callback) {
-        new DropboxDownloadTemp(DropboxClientFactory.getClient(), new DropboxCallback<File>() {
+    public void downloadTempFile(String path, String to, final FilesRepository.Callback<File> callback) {
+        new DropboxDownloadFile(DropboxClientFactory.getClient(), new DropboxCallback<File>() {
             @Override
             public void onComplete(File result) {
                 callback.onComplete(result);
@@ -90,7 +89,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
             public void onError(Exception e) {
                 callback.onError(e);
             }
-        }).execute(path);
+        }).execute(path, to);
     }
 
     @Override

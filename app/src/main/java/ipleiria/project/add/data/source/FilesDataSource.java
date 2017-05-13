@@ -13,6 +13,8 @@ import ipleiria.project.add.data.model.ItemFile;
 
 public interface FilesDataSource {
 
+    String getRelativePath(File file);
+
     void saveFile(ItemFile newFile, Uri uri);
 
     File getCachedThumbnail(ItemFile file);

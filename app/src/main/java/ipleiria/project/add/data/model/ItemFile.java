@@ -74,10 +74,11 @@ public class ItemFile {
         if(object == null || getClass() != object.getClass()) {
             return false;
         }
-        if(dbKey == null || ((ItemFile) object).getDbKey() == null){
-            return false;
+        if(dbKey != null && ((ItemFile) object).getDbKey() != null){
+            return dbKey.equals(((ItemFile) object).getDbKey());
+        }else{
+            return filename.equals(((ItemFile) object).getFilename());
         }
-        return dbKey.equals(((ItemFile) object).getDbKey());
     }
 
     @Override

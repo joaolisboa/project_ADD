@@ -88,6 +88,7 @@ public class GoogleSignInFragment extends Fragment implements GoogleSignInContra
     public void onStop() {
         super.onStop();
         presenter.unsubscribe();
+        hideProgressDialog();
     }
 
     @Override

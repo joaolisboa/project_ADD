@@ -15,7 +15,6 @@ import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
 import ipleiria.project.add.meocloud.tasks.MEOCreateFolderTree;
 import ipleiria.project.add.meocloud.tasks.MEODeleteFile;
 import ipleiria.project.add.meocloud.tasks.MEODownloadFile;
-import ipleiria.project.add.meocloud.tasks.MEODownloadTemp;
 import ipleiria.project.add.meocloud.tasks.MEOGetThumbnail;
 import ipleiria.project.add.meocloud.tasks.MEOMoveFile;
 import ipleiria.project.add.meocloud.tasks.MEORevokeToken;
@@ -89,8 +88,8 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
     }
 
     @Override
-    public void downloadTempFile(String path, final FilesRepository.Callback<File> callback) {
-        new MEODownloadTemp(new MEOCallback<FileResponse>() {
+    public void downloadTempFile(String path, String to, final FilesRepository.Callback<File> callback) {
+        new MEODownloadFile(new MEOCallback<FileResponse>() {
             @Override
             public void onComplete(FileResponse result) {
                 callback.onComplete(result);
@@ -107,7 +106,7 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
                 callback.onError(e);
                 Log.e(TAG, "MEOCLOUD - " + e.getMessage(), e);
             }
-        }).execute(path);
+        }).execute(path, null, to);
     }
 
     @Override

@@ -17,7 +17,7 @@ interface RemoteFileService<I> {
 
     void revokeToken(I callback);
 
-    void downloadTempFile(String path, FilesRepository.Callback<File> callback);
+    void downloadTempFile(String path, String to, FilesRepository.Callback<File> callback);
 
     void downloadFile(String path, FilesRepository.Callback<File> callback);
 

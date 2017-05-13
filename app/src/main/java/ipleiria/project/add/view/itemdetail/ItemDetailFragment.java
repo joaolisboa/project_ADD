@@ -4,16 +4,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,9 +16,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.io.File;
@@ -31,17 +24,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.utils.UriHelper;
-import ipleiria.project.add.view.itemdetail.ItemFileAdapter;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
-import ipleiria.project.add.view.add_edit_item.AddEditActivity;
-import ipleiria.project.add.view.items.ItemAdapter;
-import ipleiria.project.add.view.items.ItemsFragment;
-import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
 
-import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM;
-import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM_KEY;
 import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
 
 /**
@@ -126,14 +112,14 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     }
 
     @Override
-    public void openFileShare(File file) {
+    public void openFileShare(String filePath) {
         MimeTypeMap mime = MimeTypeMap.getSingleton();
-        String ext = file.getName().substring(file.getName().indexOf(".") + 1);
+        String ext = filePath.substring(filePath.indexOf(".") + 1);
         String type = mime.getMimeTypeFromExtension(ext);
 
-        // TODO: 13-May-17 android never seems to delete temp files or files with deleteOnExit - fix
+
         Intent shareIntent = new Intent(Intent.ACTION_VIEW);
-        Uri fileUri = UriHelper.getUriFromAppfile(file.getName());
+        Uri fileUri = UriHelper.getUriFromAppfile(filePath);
         shareIntent.setDataAndType(fileUri, type);
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(Intent.createChooser(shareIntent, "Open file"));
