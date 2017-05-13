@@ -131,7 +131,7 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         String ext = file.getName().substring(file.getName().indexOf(".") + 1);
         String type = mime.getMimeTypeFromExtension(ext);
 
-        // TODO: 13-May-17 android never seems to delete temp files or files with deleteOnExit - fix 
+        // TODO: 13-May-17 android never seems to delete temp files or files with deleteOnExit - fix
         Intent shareIntent = new Intent(Intent.ACTION_VIEW);
         Uri fileUri = UriHelper.getUriFromAppfile(file.getName());
         shareIntent.setDataAndType(fileUri, type);
@@ -182,7 +182,7 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     @Override
     public void hideLoadingIndicator() {
         if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.hide();
+            progressDialog.dismiss();
         }
     }
 

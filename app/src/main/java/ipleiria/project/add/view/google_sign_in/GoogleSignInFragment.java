@@ -129,7 +129,7 @@ public class GoogleSignInFragment extends Fragment implements GoogleSignInContra
     @Override
     public void hideProgressDialog() {
         if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.hide();
+            progressDialog.dismiss();
         }
     }
 
