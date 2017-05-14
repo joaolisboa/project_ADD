@@ -15,6 +15,7 @@ import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
 import ipleiria.project.add.meocloud.tasks.MEOCreateFolderTree;
 import ipleiria.project.add.meocloud.tasks.MEODeleteFile;
 import ipleiria.project.add.meocloud.tasks.MEODownloadFile;
+import ipleiria.project.add.meocloud.tasks.MEOGetMetadata;
 import ipleiria.project.add.meocloud.tasks.MEOGetThumbnail;
 import ipleiria.project.add.meocloud.tasks.MEOMoveFile;
 import ipleiria.project.add.meocloud.tasks.MEORevokeToken;
@@ -88,6 +89,26 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
     }
 
     @Override
+    public void getMetadata(String path, final FilesRepository.BaseCallback callback) {
+        new MEOGetMetadata(new MEOCallback<MEOMetadata>() {
+            @Override
+            public void onComplete(MEOMetadata result) {
+                callback.onComplete(result);
+            }
+
+            @Override
+            public void onRequestError(HttpErrorException httpE) {
+                Log.e(TAG, httpE.getMessage(), httpE);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+        }).execute(path);
+    }
+
+    @Override
     public void downloadTempFile(String path, String to, final FilesRepository.Callback<File> callback) {
         new MEODownloadFile(new MEOCallback<FileResponse>() {
             @Override
@@ -98,13 +119,13 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
             @Override
             public void onRequestError(HttpErrorException httpE) {
                 callback.onError(httpE);
-                Log.e(TAG, "MEOCLOUD - " + httpE.getMessage(), httpE);
+                Log.e(TAG, httpE.getMessage(), httpE);
             }
 
             @Override
             public void onError(Exception e) {
                 callback.onError(e);
-                Log.e(TAG, "MEOCLOUD - " + e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
         }).execute(path, null, to);
     }
@@ -120,13 +141,13 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
             @Override
             public void onRequestError(HttpErrorException httpE) {
                 callback.onError(httpE);
-                Log.e(TAG, "MEOCLOUD - " + httpE.getMessage(), httpE);
+                Log.e(TAG, httpE.getMessage(), httpE);
             }
 
             @Override
             public void onError(Exception e) {
                 callback.onError(e);
-                Log.e(TAG, "MEOCLOUD - " + e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
         }).execute(path);
     }
@@ -136,33 +157,33 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
         new MEOCreateFolderTree(new MEOCallback<MEOMetadata>() {
             @Override
             public void onComplete(MEOMetadata result) {
-                Log.d(TAG, "DROPBOX - created folder(s) " + result.getPath());
+                Log.d(TAG, result.getPath());
                 new MEOUploadFile(new MEOCallback<MEOMetadata>() {
                     @Override
                     public void onComplete(MEOMetadata result) {
-                        Log.d(TAG, "DROPBOX - uploaded " + result.getPath());
+                        Log.d(TAG, "MEO - uploaded " + result.getPath());
                     }
 
                     @Override
                     public void onRequestError(HttpErrorException httpE) {
-                        Log.e(TAG, "MEOCLOUD UPLOAD - " + httpE.getMessage(), httpE);
+                        Log.e(TAG, httpE.getMessage(), httpE);
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        Log.e(TAG, "MEOCLOUD UPLOAD - " + e.getMessage(), e);
+                        Log.e(TAG, e.getMessage(), e);
                     }
                 }).execute(uri.toString(), path + "/" + filename);
             }
 
             @Override
             public void onRequestError(HttpErrorException httpE) {
-                Log.e(TAG, "MEOCLOUD FOLDER CREATE - " + httpE.getMessage(), httpE);
+                Log.e(TAG, httpE.getMessage(), httpE);
             }
 
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "MEOCLOUD FOLDER CREATE - " + e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
         }).execute(path.split("/"));
     }
@@ -172,17 +193,17 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
         new MEOMoveFile(new MEOCallback<MEOMetadata>() {
             @Override
             public void onComplete(MEOMetadata result) {
-                Log.d(TAG, "MEOCLOUD - moved file" + result.getPath());
+                Log.d(TAG, "MEO - moved file " + result.getPath());
             }
 
             @Override
             public void onRequestError(HttpErrorException httpE) {
-                Log.e(TAG, "MEOCLOUD - " + httpE.getMessage(), httpE);
+                Log.e(TAG, httpE.getMessage(), httpE);
             }
 
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "MEOCLOUD - " + e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
         }).execute(from, to);
     }
@@ -192,17 +213,17 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
         new MEODeleteFile(new MEOCallback<MEOMetadata>() {
             @Override
             public void onComplete(MEOMetadata result) {
-                Log.d(TAG, "MEOCLOUD - deleted file" + result.getPath());
+                Log.d(TAG, "MEO - deleted " + result.getPath());
             }
 
             @Override
             public void onRequestError(HttpErrorException httpE) {
-                Log.e(TAG, "MEOCLOUD - " + httpE.getMessage(), httpE);
+                Log.e(TAG, httpE.getMessage(), httpE);
             }
 
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "MEOCLOUD - " + e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
         }).execute(path);
     }
@@ -213,17 +234,17 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
             @Override
             public void onComplete(File result) {
                 callback.onComplete(result);
-                Log.d(TAG, "MEOCLOUD - downloaded thumbnail " + result.getName());
+                Log.d(TAG, "MEO - downloaded thumbnail " + result.getName());
             }
 
             @Override
             public void onRequestError(HttpErrorException httpE) {
-                Log.e(TAG, "MEOCLOUD - " + httpE.getMessage(), httpE);
+                Log.e(TAG, httpE.getMessage(), httpE);
             }
 
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "MEOCLOUD - " + e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
         }).execute(path, /*format*/ null, MEOCloudAPI.THUMBNAIL_SIZE_M);
     }

@@ -3,6 +3,7 @@ package ipleiria.project.add.data.source;
 import android.net.Uri;
 
 import java.io.File;
+import java.util.List;
 
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.ItemFile;
@@ -14,6 +15,8 @@ import ipleiria.project.add.data.model.ItemFile;
 public interface FilesDataSource {
 
     String getRelativePath(File file);
+
+    void getRemotePendingFiles(final FilesRepository.BaseCallback<List<ItemFile>> callback);
 
     void saveFile(ItemFile newFile, Uri uri);
 

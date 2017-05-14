@@ -133,7 +133,7 @@ public class MEOMetadata extends JsonObject implements ErrorMessageResponse {
         this.path = path;
     }
 
-    public Boolean getDir() {
+    public Boolean isDir() {
         return isDir;
     }
 

@@ -47,6 +47,7 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
         List<ItemFile> files = (!listingDeleted ? item.getFiles() : item.getDeletedFiles());
         itemDetailView.showFiles(files);
+        itemDetailView.showItemInfo(item);
 
         // android doesn't seem to ever delete temp file or files with deleteOnExit()
         // so when activity resumes if a file was shared we delete it

@@ -13,6 +13,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Arrays;
+import java.util.List;
+
+import ipleiria.project.add.data.model.ItemFile;
+import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.view.items.ItemsActivity;
 
@@ -23,7 +28,7 @@ import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PH
  * Created by Lisboa on 05-May-17.
  */
 
-public class MainPresenter implements MainContract.Presenter {
+class MainPresenter implements MainContract.Presenter {
 
     static final int REQUEST_TAKE_PHOTO = 2002;
 
@@ -31,19 +36,30 @@ public class MainPresenter implements MainContract.Presenter {
     private final MainContract.View mainView;
     private final MainContract.DrawerView drawerView;
 
+    private final FilesRepository filesRepository;
+
     private Uri photoUri;
     private boolean authFlag = false;
 
-    public MainPresenter(@NonNull UserService userService, @NonNull MainContract.View mainView, @NonNull MainContract.DrawerView drawerView){
+    MainPresenter(@NonNull UserService userService, @NonNull MainContract.View mainView, @NonNull MainContract.DrawerView drawerView){
         this.userService = userService;
         this.mainView = mainView;
         this.mainView.setPresenter(this);
         this.drawerView = drawerView;
+
+        this.filesRepository = FilesRepository.getInstance();
     }
 
     @Override
     public void subscribe() {
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
+
+        filesRepository.getRemotePendingFiles(new FilesRepository.BaseCallback<List<ItemFile>>() {
+            @Override
+            public void onComplete(List<ItemFile> result) {
+                System.out.println(Arrays.toString(result.toArray()));
+            }
+        });
     }
 
     @Override

@@ -1,11 +1,12 @@
 package ipleiria.project.add.data.source;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 
 import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.FolderMetadata;
+import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -14,12 +15,14 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.source.database.CategoryRepository;
+import ipleiria.project.add.meocloud.data.MEOMetadata;
 import ipleiria.project.add.utils.NetworkState;
 
 /**
@@ -32,6 +35,7 @@ public class FilesRepository implements FilesDataSource {
 
     private static final String TRASH_PATH = "/trash";
     private static final String THUMBNAIL_PREFIX = "/thumb_";
+    private static final String PENDING_PATH = "";
 
     private static FilesRepository INSTANCE = null;
 
@@ -47,7 +51,7 @@ public class FilesRepository implements FilesDataSource {
 
         localFiles = new LinkedList<>();
 
-        new Handler().postDelayed(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 final CategoryRepository categoryRepository = CategoryRepository.getInstance();
@@ -69,7 +73,7 @@ public class FilesRepository implements FilesDataSource {
                     searchForLocalFiles(categoryRepository.getDimensions());
                 }
             }
-        }, 750);
+        }).start();
     }
 
     public static FilesRepository getInstance() {
@@ -135,6 +139,58 @@ public class FilesRepository implements FilesDataSource {
     public String getRelativePath(File file) {
         int start = Application.getAppContext().getFilesDir().getAbsolutePath().length();
         return file.getAbsolutePath().substring(start, file.getAbsolutePath().length());
+    }
+
+    @Override
+    public void getRemotePendingFiles(final BaseCallback<List<ItemFile>> callback) {
+        final List<ItemFile> pendingfiles = new LinkedList<>();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final Semaphore semaphore = new Semaphore(-1);
+
+                if(meoCloudService.isAvailable()) {
+                    meoCloudService.getMetadata(PENDING_PATH, new BaseCallback<MEOMetadata>() {
+                        @Override
+                        public void onComplete(MEOMetadata result) {
+                            MEOMetadata metadata = result;
+                            for(MEOMetadata meoMetadata: metadata.getContents()){
+                                if(!meoMetadata.isDir()){
+                                    pendingfiles.add(new ItemFile(meoMetadata.getPath()));
+                                }
+                            }
+                            semaphore.release();
+                        }
+                    });
+                }else{
+                    semaphore.release();
+                }
+                if(dropboxService.isAvailable()){
+                    dropboxService.getMetadata(PENDING_PATH, new BaseCallback<ListFolderResult>() {
+                        @Override
+                        public void onComplete(ListFolderResult result) {
+                            ListFolderResult folderResult = result;
+
+                            for(Metadata metadata: folderResult.getEntries()){
+                                if(metadata instanceof FileMetadata) {
+                                    pendingfiles.add(new ItemFile(metadata.getName()));
+                                }
+                            }
+                            semaphore.release();
+                        }
+                    });
+                }else{
+                    semaphore.release();
+                }
+                try {
+                    semaphore.acquire();
+                    callback.onComplete(pendingfiles);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override

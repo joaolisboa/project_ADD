@@ -10,13 +10,6 @@
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/listCategories"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="selectCriteria"
-            android:text="Criterias" />
-
-        <Button
             android:id="@+id/list_files"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

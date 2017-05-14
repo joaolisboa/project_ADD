@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 
 import java.io.File;
@@ -13,7 +14,9 @@ import ipleiria.project.add.dropbox.DropboxCallback;
 import ipleiria.project.add.dropbox.DropboxClientFactory;
 import ipleiria.project.add.dropbox.DropboxDeleteFile;
 import ipleiria.project.add.dropbox.DropboxDownloadFile;
+import ipleiria.project.add.dropbox.DropboxGetMetadata;
 import ipleiria.project.add.dropbox.DropboxGetThumbnail;
+import ipleiria.project.add.dropbox.DropboxListFolder;
 import ipleiria.project.add.dropbox.DropboxMoveFile;
 import ipleiria.project.add.dropbox.DropboxRevokeToken;
 import ipleiria.project.add.dropbox.DropboxUploadFile;
@@ -78,6 +81,21 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
     }
 
     @Override
+    public void getMetadata(String path, final FilesRepository.BaseCallback callback) {
+        new DropboxListFolder(DropboxClientFactory.getClient(), new DropboxCallback<ListFolderResult>() {
+            @Override
+            public void onComplete(ListFolderResult result) {
+                callback.onComplete(result);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.d(TAG, e.getMessage(), e);
+            }
+        }).execute(path);
+    }
+
+    @Override
     public void downloadTempFile(String path, String to, final FilesRepository.Callback<File> callback) {
         new DropboxDownloadFile(DropboxClientFactory.getClient(), new DropboxCallback<File>() {
             @Override
@@ -117,7 +135,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
 
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "DROPBOX - " + e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
         }).execute(uri.toString(), path);
     }
@@ -132,7 +150,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
 
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "DROPBOX - " + e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
         }).execute(from, to);
     }
@@ -147,7 +165,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
 
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "DROPBOX - " + e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
         }).execute(path);
     }
@@ -163,7 +181,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
 
             @Override
             public void onError(Exception e) {
-                Log.e(TAG, "DROPBOX - " + e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
         }).execute(path);
     }
