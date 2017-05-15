@@ -38,12 +38,10 @@ public class HttpRequestor {
                 sb.append("?").append(encodeParameters(params));
             }
 
-            List<Header> headers = new ArrayList<>();
-            headers.add(new Header("Authorization", "Bearer " + accessToken));
-            Request.Builder builder = new Request.Builder().get().url(sb.toString());
-            for (Header header : headers) {
-                builder.addHeader(header.getKey(), header.getValue());
-            }
+            Request.Builder builder = new Request.Builder()
+                    .get()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .url(sb.toString());
             return client.newCall(builder.build()).execute();
         } catch (IOException ex) {
             Log.e("tag", "error on method GET", ex);
@@ -64,12 +62,11 @@ public class HttpRequestor {
                 sb.append("?").append(encodeParameters(params));
             }
 
-            List<Header> headers = new ArrayList<>();
-            headers.add(new Header("Authorization", "Bearer " + accessToken));
-            Request.Builder builder = new Request.Builder().get().url(sb.toString());
-            for (Header header : headers) {
-                builder.addHeader(header.getKey(), header.getValue());
-            }
+            Request.Builder builder = new Request.Builder()
+                    .get()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .url(sb.toString());
+
             return client.newCall(builder.build()).execute();
         } catch (IOException ex) {
             Log.e("tag", "error on method GET", ex);
@@ -98,13 +95,11 @@ public class HttpRequestor {
             }
             body = bodyBuilder.build();
 
-            List<Header> headers = new ArrayList<>();
-            headers.add(new Header("Authorization", "Bearer " + accessToken));
+            Request.Builder builder = new Request.Builder()
+                    .post(body)
+                    .addHeader("Authorization", "Bearer " + accessToken)
+                    .url(sb.toString());
 
-            Request.Builder builder = new Request.Builder().post(body).url(sb.toString());
-            for (Header header : headers) {
-                builder.addHeader(header.getKey(), header.getValue());
-            }
             return client.newCall(builder.build()).execute();
         } catch (IOException ex) {
             Log.e("tag", "error on method POST", ex);

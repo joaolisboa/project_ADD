@@ -14,7 +14,7 @@ public class MEOCloudAPI {
     static final String ACCESS_URL = "https://meocloud.pt/oauth2/token";
 
     //MEOCloud API endpoints
-    public static final String API_METHOD_METADATA = "MEOMetadata";
+    public static final String API_METHOD_METADATA = "Metadata";
     public static final String API_METHOD_METADATA_SHARE = "MetadataShare";
     public static final String API_METHOD_LIST_LINKS = "ListLinks";
     public static final String API_METHOD_LIST_UPLOAD_LINKS = "ListUploadLinks";

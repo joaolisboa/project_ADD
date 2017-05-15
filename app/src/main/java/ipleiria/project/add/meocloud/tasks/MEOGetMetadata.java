@@ -50,7 +50,7 @@ public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<MEO
         try {
             if (params == null) {
                 throw new MissingParametersException();
-            } else if (params[0] == null || params[0].isEmpty()) {
+            } else if (params[0] == null) {
                 throw new MissingFilePathException();
             }
 
@@ -68,6 +68,7 @@ public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<MEO
             if (params.length > 2 && params[2] != null) {
                 map.put("hash", params[2]);
             }
+            // list folder - default true
             if (params.length > 3 && params[3] != null) {
                 map.put("list", params[3]);
             }

@@ -154,10 +154,9 @@ public class FilesRepository implements FilesDataSource {
                     meoCloudService.getMetadata(PENDING_PATH, new BaseCallback<MEOMetadata>() {
                         @Override
                         public void onComplete(MEOMetadata result) {
-                            MEOMetadata metadata = result;
-                            for(MEOMetadata meoMetadata: metadata.getContents()){
+                            for(MEOMetadata meoMetadata: result.getContents()){
                                 if(!meoMetadata.isDir()){
-                                    pendingfiles.add(new ItemFile(meoMetadata.getPath()));
+                                    pendingfiles.add(new ItemFile(meoMetadata.getName()));
                                 }
                             }
                             semaphore.release();
@@ -170,9 +169,7 @@ public class FilesRepository implements FilesDataSource {
                     dropboxService.getMetadata(PENDING_PATH, new BaseCallback<ListFolderResult>() {
                         @Override
                         public void onComplete(ListFolderResult result) {
-                            ListFolderResult folderResult = result;
-
-                            for(Metadata metadata: folderResult.getEntries()){
+                            for(Metadata metadata: result.getEntries()){
                                 if(metadata instanceof FileMetadata) {
                                     pendingfiles.add(new ItemFile(metadata.getName()));
                                 }
@@ -278,7 +275,7 @@ public class FilesRepository implements FilesDataSource {
         final String filePath = getFilePath(file);
 
         if (meoCloudService.isAvailable()) {
-            // meo cloud is preferred since it can create thumbnails for special files(mp4, pdf)
+            // meo cloud is preferred since it can create thumbnails for special files(like pdf)
             // dropbox will serve as a fallback
             meoCloudService.downloadThumbnail(getFilePath(file), new Callback<File>() {
                 @Override

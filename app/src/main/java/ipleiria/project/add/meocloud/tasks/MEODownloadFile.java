@@ -72,14 +72,14 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
                 map.put("rev", params[1]);
             }
 
-            File dFile;
+            FileResponse dFile;
             if(params.length > 2 && params[2] != null){
                 if (params[2].startsWith("/")) {
                     params[2] = params[2].substring(1);
                 }
-                dFile = new File(Application.getAppContext().getFilesDir(), params[2]);
+                dFile = new FileResponse(Application.getAppContext().getFilesDir(), params[2]);
             }else{
-                dFile = new File(Application.getAppContext().getFilesDir(), filePath);
+                dFile = new FileResponse(Application.getAppContext().getFilesDir(), filePath);
             }
 
             String path = MEOCloudAPI.API_METHOD_FILES + "/" + MEOCloudAPI.API_MODE + "/" + filePath;
@@ -100,7 +100,7 @@ public class MEODownloadFile extends AsyncTask<String, Void, MEOCloudResponse<Fi
                     }
                     is.close();
                     fos.close();
-                    meoCloudResponse.setResponse((FileResponse) dFile);
+                    meoCloudResponse.setResponse(dFile);
                 }
                 return meoCloudResponse;
             }

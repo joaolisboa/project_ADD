@@ -157,7 +157,6 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
         new MEOCreateFolderTree(new MEOCallback<MEOMetadata>() {
             @Override
             public void onComplete(MEOMetadata result) {
-                Log.d(TAG, result.getPath());
                 new MEOUploadFile(new MEOCallback<MEOMetadata>() {
                     @Override
                     public void onComplete(MEOMetadata result) {

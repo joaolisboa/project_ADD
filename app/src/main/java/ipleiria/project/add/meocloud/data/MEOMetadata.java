@@ -73,6 +73,8 @@ public class MEOMetadata extends JsonObject implements ErrorMessageResponse {
     @SerializedName(JSON_TAG_CLIENT_MODIFIED)
     private String clientModified;
 
+    private String name;
+
     @Override
     public String processRequestCode(int code) {
         switch(code){
@@ -83,6 +85,10 @@ public class MEOMetadata extends JsonObject implements ErrorMessageResponse {
                 return "Too many entries - limit 10.000";
         }
         return HttpStatus.processRequestCode(code);
+    }
+
+    public String getName(){
+        return path.substring(path.lastIndexOf("/")+1);
     }
 
     public String getClientModified() {
