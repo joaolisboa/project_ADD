@@ -122,8 +122,13 @@ public class ItemFilesRepository implements ItemFilesDataSource {
             if (!originalItem.getDeletedFiles().remove(file)) {
                 Log.d(TAG, "file isn't in list");
             }
+            if (originalItem.getDeletedFiles().isEmpty()) {
+                itemsRepository.deleteLocalItem(item, true);
+            }
             itemsRepository.saveDeletedItemToDatabase(originalItem);
         } else {
+            System.out.println(itemsRepository.getDeletedItem(item.getDbKey()));
+            System.out.println(Arrays.toString(itemsRepository.getDeletedItems().toArray()));
             Log.wtf(TAG, "Probably shouldn't happen, an item with a deleted file should be in the deleted Items list");
         }
 
@@ -142,9 +147,5 @@ public class ItemFilesRepository implements ItemFilesDataSource {
         itemsRepository.saveItemToDatabase(item);
 
         itemDeletedFilesReference.child(file.getDbKey()).removeValue();
-
-        if (item.getDeletedFiles().isEmpty()) {
-            itemsRepository.deleteLocalItem(item, true);
-        }
     }
 }

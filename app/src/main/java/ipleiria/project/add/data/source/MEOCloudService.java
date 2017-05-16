@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
+import java.util.Arrays;
 
 import ipleiria.project.add.meocloud.MEOCallback;
 import ipleiria.project.add.meocloud.MEOCloudAPI;
@@ -188,11 +189,26 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
     }
 
     @Override
-    public void moveFile(String from, String to) {
-        new MEOMoveFile(new MEOCallback<MEOMetadata>() {
+    public void moveFile(final String from, final String to) {
+        new MEOCreateFolderTree(new MEOCallback<MEOMetadata>() {
             @Override
             public void onComplete(MEOMetadata result) {
-                Log.d(TAG, "MEO - moved file " + result.getPath());
+                new MEOMoveFile(new MEOCallback<MEOMetadata>() {
+                    @Override
+                    public void onComplete(MEOMetadata result) {
+                        Log.d(TAG, "MEO - moved file " + result.getPath());
+                    }
+
+                    @Override
+                    public void onRequestError(HttpErrorException httpE) {
+                        Log.e(TAG, httpE.getMessage(), httpE);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+                }).execute(from, to);
             }
 
             @Override
@@ -204,7 +220,7 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
             public void onError(Exception e) {
                 Log.e(TAG, e.getMessage(), e);
             }
-        }).execute(from, to);
+        }).execute(to.substring(1, to.lastIndexOf("/")).split("/"));
     }
 
     @Override

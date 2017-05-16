@@ -57,10 +57,10 @@ public class DropboxMoveFile extends AsyncTask<String, Void, Metadata> {
                     }
                 }
             }catch(RelocationErrorException ex){
-                Log.e("MOVE_FILE_DROPBOX", ex.getMessage(), ex);
+                Log.d("MOVE_FILE_DROPBOX", ex.getMessage(), ex);
             }catch(GetMetadataErrorException metaEx){
                 // file wasn't found so it can move to destination
-                Log.e("MOVE_FILE_DROPBOX", metaEx.getMessage(), metaEx);
+                Log.d("MOVE_FILE_DROPBOX", metaEx.getMessage(), metaEx);
             }
 
             return mDbxClient.files().move(fromPath, toPath);

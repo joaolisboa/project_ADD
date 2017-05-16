@@ -2,6 +2,7 @@ package ipleiria.project.add.dropbox;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
@@ -57,8 +58,8 @@ public class DropboxGetThumbnail  extends AsyncTask<String, Void, File> {
                         .withSize(ThumbnailSize.W128H128)
                         .download(outputStream);
             }catch (DbxException db){
+                Log.d("THUMBNAIL", "Thumbnail was created but not written - deleting file created");
                 thumb.delete();
-                throw new IOException("Thumbnail was created but not written");
             }
 
             return thumb;

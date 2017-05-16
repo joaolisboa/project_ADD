@@ -1,8 +1,10 @@
 package ipleiria.project.add.view.itemdetail;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +20,14 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
@@ -29,26 +37,26 @@ import ipleiria.project.add.data.model.ItemFile;
  * Created by Lisboa on 10-May-17.
  */
 
-public class ItemFileAdapter extends BaseSwipeAdapter{
+public class ItemFileAdapter extends BaseSwipeAdapter {
 
     private ItemDetailContract.View itemsView;
     private ItemDetailFragment.FileActionListener actionsListener;
 
     private List<ItemFile> listFiles;
-    private Map<ItemFile, ImageView> attachedImageViews;
+    private LinkedHashMap<ItemFile, ImageView> attachedImageViews;
     private boolean listingDeleted;
 
-    public ItemFileAdapter(List<ItemFile> listFiles, ItemDetailFragment.FileActionListener actionsListener,
-                           boolean listingDeleted, ItemDetailContract.View itemsView) {
+    ItemFileAdapter(List<ItemFile> listFiles, ItemDetailFragment.FileActionListener actionsListener,
+                    boolean listingDeleted, ItemDetailContract.View itemsView) {
         setList(listFiles);
         this.itemsView = itemsView;
         this.actionsListener = actionsListener;
         this.listingDeleted = listingDeleted;
 
-        this.attachedImageViews = new ArrayMap<>();
+        this.attachedImageViews = new LinkedHashMap<>();
     }
 
-    private void setList(List<ItemFile> files){
+    private void setList(List<ItemFile> files) {
         listFiles = files;
     }
 
@@ -59,9 +67,9 @@ public class ItemFileAdapter extends BaseSwipeAdapter{
 
     void onFileAdded(ItemFile file) {
         int pos = listFiles.indexOf(file);
-        if(pos < 0){
+        if (pos < 0) {
             listFiles.add(file);
-        }else{
+        } else {
             listFiles.remove(pos);
             listFiles.add(pos, file);
         }
@@ -82,7 +90,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter{
     @Override
     public View generateView(final int position, ViewGroup parent) {
         Context context = parent.getContext();
-        View itemView =  LayoutInflater.from(context).inflate(R.layout.list_file_item, null);
+        View itemView = LayoutInflater.from(context).inflate(R.layout.list_file_item, null);
 
         SwipeLayout swipeLayout = (SwipeLayout) itemView.findViewById(R.id.bottom_layout_actions);
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
@@ -101,6 +109,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter{
         buttonShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // TODO: 15-May-17 change action from ACTION_VIEW to ACTION_SEND to share file?
                 actionsListener.onFileClick((ItemFile) getItem(position));
             }
         });
@@ -108,10 +117,10 @@ public class ItemFileAdapter extends BaseSwipeAdapter{
         ImageView button1 = (ImageView) itemView.findViewById(R.id.action_2);
         ImageView button2 = (ImageView) itemView.findViewById(R.id.action_3);
 
-        if(!listingDeleted){
+        if (!listingDeleted) {
             button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_white));
             button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_white));
-        }else{
+        } else {
             button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_white));
             button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_forever_white));
         }
@@ -119,9 +128,9 @@ public class ItemFileAdapter extends BaseSwipeAdapter{
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!listingDeleted) {
+                if (!listingDeleted) {
                     actionsListener.onEditFile((ItemFile) getItem(position));
-                }else{
+                } else {
                     actionsListener.onRestoreFile((ItemFile) getItem(position));
                 }
                 closeItem(position);
@@ -131,18 +140,14 @@ public class ItemFileAdapter extends BaseSwipeAdapter{
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!listingDeleted) {
+                if (!listingDeleted) {
                     actionsListener.onDeleteFile((ItemFile) getItem(position));
-                }else{
+                } else {
                     actionsListener.onPermanentDeleteFile((ItemFile) getItem(position));
                 }
                 closeItem(position);
             }
         });
-
-        ImageView thumbView = (ImageView) itemView.findViewById(R.id.file_thumbnail);
-        thumbView.setImageDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.file_placeholder));
-        attachImageViewToFile((ItemFile)getItem(position), thumbView);
 
         return itemView;
     }
@@ -153,6 +158,21 @@ public class ItemFileAdapter extends BaseSwipeAdapter{
 
         TextView filename = (TextView) convertView.findViewById(R.id.filename);
         filename.setText(file.getFilename());
+
+        ImageView thumbView = (ImageView) convertView.findViewById(R.id.file_thumbnail);
+        thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
+        if (!attachedImageViews.containsValue(thumbView)) {
+            System.out.println(new ArrayList<>(attachedImageViews.keySet()));
+            ImageView currentFilePreviousThumb = attachedImageViews.get(file);
+            if (currentFilePreviousThumb != null && thumbView != currentFilePreviousThumb) {
+                System.out.println("item " + file.getFilename() + " already had an imageview " + position);
+                thumbView.setImageDrawable(currentFilePreviousThumb.getDrawable());
+                attachedImageViews.put(file, thumbView);
+            } else {
+                System.out.println("should only reach here on the first run");
+                attachImageViewToFile(file, thumbView);
+            }
+        }
     }
 
     @Override
@@ -170,26 +190,18 @@ public class ItemFileAdapter extends BaseSwipeAdapter{
         return position;
     }
 
-    public void setThumbnail(ItemFile file, File thumbnail){
+    void setThumbnail(ItemFile file, File thumbnail) {
         ImageView imageView = attachedImageViews.get(file);
-        Log.d("THUMB", "Creating thumbnail..." + thumbnail.getAbsolutePath());
-        Picasso.with(imageView.getContext())
-                .load(thumbnail)
-                .resize(100, 100)
-                .placeholder(R.drawable.file_placeholder)
-                .error(R.drawable.file_placeholder)
-                .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE) // don't cache images
-                .into(imageView);
+        Log.d("THUMB", "Creating thumbnail... " + thumbnail.getAbsolutePath());
+        imageView.setImageDrawable(Drawable.createFromPath(thumbnail.getPath()));
     }
 
-    private void attachImageViewToFile(ItemFile file, ImageView imageView){
-        if(!attachedImageViews.containsKey(file)){
-            attachedImageViews.put(file, imageView);
-            itemsView.requestThumbnail(file);
-        }
+    private void attachImageViewToFile(ItemFile file, ImageView thumbView) {
+        attachedImageViews.put(file, thumbView);
+        itemsView.requestThumbnail(file);
     }
 
-    private void removeAttachedView(ItemFile file){
+    private void removeAttachedView(ItemFile file) {
         attachedImageViews.remove(file);
     }
 }
