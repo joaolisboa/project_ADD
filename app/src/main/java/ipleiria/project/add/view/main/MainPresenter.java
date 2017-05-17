@@ -47,11 +47,13 @@ import java.util.List;
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.RequestMailsTask;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.view.items.ItemsActivity;
 
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
+import static ipleiria.project.add.view.google_sign_in.GoogleSignInPresenter.SCOPES;
 import static ipleiria.project.add.view.main.MainFragment.REQUEST_AUTHORIZATION;
 
 /**
@@ -69,13 +71,13 @@ class MainPresenter implements MainContract.Presenter {
     private final MainContract.DrawerView drawerView;
 
     private GoogleApiClient googleApiClient;
-    private Gmail mService = null;
-    private static final String[] SCOPES = {GmailScopes.MAIL_GOOGLE_COM, GmailScopes.GMAIL_READONLY};
+    private Gmail mService;
 
     private final FilesRepository filesRepository;
     private List<ItemFile> pendingFiles;
 
     private Uri photoUri;
+    // ensure we want to sign to avoid consequent calls to authStateListener
     private boolean authFlag = false;
 
     MainPresenter(@NonNull UserService userService, @NonNull MainContract.View mainView, @NonNull MainContract.DrawerView drawerView) {
@@ -97,7 +99,6 @@ class MainPresenter implements MainContract.Presenter {
             public void onComplete(List<ItemFile> result) {
                 pendingFiles.addAll(result);
                 processPendingFiles();
-                System.out.println(result);
             }
         });
     }
@@ -120,6 +121,10 @@ class MainPresenter implements MainContract.Presenter {
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     authFlag = true;
                     UserService.getInstance().initUser(user);
+                    if(!user.isAnonymous()){
+                        // if user is not anonymous get google credentials and fetch emails
+                        checkForCachedCredentials();
+                    }
                 }
                 drawerView.setUserInfo(UserService.getInstance().getUser());
             } else {
@@ -156,19 +161,6 @@ class MainPresenter implements MainContract.Presenter {
                 photo.putExtra("photo_uri", photoUri.toString());
                 context.startActivity(photo.setAction(SENDING_PHOTO));
             }
-            if (requestCode == REQUEST_AUTHORIZATION) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        try {
-                            getDataFromApi();
-                        } catch (IOException e) {
-                            Log.e(TAG, e.getMessage(), e);
-                        }
-                    }
-                }).start();
-            }
         }
     }
 
@@ -176,24 +168,28 @@ class MainPresenter implements MainContract.Presenter {
     public void buildGoogleClient(FragmentActivity fragment,
                                   GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener,
                                   String webClientID) {
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(webClientID)
-                .requestEmail()
-                .build();
+        if(googleApiClient == null) {
+            // Configure sign-in to request the user's ID, email address, and basic
+            // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(webClientID)
+                    .requestEmail()
+                    .build();
 
-        googleApiClient = new GoogleApiClient.Builder(fragment)
-                .enableAutoManage(fragment, onConnectionFailedListener)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
+            googleApiClient = new GoogleApiClient.Builder(fragment)
+                    .enableAutoManage(fragment, onConnectionFailedListener)
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                    .build();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                checkForCachedCredentials();
-            }
-        }).start();
+        }else if(mService != null){
+            new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
+                @Override
+                public void onComplete(List<ItemFile> pendingFiles) {
+                    //mainView.addPendingFiles(pendingFiles);
+                }
+            }).execute();
+        }
+
     }
 
     private void checkForCachedCredentials() {
@@ -210,7 +206,7 @@ class MainPresenter implements MainContract.Presenter {
             // single sign-on will occur in this branch.
             opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                 @Override
-                public void onResult(GoogleSignInResult googleSignInResult) {
+                public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
                     handleSignInResult(googleSignInResult);
                 }
             });
@@ -223,66 +219,23 @@ class MainPresenter implements MainContract.Presenter {
             GoogleSignInAccount acct = result.getSignInAccount();
             if (acct != null) {
                 System.out.println(acct.getAccount());
-                GoogleAccountCredential credential = mainView.createCredentials(SCOPES);
+                GoogleAccountCredential credential =
+                        GoogleAccountCredential.usingOAuth2(Application.getAppContext(), Arrays.asList(SCOPES));
                 credential.setSelectedAccount(acct.getAccount());
-                //AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
                 HttpTransport transport = AndroidHttp.newCompatibleTransport();
                 JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-                mService = new Gmail.Builder(transport, jsonFactory, credential)
+                Gmail mService = new Gmail.Builder(transport, jsonFactory, credential)
                         .setApplicationName("Project ADD")
                         .build();
-                try {
-                    getDataFromApi();
-                } catch (IOException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                }
-            }
-        }
-    }
 
-    private void getDataFromApi() throws IOException {
-        // Get the labels in the user's account.
-        String user = "me";
-        List<ItemFile> attachments = new ArrayList<>();
-
-        String[] emailAux = FirebaseAuth.getInstance().getCurrentUser().getEmail().split("@");
-        String email = emailAux[0]+"+addestg@"+emailAux[1];
-
-        try {
-            ListMessagesResponse listResponse =
-                    mService.users().messages().list(user).setQ("to:"+email).execute();
-            System.out.println(listResponse.getMessages());
-            for (int i = 0; i < listResponse.size(); i++) {
-                Message m = mService.users().messages().get(user, listResponse.getMessages().get(i).getId()).execute();
-
-                List<MessagePart> parts = m.getPayload().getParts();
-                for (MessagePart part : parts) {
-                    if (part.getFilename() != null && part.getFilename().length() > 0) {
-                        String filename = part.getFilename();
-                        File attachment = new File(Application.getAppContext().getFilesDir(), filename);
-                        String attId = part.getBody().getAttachmentId();
-                        MessagePartBody attachPart = mService.users().messages().attachments().
-                                get(user, m.getId(), attId).execute();
-
-                        Base64 base64Url = new Base64();
-                        byte[] fileByteArray = base64Url.decodeBase64(attachPart.getData());
-
-                        FileOutputStream f = new FileOutputStream(attachment);
-
-                        f.write(fileByteArray);
-                        f.close();
-                        attachments.add(new ItemFile(filename));
+                new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
+                    @Override
+                    public void onComplete(List<ItemFile> pendingFiles) {
+                        System.out.println(pendingFiles);
+                        mainView.addPendingFiles(pendingFiles);
                     }
-                }
+                }).execute();
             }
-        } catch (UserRecoverableAuthIOException userRecoverableException) {
-            mainView.requestAuth(userRecoverableException.getIntent());
-        }
-        if(!attachments.isEmpty()){
-            filesRepository.addPendingFiles(attachments);
-            pendingFiles.addAll(attachments);
-            processPendingFiles();
-            System.out.println(attachments);
         }
     }
 
@@ -290,7 +243,7 @@ class MainPresenter implements MainContract.Presenter {
         if(pendingFiles.isEmpty()){
             mainView.showNoPendingFiles();
         }else{
-            mainView.showPendingFiles();
+            mainView.showPendingFiles(filesRepository.getPendingFiles());
         }
     }
 

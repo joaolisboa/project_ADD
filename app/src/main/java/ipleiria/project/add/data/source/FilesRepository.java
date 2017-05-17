@@ -8,11 +8,15 @@ import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
+import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -150,6 +154,18 @@ public class FilesRepository implements FilesDataSource {
     }
 
     @Override
+    public void saveEmailAttachment(String filename, byte[] fileByteArray) throws IOException {
+        File attachment = getLocalPendingFile(filename);
+        // don't bother writing attachment if it already exists in app
+        if(attachment.exists()) {
+            FileOutputStream f = new FileOutputStream(attachment);
+            f.write(fileByteArray);
+            f.close();
+        }
+        pendingFiles.add(new ItemFile(filename));
+    }
+
+    @Override
     public void getRemotePendingFiles(final BaseCallback<List<ItemFile>> callback) {
         new Thread(new Runnable() {
             @Override
@@ -212,6 +228,10 @@ public class FilesRepository implements FilesDataSource {
             // dropbox creates folders automatically so we don't need to seperate the path and filename
             dropboxService.uploadFile(uri, getFilePath(newFile), null);
         }
+    }
+
+    private File getLocalPendingFile(String filename){
+        return new File(Application.getAppContext().getFilesDir(), filename);
     }
 
     private File getCachedThumbnail(String filename) {
@@ -429,6 +449,10 @@ public class FilesRepository implements FilesDataSource {
         if (localThumb.exists()) {
             localThumb.delete();
         }
+    }
+
+    public List<ItemFile> getPendingFiles() {
+        return pendingFiles;
     }
 
     // in some cases we don't care about errors, ie. downloading thumbnails

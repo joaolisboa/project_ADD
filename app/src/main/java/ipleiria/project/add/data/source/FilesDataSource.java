@@ -3,6 +3,8 @@ package ipleiria.project.add.data.source;
 import android.net.Uri;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import ipleiria.project.add.data.model.Criteria;
@@ -41,4 +43,6 @@ public interface FilesDataSource {
     void renameFile(ItemFile file, String oldFilename, String newFilename);
 
     void addPendingFiles(List<ItemFile> files);
+
+    void saveEmailAttachment(String filename, byte[] fileByteArray) throws IOException;
 }

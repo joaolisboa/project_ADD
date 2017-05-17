@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.List;
 
 import ipleiria.project.add.*;
+import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.view.items.ItemsActivity;
 import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
 
@@ -205,23 +206,17 @@ public class MainFragment extends Fragment implements MainContract.View,
     }
 
     @Override
-    public GoogleAccountCredential createCredentials(String[] scopes){
-        return GoogleAccountCredential.usingOAuth2(getContext(), Arrays.asList(scopes))
-                .setBackOff(new ExponentialBackOff());
-    }
-
-    @Override
-    public void requestAuth(Intent intent) {
-        startActivityForResult(intent, REQUEST_AUTHORIZATION);
-    }
-
-    @Override
     public void showNoPendingFiles() {
 
     }
 
     @Override
-    public void showPendingFiles() {
+    public void showPendingFiles(List<ItemFile> pendingFiles) {
+
+    }
+
+    @Override
+    public void addPendingFiles(List<ItemFile> pendingFiles) {
 
     }
 

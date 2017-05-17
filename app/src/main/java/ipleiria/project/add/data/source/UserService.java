@@ -39,11 +39,11 @@ public class UserService {
 
     private SharedPreferences preferences;
 
-    private UserService(){
+    private UserService() {
         this.firebaseAuth = FirebaseAuth.getInstance();
         this.preferences = Application.getAppContext().getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE);
 
-        if(NetworkState.isOnline()){
+        if (NetworkState.isOnline()) {
             this.user = new User(preferences.getString(USER_UID_KEY, null));
         }
 
@@ -63,7 +63,7 @@ public class UserService {
         return INSTANCE;
     }
 
-    public void initUser(FirebaseUser firebaseUser){
+    public void initUser(FirebaseUser firebaseUser) {
         User user = new User(firebaseUser.getUid());
 
         String displayName = firebaseUser.getDisplayName();
@@ -86,11 +86,8 @@ public class UserService {
         user.setName(displayName);
         user.setAnonymous(firebaseUser.isAnonymous());
 
-        String uid = firebaseUser.getUid();
-        if(TextUtils.isEmpty(uid)){
-            preferences.edit().putString(USER_UID_KEY, firebaseUser.getUid()).apply();
-            ItemsRepository.getInstance().initUser(firebaseUser.getUid());
-        }
+        preferences.edit().putString(USER_UID_KEY, firebaseUser.getUid()).apply();
+        ItemsRepository.getInstance().initUser(firebaseUser.getUid());
 
         this.user = user;
     }
@@ -103,7 +100,7 @@ public class UserService {
         return user;
     }
 
-    public Task<AuthResult> getAnonymousUser(){
+    public Task<AuthResult> getAnonymousUser() {
         return firebaseAuth.signInAnonymously();
     }
 
@@ -125,12 +122,12 @@ public class UserService {
         this.meoCloudToken = meoCloudToken;
     }
 
-    public void removeMEOCloudToken(){
+    public void removeMEOCloudToken() {
         this.meoCloudToken = null;
         preferences.edit().remove(MEO_PREFS_KEY).apply();
     }
 
-    public void removeDropboxToken(){
+    public void removeDropboxToken() {
         this.dropboxToken = null;
         preferences.edit().remove(DROPBOX_PREFS_KEY).apply();
     }

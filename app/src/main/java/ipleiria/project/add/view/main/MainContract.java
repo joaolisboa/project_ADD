@@ -15,6 +15,7 @@ import java.util.List;
 import ipleiria.project.add.BasePresenter;
 import ipleiria.project.add.BaseView;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.view.items.ItemsContract;
 
@@ -28,13 +29,11 @@ public class MainContract {
 
         void setLoadingIndicator(boolean active);
 
-        GoogleAccountCredential createCredentials(String[] scopes);
-
-        void requestAuth(Intent intent);
-
         void showNoPendingFiles();
 
-        void showPendingFiles();
+        void showPendingFiles(List<ItemFile> pendingFiles);
+
+        void addPendingFiles(List<ItemFile> pendingFiles);
     }
 
     interface DrawerView {

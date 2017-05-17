@@ -1,5 +1,6 @@
 package ipleiria.project.add.view.google_sign_in;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentProviderOperation;
 import android.content.DialogInterface;
@@ -18,13 +19,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -34,7 +32,6 @@ import java.util.ArrayList;
 import android.Manifest;
 
 import ipleiria.project.add.R;
-import ipleiria.project.add.view.*;
 
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 
@@ -49,6 +46,7 @@ public class GoogleSignInFragment extends Fragment implements GoogleSignInContra
     private static final String TAG = "GoogleSignInActivity";
     public static final int RC_SIGN_IN = 9001;
     private static final int REQUEST_CODE_ASK_PERMISSIONS = 123;
+    public static final int REQUEST_AUTHORIZATION = 12345;
 
     private GoogleSignInContract.Presenter presenter;
 
@@ -155,25 +153,45 @@ public class GoogleSignInFragment extends Fragment implements GoogleSignInContra
 
     @Override
     public void requestContactsPermission(){
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            int hasWriteContactsPermission = getContext().checkSelfPermission(Manifest.permission.WRITE_CONTACTS);
-            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[] {Manifest.permission.WRITE_CONTACTS},
-                        REQUEST_CODE_ASK_PERMISSIONS);
+        // create dialogto give user some context of why we're requesting access to contacts
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage("Now that you've linked with Google you can send emails to the contact ADD ESTG.\n"
+                            + "Click Allow when requested to create the contact")
+                .setTitle("Create contact");
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    int hasWriteContactsPermission = getContext().checkSelfPermission(Manifest.permission.WRITE_CONTACTS);
+                    if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[] {Manifest.permission.WRITE_CONTACTS},
+                                REQUEST_CODE_ASK_PERMISSIONS);
+                    }
+                }
             }
-        }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                presenter.checkAndRequestGmailPermission();
+            }
+        });
+        builder.create().show();
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
+    public void requestAuth(Intent intent) {
+        startActivityForResult(intent, REQUEST_AUTHORIZATION);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         for(int i = 0; i < permissions.length; i++) {
             if(permissions[i].equals(Manifest.permission.WRITE_CONTACTS)) {
                 if (grantResults[i] == PERMISSION_GRANTED) {
-                    presenter.createContactAlias();
+                    presenter.onRequestPermissionGranted();
                 }
             }
         }
@@ -186,6 +204,9 @@ public class GoogleSignInFragment extends Fragment implements GoogleSignInContra
         } catch (RemoteException | OperationApplicationException e) {
             Log.e(TAG, "Failed to create contact");
         }
+
+        // after creating contact we'll request the user for permission to access ihis gmail
+        presenter.checkAndRequestGmailPermission();
     }
 
     @Override

@@ -32,7 +32,10 @@ public class GoogleSignInContract {
 
         void requestContactsPermission();
 
+        void requestAuth(Intent intent);
+
         void requestNewContactCreation(ArrayList<ContentProviderOperation> ops);
+
     }
 
     interface Presenter extends BasePresenter{
@@ -47,7 +50,10 @@ public class GoogleSignInContract {
 
         void downgradeAccount();
 
-        void createContactAlias();
+        void onRequestPermissionGranted();
+
+        void checkAndRequestGmailPermission();
+
     }
 
 }
