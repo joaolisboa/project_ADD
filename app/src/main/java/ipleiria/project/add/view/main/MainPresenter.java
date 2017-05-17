@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.ItemFile;
@@ -97,10 +98,16 @@ class MainPresenter implements MainContract.Presenter {
         filesRepository.getRemotePendingFiles(new FilesRepository.BaseCallback<List<ItemFile>>() {
             @Override
             public void onComplete(List<ItemFile> result) {
-                pendingFiles.addAll(result);
-                processPendingFiles();
+                for(ItemFile file: result){
+                    if(!pendingFiles.contains(file)) {
+                        pendingFiles.add(file);
+                    }
+                }
+                mainView.addPendingFiles(pendingFiles);
             }
         });
+
+        processPendingFiles();
     }
 
     @Override
@@ -184,8 +191,13 @@ class MainPresenter implements MainContract.Presenter {
         }else if(mService != null){
             new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
                 @Override
-                public void onComplete(List<ItemFile> pendingFiles) {
-                    //mainView.addPendingFiles(pendingFiles);
+                public void onComplete(List<ItemFile> result) {
+                    for(ItemFile file: result){
+                        if(!pendingFiles.contains(file)) {
+                            pendingFiles.add(file);
+                        }
+                    }
+                    mainView.addPendingFiles(pendingFiles);
                 }
             }).execute();
         }
@@ -224,7 +236,7 @@ class MainPresenter implements MainContract.Presenter {
                 credential.setSelectedAccount(acct.getAccount());
                 HttpTransport transport = AndroidHttp.newCompatibleTransport();
                 JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-                Gmail mService = new Gmail.Builder(transport, jsonFactory, credential)
+                mService = new Gmail.Builder(transport, jsonFactory, credential)
                         .setApplicationName("Project ADD")
                         .build();
 
@@ -237,6 +249,46 @@ class MainPresenter implements MainContract.Presenter {
                 }).execute();
             }
         }
+    }
+
+    @Override
+    public void onSwipeRefresh(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final Semaphore semaphore = new Semaphore(-1);
+                filesRepository.getRemotePendingFiles(new FilesRepository.BaseCallback<List<ItemFile>>() {
+                    @Override
+                    public void onComplete(List<ItemFile> result) {
+                        for(ItemFile file: result){
+                            if(!pendingFiles.contains(file)) {
+                                pendingFiles.add(file);
+                            }
+                        }
+                        mainView.addPendingFiles(pendingFiles);
+                        semaphore.release();
+                    }
+                });
+
+                new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
+                    @Override
+                    public void onComplete(List<ItemFile> pendingFiles) {
+                        System.out.println(pendingFiles);
+                        mainView.addPendingFiles(pendingFiles);
+                        semaphore.release();
+                    }
+                }).execute();
+
+                try {
+                    mainView.setLoadingIndicator(true);
+                    semaphore.acquire();
+                    processPendingFiles();
+                    mainView.setLoadingIndicator(false);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void processPendingFiles() {

@@ -235,11 +235,15 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     }
 
     private void addItem(){
-        Intent intent = getActivity().getIntent();
-        // change intent to use a different activity, keeping extras and action
-        intent.setComponent(new ComponentName(getContext(), AddEditActivity.class));
-        startActivity(intent);
-        finish();
+        if(itemsPresenter.getIntentAction() != null) {
+            Intent intent = getActivity().getIntent();
+            // change intent to use a different activity, keeping extras and action
+            intent.setComponent(new ComponentName(getContext(), AddEditActivity.class));
+            startActivity(intent);
+            finish();
+        }else{
+            startActivity(new Intent(getContext(), AddEditActivity.class));
+        }
     }
 
     /**

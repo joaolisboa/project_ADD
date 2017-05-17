@@ -50,6 +50,7 @@ public class AddEditContract {
 
         void finishAction();
 
+        String getIntentAction();
     }
 
 }

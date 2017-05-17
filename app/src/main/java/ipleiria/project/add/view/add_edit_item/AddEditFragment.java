@@ -163,8 +163,10 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     public void finish() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(descriptionEditText.getWindowToken(), 0);
-        Intent intent = new Intent(getContext(), ItemsActivity.class);
-        startActivity(intent);
+        if(addEditPresenter.getIntentAction() != null){
+            Intent intent = new Intent(getContext(), ItemsActivity.class);
+            startActivity(intent);
+        }
         getActivity().finish();
     }
 

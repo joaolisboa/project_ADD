@@ -104,7 +104,7 @@ public class MainFragment extends Fragment implements MainContract.View,
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // TODO: 05-May-17 search through emails and inbox dir from Drop/meo for new pending files
+                presenter.onSwipeRefresh();
             }
         });
 
@@ -212,12 +212,12 @@ public class MainFragment extends Fragment implements MainContract.View,
 
     @Override
     public void showPendingFiles(List<ItemFile> pendingFiles) {
-
+        System.out.println(pendingFiles);
     }
 
     @Override
     public void addPendingFiles(List<ItemFile> pendingFiles) {
-
+        System.out.println(pendingFiles);
     }
 
     @Override

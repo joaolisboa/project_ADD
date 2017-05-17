@@ -44,6 +44,8 @@ public class MainContract {
 
     interface Presenter extends BasePresenter {
 
+        void onSwipeRefresh();
+
         void result(int requestCode, int resultCode, Context context);
 
         void setPhotoUri(Uri photoUri);

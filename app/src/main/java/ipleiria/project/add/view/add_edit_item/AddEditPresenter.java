@@ -169,4 +169,9 @@ public class AddEditPresenter implements AddEditContract.Presenter {
         }
         addEditView.finish();
     }
+
+    @Override
+    public String getIntentAction() {
+        return intentAction;
+    }
 }
