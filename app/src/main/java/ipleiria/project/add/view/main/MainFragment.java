@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -21,8 +22,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.util.ExponentialBackOff;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -38,7 +46,10 @@ import static ipleiria.project.add.view.main.MainPresenter.REQUEST_TAKE_PHOTO;
  * Created by Lisboa on 05-May-17.
  */
 
-public class MainFragment extends Fragment implements MainContract.View{
+public class MainFragment extends Fragment implements MainContract.View,
+        GoogleApiClient.OnConnectionFailedListener{
+
+    public static final int REQUEST_AUTHORIZATION = 12345;
 
     private MainContract.Presenter presenter;
 
@@ -162,6 +173,7 @@ public class MainFragment extends Fragment implements MainContract.View{
     public void onStart(){
         super.onStart();
         presenter.subscribe();
+        presenter.buildGoogleClient(getActivity(), this, getString(R.string.default_web_client_id));
     }
 
     @Override
@@ -190,5 +202,33 @@ public class MainFragment extends Fragment implements MainContract.View{
                 srl.setRefreshing(active);
             }
         });
+    }
+
+    @Override
+    public GoogleAccountCredential createCredentials(String[] scopes){
+        return GoogleAccountCredential.usingOAuth2(getContext(), Arrays.asList(scopes))
+                .setBackOff(new ExponentialBackOff());
+    }
+
+    @Override
+    public void requestAuth(Intent intent) {
+        startActivityForResult(intent, REQUEST_AUTHORIZATION);
+    }
+
+    @Override
+    public void showNoPendingFiles() {
+
+    }
+
+    @Override
+    public void showPendingFiles() {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        // An unresolvable error has occurred and Google APIs (including Sign-In) will not
+        // be available.
+        Log.d(TAG, "onConnectionFailed:" + connectionResult);
     }
 }

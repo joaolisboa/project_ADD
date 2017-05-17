@@ -1,10 +1,13 @@
 package ipleiria.project.add.view.google_sign_in;
 
+import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.util.ArrayList;
 
 import ipleiria.project.add.BasePresenter;
 import ipleiria.project.add.BaseView;
@@ -27,6 +30,9 @@ public class GoogleSignInContract {
 
         void signIn(GoogleApiClient googleApiClient);
 
+        void requestContactsPermission();
+
+        void requestNewContactCreation(ArrayList<ContentProviderOperation> ops);
     }
 
     interface Presenter extends BasePresenter{
@@ -40,6 +46,8 @@ public class GoogleSignInContract {
         void signIn();
 
         void downgradeAccount();
+
+        void createContactAlias();
     }
 
 }

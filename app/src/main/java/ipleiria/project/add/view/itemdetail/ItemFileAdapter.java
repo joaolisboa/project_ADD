@@ -162,14 +162,13 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         ImageView thumbView = (ImageView) convertView.findViewById(R.id.file_thumbnail);
         thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
         if (!attachedImageViews.containsValue(thumbView)) {
-            System.out.println(new ArrayList<>(attachedImageViews.keySet()));
             ImageView currentFilePreviousThumb = attachedImageViews.get(file);
             if (currentFilePreviousThumb != null && thumbView != currentFilePreviousThumb) {
-                System.out.println("item " + file.getFilename() + " already had an imageview " + position);
+                // if item already an imageview it'll reach here and reuse the thumb
                 thumbView.setImageDrawable(currentFilePreviousThumb.getDrawable());
                 attachedImageViews.put(file, thumbView);
             } else {
-                System.out.println("should only reach here on the first run");
+                // should only reach here on the first run
                 attachImageViewToFile(file, thumbView);
             }
         }

@@ -40,4 +40,5 @@ public interface FilesDataSource {
 
     void renameFile(ItemFile file, String oldFilename, String newFilename);
 
+    void addPendingFiles(List<ItemFile> files);
 }

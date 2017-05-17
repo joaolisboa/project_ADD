@@ -32,7 +32,7 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     private File sharedFile;
 
     ItemDetailPresenter(@NonNull ItemDetailContract.View itemDetailView, FilesRepository filesRepository,
-                        Item item, boolean listingDeleted){
+                        Item item, boolean listingDeleted) {
         this.filesRepository = filesRepository;
         this.itemDetailView = itemDetailView;
         this.itemDetailView.setPresenter(this);
@@ -46,7 +46,7 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
         this.itemFilesRepository = ItemFilesRepository.newInstance(item);
 
         List<ItemFile> files = (!listingDeleted ? item.getFiles() : item.getDeletedFiles());
-        itemDetailView.showFiles(files);
+        processFiles(files);
         itemDetailView.showItemInfo(item);
 
         // android doesn't seem to ever delete temp file or files with deleteOnExit()
@@ -54,9 +54,17 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
         // ps: in case the user uses the app offline or already has a local file
         // we only delete the file if it start with tmp_ since that is the prefix added when
         // downloading the file
-        if(sharedFile != null && sharedFile.exists() && sharedFile.getName().startsWith("tmp_")){
+        if (sharedFile != null && sharedFile.exists() && sharedFile.getName().startsWith("tmp_")) {
             sharedFile.delete();
             sharedFile = null;
+        }
+    }
+
+    private void processFiles(List<ItemFile> files) {
+        if(files.isEmpty()){
+            itemDetailView.showNoFiles();
+        }else{
+            itemDetailView.showFiles(files);
         }
     }
 
@@ -68,11 +76,11 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     @Override
     public void checkForEmptyList() {
         if (!listingDeleted) {
-            if(item.getFiles().isEmpty()) {
+            if (item.getFiles().isEmpty()) {
                 itemDetailView.showNoFiles();
             }
         } else {
-            if(item.getDeletedFiles().isEmpty()) {
+            if (item.getDeletedFiles().isEmpty()) {
                 itemDetailView.showNoFiles();
             }
         }
@@ -83,6 +91,7 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
         itemFilesRepository.deleteItemFile(file);
         filesRepository.deleteFile(file);
         itemDetailView.removeDeletedFile(file);
+        checkForEmptyList();
     }
 
     @Override
@@ -102,7 +111,7 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     @Override
     public void renameFile(@NonNull ItemFile file, @NonNull String newFilename) {
         String oldFilename = file.getFilename();
-        if(!oldFilename.equals(newFilename)) {
+        if (!oldFilename.equals(newFilename)) {
             file.setFilename(newFilename);
             itemFilesRepository.renameItemFile(file);
             filesRepository.renameFile(file, oldFilename, newFilename);
@@ -112,17 +121,13 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
     @Override
     public void createThumbnail(final ItemFile file) {
-        File thumbnail = filesRepository.getCachedThumbnail(file);
-        if(thumbnail.exists()){
-            itemDetailView.setFileThumbnail(file, thumbnail);
-        }else {
-            filesRepository.getThumbnail(file, new FilesRepository.BaseCallback<File>() {
-                @Override
-                public void onComplete(File result) {
-                    itemDetailView.setFileThumbnail(file, result);
-                }
-            });
-        }
+        filesRepository.getThumbnail(file, new FilesRepository.BaseCallback<File>() {
+            @Override
+            public void onComplete(File result) {
+                itemDetailView.setFileThumbnail(file, result);
+            }
+        });
+
     }
 
     @Override

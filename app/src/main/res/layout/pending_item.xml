@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:id="@+id/bottom_layout_actions">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="72dp"
+        android:tag="bottom_layout_actions">
+
+        <ImageView
+            android:id="@+id/open"
+            app:srcCompat="@drawable/share_white"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorAccent"
+            android:contentDescription="Share Item"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp" />
+
+        <ImageView
+            android:id="@+id/delete"
+            app:srcCompat="@drawable/delete_white"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/holo_red_dark"
+            android:contentDescription="Delete Item"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/item_view"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="#ffffff"
+        android:paddingBottom="8dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp">
+
+        <ImageView
+            android:id="@+id/file_thumbnail"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
+            android:contentDescription="File thumbnail" />
+
+        <TextView
+            android:id="@+id/filename"
+            android:layout_width="280dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="72dp"
+            android:textSize="16sp" />
+    </FrameLayout>
+
+</LinearLayout>

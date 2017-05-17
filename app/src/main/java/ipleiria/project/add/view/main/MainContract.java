@@ -1,8 +1,14 @@
 package ipleiria.project.add.view.main;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
+
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
 import java.util.List;
 
@@ -22,6 +28,13 @@ public class MainContract {
 
         void setLoadingIndicator(boolean active);
 
+        GoogleAccountCredential createCredentials(String[] scopes);
+
+        void requestAuth(Intent intent);
+
+        void showNoPendingFiles();
+
+        void showPendingFiles();
     }
 
     interface DrawerView {
@@ -35,6 +48,10 @@ public class MainContract {
         void result(int requestCode, int resultCode, Context context);
 
         void setPhotoUri(Uri photoUri);
+
+        void buildGoogleClient(FragmentActivity fragment,
+                               GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener,
+                               String webClientID);
     }
 
 }

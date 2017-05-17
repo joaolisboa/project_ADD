@@ -16,5 +16,13 @@
             android:onClick="listFiles"
             android:text="List Files" />
 
+        <com.daimajia.swipe.SwipeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+
+        </com.daimajia.swipe.SwipeLayout>
+
     </LinearLayout>
 </ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout>

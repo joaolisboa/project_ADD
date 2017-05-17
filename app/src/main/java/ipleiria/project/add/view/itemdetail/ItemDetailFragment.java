@@ -151,7 +151,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     @Override
     public void removeDeletedFile(ItemFile deletedFile) {
         listFileAdapter.onFileRemoved(deletedFile);
-        itemDetailPresenter.checkForEmptyList();
     }
 
     @Override

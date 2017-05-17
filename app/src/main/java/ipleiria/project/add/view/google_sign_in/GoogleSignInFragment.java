@@ -1,9 +1,15 @@
 package ipleiria.project.add.view.google_sign_in;
 
 import android.app.ProgressDialog;
+import android.content.ContentProviderOperation;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.OperationApplicationException;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.RemoteException;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -23,8 +29,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.util.ArrayList;
+
+import android.Manifest;
+
 import ipleiria.project.add.R;
 import ipleiria.project.add.view.*;
+
+import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 
 /**
  * Created by J on 09/05/2017.
@@ -36,6 +48,7 @@ public class GoogleSignInFragment extends Fragment implements GoogleSignInContra
 
     private static final String TAG = "GoogleSignInActivity";
     public static final int RC_SIGN_IN = 9001;
+    private static final int REQUEST_CODE_ASK_PERMISSIONS = 123;
 
     private GoogleSignInContract.Presenter presenter;
 
@@ -138,6 +151,41 @@ public class GoogleSignInFragment extends Fragment implements GoogleSignInContra
     public void signIn(GoogleApiClient googleApiClient){
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void requestContactsPermission(){
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            int hasWriteContactsPermission = getContext().checkSelfPermission(Manifest.permission.WRITE_CONTACTS);
+            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[] {Manifest.permission.WRITE_CONTACTS},
+                        REQUEST_CODE_ASK_PERMISSIONS);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        for(int i = 0; i < permissions.length; i++) {
+            if(permissions[i].equals(Manifest.permission.WRITE_CONTACTS)) {
+                if (grantResults[i] == PERMISSION_GRANTED) {
+                    presenter.createContactAlias();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void requestNewContactCreation(ArrayList<ContentProviderOperation> ops) {
+        try {
+            getActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+        } catch (RemoteException | OperationApplicationException e) {
+            Log.e(TAG, "Failed to create contact");
+        }
     }
 
     @Override

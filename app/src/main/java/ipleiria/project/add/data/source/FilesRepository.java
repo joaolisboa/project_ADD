@@ -44,12 +44,15 @@ public class FilesRepository implements FilesDataSource {
 
     private List<ItemFile> localFiles;
 
+    private List<ItemFile> pendingFiles;
+
     public FilesRepository() {
         UserService userService = UserService.getInstance();
         this.dropboxService = DropboxService.getInstance(userService.getDropboxToken());
         this.meoCloudService = MEOCloudService.getInstance(userService.getMeoCloudToken());
 
         localFiles = new LinkedList<>();
+        pendingFiles = new LinkedList<>();
 
         new Thread(new Runnable() {
             @Override
@@ -142,9 +145,12 @@ public class FilesRepository implements FilesDataSource {
     }
 
     @Override
-    public void getRemotePendingFiles(final BaseCallback<List<ItemFile>> callback) {
-        final List<ItemFile> pendingfiles = new LinkedList<>();
+    public void addPendingFiles(List<ItemFile> files) {
+        pendingFiles.addAll(files);
+    }
 
+    @Override
+    public void getRemotePendingFiles(final BaseCallback<List<ItemFile>> callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -156,7 +162,10 @@ public class FilesRepository implements FilesDataSource {
                         public void onComplete(MEOMetadata result) {
                             for(MEOMetadata meoMetadata: result.getContents()){
                                 if(!meoMetadata.isDir()){
-                                    pendingfiles.add(new ItemFile(meoMetadata.getName()));
+                                    ItemFile newFile = new ItemFile(meoMetadata.getName());
+                                    if(!pendingFiles.contains(newFile)) {
+                                        pendingFiles.add(newFile);
+                                    }
                                 }
                             }
                             semaphore.release();
@@ -171,7 +180,10 @@ public class FilesRepository implements FilesDataSource {
                         public void onComplete(ListFolderResult result) {
                             for(Metadata metadata: result.getEntries()){
                                 if(metadata instanceof FileMetadata) {
-                                    pendingfiles.add(new ItemFile(metadata.getName()));
+                                    ItemFile newFile = new ItemFile(metadata.getName());
+                                    if(!pendingFiles.contains(newFile)) {
+                                        pendingFiles.add(newFile);
+                                    }
                                 }
                             }
                             semaphore.release();
@@ -182,7 +194,7 @@ public class FilesRepository implements FilesDataSource {
                 }
                 try {
                     semaphore.acquire();
-                    callback.onComplete(pendingfiles);
+                    callback.onComplete(pendingFiles);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -234,7 +246,12 @@ public class FilesRepository implements FilesDataSource {
         if (localThumb.exists()) {
             callback.onComplete(localThumb);
         } else {
-            downloadThumbnail(file, callback);
+            File localFile = getLocalFile(file);
+            if (localFile.exists()) {
+                callback.onComplete(localFile);
+            } else {
+                downloadThumbnail(file, callback);
+            }
         }
     }
 

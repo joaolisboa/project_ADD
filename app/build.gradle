@@ -55,6 +55,16 @@ dependencies {
     compile "com.google.firebase:firebase-database:$rootProject.firebaseVersion"
     compile "com.google.android.gms:play-services-auth:$rootProject.firebaseVersion"
 
+    compile('com.google.apis:google-api-services-gmail:v1-rev62-1.22.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude group: 'com.google.code.findbugs'
+    }
+
+    compile('com.google.api-client:google-api-client-android:1.22.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude group: 'com.google.code.findbugs'
+    }
+
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.github.bmelnychuk:atv:1.2.9'
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'

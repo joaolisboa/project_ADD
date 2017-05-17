@@ -1,6 +1,9 @@
 package ipleiria.project.add.view.google_sign_in;
 
+import android.content.ContentProviderOperation;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -21,6 +24,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.ArrayList;
+
+import ipleiria.project.add.Manifest;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.data.source.UserService;
 
@@ -76,7 +82,7 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
         checkForCachedCredentials();
     }
 
-    private void checkForCachedCredentials(){
+    private void checkForCachedCredentials() {
         OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(googleApiClient);
         if (opr.isDone()) {
             // If the user's cached credentials are valid, the OptionalPendingResult will be "done"
@@ -154,7 +160,7 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
             GoogleSignInAccount acct = result.getSignInAccount();
             if (firebaseAuth.getCurrentUser() != null && firebaseAuth.getCurrentUser().isAnonymous()) {
                 firebaseAuthWithGoogle(acct);
-            }else{
+            } else {
                 AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
                 firebaseAuth.getCurrentUser().reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -172,6 +178,44 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
             // Signed out, show unauthenticated UI.
             signInView.showUnauthenticatedUser();
         }
+    }
+
+    @Override
+    public void createContactAlias() {
+        String DisplayName = "Add ESTG";
+
+        String[] emailAux = firebaseAuth.getCurrentUser().getEmail().split("@");
+        String emailAlias = emailAux[0] + "+addestg@" + emailAux[1];
+
+        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+
+        ops.add(ContentProviderOperation.newInsert(
+                ContactsContract.RawContacts.CONTENT_URI)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                .build());
+
+        //------------------------------------------------------ Names
+        ops.add(ContentProviderOperation.newInsert(
+                ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                .withValue(ContactsContract.Data.MIMETYPE,
+                        ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                .withValue(
+                        ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                        DisplayName).build());
+
+
+        //------------------------------------------------------ Email
+        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                .withValue(ContactsContract.Data.MIMETYPE,
+                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                .withValue(ContactsContract.CommonDataKinds.Email.DATA, emailAlias)
+                .withValue(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+                .build());
+
+        signInView.requestNewContactCreation(ops);
     }
 
     // user is anonymous and upgrading to a Google Account
@@ -192,6 +236,7 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
                             // so we need to log in with the credential
                             // instead of linking with the anonymous account
                             firebaseAuth.signInWithCredential(credential);
+                            signInView.requestContactsPermission();
                             // TODO: 07-May-17 delete previous anon user and his old data
                         } else {
                             Log.d(TAG, firebaseAuth.getCurrentUser().getUid());
