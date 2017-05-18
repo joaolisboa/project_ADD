@@ -34,10 +34,16 @@ public class ItemsContract {
 
         void showNoDeletedItems();
 
-        void finish();
+        void showFilesAddedMessage();
+
+        void showItemAddedMessage();
+
+        void showItemEditedMessage();
     }
 
     interface Presenter extends BasePresenter {
+
+        void onResult(int requestCode, int resultCode, Intent data);
 
         void showFilteredItems();
 

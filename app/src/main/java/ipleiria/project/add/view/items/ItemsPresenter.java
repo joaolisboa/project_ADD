@@ -9,7 +9,6 @@ import android.util.Log;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -23,7 +22,10 @@ import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 
+import static android.app.Activity.RESULT_OK;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
+import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
+import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ITEM_EDIT;
 
 
 /**
@@ -186,6 +188,18 @@ public class ItemsPresenter implements ItemsContract.Presenter {
     }
 
     @Override
+    public void onResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == RESULT_OK){
+            if(requestCode == REQUEST_ADD_NEW_ITEM){
+                itemsView.showItemAddedMessage();
+            }
+            if(requestCode == REQUEST_ITEM_EDIT){
+                itemsView.showItemEditedMessage();
+            }
+        }
+    }
+
+    @Override
     public void showFilteredItems() {
         if (currentFiltering == 0) {
             if (!listingDeleted) {
@@ -300,7 +314,9 @@ public class ItemsPresenter implements ItemsContract.Presenter {
             itemsView.openItemDetails(item, listingDeleted);
         } else {
             itemsRepository.addFilesToItem(item, receivedFiles);
-            itemsView.finish();
+            itemsView.showFilesAddedMessage();
+            action = null;
+            //itemsView.finish();
         }
     }
 

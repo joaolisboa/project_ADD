@@ -167,7 +167,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
             item.setCriteria(selectedCriteria);
             itemsRepository.saveItem(item, false);
         }
-        addEditView.finish();
+        addEditView.finishAction();
     }
 
     @Override

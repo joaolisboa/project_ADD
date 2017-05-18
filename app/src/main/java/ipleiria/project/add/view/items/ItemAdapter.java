@@ -3,6 +3,7 @@ package ipleiria.project.add.view.items;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.R;
@@ -28,14 +30,18 @@ public class ItemAdapter extends BaseSwipeAdapter {
     private String action;
     private ItemsFragment.ItemActionListener actionsListener;
 
-    ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listingDeleted, String action){
+    private List<SwipeLayout> swipeLayouts;
+
+    ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listingDeleted, String action) {
         setList(listItems);
         this.actionsListener = actionsListener;
         this.listingDeleted = listingDeleted;
         this.action = action;
+
+        this.swipeLayouts = new LinkedList<>();
     }
 
-    private void setList(List<Item> items){
+    private void setList(List<Item> items) {
         listItems = items;
     }
 
@@ -52,58 +58,11 @@ public class ItemAdapter extends BaseSwipeAdapter {
     @Override
     public View generateView(final int position, ViewGroup parent) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.items_adapter_item, null);
-        Context context = parent.getContext();
 
         final SwipeLayout swipeLayout = (SwipeLayout) itemView.findViewById(R.id.bottom_layout_actions);
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
         swipeLayout.setClickToClose(true);
-        if (action != null) {
-            swipeLayout.setSwipeEnabled(false);
-        }
-
-        FrameLayout itemLayout = (FrameLayout) itemView.findViewById(R.id.item_view);
-        itemLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                actionsListener.onItemClick((Item) getItem(position));
-            }
-        });
-
-        ImageView button1 = (ImageView) itemView.findViewById(R.id.action_1);
-        ImageView button2 = (ImageView) itemView.findViewById(R.id.action_2);
-
-
-        if (!listingDeleted) {
-            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_white));
-            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_white));
-        } else {
-            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_white));
-            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_forever_white));
-        }
-
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!listingDeleted) {
-                    actionsListener.onEditItem((Item) getItem(position));
-                }else{
-                    actionsListener.onRestoreItem((Item) getItem(position));
-                }
-                closeItem(position);
-            }
-        });
-
-        button2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!listingDeleted) {
-                    actionsListener.onDeleteItem((Item) getItem(position));
-                }else{
-                    actionsListener.onPermanentDeleteItem((Item) getItem(position));
-                }
-                closeItem(position);
-            }
-        });
+        swipeLayout.setSwipeEnabled(action == null);
 
         return itemView;
     }
@@ -114,6 +73,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
     @Override
     public void fillValues(final int position, View convertView) {
         Item item = (Item) getItem(position);
+        Context context = convertView.getContext();
 
         TextView itemName = (TextView) convertView.findViewById(R.id.title_text_view);
         TextView itemCriteria = (TextView) convertView.findViewById(R.id.category_text_view);
@@ -127,6 +87,49 @@ public class ItemAdapter extends BaseSwipeAdapter {
         } else {
             numFilesView.setText(convertView.getContext().getString(R.string.num_deleted_files, item.getDeletedFiles().size()));
         }
+
+        FrameLayout itemLayout = (FrameLayout) convertView.findViewById(R.id.item_view);
+        itemLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionsListener.onItemClick((Item) getItem(position));
+            }
+        });
+
+        ImageView button1 = (ImageView) convertView.findViewById(R.id.action_1);
+        ImageView button2 = (ImageView) convertView.findViewById(R.id.action_2);
+
+        if (!listingDeleted) {
+            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_white));
+            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_white));
+        } else {
+            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_white));
+            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_forever_white));
+        }
+
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!listingDeleted) {
+                    actionsListener.onEditItem((Item) getItem(position));
+                } else {
+                    actionsListener.onRestoreItem((Item) getItem(position));
+                }
+                closeItem(position);
+            }
+        });
+
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!listingDeleted) {
+                    actionsListener.onDeleteItem((Item) getItem(position));
+                } else {
+                    actionsListener.onPermanentDeleteItem((Item) getItem(position));
+                }
+                closeItem(position);
+            }
+        });
     }
 
     @Override
@@ -146,9 +149,9 @@ public class ItemAdapter extends BaseSwipeAdapter {
 
     void onItemAdded(Item item) {
         int pos = listItems.indexOf(item);
-        if(pos < 0){
+        if (pos < 0) {
             listItems.add(item);
-        }else{
+        } else {
             listItems.remove(pos);
             listItems.add(pos, item);
         }
@@ -158,5 +161,9 @@ public class ItemAdapter extends BaseSwipeAdapter {
     void onItemRemoved(Item deletedItem) {
         listItems.remove(deletedItem);
         notifyDataSetChanged();
+    }
+
+    public void setAction(String action) {
+        this.action = action;
     }
 }

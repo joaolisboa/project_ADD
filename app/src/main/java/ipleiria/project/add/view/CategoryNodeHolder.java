@@ -1,4 +1,4 @@
-package ipleiria.project.add;
+package ipleiria.project.add.view;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.unnamed.b.atv.model.TreeNode;
 
+import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Category;
 
 /**

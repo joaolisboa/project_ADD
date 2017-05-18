@@ -27,7 +27,7 @@ import com.unnamed.b.atv.view.AndroidTreeView;
 
 import java.util.List;
 
-import ipleiria.project.add.CategoryNodeHolder;
+import ipleiria.project.add.view.CategoryNodeHolder;
 import ipleiria.project.add.R;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.data.model.Area;
@@ -160,13 +160,14 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     }
 
     @Override
-    public void finish() {
+    public void finishAction() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(descriptionEditText.getWindowToken(), 0);
-        if(addEditPresenter.getIntentAction() != null){
+        /*if(addEditPresenter.getIntentAction() != null){
             Intent intent = new Intent(getContext(), ItemsActivity.class);
             startActivity(intent);
-        }
+        }*/
+        getActivity().setResult(Activity.RESULT_OK);
         getActivity().finish();
     }
 

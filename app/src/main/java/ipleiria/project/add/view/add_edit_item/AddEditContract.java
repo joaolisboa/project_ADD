@@ -33,7 +33,7 @@ public class AddEditContract {
 
         String getDescriptionText();
 
-        void finish();
+        void finishAction();
 
         void showEmptyDescriptionError();
 

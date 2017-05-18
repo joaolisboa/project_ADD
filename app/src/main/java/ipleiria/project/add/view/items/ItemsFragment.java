@@ -2,17 +2,27 @@ package ipleiria.project.add.view.items;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
@@ -28,6 +38,7 @@ import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.view.add_edit_item.AddEditActivity;
 
+import static android.app.Activity.RESULT_OK;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM_KEY;
@@ -40,7 +51,10 @@ import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
 
 public class ItemsFragment extends Fragment implements ItemsContract.View{
 
-    private static final int FINISH_ON_NEW_ITEM = 9101;
+    public static final int REQUEST_ADD_NEW_ITEM = 2091;
+    public static  final int REQUEST_ITEM_EDIT = 2092;
+
+
     private ItemsContract.Presenter itemsPresenter;
 
     private ItemAdapter listAdapter;
@@ -98,7 +112,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         });
 
         // Set up floating action button
-        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
+        final FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
         fab.setImageResource(R.drawable.add_white);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,12 +129,14 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
                 ContextCompat.getColor(getActivity(), R.color.colorAccent),
                 ContextCompat.getColor(getActivity(), R.color.colorPrimaryDark)
         );
+
         // Set the scrolling view in the custom SwipeRefreshLayout.
         swipeRefreshLayout.setScrollUpChild(listView);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 itemsPresenter.showFilteredItems();
+                setLoadingIndicator(false);
             }
         });
 
@@ -223,8 +239,28 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     }
 
     @Override
-    public void finish() {
-        getActivity().finish();
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        itemsPresenter.onResult(requestCode, resultCode, data);
+        listAdapter.setAction(null);
+    }
+
+    @Override
+    public void showItemEditedMessage() {
+        showMessage("Item saved");
+    }
+
+    @Override
+    public void showItemAddedMessage(){
+        showMessage("New item saved");
+    }
+
+    @Override
+    public void showFilesAddedMessage() {
+        showMessage("Files saved to item");
+    }
+
+    private void showMessage(String message){
+        Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
     }
 
     private void showNoItemsViews(String mainText) {
@@ -239,10 +275,9 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
             Intent intent = getActivity().getIntent();
             // change intent to use a different activity, keeping extras and action
             intent.setComponent(new ComponentName(getContext(), AddEditActivity.class));
-            startActivity(intent);
-            finish();
+            startActivityForResult(intent, REQUEST_ADD_NEW_ITEM);
         }else{
-            startActivity(new Intent(getContext(), AddEditActivity.class));
+            startActivityForResult(new Intent(getContext(), AddEditActivity.class), REQUEST_ADD_NEW_ITEM);
         }
     }
 
@@ -271,8 +306,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
             Intent intent = new Intent(getContext(), AddEditActivity.class);
             intent.setAction(EDITING_ITEM);
             intent.putExtra(EDITING_ITEM_KEY, editedItem.getDbKey());
-            startActivity(intent);
-            finish();
+            startActivityForResult(intent, REQUEST_ITEM_EDIT);
         }
 
         @Override
@@ -293,6 +327,5 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
 
         void onRestoreItem(Item restoredItem);
     }
-
 
 }
