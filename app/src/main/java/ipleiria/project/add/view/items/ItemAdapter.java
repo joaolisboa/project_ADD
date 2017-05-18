@@ -27,16 +27,16 @@ public class ItemAdapter extends BaseSwipeAdapter {
 
     private List<Item> listItems;
     private boolean listingDeleted;
-    private String action;
+    private boolean enableSwipe;
     private ItemsFragment.ItemActionListener actionsListener;
 
     private List<SwipeLayout> swipeLayouts;
 
-    ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listingDeleted, String action) {
+    ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listingDeleted, boolean enableSwipe) {
         setList(listItems);
         this.actionsListener = actionsListener;
         this.listingDeleted = listingDeleted;
-        this.action = action;
+        this.enableSwipe = enableSwipe;
 
         this.swipeLayouts = new LinkedList<>();
     }
@@ -58,11 +58,23 @@ public class ItemAdapter extends BaseSwipeAdapter {
     @Override
     public View generateView(final int position, ViewGroup parent) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.items_adapter_item, null);
+        Context context = itemView.getContext();
 
-        final SwipeLayout swipeLayout = (SwipeLayout) itemView.findViewById(R.id.bottom_layout_actions);
+        SwipeLayout swipeLayout = (SwipeLayout) itemView.findViewById(R.id.bottom_layout_actions);
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
         swipeLayout.setClickToClose(true);
-        swipeLayout.setSwipeEnabled(action == null);
+        swipeLayout.setSwipeEnabled(enableSwipe);
+
+        ImageView button1 = (ImageView) itemView.findViewById(R.id.action_1);
+        ImageView button2 = (ImageView) itemView.findViewById(R.id.action_2);
+
+        if (!listingDeleted) {
+            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_white));
+            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_white));
+        } else {
+            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_white));
+            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_forever_white));
+        }
 
         return itemView;
     }
@@ -73,14 +85,17 @@ public class ItemAdapter extends BaseSwipeAdapter {
     @Override
     public void fillValues(final int position, View convertView) {
         Item item = (Item) getItem(position);
-        Context context = convertView.getContext();
+
+        SwipeLayout swipeLayout = (SwipeLayout) convertView.findViewById(R.id.bottom_layout_actions);
+        swipeLayout.setSwipeEnabled(enableSwipe);
 
         TextView itemName = (TextView) convertView.findViewById(R.id.title_text_view);
         TextView itemCriteria = (TextView) convertView.findViewById(R.id.category_text_view);
-        TextView numFilesView = (TextView) convertView.findViewById(R.id.num_files);
 
         itemName.setText(item.getDescription());
         itemCriteria.setText(item.getCategoryReference() + ". " + item.getCriteria().getName());
+
+        TextView numFilesView = (TextView) convertView.findViewById(R.id.num_files);
 
         if (!listingDeleted) {
             numFilesView.setText(convertView.getContext().getString(R.string.num_files, item.getFiles().size()));
@@ -98,14 +113,6 @@ public class ItemAdapter extends BaseSwipeAdapter {
 
         ImageView button1 = (ImageView) convertView.findViewById(R.id.action_1);
         ImageView button2 = (ImageView) convertView.findViewById(R.id.action_2);
-
-        if (!listingDeleted) {
-            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_white));
-            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_white));
-        } else {
-            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_white));
-            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_forever_white));
-        }
 
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,7 +170,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
         notifyDataSetChanged();
     }
 
-    public void setAction(String action) {
-        this.action = action;
+    public void enableSwipe(boolean enableSwipe) {
+        this.enableSwipe = enableSwipe;
     }
 }

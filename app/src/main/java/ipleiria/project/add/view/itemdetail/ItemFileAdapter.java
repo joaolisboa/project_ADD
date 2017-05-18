@@ -96,13 +96,26 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
         swipeLayout.setClickToClose(true);
 
+        ImageView button1 = (ImageView) itemView.findViewById(R.id.action_2);
+        ImageView button2 = (ImageView) itemView.findViewById(R.id.action_3);
+
+        ImageView buttonShare = (ImageView) itemView.findViewById(R.id.action_1);
+        buttonShare.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.share_white));
+
+        if (!listingDeleted) {
+            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_white));
+            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_white));
+        } else {
+            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_white));
+            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_forever_white));
+        }
+
         return itemView;
     }
 
     @Override
     public void fillValues(final int position, View convertView) {
         ItemFile file = (ItemFile) getItem(position);
-        Context context = convertView.getContext();
 
         TextView filename = (TextView) convertView.findViewById(R.id.filename);
         filename.setText(file.getFilename());
@@ -132,7 +145,6 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         });
 
         ImageView buttonShare = (ImageView) convertView.findViewById(R.id.action_1);
-        buttonShare.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.share_white));
         buttonShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -143,14 +155,6 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
 
         ImageView button1 = (ImageView) convertView.findViewById(R.id.action_2);
         ImageView button2 = (ImageView) convertView.findViewById(R.id.action_3);
-
-        if (!listingDeleted) {
-            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.edit_white));
-            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_white));
-        } else {
-            button1.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.restore_white));
-            button2.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.delete_forever_white));
-        }
 
         button1.setOnClickListener(new View.OnClickListener() {
             @Override

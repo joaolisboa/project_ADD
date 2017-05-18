@@ -25,6 +25,7 @@ import ipleiria.project.add.data.source.database.ItemsRepository;
 import static android.app.Activity.RESULT_OK;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
+import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM_CHANGE;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ITEM_EDIT;
 
 
@@ -193,6 +194,11 @@ public class ItemsPresenter implements ItemsContract.Presenter {
             if(requestCode == REQUEST_ADD_NEW_ITEM){
                 itemsView.showItemAddedMessage();
             }
+            if(requestCode == REQUEST_ADD_NEW_ITEM_CHANGE){
+                itemsView.showItemAddedMessage();
+                action = null;
+                itemsView.enableListSwipe(true);
+            }
             if(requestCode == REQUEST_ITEM_EDIT){
                 itemsView.showItemEditedMessage();
             }
@@ -316,7 +322,7 @@ public class ItemsPresenter implements ItemsContract.Presenter {
             itemsRepository.addFilesToItem(item, receivedFiles);
             itemsView.showFilesAddedMessage();
             action = null;
-            //itemsView.finish();
+            itemsView.enableListSwipe(true);
         }
     }
 

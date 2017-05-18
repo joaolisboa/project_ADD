@@ -9,6 +9,7 @@ import ipleiria.project.add.BasePresenter;
 import ipleiria.project.add.BaseView;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.model.ItemFile;
 
 /**
  * Created by Lisboa on 04-May-17.
@@ -39,6 +40,8 @@ public class ItemsContract {
         void showItemAddedMessage();
 
         void showItemEditedMessage();
+
+        void enableListSwipe(boolean enable);
     }
 
     interface Presenter extends BasePresenter {
