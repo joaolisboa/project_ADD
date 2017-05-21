@@ -42,23 +42,28 @@ public class ItemsRepository implements ItemsDataSource {
     /**
      * This variable has package local visibility so it can be accessed from tests.
      */
-    List<Item> localItems;
-    List<Item> localDeletedItems;
-
-    /**
-     * Marks the cache as invalid, to force an update the next time data is requested. This variable
-     * has package local visibility so it can be accessed from tests.
-     */
-    boolean cacheIsDirty = false;
+    private List<Item> localItems;
+    private List<Item> localDeletedItems;
+    // this list will contain all tags from all tags to provide autocomplete suggestions
+    private List<String> tags;
 
     // Prevent direct instantiation.
     private ItemsRepository() {
         this.localItems = new LinkedList<>();
         this.localDeletedItems = new LinkedList<>();
+        this.tags = new LinkedList<>();
+
+        // test tags
+        tags.add("projeto");
+        tags.add("exemplo");
+        tags.add("visual");
+        tags.add("relatorio");
+        tags.add("report");
+        tags.add("anexos");
+        tags.add("programaçao");
+        tags.add("design");
 
         this.filesRepository = FilesRepository.getInstance();
-
-        initUser(UserService.getInstance().getUser().getUid());
     }
 
     public void initUser(String userUid) {
@@ -147,8 +152,12 @@ public class ItemsRepository implements ItemsDataSource {
         int dimension = Integer.valueOf(s[0]) - 1;
         int area = Integer.valueOf(s[1]) - 1;
         int criteria = Integer.valueOf(s[2]) - 1;
-
         newItem.setCriteria(CategoryRepository.getInstance().getCriteria(dimension, area, criteria));
+
+        for(DataSnapshot tagSnapshot: itemSnapshot.child("tags").getChildren()){
+            newItem.addTag(tagSnapshot.getValue(String.class));
+        }
+
         for (DataSnapshot fileSnapshot : itemSnapshot.child("files").getChildren()) {
             ItemFile file = fileSnapshot.getValue(ItemFile.class);
             file.setDbKey(fileSnapshot.getKey());
@@ -287,11 +296,6 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     @Override
-    public void refreshItems() {
-
-    }
-
-    @Override
     public void addFilesToItem(Item item, List<Uri> receivedFiles) {
         for (Uri uri : receivedFiles) {
             ItemFile file = new ItemFile(UriHelper.getFileName(Application.getAppContext(), uri));
@@ -301,9 +305,24 @@ public class ItemsRepository implements ItemsDataSource {
         saveItem(item, false);
     }
 
+    @Override
+    public void addTag(String tag) {
+        tags.add(tag);
+    }
+
+    @Override
+    public void addTags(List<String> tags) {
+        this.tags.addAll(tags);
+    }
+
+    @Override
+    public List<String> getTags() {
+        return tags;
+    }
+
     void saveDeletedItemToDatabase(Item item){
         DatabaseReference deletedItemRef = getDeletedItemsReference();
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> values = new HashMap<>();
         if (item.getDbKey() == null || item.getDbKey().isEmpty()) {
             deletedItemRef = deletedItemRef.push();
             item.setDbKey(deletedItemRef.getKey());
@@ -313,10 +332,11 @@ public class ItemsRepository implements ItemsDataSource {
         if (!item.getDeletedFiles().isEmpty()) {
             System.out.println("writing deleted files: " + Arrays.toString(item.getDeletedFiles().toArray()));
             Map<String, Object> deletedFileList = getFileList(deletedItemRef.child("files"), item.getDeletedFiles());
-            map.put("files", deletedFileList);
-            map.put("reference", item.getCategoryReference());
-            map.put("description", item.getDescription());
-            deletedItemRef.setValue(map);
+            values.put("files", deletedFileList);
+            values.put("reference", item.getCategoryReference());
+            values.put("description", item.getDescription());
+            values.put("tags", item.getTags());
+            deletedItemRef.setValue(values);
         } else {
             // no deleted files means we can delete the whole item in the deleted-items
             deletedItemRef.removeValue(new DatabaseReference.CompletionListener() {
@@ -348,6 +368,7 @@ public class ItemsRepository implements ItemsDataSource {
             }
             values.put("reference", item.getCategoryReference());
             values.put("description", item.getDescription());
+            values.put("tags", item.getTags());
             itemRef.setValue(values);
         }
     }

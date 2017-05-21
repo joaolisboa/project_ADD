@@ -29,5 +29,5 @@ ext {
 
     // App dependencies
     supportLibraryVersion = '25.3.1'
-    firebaseVersion='10.2.4'
+    firebaseVersion='10.2.6'
 }

@@ -1,5 +1,7 @@
 package ipleiria.project.add.data.source.database;
 
+import java.util.List;
+
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 
@@ -17,4 +19,9 @@ public interface ItemFilesDataSource {
 
     void restoreItemFile(ItemFile file);
 
+    List<String> getTagSuggestions();
+
+    void addTag(String tag);
+
+    void removeTag(String tag);
 }

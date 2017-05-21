@@ -10,6 +10,7 @@ import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.database.ItemFilesRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 
 /**
  * Created by Lisboa on 10-May-17.
@@ -47,6 +48,7 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
         List<ItemFile> files = (!listingDeleted ? item.getFiles() : item.getDeletedFiles());
         processFiles(files);
+        processTags(item.getTags());
         itemDetailView.showItemInfo(item);
 
         // android doesn't seem to ever delete temp file or files with deleteOnExit()
@@ -57,6 +59,14 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
         if (sharedFile != null && sharedFile.exists() && sharedFile.getName().startsWith("tmp_")) {
             sharedFile.delete();
             sharedFile = null;
+        }
+    }
+
+    private void processTags(List<String> tags) {
+        if(listingDeleted){
+            itemDetailView.showNoTags();
+        }else {
+            itemDetailView.showTags(tags, itemFilesRepository.getTagSuggestions());
         }
     }
 
@@ -128,6 +138,16 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
             }
         });
 
+    }
+
+    @Override
+    public void addTag(String tag) {
+        itemFilesRepository.addTag(tag);
+    }
+
+    @Override
+    public void removeTag(String tag) {
+        itemFilesRepository.removeTag(tag);
     }
 
     @Override

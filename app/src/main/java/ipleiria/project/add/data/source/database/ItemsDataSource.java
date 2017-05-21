@@ -47,7 +47,11 @@ public interface ItemsDataSource {
 
     void restoreItem(@NonNull Item item);
 
-    void refreshItems();
-
     void addFilesToItem(Item item, List<Uri> receivedFiles);
+
+    void addTag(String tag);
+
+    void addTags(List<String> tags);
+
+    List<String> getTags();
 }

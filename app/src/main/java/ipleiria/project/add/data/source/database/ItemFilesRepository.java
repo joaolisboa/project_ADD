@@ -148,4 +148,34 @@ public class ItemFilesRepository implements ItemFilesDataSource {
 
         itemDeletedFilesReference.child(file.getDbKey()).removeValue();
     }
+
+    @Override
+    public List<String> getTagSuggestions() {
+        return itemsRepository.getTags();
+    }
+
+    @Override
+    public void addTag(String tag) {
+        if(!item.getTags().contains(tag)){
+            item.addTag(tag);
+            if(itemsRepository.getDeletedItem(item.getDbKey()) != null){
+                itemsRepository.saveDeletedItemToDatabase(item);
+            }
+            itemsRepository.saveItemToDatabase(item);
+        }
+        if(!itemsRepository.getTags().contains(tag)){
+            itemsRepository.addTag(tag);
+        }
+    }
+
+    @Override
+    public void removeTag(String tag) {
+        if(item.getTags().contains(tag)){
+            item.removeTag(tag);
+            if(itemsRepository.getDeletedItem(item.getDbKey()) != null){
+                itemsRepository.saveDeletedItemToDatabase(item);
+            }
+            itemsRepository.saveItemToDatabase(item);
+        }
+    }
 }

@@ -38,6 +38,10 @@ public class ItemDetailContract {
         void requestThumbnail(ItemFile file);
 
         void openFileShare(String filePath);
+
+        void showTags(List<String> tags, List<String> suggestions);
+
+        void showNoTags();
     }
 
     interface Presenter extends BasePresenter{
@@ -55,5 +59,9 @@ public class ItemDetailContract {
         void onItemClicked(ItemFile clickedFile);
 
         void createThumbnail(ItemFile file);
+
+        void addTag(String tag);
+
+        void removeTag(String tag);
     }
 }

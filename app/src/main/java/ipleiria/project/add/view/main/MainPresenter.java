@@ -50,6 +50,7 @@ import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.RequestMailsTask;
 import ipleiria.project.add.data.source.UserService;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.view.items.ItemsActivity;
 
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
@@ -128,6 +129,7 @@ class MainPresenter implements MainContract.Presenter {
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     authFlag = true;
                     UserService.getInstance().initUser(user);
+                    ItemsRepository.getInstance().initUser(user.getUid());
                     if(!user.isAnonymous()){
                         // if user is not anonymous get google credentials and fetch emails
                         checkForCachedCredentials();

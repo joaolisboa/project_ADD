@@ -12,12 +12,15 @@ public class Item {
     private List<ItemFile> files;
     private List<ItemFile> deletedFiles;
 
+    private List<String> tags;
+
     private String description;
     private Criteria criteria;
     private String dbKey;
     private int weight;
 
     public Item(){
+        tags = new LinkedList<>();
         files = new LinkedList<>();
         deletedFiles = new LinkedList<>();
         weight = 1;
@@ -26,21 +29,6 @@ public class Item {
     public Item(String description){
         this();
         this.description = description;
-    }
-
-    public Item(List<ItemFile> files, String description) {
-        this.files = files;
-        this.deletedFiles = new LinkedList<>();
-        for(ItemFile file: files){
-            file.setParent(this);
-        }
-        this.description = description;
-        weight = 1;
-    }
-
-    public Item(List<ItemFile> files, String description, Criteria criteria){
-        this(files, description);
-        this.criteria = criteria;
     }
 
     public String getDbKey() {
@@ -126,6 +114,22 @@ public class Item {
 
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    public void addTag(String tag){
+        tags.add(tag);
+    }
+
+    public void setTags(List<String> tags){
+        this.tags = tags;
+    }
+
+    public List<String> getTags(){
+        return tags;
+    }
+
+    public void removeTag(String tag) {
+        tags.remove(tag);
     }
 
     @Override

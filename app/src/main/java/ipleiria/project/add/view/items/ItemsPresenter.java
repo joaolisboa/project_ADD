@@ -248,6 +248,12 @@ public class ItemsPresenter implements ItemsContract.Presenter {
         String criteriaName = StringUtils.replaceDiacriticalMarks(item.getCriteria().getName().toLowerCase());
         String itemDescription = StringUtils.replaceDiacriticalMarks(item.getDescription().toLowerCase());
 
+        for(String tag: item.getTags()){
+            if(tag.contains(query)){
+                return true;
+            }
+        }
+
         return criteriaName.contains(query) || itemDescription.contains(query);
     }
 

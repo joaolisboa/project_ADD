@@ -80,7 +80,8 @@
                 android:value=".view.settings.SettingsActivity"/>
         </activity>
         <activity android:name=".view.itemdetail.ItemDetailActivity"
-            android:parentActivityName=".view.items.ItemsActivity">
+            android:parentActivityName=".view.items.ItemsActivity"
+            android:windowSoftInputMode="stateHidden|adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.items.ItemsActivity"/>
