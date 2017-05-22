@@ -17,6 +17,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
@@ -58,7 +59,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
 
     private ProgressDialog progressDialog;
     private TextView filesHeader;
-    private TextView tagsHeader;
     private ChipsInput chipsInput;
 
     public ItemDetailFragment() {
@@ -82,7 +82,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         View root = inflater.inflate(R.layout.item_detail_frag, container, false);
 
         filesHeader = (TextView) root.findViewById(R.id.file_label_subheader);
-        tagsHeader = (TextView) root.findViewById(R.id.tags_label);
         chipsInput = (ChipsInput) root.findViewById(R.id.chips_input);
 
         // Set up files list
@@ -157,6 +156,7 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         }
         chipsInput.setFilterableList(suggestionChips);
         chipsInput.addChipsListener(chipsListener);
+        chipsInput.setShowChipDetailed(false);
 
         // doesn't work
         /*chipsInput.setChipValidator(new ChipsInput.ChipValidator() {
@@ -169,13 +169,11 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         });*/
 
         chipsInput.setVisibility(View.VISIBLE);
-        tagsHeader.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void showNoTags() {
         chipsInput.setVisibility(View.GONE);
-        tagsHeader.setVisibility(View.GONE);
     }
 
     @Override

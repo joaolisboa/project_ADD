@@ -1,48 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:orientation="vertical"
-    android:paddingTop="18dp"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:fillViewport="true"
     tools:context="ipleiria.project.add.view.itemdetail.ItemDetailActivity">
 
-    <TextView
-        android:id="@+id/tags_label"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:paddingStart="72dp"
-        android:text="Tags"
-        android:gravity="center"
-        android:textSize="18sp" />
-
-    <com.pchmn.materialchips.ChipsInput
-        android:id="@+id/chips_input"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="24dp"
-        android:paddingEnd="12dp"
-        app:hint="Add tags"
-        android:imeOptions="actionDone"
-        />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/file_label_subheader"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:paddingStart="72dp"
-        android:text="Files"
-        android:gravity="center"
-        android:textSize="18sp" />
+        <com.pchmn.materialchips.ChipsInput
+            android:id="@+id/chips_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:maxRows="5"
+            app:chip_hasAvatarIcon="false"
+            app:chip_deletable="true"
+            android:imeOptions="actionDone"
+            app:hint="Add tags" />
 
-    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/listview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/file_label_subheader"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:paddingStart="72dp"
+            android:text="Files"
+            android:textSize="18sp" />
 
+        <ListView
+            android:id="@+id/listview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>
