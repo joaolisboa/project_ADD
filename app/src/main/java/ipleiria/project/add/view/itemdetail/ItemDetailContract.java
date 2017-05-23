@@ -1,6 +1,8 @@
 package ipleiria.project.add.view.itemdetail;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.view.MenuItem;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -42,6 +44,8 @@ public class ItemDetailContract {
         void showTags(List<String> tags, List<String> suggestions);
 
         void showNoTags();
+
+        void openEditItemView(Item item);
     }
 
     interface Presenter extends BasePresenter{
@@ -63,5 +67,10 @@ public class ItemDetailContract {
         void addTag(String tag);
 
         void removeTag(String tag);
+
+        void onEditItemClicked();
+
+        void onResult(int requestCode, int resultCode, Intent data);
+
     }
 }

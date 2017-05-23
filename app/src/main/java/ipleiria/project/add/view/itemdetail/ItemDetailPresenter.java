@@ -1,5 +1,6 @@
 package ipleiria.project.add.view.itemdetail;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -11,6 +12,11 @@ import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.database.ItemFilesRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
+
+import static android.app.Activity.RESULT_OK;
+import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
+import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM_CHANGE;
+import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ITEM_EDIT;
 
 /**
  * Created by Lisboa on 10-May-17.
@@ -148,6 +154,21 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     @Override
     public void removeTag(String tag) {
         itemFilesRepository.removeTag(tag);
+    }
+
+    @Override
+    public void onEditItemClicked() {
+        itemDetailView.openEditItemView(item);
+    }
+
+    @Override
+    public void onResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == RESULT_OK){
+            if(requestCode == REQUEST_ITEM_EDIT){
+                itemDetailView.showItemInfo(item);
+                processTags(item.getTags());
+            }
+        }
     }
 
     @Override

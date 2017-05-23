@@ -6,25 +6,6 @@
     tools:context=".view.add_edit_item.AddEditActivity">
 
     <LinearLayout
-        android:id="@+id/title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/filename"
-            android:layout_width="match_parent"
-            android:layout_height="34dp"
-            android:layout_margin="10dp"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textColor="@android:color/primary_text_light"/>
-
-    </LinearLayout>
-
-    <View style="@style/Divider" />
-
-    <LinearLayout
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

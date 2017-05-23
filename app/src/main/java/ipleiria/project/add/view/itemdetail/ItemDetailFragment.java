@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -44,7 +45,11 @@ import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
+import ipleiria.project.add.view.add_edit_item.AddEditActivity;
 
+import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM;
+import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM_KEY;
+import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ITEM_EDIT;
 import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
 
 /**
@@ -104,6 +109,17 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        System.out.println("menu clicked");
+        switch (item.getItemId()) {
+            case R.id.action_edit:
+                itemDetailPresenter.onEditItemClicked();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         itemDetailPresenter.subscribe();
@@ -158,7 +174,7 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         chipsInput.addChipsListener(chipsListener);
         chipsInput.setShowChipDetailed(false);
 
-        // doesn't work
+        // doesn't work ?
         /*chipsInput.setChipValidator(new ChipsInput.ChipValidator() {
             @Override
             public boolean areEquals(ChipInterface chipInterface, ChipInterface chipInterface1) {
@@ -174,6 +190,15 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     @Override
     public void showNoTags() {
         chipsInput.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void openEditItemView(Item item) {
+        Intent intent = new Intent(getContext(), AddEditActivity.class);
+        intent.setAction(EDITING_ITEM);
+        intent.putExtra(EDITING_ITEM_KEY, item.getDbKey());
+        startActivityForResult(intent, REQUEST_ITEM_EDIT);
+        System.out.println("opening act");
     }
 
     @Override

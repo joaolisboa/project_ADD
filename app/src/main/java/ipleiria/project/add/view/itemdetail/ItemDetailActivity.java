@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import ipleiria.project.add.R;
@@ -49,6 +50,12 @@ public class ItemDetailActivity extends AppCompatActivity {
         new ItemDetailPresenter(itemDetailFragment, FilesRepository.getInstance(), item, listDeleted);
 
         getSupportActionBar().setTitle(item.getDescription());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.item_detail_menu, menu);
+        return true;
     }
 
     @Override
