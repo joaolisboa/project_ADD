@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -36,6 +37,7 @@ import java.util.List;
 
 import ipleiria.project.add.*;
 import ipleiria.project.add.data.model.ItemFile;
+import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.view.items.ItemsActivity;
 import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
 

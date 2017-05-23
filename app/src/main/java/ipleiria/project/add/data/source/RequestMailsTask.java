@@ -26,14 +26,29 @@ import com.google.api.services.gmail.model.MessagePartBody;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.sql.DataSource;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.ItemFile;
@@ -55,23 +70,23 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
     private String userEmail;
 
     public RequestMailsTask(Gmail gmailService, FilesRepository filesRepository,
-                            String userEmail, MailCallback callback){
+                            String userEmail, MailCallback callback) {
         this.gmailService = gmailService;
         this.filesRepository = filesRepository;
         this.callback = callback;
         this.userEmail = userEmail;
     }
 
-    public interface MailCallback{
+    public interface MailCallback {
 
         void onComplete(List<ItemFile> pendingFiles);
 
     }
 
     @Override
-    protected void onPostExecute(List<ItemFile> pendingFiles){
+    protected void onPostExecute(List<ItemFile> pendingFiles) {
         super.onPostExecute(pendingFiles);
-        if(!pendingFiles.isEmpty()){
+        if (!pendingFiles.isEmpty()) {
             callback.onComplete(pendingFiles);
         }
     }
@@ -82,14 +97,28 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
         List<ItemFile> attachments = new ArrayList<>();
 
         String[] emailAux = userEmail.split("@");
-        String email = emailAux[0]+"+addestg@"+emailAux[1];
+        String email = emailAux[0] + "+addestg@" + emailAux[1];
 
         try {
             ListMessagesResponse listResponse =
-                    gmailService.users().messages().list(user).setQ("to:"+email).execute();
+                    gmailService.users().messages().list(user).setQ("to:" + email).execute();
             System.out.println(listResponse.getMessages());
             for (int i = 0; i < listResponse.size(); i++) {
                 Message m = gmailService.users().messages().get(user, listResponse.getMessages().get(i).getId()).execute();
+
+                /* Message message = gmailService.users().messages().get(user, listResponse.getMessages().get(i).getId()).setFormat("raw").execute();
+                try {
+                    byte[] emailBytes = Base64.decodeBase64(message.getRaw());
+
+                    Properties props = new Properties();
+                    Session session = Session.getDefaultInstance(props, null);
+                    MimeMessage eml = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
+                    File emlFile = new File(Application.getAppContext().getFilesDir(), "test.eml");
+                    eml.writeTo(new FileOutputStream(emlFile));
+
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                }*/
 
                 List<MessagePart> parts = m.getPayload().getParts();
                 for (MessagePart part : parts) {

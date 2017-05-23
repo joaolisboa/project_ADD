@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="android-mail-1.6.0-rc1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.sun.mail/android-mail/1.6.0-rc1/cdd74c407c746ae4274cd312ee12ff3b58529f5e/android-mail-1.6.0-rc1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.sun.mail/android-mail/1.6.0-rc1/86c7dd685989d90f61c6b3bf5bc2f9617f4eecef/android-mail-1.6.0-rc1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
