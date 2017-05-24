@@ -18,7 +18,7 @@ public interface FilesDataSource {
 
     String getRelativePath(File file);
 
-    void getRemotePendingFiles(final FilesRepository.BaseCallback<List<ItemFile>> callback);
+    void getRemotePendingFiles(final FilesRepository.ServiceCallback<List<ItemFile>> callback);
 
     void saveFile(ItemFile newFile, Uri uri);
 

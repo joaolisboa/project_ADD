@@ -42,6 +42,8 @@ public class ItemsContract {
         void showItemEditedMessage();
 
         void enableListSwipe(boolean enable);
+
+        void setItemPoints(Item item, double finalPoints);
     }
 
     interface Presenter extends BasePresenter {

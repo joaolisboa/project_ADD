@@ -38,6 +38,10 @@ public class AddEditContract {
         void showEmptyDescriptionError();
 
         void showNoSelectedCriteriaError();
+
+        void showFloatingActionButton();
+
+        void hideFloatingActionButton();
     }
 
     interface Presenter {
@@ -48,9 +52,13 @@ public class AddEditContract {
 
         void selectedCriteria(Criteria criteria);
 
-        void finishAction();
+        void setDescription(String description);
 
-        String getIntentAction();
+        void finishAction();
+        
+        void verifyInput();
+
+        void setWeight(String weight);
     }
 
 }

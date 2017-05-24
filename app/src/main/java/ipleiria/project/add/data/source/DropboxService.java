@@ -81,7 +81,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
     }
 
     @Override
-    public void getMetadata(String path, final FilesRepository.BaseCallback callback) {
+    public void getMetadata(String path, final FilesRepository.Callback callback) {
         new DropboxListFolder(DropboxClientFactory.getClient(), new DropboxCallback<ListFolderResult>() {
             @Override
             public void onComplete(ListFolderResult result) {
@@ -91,6 +91,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
             @Override
             public void onError(Exception e) {
                 Log.d(TAG, e.getMessage(), e);
+                callback.onError(e);
             }
         }).execute(path);
     }

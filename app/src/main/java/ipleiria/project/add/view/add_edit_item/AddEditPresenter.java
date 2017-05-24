@@ -42,11 +42,13 @@ public class AddEditPresenter implements AddEditContract.Presenter {
     private String intentAction;
 
     private Criteria selectedCriteria;
+    private String description;
+    private long weight;
     private Item editingItem;
 
     private List<Uri> receivedFiles;
 
-    public AddEditPresenter(@NonNull AddEditContract.View addEditView, @NonNull ItemsRepository itemsRepository) {
+    AddEditPresenter(@NonNull AddEditContract.View addEditView, @NonNull ItemsRepository itemsRepository) {
         this.itemsRepository = itemsRepository;
         this.categoryRepository = CategoryRepository.getInstance();
 
@@ -103,6 +105,9 @@ public class AddEditPresenter implements AddEditContract.Presenter {
                     editingItem = itemsRepository.getItem(itemDbKey);
                     selectedCriteria = editingItem.getCriteria();
                     addEditView.setItemInfo(editingItem);
+                    // fab will show by default only if editing item
+                    // because it already has data
+                    addEditView.showFloatingActionButton();
                     break;
             }
         }
@@ -132,19 +137,44 @@ public class AddEditPresenter implements AddEditContract.Presenter {
     public void selectedCriteria(Criteria criteria) {
         selectedCriteria = criteria;
         addEditView.setSelectedCriteria(criteria);
+        verifyInput();
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+        verifyInput();
+    }
+
+    @Override
+    public void verifyInput() {
+        if(description.isEmpty() || weight <=0 || selectedCriteria == null){
+            addEditView.hideFloatingActionButton();
+        }else{
+            addEditView.showFloatingActionButton();
+        }
+    }
+
+    @Override
+    public void setWeight(String weight) {
+        if(weight == null || weight.isEmpty()) {
+            this.weight = 1;
+        }else{
+            this.weight = Integer.valueOf(weight);
+        }
+        verifyInput();
     }
 
     @Override
     public void finishAction() {
-        String description = addEditView.getDescriptionText();
-        if(description == null || description.isEmpty()){
+        /*if(description == null || description.isEmpty()){
             addEditView.showEmptyDescriptionError();
             return;
         }
         if(selectedCriteria == null){
             addEditView.showNoSelectedCriteriaError();
             return;
-        }
+        }*/
 
         if(intentAction != null) {
             switch (intentAction) {
@@ -153,25 +183,23 @@ public class AddEditPresenter implements AddEditContract.Presenter {
                 case SENDING_PHOTO:
                     Item item = new Item(description);
                     item.setCriteria(selectedCriteria);
+                    item.setWeight(weight);
                     itemsRepository.saveItem(item, false);
                     itemsRepository.addFilesToItem(item, receivedFiles);
                     break;
 
                 case EDITING_ITEM:
-                    itemsRepository.editItem(editingItem, description, selectedCriteria);
+                    itemsRepository.editItem(editingItem, description, selectedCriteria, weight);
                     break;
             }
         }else{
             // creating new item
             Item item = new Item(description);
             item.setCriteria(selectedCriteria);
+            item.setWeight(weight);
             itemsRepository.saveItem(item, false);
         }
         addEditView.finishAction();
     }
 
-    @Override
-    public String getIntentAction() {
-        return intentAction;
-    }
 }

@@ -8,6 +8,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -146,6 +147,7 @@ public class ItemsRepository implements ItemsDataSource {
     public void addNewItem(@NonNull DataSnapshot itemSnapshot, boolean listDeleted) {
         Item newItem = new Item((String) itemSnapshot.child("description").getValue());
         newItem.setDbKey(itemSnapshot.getKey());
+        newItem.setWeight((Long) itemSnapshot.child("weight").getValue());
 
         String reference = (String) itemSnapshot.child("reference").getValue();
         String[] s = reference.split("\\.");
@@ -189,8 +191,10 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     @Override
-    public void editItem(Item item, String newDescription, Criteria newCriteria) {
+    public void editItem(Item item, String newDescription, Criteria newCriteria, long weight) {
         item.setDescription(newDescription);
+        System.out.println("new weight: " + weight);
+        item.setWeight(weight);
         if(!item.getCriteria().equals(newCriteria)){
             for(ItemFile file: item.getFiles()){
                 filesRepository.moveFile(file, newCriteria);
@@ -335,6 +339,7 @@ public class ItemsRepository implements ItemsDataSource {
             values.put("files", deletedFileList);
             values.put("reference", item.getCategoryReference());
             values.put("description", item.getDescription());
+            values.put("weight", item.getWeight());
             values.put("tags", item.getTags());
             deletedItemRef.setValue(values);
         } else {
@@ -368,6 +373,7 @@ public class ItemsRepository implements ItemsDataSource {
             }
             values.put("reference", item.getCategoryReference());
             values.put("description", item.getDescription());
+            values.put("weight", item.getWeight());
             values.put("tags", item.getTags());
             itemRef.setValue(values);
         }

@@ -37,7 +37,7 @@ public interface ItemsDataSource {
 
     void saveItem(@NonNull Item item, boolean flag);
 
-    void editItem(Item item, String description, Criteria criteria);
+    void editItem(Item item, String description, Criteria criteria, long weight);
 
     void deleteItem(@NonNull Item item);
 

@@ -255,6 +255,11 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         listAdapter.enableSwipe(enable);
     }
 
+    @Override
+    public void setItemPoints(Item item, double finalPoints) {
+        listAdapter.setItemPoints(item, finalPoints);
+    }
+
     private void showMessage(String message){
         Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
     }

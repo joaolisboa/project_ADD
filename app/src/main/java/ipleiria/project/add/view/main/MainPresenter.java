@@ -51,6 +51,7 @@ import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.RequestMailsTask;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;
+import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.view.items.ItemsActivity;
 
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
@@ -96,15 +97,33 @@ class MainPresenter implements MainContract.Presenter {
     public void subscribe() {
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
 
-        filesRepository.getRemotePendingFiles(new FilesRepository.BaseCallback<List<ItemFile>>() {
+        filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<ItemFile>>() {
             @Override
-            public void onComplete(List<ItemFile> result) {
-                for(ItemFile file: result){
-                    if(!pendingFiles.contains(file)) {
+            public void onMEOComplete(List<ItemFile> result) {
+                for (ItemFile file : result) {
+                    if (!pendingFiles.contains(file)) {
                         pendingFiles.add(file);
+                        mainView.addPendingFile(file);
                     }
                 }
-                mainView.addPendingFiles(pendingFiles);
+            }
+
+            @Override
+            public void onMEOError() {
+            }
+
+            @Override
+            public void onDropboxComplete(List<ItemFile> result) {
+                for (ItemFile file : result) {
+                    if (!pendingFiles.contains(file)) {
+                        pendingFiles.add(file);
+                        mainView.addPendingFile(file);
+                    }
+                }
+            }
+
+            @Override
+            public void onDropboxError() {
             }
         });
 
@@ -130,7 +149,7 @@ class MainPresenter implements MainContract.Presenter {
                     authFlag = true;
                     UserService.getInstance().initUser(user);
                     ItemsRepository.getInstance().initUser(user.getUid());
-                    if(!user.isAnonymous()){
+                    if (!user.isAnonymous()) {
                         // if user is not anonymous get google credentials and fetch emails
                         checkForCachedCredentials();
                     }
@@ -177,7 +196,7 @@ class MainPresenter implements MainContract.Presenter {
     public void buildGoogleClient(FragmentActivity fragment,
                                   GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener,
                                   String webClientID) {
-        if(googleApiClient == null) {
+        if (googleApiClient == null) {
             // Configure sign-in to request the user's ID, email address, and basic
             // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -190,16 +209,16 @@ class MainPresenter implements MainContract.Presenter {
                     .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                     .build();
 
-        }else if(mService != null){
+        } else if (mService != null) {
             new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
                 @Override
                 public void onComplete(List<ItemFile> result) {
-                    for(ItemFile file: result){
-                        if(!pendingFiles.contains(file)) {
+                    for (ItemFile file : result) {
+                        if (!pendingFiles.contains(file)) {
                             pendingFiles.add(file);
+                            mainView.addPendingFile(file);
                         }
                     }
-                    mainView.addPendingFiles(pendingFiles);
                 }
             }).execute();
         }
@@ -254,49 +273,64 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void onSwipeRefresh(){
-        new Thread(new Runnable() {
+    public void onSwipeRefresh() {
+        filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<ItemFile>>() {
             @Override
-            public void run() {
-                final Semaphore semaphore = new Semaphore(-1);
-                filesRepository.getRemotePendingFiles(new FilesRepository.BaseCallback<List<ItemFile>>() {
-                    @Override
-                    public void onComplete(List<ItemFile> result) {
-                        for(ItemFile file: result){
-                            if(!pendingFiles.contains(file)) {
-                                pendingFiles.add(file);
-                            }
-                        }
-                        mainView.addPendingFiles(pendingFiles);
-                        semaphore.release();
+            public void onMEOComplete(List<ItemFile> result) {
+                for (ItemFile file : result) {
+                    if (!pendingFiles.contains(file)) {
+                        pendingFiles.add(file);
+                        mainView.addPendingFile(file);
                     }
-                });
-
-                new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
-                    @Override
-                    public void onComplete(List<ItemFile> pendingFiles) {
-                        System.out.println(pendingFiles);
-                        mainView.addPendingFiles(pendingFiles);
-                        semaphore.release();
-                    }
-                }).execute();
-
-                try {
-                    mainView.setLoadingIndicator(true);
-                    semaphore.acquire();
-                    processPendingFiles();
-                    mainView.setLoadingIndicator(false);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
-        }).start();
+
+            @Override
+            public void onMEOError() {
+            }
+
+            @Override
+            public void onDropboxComplete(List<ItemFile> result) {
+                addFiles(pendingFiles);
+            }
+
+            @Override
+            public void onDropboxError() {
+            }
+        });
+
+        new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
+            @Override
+            public void onComplete(List<ItemFile> pendingFiles) {
+                if (!pendingFiles.isEmpty()) {
+                    addFiles(pendingFiles);
+                }
+            }
+        }).execute();
+
+        mainView.setLoadingIndicator(true);
+        processPendingFiles();
+        mainView.setLoadingIndicator(false);
+
+    }
+
+    private void addFiles(List<ItemFile> files){
+        for(ItemFile file: files){
+            addFile(file);
+        }
+    }
+
+    private void addFile(ItemFile file){
+        if (!pendingFiles.contains(file)) {
+            pendingFiles.add(file);
+            mainView.addPendingFile(file);
+        }
     }
 
     private void processPendingFiles() {
-        if(pendingFiles.isEmpty()){
+        if (pendingFiles.isEmpty()) {
             mainView.showNoPendingFiles();
-        }else{
+        } else {
             mainView.showPendingFiles(filesRepository.getPendingFiles());
         }
     }

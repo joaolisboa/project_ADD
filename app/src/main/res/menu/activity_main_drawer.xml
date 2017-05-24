@@ -13,9 +13,12 @@
             android:title="Trash"
             />
 
-    </group>
+        <item
+            android:id="@+id/list_items"
+            android:icon="@drawable/list"
+            android:title="Items"
+            />
 
-    <item android:title="Communicate">
-    </item>
+    </group>
 
 </menu>

@@ -34,6 +34,8 @@ public class MainContract {
         void showPendingFiles(List<ItemFile> pendingFiles);
 
         void addPendingFiles(List<ItemFile> pendingFiles);
+
+        void addPendingFile(ItemFile file);
     }
 
     interface DrawerView {

@@ -9,8 +9,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -52,6 +57,7 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     private EditText descriptionEditText;
     private TextView categoryTitle;
     private TextView filenameView;
+    private TextView scoreView;
     private ListView searchListView;
     private SearchView searchView;
     private AndroidTreeView tView;
@@ -83,8 +89,9 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
         filenameView = (TextView) root.findViewById(R.id.filename);
         searchListView = (ListView) root.findViewById(R.id.listviewSeach);
         searchView = (SearchView) root.findViewById(R.id.searchText);
+        scoreView = (EditText) root.findViewById(R.id.score_id);
 
-        final SearchManager searchManager = (SearchManager) getContext().getSystemService(SEARCH_SERVICE);
+        SearchManager searchManager = (SearchManager) getContext().getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
 
         searchListView.setOnItemClickListener(searchItemClickListener);
@@ -97,6 +104,37 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
             }
         }
 
+        scoreView.setText("1");
+        scoreView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                addEditPresenter.setWeight(scoreView.getText().toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        descriptionEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                addEditPresenter.setDescription(descriptionEditText.getText().toString());
+            }
+        });
+
         // Set up floating action button
         fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_complete);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -105,8 +143,22 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
                 addEditPresenter.finishAction();
             }
         });
+        fab.hide();
+
+        setHasOptionsMenu(true);
 
         return root;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getActivity().onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -144,8 +196,10 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
 
     @Override
     public void setItemInfo(Item item) {
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Edit Item");
         fab.setImageResource(R.drawable.ic_check_white);
         descriptionEditText.setText(item.getDescription());
+        scoreView.setText(String.valueOf(item.getWeight()));
         setSelectedCriteria(item.getCriteria());
     }
 
@@ -179,6 +233,16 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     @Override
     public void showNoSelectedCriteriaError() {
         Toast.makeText(getContext(), "No criteria selected", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showFloatingActionButton() {
+        fab.show();
+    }
+
+    @Override
+    public void hideFloatingActionButton() {
+        fab.hide();
     }
 
     @Override

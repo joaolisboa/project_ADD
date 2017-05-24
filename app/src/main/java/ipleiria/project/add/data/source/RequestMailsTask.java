@@ -86,9 +86,7 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
     @Override
     protected void onPostExecute(List<ItemFile> pendingFiles) {
         super.onPostExecute(pendingFiles);
-        if (!pendingFiles.isEmpty()) {
-            callback.onComplete(pendingFiles);
-        }
+        callback.onComplete(pendingFiles);
     }
 
     @Override

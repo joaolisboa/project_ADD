@@ -21,7 +21,9 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,9 +35,11 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.*;
+import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.view.items.ItemsActivity;
@@ -56,6 +60,9 @@ public class MainFragment extends Fragment implements MainContract.View,
 
     private MainContract.Presenter presenter;
 
+    private ListView pendingListView;
+    private ArrayAdapter<String> listAdapter;
+
     public MainFragment() {}
 
     public static MainFragment newInstance() {
@@ -65,6 +72,9 @@ public class MainFragment extends Fragment implements MainContract.View,
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        listAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1,
+                new LinkedList<String>());
     }
 
     @Nullable
@@ -73,13 +83,8 @@ public class MainFragment extends Fragment implements MainContract.View,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.main_frag, container, false);
 
-        Button listFiles = (Button) root.findViewById(R.id.list_files);
-        listFiles.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getContext(), ItemsActivity.class));
-            }
-        });
+        pendingListView = (ListView) root.findViewById(R.id.pending_list);
+        pendingListView.setAdapter(listAdapter);
 
         // Set up floating action button
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
@@ -214,12 +219,22 @@ public class MainFragment extends Fragment implements MainContract.View,
 
     @Override
     public void showPendingFiles(List<ItemFile> pendingFiles) {
-        System.out.println(pendingFiles);
+        for(ItemFile file: pendingFiles) {
+            addPendingFile(file);
+        }
+    }
+
+    @Override
+    public void addPendingFile(ItemFile file){
+        listAdapter.add(file.getFilename());
+        listAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void addPendingFiles(List<ItemFile> pendingFiles) {
-        System.out.println(pendingFiles);
+        for(ItemFile file: pendingFiles) {
+            addPendingFile(file);
+        }
     }
 
     @Override

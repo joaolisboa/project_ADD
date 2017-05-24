@@ -9,20 +9,12 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/list_files"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="listFiles"
-            android:text="List Files" />
-
-        <com.daimajia.swipe.SwipeLayout
+        <ListView
+            android:id="@+id/pending_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-
-
-        </com.daimajia.swipe.SwipeLayout>
+        </ListView>
 
     </LinearLayout>
 </ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout>

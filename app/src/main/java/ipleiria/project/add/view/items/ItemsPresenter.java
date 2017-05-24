@@ -2,6 +2,7 @@ package ipleiria.project.add.view.items;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.Application;
+import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.utils.StringUtils;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.data.model.Dimension;
@@ -75,6 +78,17 @@ public class ItemsPresenter implements ItemsContract.Presenter {
             itemsView.setLoadingIndicator(true);
             readCategories();
         }
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                FileUtils.readExcel(Application.getAppContext());
+                for(Item item: currentFilteredItems){
+                    itemsView.setItemPoints(item, item.getCriteria().getFinalPoints());
+                }
+            }
+        }, 500);
     }
 
     @Override

@@ -9,18 +9,48 @@
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/title"
+        android:paddingTop="12dp"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/item_description"
-            android:focusable="true"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:hint="Description"
-            android:inputType="textMultiLine|textCapSentences|textAutoComplete"
-            android:labelFor="@+id/item_description" />
+            android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/item_description"
+                android:focusable="true"
+                android:layout_margin="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine|textCapSentences|textAutoComplete"
+                android:labelFor="@+id/item_description"
+                android:hint="Description"/>
+        </android.support.design.widget.TextInputLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/score"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/description"
+        android:orientation="vertical">
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/score_id"
+                android:focusable="true"
+                android:layout_margin="10dp"
+                android:ems="10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:hint="Score"/>
+
+        </android.support.design.widget.TextInputLayout>
 
     </LinearLayout>
 
@@ -31,7 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/description"
+        android:layout_below="@+id/score"
         android:baselineAligned="false"
         android:orientation="vertical">
 

@@ -19,7 +19,7 @@ interface RemoteFileService<I> {
 
     void revokeToken(I callback);
 
-    void getMetadata(String path, FilesRepository.BaseCallback callback);
+    void getMetadata(String path, FilesRepository.Callback callback);
 
     void downloadTempFile(String path, String to, FilesRepository.Callback<File> callback);
 

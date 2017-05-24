@@ -17,7 +17,7 @@ public class Item {
     private String description;
     private Criteria criteria;
     private String dbKey;
-    private int weight;
+    private long weight;
 
     public Item(){
         tags = new LinkedList<>();
@@ -108,11 +108,11 @@ public class Item {
         return criteria.getRealReference();
     }
 
-    public int getWeight() {
+    public long getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(long weight) {
         this.weight = weight;
     }
 

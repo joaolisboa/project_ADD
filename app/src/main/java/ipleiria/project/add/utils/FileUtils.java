@@ -140,7 +140,7 @@ public class FileUtils {
             FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
             Sheet sheet = wb.getSheetAt(0);
 
-            double points = 0;
+            int points = 0;
             // first 4 criteria have a special case with a 10 point limit
             for(int i = 0; i < 4; i++){
                 Criteria criteria = CategoryRepository.getInstance().getCriterias().get(i);
@@ -151,16 +151,14 @@ public class FileUtils {
                 sheet.getRow(criteria.getWriteCell().y)
                             .getCell(criteria.getWriteCell().x)
                             .setCellValue(points);
-                System.out.println(sheet.getRow(criteria.getWriteCell().y)
-                        .getCell(criteria.getWriteCell().x).getNumericCellValue());
             }
             for(int i = 4; i < CategoryRepository.getInstance().getCriterias().size(); i++){
                 Criteria criteria = CategoryRepository.getInstance().getCriterias().get(i);
+
                 if(criteria.getPoints() > 0) {
-                    points = criteria.getPoints();
                     sheet.getRow(criteria.getWriteCell().y)
                             .getCell(criteria.getWriteCell().x)
-                            .setCellValue(points);
+                            .setCellValue(criteria.getPoints());
                     System.out.println(sheet.getRow(criteria.getWriteCell().y)
                             .getCell(criteria.getWriteCell().x).getNumericCellValue());
                 }
@@ -177,7 +175,9 @@ public class FileUtils {
                             .getCell(criteria.getReadCell().x)
                             .getNumericCellValue();
                     criteria.setFinalPoints(value);
-                    System.out.println("criteria: " + criteria.getRealReference() + " ;points: " + criteria.getFinalPoints());
+                    System.out.println("criteria final points: " + criteria.getFinalPoints());
+                    System.out.println("criteria: " + criteria.getRealReference() +
+                            ";points: " + criteria.getFinalPoints());
                 }
             }
 
@@ -206,7 +206,7 @@ public class FileUtils {
                 outStream.close();
                 is.close();
             } catch (IOException e) {
-                Log.e("LOCAL_FILE_COPY_OFFLIME", e.getMessage(), e);
+                Log.e("LOCAL_FILE_COPY_OFFLINE", e.getMessage(), e);
             }
         }
         return file;

@@ -55,7 +55,13 @@ public class Criteria extends Category{
     }
 
     public void addItem(Item item) {
-        items.add(item);
+        if(!items.contains(item)) {
+            items.add(item);
+        }else{
+            int pos = items.indexOf(item);
+            items.remove(pos);
+            items.add(pos, item);
+        }
     }
 
     public void deleteItem(Item item){

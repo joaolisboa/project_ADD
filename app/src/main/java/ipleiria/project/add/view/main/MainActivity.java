@@ -81,12 +81,20 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-        }else if(id == R.id.nav_trash) {
-            Intent intent = new Intent(this, ItemsActivity.class);
-            intent.putExtra(LIST_DELETED_KEY, true);
-            startActivity(intent);
+        switch(item.getItemId()){
+            case R.id.nav_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+
+            case R.id.nav_trash:
+                Intent intent = new Intent(this, ItemsActivity.class);
+                intent.putExtra(LIST_DELETED_KEY, true);
+                startActivity(intent);
+                return true;
+
+            case R.id.list_items:
+                startActivity(new Intent(this, ItemsActivity.class));
+                return true;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

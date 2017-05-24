@@ -13,11 +13,13 @@ import android.widget.TextView;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.model.ItemFile;
 
 /**
  * Created by Lisboa on 06-May-17.
@@ -28,9 +30,8 @@ public class ItemAdapter extends BaseSwipeAdapter {
     private List<Item> listItems;
     private boolean listingDeleted;
     private boolean enableSwipe;
+    private LinkedHashMap<Item, TextView> attachedPointsTextView;
     private ItemsFragment.ItemActionListener actionsListener;
-
-    private List<SwipeLayout> swipeLayouts;
 
     ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listingDeleted, boolean enableSwipe) {
         setList(listItems);
@@ -38,7 +39,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
         this.listingDeleted = listingDeleted;
         this.enableSwipe = enableSwipe;
 
-        this.swipeLayouts = new LinkedList<>();
+        attachedPointsTextView = new LinkedHashMap<>();
     }
 
     private void setList(List<Item> items) {
@@ -96,6 +97,9 @@ public class ItemAdapter extends BaseSwipeAdapter {
         itemCriteria.setText(item.getCategoryReference() + ". " + item.getCriteria().getName());
 
         TextView numFilesView = (TextView) convertView.findViewById(R.id.num_files);
+        TextView pointsView = (TextView) convertView.findViewById(R.id.points);
+        attachView(item, pointsView);
+        pointsView.setText(String.valueOf(item.getCriteria().getFinalPoints()));
 
         if (!listingDeleted) {
             numFilesView.setText(convertView.getContext().getString(R.string.num_files, item.getFiles().size()));
@@ -167,7 +171,20 @@ public class ItemAdapter extends BaseSwipeAdapter {
 
     void onItemRemoved(Item deletedItem) {
         listItems.remove(deletedItem);
+        removeAttachedView(deletedItem);
         notifyDataSetChanged();
+    }
+
+    void setItemPoints(Item item, double points){
+        attachedPointsTextView.get(item).setText(String.valueOf(points));
+    }
+
+    private void attachView(Item item, TextView view) {
+        attachedPointsTextView.put(item, view);
+    }
+
+    private void removeAttachedView(Item item) {
+        attachedPointsTextView.remove(item);
     }
 
     public void enableSwipe(boolean enableSwipe) {

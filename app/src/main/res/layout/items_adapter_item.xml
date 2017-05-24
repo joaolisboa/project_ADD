@@ -45,11 +45,23 @@
         android:paddingTop="8dp">
 
         <TextView
+            android:id="@+id/points"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="1"
+            android:gravity="center"
+            android:textSize="22sp"
+            android:textColor="@color/black" />
+
+        <TextView
             android:id="@+id/title_text_view"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
             android:ellipsize="end"
-            android:paddingEnd="16dp"
+            android:paddingStart="72dp"
+            android:paddingEnd="40dp"
             android:textSize="16sp"
             android:textColor="@android:color/primary_text_light" />
 
@@ -57,6 +69,7 @@
             android:id="@+id/category_text_view"
             android:layout_width="wrap_content"
             android:layout_marginTop="24dp"
+            android:paddingStart="72dp"
             android:paddingEnd="40dp"
             android:minLines="1"
             android:maxLines="3"

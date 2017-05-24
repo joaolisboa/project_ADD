@@ -166,8 +166,8 @@ public class FilesRepository implements FilesDataSource {
     }
 
     @Override
-    public void getRemotePendingFiles(final BaseCallback<List<ItemFile>> callback) {
-        new Thread(new Runnable() {
+    public void getRemotePendingFiles(final ServiceCallback<List<ItemFile>> callback) {
+        /*new Thread(new Runnable() {
             @Override
             public void run() {
                 final Semaphore semaphore = new Semaphore(-1);
@@ -215,7 +215,49 @@ public class FilesRepository implements FilesDataSource {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        }).start();*/
+        if(meoCloudService.isAvailable()) {
+            meoCloudService.getMetadata(PENDING_PATH, new Callback<MEOMetadata>() {
+                @Override
+                public void onComplete(MEOMetadata result) {
+                    for(MEOMetadata meoMetadata: result.getContents()){
+                        if(!meoMetadata.isDir()){
+                            ItemFile newFile = new ItemFile(meoMetadata.getName());
+                            if(!pendingFiles.contains(newFile)) {
+                                pendingFiles.add(newFile);
+                            }
+                        }
+                    }
+                    callback.onMEOComplete(pendingFiles);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    callback.onMEOError();
+                }
+            });
+        }
+        if(dropboxService.isAvailable()){
+            dropboxService.getMetadata(PENDING_PATH, new Callback<ListFolderResult>() {
+                @Override
+                public void onComplete(ListFolderResult result) {
+                    for(Metadata metadata: result.getEntries()){
+                        if(metadata instanceof FileMetadata) {
+                            ItemFile newFile = new ItemFile(metadata.getName());
+                            if(!pendingFiles.contains(newFile)) {
+                                pendingFiles.add(newFile);
+                            }
+                        }
+                    }
+                    callback.onDropboxComplete(pendingFiles);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    callback.onDropboxError();
+                }
+            });
+        }
     }
 
     @Override
@@ -465,5 +507,17 @@ public class FilesRepository implements FilesDataSource {
     public interface Callback<I> extends BaseCallback<I> {
 
         void onError(Exception e);
+    }
+
+    public interface ServiceCallback<I>{
+
+        void onMEOComplete(I result);
+
+        void onMEOError();
+
+        void onDropboxComplete(I result);
+
+        void onDropboxError();
+
     }
 }

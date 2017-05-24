@@ -90,7 +90,7 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
     }
 
     @Override
-    public void getMetadata(String path, final FilesRepository.BaseCallback callback) {
+    public void getMetadata(String path, final FilesRepository.Callback callback) {
         new MEOGetMetadata(new MEOCallback<MEOMetadata>() {
             @Override
             public void onComplete(MEOMetadata result) {
@@ -99,11 +99,13 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
 
             @Override
             public void onRequestError(HttpErrorException httpE) {
+                callback.onError(httpE);
                 Log.e(TAG, httpE.getMessage(), httpE);
             }
 
             @Override
             public void onError(Exception e) {
+                callback.onError(e);
                 Log.e(TAG, e.getMessage(), e);
             }
         }).execute(path);
@@ -254,11 +256,13 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
 
             @Override
             public void onRequestError(HttpErrorException httpE) {
+                callback.onError(httpE);
                 Log.e(TAG, httpE.getMessage(), httpE);
             }
 
             @Override
             public void onError(Exception e) {
+                callback.onError(e);
                 Log.e(TAG, e.getMessage(), e);
             }
         }).execute(path, /*format*/ null, MEOCloudAPI.THUMBNAIL_SIZE_M);
