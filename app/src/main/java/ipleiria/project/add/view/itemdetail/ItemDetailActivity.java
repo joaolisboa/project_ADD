@@ -49,22 +49,12 @@ public class ItemDetailActivity extends AppCompatActivity {
         }
         new ItemDetailPresenter(itemDetailFragment, FilesRepository.getInstance(), item, listDeleted);
 
-        getSupportActionBar().setTitle(item.getDescription());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.item_detail_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                break;
-        }
         return true;
     }
 

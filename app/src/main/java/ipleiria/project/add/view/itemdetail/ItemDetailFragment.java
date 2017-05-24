@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.view.KeyEvent;
@@ -110,7 +111,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        System.out.println("menu clicked");
         switch (item.getItemId()) {
             case R.id.action_edit:
                 itemDetailPresenter.onEditItemClicked();
@@ -129,6 +129,11 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     public void onStop() {
         super.onStop();
         itemDetailPresenter.unsubscribe();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        itemDetailPresenter.onResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -198,12 +203,11 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         intent.setAction(EDITING_ITEM);
         intent.putExtra(EDITING_ITEM_KEY, item.getDbKey());
         startActivityForResult(intent, REQUEST_ITEM_EDIT);
-        System.out.println("opening act");
     }
 
     @Override
     public void showItemInfo(Item item) {
-        // set item info in views
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(item.getDescription());
     }
 
     @Override
@@ -281,13 +285,11 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     ChipsInput.ChipsListener chipsListener = new ChipsInput.ChipsListener() {
         @Override
         public void onChipAdded(ChipInterface chipInterface, int i) {
-            System.out.println("Added tag: " + chipInterface.getLabel());
             itemDetailPresenter.addTag(chipInterface.getLabel());
         }
 
         @Override
         public void onChipRemoved(ChipInterface chipInterface, int i) {
-            System.out.println("Removed tag: " + chipInterface.getLabel());
             itemDetailPresenter.removeTag(chipInterface.getLabel());
         }
 

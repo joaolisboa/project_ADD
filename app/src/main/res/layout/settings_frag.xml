@@ -75,11 +75,11 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:paddingTop="20dp"
+            android:paddingTop="18dp"
             android:layout_marginStart="16dp"
             android:text="Connect Dropbox"
             android:textColor="@android:color/primary_text_light"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
 
         <ImageView
             android:id="@+id/dropbox_state"
@@ -111,9 +111,9 @@
             android:layout_weight="1"
             android:layout_marginStart="16dp"
             android:text="Connect MEO Cloud"
-            android:paddingTop="20dp"
+            android:paddingTop="18dp"
             android:textColor="@android:color/primary_text_light"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
 
         <ImageView
             android:id="@+id/meocloud_state"
