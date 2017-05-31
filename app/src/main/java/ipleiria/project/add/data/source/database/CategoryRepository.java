@@ -14,6 +14,7 @@ import java.util.List;
 import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.source.FilesRepository;
 
 /**
  * Created by Lisboa on 06-May-17.
@@ -65,6 +66,22 @@ public class CategoryRepository implements CategoryDataSource {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+            }
+        });
+    }
+
+    public void readData(final FilesRepository.Callback<List<Dimension>> callback){
+        databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                addDimensions(dataSnapshot);
+                callback.onComplete(dimensions);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+                callback.onError(databaseError.toException());
             }
         });
     }

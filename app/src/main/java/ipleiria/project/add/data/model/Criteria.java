@@ -28,6 +28,27 @@ public class Criteria extends Category{
         return area.getDimension();
     }
 
+    public double getPoints(){
+        double points = 0;
+        for(Item item: items){
+            points += item.getWeight();
+        }
+        return points;
+    }
+
+    @Override
+    public String getFormattedString() {
+        return getRealReference() + " " + name;
+    }
+
+    public double getFinalPoints() {
+        return finalPoints;
+    }
+
+    public void setFinalPoints(double finalPoints) {
+        this.finalPoints = finalPoints;
+    }
+
     public Area getArea() {
         return area;
     }
@@ -85,29 +106,15 @@ public class Criteria extends Category{
     }
 
     public static class Coordinate{
-
         public int x;
         public int y;
+
         public Coordinate(int x, int y){
             this.x = x;
             this.y = y;
         }
 
-    }
-    public double getPoints(){
-        double points = 0;
-        for(Item item: items){
-            points += item.getWeight();
-        }
-        return points;
-    }
 
-    public double getFinalPoints() {
-        return finalPoints;
-    }
-
-    public void setFinalPoints(double finalPoints) {
-        this.finalPoints = finalPoints;
     }
 
     @Override

@@ -28,12 +28,22 @@
         </activity>
 
         <activity
+            android:name=".view.categories.CategoriesActivity"
+            android:label="Categories"
+            android:parentActivityName=".view.main.MainActivity"
+            android:theme="@style/AppTheme.OverlapSystemBar"
+            android:windowSoftInputMode="stateHidden">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.main.MainActivity" />
+        </activity>
+
+        <activity
             android:name=".view.items.ItemsActivity"
             android:label="@string/share_activity_label"
             android:parentActivityName=".view.main.MainActivity"
             android:theme="@style/AppTheme.OverlapSystemBar"
             android:windowSoftInputMode="stateHidden">
-            <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.main.MainActivity" />

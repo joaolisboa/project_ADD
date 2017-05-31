@@ -6,17 +6,17 @@ import java.util.Objects;
  * Created by Lisboa on 11-Apr-17.
  */
 
-public class Category{
+public abstract class Category{
 
     protected String name;
     protected String dbKey;
     protected int reference;
 
-    public Category(){
+    Category(){
 
     }
 
-    public Category(String name, int reference){
+    Category(String name, int reference){
         this.name = name;
         this.reference = reference;
     }
@@ -44,6 +44,10 @@ public class Category{
     public void setReference(int reference) {
         this.reference = reference;
     }
+
+    public abstract double getPoints();
+
+    public abstract String getFormattedString();
 
     @Override
     public boolean equals(Object obj) {

@@ -19,6 +19,12 @@
             android:title="Items"
             />
 
+        <item
+            android:id="@+id/categories"
+            android:icon="@drawable/list"
+            android:title="Categories"
+            />
+
     </group>
 
 </menu>

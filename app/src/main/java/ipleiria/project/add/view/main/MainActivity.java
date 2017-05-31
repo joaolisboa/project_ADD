@@ -21,6 +21,7 @@ import ipleiria.project.add.utils.ActivityUtils;
 import ipleiria.project.add.utils.CircleTransformation;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.UserService;
+import ipleiria.project.add.view.categories.CategoriesActivity;
 import ipleiria.project.add.view.items.ItemsActivity;
 import ipleiria.project.add.view.settings.SettingsActivity;
 
@@ -79,8 +80,6 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
         switch(item.getItemId()){
             case R.id.nav_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -94,6 +93,10 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
             case R.id.list_items:
                 startActivity(new Intent(this, ItemsActivity.class));
+                return true;
+
+            case R.id.categories:
+                startActivity(new Intent(this, CategoriesActivity.class));
                 return true;
         }
 

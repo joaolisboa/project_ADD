@@ -15,6 +15,19 @@ public class Dimension extends Category{
 
     }
 
+    public double getPoints(){
+        double points = 0;
+        for(Area area: areas){
+            points += area.getPoints();
+        }
+        return points;
+    }
+
+    @Override
+    public String getFormattedString() {
+        return reference + " " + name;
+    }
+
     public Dimension(String name, int reference){
         super(name, reference);
         this.areas = new LinkedList<>();

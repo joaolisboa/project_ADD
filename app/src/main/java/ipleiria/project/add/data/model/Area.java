@@ -21,6 +21,19 @@ public class Area extends Category{
         this.criterias = new LinkedList<>();
     }
 
+    public double getPoints(){
+        double points = 0;
+        for(Criteria criteria: criterias){
+            points += criteria.getPoints();
+        }
+        return points;
+    }
+
+    @Override
+    public String getFormattedString() {
+        return dimension.getReference() + "." + reference + " " + name;
+    }
+
     public void addCriteria(Criteria criteria){
         criteria.setArea(this);
         criterias.add(criteria);
