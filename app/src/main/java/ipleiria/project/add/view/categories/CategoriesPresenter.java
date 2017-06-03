@@ -67,11 +67,8 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 itemsRepository.getRemoteItems(new FilesRepository.Callback<List<Item>>() {
                     @Override
                     public void onComplete(List<Item> result) {
-                        FileUtils.readExcel(Application.getAppContext());
+                        FileUtils.readExcel();
                         processList();
-                        /*for(Dimension dimension: categoryRepository.getDimensions()){
-                            categoriesView.setCategoryPoints(dimension);
-                        }*/
                         categoriesView.hideProgressDialog();
                     }
 
@@ -122,7 +119,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                FileUtils.readExcel(Application.getAppContext());
+                FileUtils.readExcel();
                 categoriesView.showDimensions(result);
                 categoriesView.hideProgressDialog();
             }

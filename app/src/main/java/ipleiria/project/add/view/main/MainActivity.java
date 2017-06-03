@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.main;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -19,7 +20,12 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+
+import ipleiria.project.add.Application;
 import ipleiria.project.add.R;
+import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.MEOCloudService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.ActivityUtils;
@@ -142,6 +148,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.categories:
                 startActivity(new Intent(this, CategoriesActivity.class));
+                return true;
+
+            case R.id.export:
+                Uri uri = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
+                MEOCloudService.getInstance().uploadFile(uri, "export", "ficha_avaliacao.xlsx");
+
                 return true;
         }
 

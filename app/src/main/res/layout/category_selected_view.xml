@@ -60,6 +60,11 @@
             android:paddingBottom="8dp"
             android:textColor="@android:color/secondary_text_light"
             android:textSize="14sp" />
+
+        <ImageButton
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            />
     </LinearLayout>
 
     <View style="@style/Divider" />

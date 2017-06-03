@@ -25,6 +25,12 @@
             android:title="Categories"
             />
 
+        <item
+            android:id="@+id/export"
+            android:icon="@drawable/ic_menu_share"
+            android:title="Export"
+            />
+
     </group>
 
 </menu>
