@@ -104,9 +104,9 @@ public class CategoryRepository implements CategoryDataSource {
             for (DataSnapshot criteriaSnap : areaSnap.child("criterias").getChildren()) {
                 Criteria criteria = new Criteria(criteriaSnap.child("name").getValue(String.class),
                         criteriaSnap.child("reference").getValue(Integer.class));
-                criteria.setObservations((String) areaSnap.child("observations").getValue());
-                criteria.setRequiredDocument((String) areaSnap.child("requiredDocument").getValue());
-                criteria.setWeightsInformation((String) areaSnap.child("weightsInformation").getValue());
+                criteria.setObservations((String) criteriaSnap.child("observations").getValue());
+                criteria.setRequiredDocument((String) criteriaSnap.child("requiredDocument").getValue());
+                criteria.setWeightsInformation((String) criteriaSnap.child("weightsInformation").getValue());
                 int readX = criteriaSnap.child("readX").getValue(Integer.class);
                 int readY = criteriaSnap.child("readY").getValue(Integer.class);
                 int writeX = criteriaSnap.child("writeX").getValue(Integer.class);

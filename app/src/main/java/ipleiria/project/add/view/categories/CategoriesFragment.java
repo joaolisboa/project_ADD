@@ -249,17 +249,27 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     private void setSelectedViewInfo(Category category, final View view, View.OnClickListener onClickListener){
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View expandable = view.findViewById(R.id.expandable);
-                if(expandable.getVisibility() == View.GONE) {
-                    expand(expandable);
-                }else{
-                    collapse(expandable);
-                }
+        if(category instanceof Criteria) {
+            final View expandable = view.findViewById(R.id.expandable);
+            String observations = ((Criteria)category).getObservations();
+            TextView observationView = (TextView) expandable.findViewById(R.id.observations);
+            if(observations != null && !observations.isEmpty()) {
+                observationView.setText(observations);
+            }else{
+                observationView.setText("No observations");
             }
-        });
+
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (expandable.getVisibility() == View.GONE) {
+                        expand(expandable);
+                    } else {
+                        collapse(expandable);
+                    }
+                }
+            });
+        }
 
         TextView name = (TextView) view.findViewById(R.id.name);
         TextView points = (TextView) view.findViewById(R.id.points);
