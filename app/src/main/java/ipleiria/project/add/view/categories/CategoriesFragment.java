@@ -32,9 +32,12 @@ import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.view.add_edit_item.AddEditActivity;
+import ipleiria.project.add.view.items.ItemAdapter;
 import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
 
+import static ipleiria.project.add.R.id.area;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
 
 /**
@@ -49,10 +52,13 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     // views with details about the category
     private LinearLayout dimensionView;
     private LinearLayout areaView;
-    //private LinearLayout criteriasView;
+    private LinearLayout criteriaView;
 
     private CategoryAdapter categoriesAdapter;
     private ListView categoryListView;
+
+    private ListView itemsListView;
+    private ItemAdapter itemsAdapter;
 
     private CategoriesContract.Presenter categoriesPresenter;
 
@@ -66,7 +72,9 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         categoriesAdapter = new CategoryAdapter(new LinkedList<Category>());
+        itemsAdapter = new ItemAdapter(new LinkedList<Item>(), null, false, true);
     }
 
     @Nullable
@@ -79,10 +87,15 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         categoryListView.setAdapter(categoriesAdapter);
         categoryListView.setOnItemClickListener(listClickListener);
 
+        itemsListView = (ListView) root.findViewById(R.id.items_list);
+        itemsListView.setAdapter(itemsAdapter);
+
         dimensionView = (LinearLayout) root.findViewById(R.id.dimension);
         dimensionView.setVisibility(View.GONE);
-        areaView = (LinearLayout) root.findViewById(R.id.area);
+        areaView = (LinearLayout) root.findViewById(area);
         areaView.setVisibility(View.GONE);
+        criteriaView = (LinearLayout) root.findViewById(R.id.criteria);
+        criteriaView.setVisibility(View.GONE);
 
         swipeRefreshLayout = (ScrollChildSwipeRefreshLayout) root.findViewById(R.id.refresh_layout);
         swipeRefreshLayout.setColorSchemeColors(
@@ -177,102 +190,119 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     @Override
-    public void setDimensions(List<Dimension> dimensions) {
-        categoriesAdapter.replaceData(new LinkedList<Category>(dimensions));
-    }
-
-    @Override
     public void showDimensions(List<Dimension> dimensions) {
-        hideLayout(dimensionView);
-        setDimensions(dimensions);
+        categoriesAdapter.replaceData(new LinkedList<Category>(dimensions));
         showLayout(categoryListView);
     }
 
     @Override
     public void showAreas(List<Area> areas) {
-        hideLayout(areaView);
-        //areasAdapter.replaceData(new LinkedList<Category>(areas));
         categoriesAdapter.replaceData(new LinkedList<Category>(areas));
-        //showLayout(areasView.findViewById(R.id.areas_list));
-    }
-
-    @Override
-    public void hideAreas() {
-        //hideLayout(dimensionsView.findViewById(R.id.dimensions_list));
-        hideLayout(areaView);
+        showLayout(categoryListView);
     }
 
     @Override
     public void showCriterias(List<Criteria> criterias) {
-        //criteriasAdapter.replaceData(new LinkedList<Category>(criterias));
         categoriesAdapter.replaceData(new LinkedList<Category>(criterias));
-        //showLayout(dimensionsView.findViewById(R.id.dimensions_list));
+        showLayout(categoryListView);
     }
 
     @Override
-    public void hideCriterias() {
-        //hideLayout(dimensionsView.findViewById(R.id.dimensions_list));
+    public void hideSelectedDimension(){
+        hideLayout(dimensionView);
+    }
+
+    @Override
+    public void hideSelectedArea() {
+        hideLayout(areaView);
+    }
+
+    @Override
+    public void hideSelectedCriteria() {
+        hideLayout(criteriaView);
+    }
+
+    @Override
+    public void hideCategoryList() {
+        hideLayout(categoryListView);
     }
 
     @Override
     public void showSelectedDimension(Dimension dimension) {
-        //hideLayout(dimensionsView.findViewById(R.id.dimensions_list));
-
-        dimensionView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View view = dimensionView.findViewById(R.id.expandable_dimension);
-                if(view.getVisibility() == View.GONE) {
-                    expand(view);
-                }else{
-                    collapse(view);
-                }
-            }
-        });
-
-        TextView name = (TextView) dimensionView.findViewById(R.id.dimension_name);
-        TextView points = (TextView) dimensionView.findViewById(R.id.dimension_points);
-        ImageButton cancel = (ImageButton) dimensionView.findViewById(R.id.dimension_cancel);
-        cancel.setOnClickListener(canceledDimensionClickListener);
-
-        name.setText(dimension.getFormattedString());
-        points.setText(String.valueOf(dimension.getPoints()));
-
-        Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
-        dimensionView.startAnimation(slideUp);
-        dimensionView.setVisibility(View.VISIBLE);
+        setSelectedViewInfo(dimension, dimensionView, canceledDimensionClickListener);
     }
 
     @Override
     public void showSelectedArea(Area area) {
-        //hideLayout(areasView.findViewById(R.id.areas_list));
+        setSelectedViewInfo(area, areaView, canceledAreaClickListener);
+    }
 
-        areaView.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void showSelectedCriteria(Criteria criteria){
+        setSelectedViewInfo(criteria, criteriaView, canceledCriteriaClickListener);
+    }
+
+    @Override
+    public void showItemsList(List<Item> items) {
+        itemsAdapter.replaceData(items);
+        showLayout(itemsListView);
+    }
+
+    private void setSelectedViewInfo(Category category, final View view, View.OnClickListener onClickListener){
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View view = areaView.findViewById(R.id.expandable_area);
-                if(view.getVisibility() == View.GONE) {
-                    expand(view);
+                View expandable = view.findViewById(R.id.expandable);
+                if(expandable.getVisibility() == View.GONE) {
+                    expand(expandable);
                 }else{
-                    collapse(view);
+                    collapse(expandable);
                 }
             }
         });
 
-        TextView name = (TextView) areaView.findViewById(R.id.area_name);
-        TextView points = (TextView) areaView.findViewById(R.id.area_points);
-        ImageButton cancel = (ImageButton) areaView.findViewById(R.id.area_cancel);
-        cancel.setOnClickListener(canceledAreaClickListener);
+        TextView name = (TextView) view.findViewById(R.id.name);
+        TextView points = (TextView) view.findViewById(R.id.points);
+        ImageButton cancel = (ImageButton) view.findViewById(R.id.cancel);
 
-        name.setText(area.getFormattedString());
-        points.setText(String.valueOf(area.getPoints()));
+        name.setText(category.getFormattedString());
+        points.setText(String.valueOf(category.getPoints()));
+        cancel.setOnClickListener(onClickListener);
 
         Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
-        areaView.startAnimation(slideUp);
-        areaView.setVisibility(View.VISIBLE);
+        view.startAnimation(slideUp);
+        view.setVisibility(View.VISIBLE);
     }
 
-    public static void expand(final View v) {
+    private View.OnClickListener canceledDimensionClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            categoriesPresenter.returnToDimensionView();
+        }
+    };
+
+    private View.OnClickListener canceledAreaClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            categoriesPresenter.returnToAreaView();
+        }
+    };
+
+    private View.OnClickListener canceledCriteriaClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            categoriesPresenter.returnToCriteriaView();
+        }
+    };
+
+    private AdapterView.OnItemClickListener listClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            categoriesPresenter.categoryClicked((Category)parent.getItemAtPosition(position));
+        }
+    };
+
+    public void expand(final View v) {
         v.measure(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         final int targetHeight = v.getMeasuredHeight();
 
@@ -325,27 +355,6 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         a.setDuration((int)(initialHeight / v.getContext().getResources().getDisplayMetrics().density));
         v.startAnimation(a);
     }
-
-    private View.OnClickListener canceledDimensionClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            categoriesPresenter.returnToDimensionView();
-        }
-    };
-
-    private View.OnClickListener canceledAreaClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            categoriesPresenter.returnToAreaView();
-        }
-    };
-
-    private AdapterView.OnItemClickListener listClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            categoriesPresenter.categoryClicked((Category)parent.getItemAtPosition(position));
-        }
-    };
 
     private void showLayout(View targetView) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

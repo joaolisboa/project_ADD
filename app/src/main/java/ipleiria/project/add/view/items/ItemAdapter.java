@@ -33,7 +33,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
     private LinkedHashMap<Item, TextView> attachedPointsTextView;
     private ItemsFragment.ItemActionListener actionsListener;
 
-    ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listingDeleted, boolean enableSwipe) {
+    public ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listingDeleted, boolean enableSwipe) {
         setList(listItems);
         this.actionsListener = actionsListener;
         this.listingDeleted = listingDeleted;
@@ -46,7 +46,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
         listItems = items;
     }
 
-    void replaceData(List<Item> items) {
+    public void replaceData(List<Item> items) {
         setList(items);
         notifyDataSetChanged();
     }

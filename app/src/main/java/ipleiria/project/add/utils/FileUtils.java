@@ -145,7 +145,7 @@ public class FileUtils {
             List<Criteria> criterias = CategoryRepository.getInstance().getCriterias();
             for(int i = 0; i < 4; i++){
                 Criteria criteria = criterias.get(i);
-                points += criteria.getPoints();
+                points += criteria.getWeights();
                 if(points >= 10){
                     points = 10;
                 }
@@ -155,10 +155,10 @@ public class FileUtils {
             }
             for(int i = 4; i < criterias.size(); i++){
                 Criteria criteria = criterias.get(i);
-                if(criteria.getPoints() > 0) {
+                if(criteria.getWeights() > 0) {
                     sheet.getRow(criteria.getWriteCell().y)
                             .getCell(criteria.getWriteCell().x)
-                            .setCellValue(criteria.getPoints());
+                            .setCellValue(criteria.getWeights());
                 }
             }
             try (FileOutputStream stream = new FileOutputStream(file)) {
@@ -168,7 +168,7 @@ public class FileUtils {
 
             for(int i = 0; i < criterias.size(); i++) {
                 Criteria criteria = criterias.get(i);
-                if(criteria.getPoints() > 0) {
+                if(criteria.getWeights() > 0) {
                     double value = sheet.getRow(criteria.getReadCell().y)
                             .getCell(criteria.getReadCell().x)
                             .getNumericCellValue();

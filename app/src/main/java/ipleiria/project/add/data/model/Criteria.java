@@ -33,11 +33,15 @@ public class Criteria extends Category{
     }
 
     public double getPoints(){
-        double points = 0;
+        return finalPoints;
+    }
+
+    public double getWeights(){
+        double weights = 0;
         for(Item item: items){
-            points += item.getWeight();
+            weights += item.getWeight();
         }
-        return points;
+        return weights;
     }
 
     @Override

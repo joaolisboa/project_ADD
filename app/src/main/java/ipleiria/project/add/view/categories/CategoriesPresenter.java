@@ -3,7 +3,6 @@ package ipleiria.project.add.view.categories;
 import android.os.Handler;
 import android.util.Log;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Application;
@@ -16,7 +15,6 @@ import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.FileUtils;
-import ipleiria.project.add.view.items.ItemsContract;
 
 /**
  * Created by Lisboa on 30-May-17.
@@ -30,11 +28,16 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     private static final int ROOT_FOCUS = 0;
     // showing selected dimension on the top with areas below
     private static final int DIMENSION_FOCUS = 1;
-    // showing selected dimension & area on the top with criterias below
+    // showing selected dimension/area on the top with criterias below
     private static final int AREA_FOCUS = 2;
+    // showing selected dimension/area/criteria with the list of items of the selectedCriteria
+    private static final int CRITERIA_FOCUS = 3;
+
+    private int currentFocus = ROOT_FOCUS;
 
     private Dimension selectedDimension;
-    private int currentFocus = 0;
+    private Area selectedArea;
+    private Criteria selectedCriteria;
 
     private final CategoryRepository categoryRepository;
     private final ItemsRepository itemsRepository;
@@ -59,15 +62,16 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
             @Override
             public void onComplete(List<Dimension> result) {
-                categoriesView.showDimensions(result);
+                //categoriesView.showDimensions(result);
 
                 itemsRepository.getRemoteItems(new FilesRepository.Callback<List<Item>>() {
                     @Override
                     public void onComplete(List<Item> result) {
                         FileUtils.readExcel(Application.getAppContext());
-                        for(Dimension dimension: categoryRepository.getDimensions()){
+                        processList();
+                        /*for(Dimension dimension: categoryRepository.getDimensions()){
                             categoriesView.setCategoryPoints(dimension);
-                        }
+                        }*/
                         categoriesView.hideProgressDialog();
                     }
 
@@ -84,6 +88,32 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 categoriesView.hideProgressDialog();
             }
         });
+    }
+
+    private void processList(){
+        switch (currentFocus) {
+            case ROOT_FOCUS:
+                categoriesView.setTitle("Dimensions");
+                returnToDimensionView();
+                break;
+
+            case DIMENSION_FOCUS:
+                categoriesView.setTitle("Areas");
+                categoriesView.showSelectedDimension(selectedDimension);
+                returnToAreaView();
+                break;
+
+            case AREA_FOCUS:
+                categoriesView.setTitle("Criterias");
+                categoriesView.showSelectedArea(selectedArea);
+                returnToCriteriaView();
+                break;
+
+            case CRITERIA_FOCUS:
+                categoriesView.setTitle("Items");
+                categoriesView.showSelectedCriteria(selectedCriteria);
+                categoriesView.showItemsList(selectedCriteria.getItems());
+        }
     }
 
     // write/read excel file to calculate points
@@ -140,6 +170,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     private void areaClicked(Area area) {
+        selectedArea = area;
         categoriesView.showSelectedArea(area);
         categoriesView.showCriterias(area.getCriterias());
         currentFocus = AREA_FOCUS;
@@ -147,7 +178,11 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     private void criteriaClicked(Criteria criteria) {
         // only with AREA_FOCUS
-        //categoriesView.openItemsList(criteria);
+        selectedCriteria = criteria;
+        categoriesView.showSelectedCriteria(criteria);
+        categoriesView.showItemsList(criteria.getItems());
+        categoriesView.hideCategoryList();
+        currentFocus = CRITERIA_FOCUS;
     }
 
     @Override
@@ -160,6 +195,10 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             case AREA_FOCUS:
                 returnToAreaView();
                 return true;
+
+            case CRITERIA_FOCUS:
+                returnToCriteriaView();
+                return true;
         }
 
         return false;
@@ -167,18 +206,25 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     @Override
     public void returnToDimensionView() {
-        categoriesView.hideAreas();
-        if (currentFocus == AREA_FOCUS) {
-            categoriesView.hideCriterias();
-        }
+        categoriesView.hideSelectedDimension();
+        categoriesView.hideSelectedArea();
+        categoriesView.hideSelectedCriteria();
         categoriesView.showDimensions(categoryRepository.getDimensions());
         currentFocus = ROOT_FOCUS;
     }
 
     @Override
     public void returnToAreaView() {
-        categoriesView.hideCriterias();
+        categoriesView.hideSelectedArea();
+        categoriesView.hideSelectedCriteria();
         categoriesView.showAreas(selectedDimension.getAreas());
         currentFocus = DIMENSION_FOCUS;
+    }
+
+    @Override
+    public void returnToCriteriaView() {
+        categoriesView.hideSelectedCriteria();
+        categoriesView.showCriterias(selectedArea.getCriterias());
+        currentFocus = CRITERIA_FOCUS;
     }
 }
