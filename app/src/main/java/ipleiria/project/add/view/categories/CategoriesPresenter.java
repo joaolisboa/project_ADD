@@ -1,23 +1,28 @@
 package ipleiria.project.add.view.categories;
 
+import android.os.Handler;
 import android.util.Log;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.database.CategoryRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
+import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.view.items.ItemsContract;
 
 /**
  * Created by Lisboa on 30-May-17.
  */
 
-class CategoriesPresenter implements CategoriesContract.Presenter {
+public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     private static final String TAG = "CATEGORIES_PRESENTER";
 
@@ -32,24 +37,46 @@ class CategoriesPresenter implements CategoriesContract.Presenter {
     private int currentFocus = 0;
 
     private final CategoryRepository categoryRepository;
+    private final ItemsRepository itemsRepository;
     private final CategoriesContract.View categoriesView;
 
-    CategoriesPresenter(CategoriesContract.View categoriesView, CategoryRepository categoryRepository) {
+    public CategoriesPresenter(CategoriesContract.View categoriesView, CategoryRepository categoryRepository, ItemsRepository itemsRepository) {
         this.categoryRepository = categoryRepository;
+        this.itemsRepository = itemsRepository;
         this.categoriesView = categoriesView;
         this.categoriesView.setPresenter(this);
     }
 
     @Override
     public void subscribe() {
+        refreshData();
+    }
+
+
+    public void refreshData(){
         categoriesView.showProgressDialog();
 
         categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
             @Override
             public void onComplete(List<Dimension> result) {
-                categoriesView.hideProgressDialog();
-                //dimensions = result;
-                categoriesView.setDimensions(result);
+                categoriesView.showDimensions(result);
+
+                itemsRepository.getRemoteItems(new FilesRepository.Callback<List<Item>>() {
+                    @Override
+                    public void onComplete(List<Item> result) {
+                        FileUtils.readExcel(Application.getAppContext());
+                        for(Dimension dimension: categoryRepository.getDimensions()){
+                            categoriesView.setCategoryPoints(dimension);
+                        }
+                        categoriesView.hideProgressDialog();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        categoriesView.hideProgressDialog();
+                    }
+                });
+
             }
 
             @Override
@@ -57,7 +84,19 @@ class CategoriesPresenter implements CategoriesContract.Presenter {
                 categoriesView.hideProgressDialog();
             }
         });
-        categoriesView.setDimensions(categoryRepository.getDimensions());
+    }
+
+    // write/read excel file to calculate points
+    private void processPoints(final List<Dimension> result){
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                FileUtils.readExcel(Application.getAppContext());
+                categoriesView.showDimensions(result);
+                categoriesView.hideProgressDialog();
+            }
+        });
     }
 
     @Override
@@ -134,7 +173,6 @@ class CategoriesPresenter implements CategoriesContract.Presenter {
         }
         categoriesView.showDimensions(categoryRepository.getDimensions());
         currentFocus = ROOT_FOCUS;
-
     }
 
     @Override
@@ -142,6 +180,5 @@ class CategoriesPresenter implements CategoriesContract.Presenter {
         categoriesView.hideCriterias();
         categoriesView.showAreas(selectedDimension.getAreas());
         currentFocus = DIMENSION_FOCUS;
-
     }
 }

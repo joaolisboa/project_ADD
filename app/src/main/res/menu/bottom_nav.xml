@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_home"
+        android:title="Home"
+        android:icon="@drawable/list"
+        />
+    <item
+        android:id="@+id/menu_all"
+        android:title="Items"
+        android:icon="@drawable/list"
+        />
+
+    <item
+        android:id="@+id/menu_trash"
+        android:title="Trash"
+        android:icon="@drawable/delete_black" />
+</menu>

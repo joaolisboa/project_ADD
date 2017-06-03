@@ -64,7 +64,7 @@ public class FilesRepository implements FilesDataSource {
                 final CategoryRepository categoryRepository = CategoryRepository.getInstance();
 
                 if (categoryRepository.getDimensions().isEmpty()) {
-                    categoryRepository.readCriteria();
+                    //categoryRepository.readCriteria();
                     categoryRepository.getReference().addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {

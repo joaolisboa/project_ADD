@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.categories.CategoriesActivity"
+    android:id="@+id/refresh_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.categories.CategoriesActivity">
+    android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/dimensions"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent" >
 
         <LinearLayout
-            android:id="@+id/dimension_selected"
+            android:id="@+id/dimension"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#EAEAEA"
@@ -30,74 +29,55 @@
                     android:layout_weight="1"
                     android:paddingStart="16dp"
                     android:paddingTop="10dp"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/secondary_text_light"/>
+                    android:textColor="@android:color/secondary_text_light"
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/dimension_points"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:textSize="18sp"
                     android:gravity="center"
                     android:textAlignment="center"
-                    android:textColor="@android:color/primary_text_light"/>
+                    android:textColor="@android:color/primary_text_light"
+                    android:textSize="18sp" />
 
                 <ImageButton
                     android:id="@+id/dimension_cancel"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_cancel_grey_24dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp" />
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_cancel_grey_24dp" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/expandable_dimension"
-                android:visibility="gone"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/dimension_description"
-                    android:text="Description description description description \ndescription description \n description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingStart="16dp"
                     android:paddingTop="10dp"
-                    android:textSize="16sp"
+                    android:text="Description description description description \ndescription description \n description"
                     android:textColor="@android:color/secondary_text_light"
-                    />
+                    android:textSize="16sp" />
             </LinearLayout>
+
+            <View style="@style/Divider" />
 
         </LinearLayout>
 
-
-        <ListView
-            android:id="@+id/dimensions_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="12dp"
-            android:clipToPadding="false"
-            android:animateLayoutChanges="true"
-            />
-
-        <View style="@style/Divider"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/areas"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/dimensions"
-        android:orientation="vertical">
-
         <LinearLayout
-            android:id="@+id/area_selected"
+            android:id="@+id/area"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/dimension"
             android:background="#EAEAEA"
             android:orientation="vertical">
 
@@ -111,78 +91,82 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:paddingStart="16dp"
-                    android:paddingTop="4dp"
-                    android:textSize="14sp"
-                    android:maxLines="3"
                     android:ellipsize="end"
-                    android:textColor="@android:color/secondary_text_light"/>
+                    android:maxLines="3"
+                    android:paddingBottom="8dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:textColor="@android:color/secondary_text_light"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/area_points"
                     android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:textSize="18sp"
+                    android:layout_height="match_parent"
                     android:gravity="center"
                     android:textAlignment="center"
-                    android:textColor="@android:color/primary_text_light"/>
+                    android:textColor="@android:color/primary_text_light"
+                    android:textSize="18sp" />
 
                 <ImageButton
                     android:id="@+id/area_cancel"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_cancel_grey_24dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp" />
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_cancel_grey_24dp" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/expandable_area"
-                android:visibility="gone"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:background="#EAEAEA"
-                android:layout_height="wrap_content">
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/area_description"
-                    android:text="Description description description description \ndescription description \n description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingStart="16dp"
                     android:paddingTop="10dp"
-                    android:textSize="16sp"
+                    android:text="Description description description description \ndescription description \n description"
                     android:textColor="@android:color/secondary_text_light"
-                    />
+                    android:textSize="16sp" />
             </LinearLayout>
+
+            <View style="@style/Divider" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/criterias"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/area"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/criterias_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true" />
+
         </LinearLayout>
 
         <ListView
-            android:id="@+id/areas_list"
+            android:id="@+id/category_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/criterias"
             android:animateLayoutChanges="true"
-            />
+            android:background="@color/white"
+            android:clipToPadding="false"
+            android:visibility="gone" />
 
-        <View style="@style/Divider"/>
+    </RelativeLayout>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/criterias"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/areas">
-
-        <ListView
-            android:id="@+id/criterias_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            />
-
-    </LinearLayout>
-
-</RelativeLayout>
+</ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout>

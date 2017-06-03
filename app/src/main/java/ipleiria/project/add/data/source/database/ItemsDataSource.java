@@ -10,6 +10,7 @@ import java.util.List;
 
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.source.FilesRepository;
 
 /**
  * Created by Lisboa on 04-May-17.
@@ -22,6 +23,10 @@ public interface ItemsDataSource {
     DatabaseReference getItemsReference();
 
     void moveItemsToNewUser();
+
+    void getRemoteItems(final FilesRepository.Callback<List<Item>> callback);
+
+    void getRemoteDeletedItems(final FilesRepository.Callback<List<Item>> callback);
 
     List<Item> getItems();
 

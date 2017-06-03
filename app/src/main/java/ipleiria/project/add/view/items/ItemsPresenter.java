@@ -79,8 +79,7 @@ public class ItemsPresenter implements ItemsContract.Presenter {
             readCategories();
         }
 
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        /*new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 FileUtils.readExcel(Application.getAppContext());
@@ -88,7 +87,7 @@ public class ItemsPresenter implements ItemsContract.Presenter {
                     itemsView.setItemPoints(item, item.getCriteria().getFinalPoints());
                 }
             }
-        }, 500);
+        }, 750);*/
     }
 
     @Override

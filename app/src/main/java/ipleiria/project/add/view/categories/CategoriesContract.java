@@ -23,6 +23,8 @@ public class CategoriesContract {
 
         void setTitle(String title);
 
+        void setCategoryPoints(Category category);
+
         void setDimensions(List<Dimension> dimensions);
 
         void showDimensions(List<Dimension> dimensions);
@@ -49,6 +51,8 @@ public class CategoriesContract {
         void returnToDimensionView();
 
         void returnToAreaView();
+
+        void refreshData();
     }
 
 }

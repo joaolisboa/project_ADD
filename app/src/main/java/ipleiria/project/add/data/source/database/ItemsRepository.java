@@ -48,11 +48,15 @@ public class ItemsRepository implements ItemsDataSource {
     // this list will contain all tags from all tags to provide autocomplete suggestions
     private List<String> tags;
 
+    // force reading remotely if required, otherwise will get local items
+    private boolean cacheIsDirty;
+
     // Prevent direct instantiation.
     private ItemsRepository() {
         this.localItems = new LinkedList<>();
         this.localDeletedItems = new LinkedList<>();
         this.tags = new LinkedList<>();
+        this.cacheIsDirty = false;
 
         // test tags
         tags.add("projeto");
@@ -100,6 +104,42 @@ public class ItemsRepository implements ItemsDataSource {
         return itemsReference;
     }
 
+    @Override
+    public void getRemoteItems(final FilesRepository.Callback<List<Item>> callback){
+        itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                    addNewItem(itemSnapshot, false);
+                }
+                callback.onComplete(localItems);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onError(databaseError.toException());
+            }
+        });
+    }
+
+    @Override
+    public void getRemoteDeletedItems(final FilesRepository.Callback<List<Item>> callback){
+        deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                    addNewItem(itemSnapshot, true);
+                }
+                callback.onComplete(localItems);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onError(databaseError.toException());
+            }
+        });
+    }
+
     // local items will be moved to new user
     // ie. when he upgrades from anon to Google account
     @Override
@@ -115,6 +155,9 @@ public class ItemsRepository implements ItemsDataSource {
 
     @Override
     public List<Item> getItems() {
+        /*if(localItems.isEmpty() || cacheIsDirty){
+            return getRemoteItems();
+        }*/
         return localItems;
     }
 
@@ -144,7 +187,7 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     @Override
-    public void addNewItem(@NonNull DataSnapshot itemSnapshot, boolean listDeleted) {
+    public void addNewItem(@NonNull DataSnapshot itemSnapshot, boolean deleted) {
         Item newItem = new Item((String) itemSnapshot.child("description").getValue());
         newItem.setDbKey(itemSnapshot.getKey());
         newItem.setWeight((Long) itemSnapshot.child("weight").getValue());
@@ -169,7 +212,7 @@ public class ItemsRepository implements ItemsDataSource {
                 newItem.addFile(file);
             }
         }
-        addItem(newItem, listDeleted);
+        addItem(newItem, deleted);
     }
 
     @Override

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import ipleiria.project.add.R;
@@ -20,16 +21,19 @@ import ipleiria.project.add.data.model.Item;
 class CategoryAdapter extends BaseAdapter{
 
     private List<Category> items;
+    private LinkedHashMap<Category, TextView> attachedPointsTextView;
 
     CategoryAdapter(List<Category> items){
         setList(items);
+
+        attachedPointsTextView = new LinkedHashMap<>();
     }
 
     private void setList(List<Category> items){
         this.items = items;
     }
 
-    public void replaceData(List<Category> items){
+    void replaceData(List<Category> items){
         setList(items);
         notifyDataSetChanged();
     }
@@ -62,12 +66,25 @@ class CategoryAdapter extends BaseAdapter{
         }
 
         Category category = getItem(position);
+        attachView(category, viewHolder.points);
 
         viewHolder.name.setText(category.getFormattedString());
         viewHolder.description.setText(category.getName());
         viewHolder.points.setText(String.valueOf(category.getPoints()));
 
         return convertView;
+    }
+
+    void setCategoryPoints(Category category, double points){
+        attachedPointsTextView.get(category).setText(String.valueOf(points));
+    }
+
+    private void attachView(Category category, TextView view) {
+        attachedPointsTextView.put(category, view);
+    }
+
+    private void removeAttachedView(Category category) {
+        attachedPointsTextView.remove(category);
     }
 
     private class ViewHolder {
@@ -81,6 +98,7 @@ class CategoryAdapter extends BaseAdapter{
             description = (TextView) view.findViewById(R.id.description);
             points = (TextView) view.findViewById(R.id.points);
         }
+
     }
 
 }

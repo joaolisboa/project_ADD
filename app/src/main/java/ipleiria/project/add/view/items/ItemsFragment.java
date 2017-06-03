@@ -41,10 +41,14 @@ import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
 
 public class ItemsFragment extends Fragment implements ItemsContract.View{
 
+    // on resume will show an item added message and enable swipe
+    // it differs because CHANGE comes externally(from another app)
+    // which disables the swiping until the file/item was added/created
     public static final int REQUEST_ADD_NEW_ITEM_CHANGE = 2090;
+    // on resume will show an item added message
     public static final int REQUEST_ADD_NEW_ITEM = 2091;
+    // on resume will show an item edited message
     public static  final int REQUEST_ITEM_EDIT = 2092;
-
 
     private ItemsContract.Presenter itemsPresenter;
 
@@ -104,7 +108,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
         });
 
         // Set up floating action button
-        final FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
         fab.setImageResource(R.drawable.add_white);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

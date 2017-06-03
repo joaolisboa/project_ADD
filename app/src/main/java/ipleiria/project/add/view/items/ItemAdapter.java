@@ -177,6 +177,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
 
     void setItemPoints(Item item, double points){
         attachedPointsTextView.get(item).setText(String.valueOf(points));
+        notifyDataSetChanged();
     }
 
     private void attachView(Item item, TextView view) {

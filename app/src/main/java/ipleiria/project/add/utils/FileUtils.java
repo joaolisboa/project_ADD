@@ -142,8 +142,9 @@ public class FileUtils {
 
             int points = 0;
             // first 4 criteria have a special case with a 10 point limit
+            List<Criteria> criterias = CategoryRepository.getInstance().getCriterias();
             for(int i = 0; i < 4; i++){
-                Criteria criteria = CategoryRepository.getInstance().getCriterias().get(i);
+                Criteria criteria = criterias.get(i);
                 points += criteria.getPoints();
                 if(points >= 10){
                     points = 10;
@@ -152,15 +153,12 @@ public class FileUtils {
                             .getCell(criteria.getWriteCell().x)
                             .setCellValue(points);
             }
-            for(int i = 4; i < CategoryRepository.getInstance().getCriterias().size(); i++){
-                Criteria criteria = CategoryRepository.getInstance().getCriterias().get(i);
-
+            for(int i = 4; i < criterias.size(); i++){
+                Criteria criteria = criterias.get(i);
                 if(criteria.getPoints() > 0) {
                     sheet.getRow(criteria.getWriteCell().y)
                             .getCell(criteria.getWriteCell().x)
                             .setCellValue(criteria.getPoints());
-                    System.out.println(sheet.getRow(criteria.getWriteCell().y)
-                            .getCell(criteria.getWriteCell().x).getNumericCellValue());
                 }
             }
             try (FileOutputStream stream = new FileOutputStream(file)) {
@@ -168,16 +166,13 @@ public class FileUtils {
             }
             evaluator.evaluateAll();
 
-            for(int i = 0; i < CategoryRepository.getInstance().getCriterias().size(); i++) {
-                Criteria criteria = CategoryRepository.getInstance().getCriterias().get(i);
+            for(int i = 0; i < criterias.size(); i++) {
+                Criteria criteria = criterias.get(i);
                 if(criteria.getPoints() > 0) {
                     double value = sheet.getRow(criteria.getReadCell().y)
                             .getCell(criteria.getReadCell().x)
                             .getNumericCellValue();
                     criteria.setFinalPoints(value);
-                    System.out.println("criteria final points: " + criteria.getFinalPoints());
-                    System.out.println("criteria: " + criteria.getRealReference() +
-                            ";points: " + criteria.getFinalPoints());
                 }
             }
 

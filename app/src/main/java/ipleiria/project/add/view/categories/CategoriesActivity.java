@@ -43,7 +43,9 @@ public class CategoriesActivity extends AppCompatActivity {
             ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), categoriesFragment, R.id.contentFrame);
         }
 
-        CategoriesPresenter categoriesPresenter = new CategoriesPresenter(categoriesFragment, CategoryRepository.getInstance());
+        CategoriesPresenter categoriesPresenter = new CategoriesPresenter(categoriesFragment,
+                CategoryRepository.getInstance(),
+                ItemsRepository.getInstance());
     }
 
     public void onBackPressed() {

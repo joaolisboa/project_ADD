@@ -25,7 +25,7 @@ public class Dimension extends Category{
 
     @Override
     public String getFormattedString() {
-        return reference + " " + name;
+        return reference + " - " + name;
     }
 
     public Dimension(String name, int reference){

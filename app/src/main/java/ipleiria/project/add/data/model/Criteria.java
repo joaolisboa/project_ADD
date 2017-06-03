@@ -15,6 +15,10 @@ public class Criteria extends Category{
     private Coordinate readCell;
     private double finalPoints;
 
+    private String observations;
+    private String requiredDocument;
+    private String weightsInformation;
+
     public Criteria(){
         items = new LinkedList<>();
     }
@@ -62,7 +66,7 @@ public class Criteria extends Category{
     }
 
     public String getRealReference() {
-        return String.valueOf(getDimension().getReference()) + "." +
+        return getDimension().getReference() + "." +
                 getArea().getReference() + "." +
                 reference;
     }
@@ -83,6 +87,30 @@ public class Criteria extends Category{
             items.remove(pos);
             items.add(pos, item);
         }
+    }
+
+    public String getObservations() {
+        return observations;
+    }
+
+    public void setObservations(String observations) {
+        this.observations = observations;
+    }
+
+    public String getRequiredDocument() {
+        return requiredDocument;
+    }
+
+    public void setRequiredDocument(String requiredDocument) {
+        this.requiredDocument = requiredDocument;
+    }
+
+    public String getWeightsInformation() {
+        return weightsInformation;
+    }
+
+    public void setWeightsInformation(String weightsInformation) {
+        this.weightsInformation = weightsInformation;
     }
 
     public void deleteItem(Item item){
@@ -113,8 +141,6 @@ public class Criteria extends Category{
             this.x = x;
             this.y = y;
         }
-
-
     }
 
     @Override

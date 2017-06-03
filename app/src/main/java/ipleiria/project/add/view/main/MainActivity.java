@@ -3,7 +3,10 @@ package ipleiria.project.add.view.main;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -17,12 +20,18 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import ipleiria.project.add.R;
+import ipleiria.project.add.data.source.database.CategoryRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.ActivityUtils;
 import ipleiria.project.add.utils.CircleTransformation;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.view.categories.CategoriesActivity;
+import ipleiria.project.add.view.categories.CategoriesFragment;
+import ipleiria.project.add.view.categories.CategoriesPresenter;
 import ipleiria.project.add.view.items.ItemsActivity;
+import ipleiria.project.add.view.items.ItemsFragment;
+import ipleiria.project.add.view.items.ItemsPresenter;
 import ipleiria.project.add.view.settings.SettingsActivity;
 
 import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
@@ -32,7 +41,7 @@ import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
  * Created by Lisboa on 04-May-17.
  */
 
-public class MainActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener, MainContract.DrawerView {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainContract.DrawerView {
 
     static final String TAG = "MAIN_ACTIVITY";
 
@@ -65,6 +74,42 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         }
 
         new MainPresenter(UserService.getInstance(), mainFragment, this);
+
+        /*BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.menu_home);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                // handle desired action here
+                // One possibility of action is to replace the contents above the nav bar
+                // return true if you want the item to be displayed as the selected item
+                Fragment selectedFragment = null;
+                switch(item.getItemId()){
+                    case R.id.menu_home:
+                        MainFragment mainFragment1 = MainFragment.newInstance();
+                        new MainPresenter(UserService.getInstance(), mainFragment1, MainActivity.this);
+                        selectedFragment = mainFragment1;
+                        break;
+
+                    case R.id.menu_all:
+                        CategoriesFragment fragment = CategoriesFragment.newInstance();
+                        new CategoriesPresenter(fragment, CategoryRepository.getInstance(), ItemsRepository.getInstance());
+                        selectedFragment = fragment;
+                        break;
+
+                    case R.id.menu_trash:
+                        ItemsFragment itemsFragment = ItemsFragment.newInstance();
+                        new ItemsPresenter(ItemsRepository.getInstance(), itemsFragment, true);
+                        selectedFragment = itemsFragment;
+                        break;
+                }
+
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.contentFrame, selectedFragment);
+                transaction.commit();
+                return true;
+            }
+        });*/
     }
 
     @Override
