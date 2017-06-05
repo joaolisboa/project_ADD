@@ -359,9 +359,11 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         points.setText(String.valueOf(category.getPoints()));
         cancel.setOnClickListener(onClickListener);
 
-        Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_down);
-        view.startAnimation(slideUp);
-        view.setVisibility(View.VISIBLE);
+        if(view.getVisibility() == View.GONE) {
+            Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_down);
+            view.startAnimation(slideUp);
+            view.setVisibility(View.VISIBLE);
+        }
     }
 
     private View.OnClickListener canceledDimensionClickListener = new View.OnClickListener() {
@@ -474,19 +476,21 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     private void showLayout(View targetView) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            int cx = targetView.getWidth() / 2;
-            int cy = targetView.getHeight() / 2;
+        if(targetView.getVisibility() == View.GONE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                int cx = targetView.getWidth() / 2;
+                int cy = targetView.getHeight() / 2;
 
-            // get the final radius for the clipping circle
-            float finalRadius = (float) Math.hypot(cx, cy);
-            Animator anim = ViewAnimationUtils.createCircularReveal(targetView, cx, cy, 0, finalRadius);
-            anim.start();
-            targetView.setVisibility(View.VISIBLE);
-        } else {
-            Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
-            targetView.startAnimation(slideUp);
-            targetView.setVisibility(View.VISIBLE);
+                // get the final radius for the clipping circle
+                float finalRadius = (float) Math.hypot(cx, cy);
+                Animator anim = ViewAnimationUtils.createCircularReveal(targetView, cx, cy, 0, finalRadius);
+                anim.start();
+                targetView.setVisibility(View.VISIBLE);
+            } else {
+                Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
+                targetView.startAnimation(slideUp);
+                targetView.setVisibility(View.VISIBLE);
+            }
         }
     }
 

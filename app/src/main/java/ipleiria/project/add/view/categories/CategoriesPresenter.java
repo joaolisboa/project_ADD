@@ -293,6 +293,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     public void deleteItem(@NonNull Item item) {
         itemsRepository.deleteItem(item);
         categoriesView.removeDeletedItem(item);
+        refreshData();
     }
 
     @Override

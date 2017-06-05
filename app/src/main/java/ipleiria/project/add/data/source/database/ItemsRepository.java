@@ -197,7 +197,11 @@ public class ItemsRepository implements ItemsDataSource {
         int dimension = Integer.valueOf(s[0]) - 1;
         int area = Integer.valueOf(s[1]) - 1;
         int criteria = Integer.valueOf(s[2]) - 1;
-        newItem.setCriteria(CategoryRepository.getInstance().getCriteria(dimension, area, criteria));
+        Criteria criteriaO = CategoryRepository.getInstance().getCriteria(dimension, area, criteria);
+        newItem.setCriteria(criteriaO);
+        if(deleted){
+            criteriaO.deleteItem(newItem);
+        }
 
         for(DataSnapshot tagSnapshot: itemSnapshot.child("tags").getChildren()){
             newItem.addTag(tagSnapshot.getValue(String.class));
@@ -274,6 +278,7 @@ public class ItemsRepository implements ItemsDataSource {
     public void deleteItem(@NonNull Item item) {
         // move item to deleted-items and delete original
         localItems.remove(item);
+        item.getCriteria().deleteItem(item);
 
         // if item is being deleted and already has a copy in deletedFiles then copy
         if (localDeletedItems.contains(item)) {
@@ -304,7 +309,11 @@ public class ItemsRepository implements ItemsDataSource {
     public void permanentlyDeleteItem(@NonNull Item item) {
         localDeletedItems.remove(item);
         localItems.remove(item);
+        item.getCriteria().permanentlyDeleteItem(item);
 
+        if(itemsReference.child(item.getDbKey()) != null) {
+            itemsReference.child(item.getDbKey()).removeValue();
+        }
         deletedItemsReference.child(item.getDbKey()).removeValue();
 
         for (ItemFile file : item.getDeletedFiles()) {
@@ -315,6 +324,7 @@ public class ItemsRepository implements ItemsDataSource {
     @Override
     public void restoreItem(@NonNull Item item) {
         localDeletedItems.remove(item);
+        item.getCriteria().restoreItem(item);
 
         // if item has deleted files but itself isn't deleted then it'll be in this list
         if (localItems.contains(item)) {

@@ -11,6 +11,8 @@ public class Criteria extends Category{
 
     private Area area;
     private List<Item> items;
+    // move deleted items to this list so they don't count towards the points
+    private List<Item> deletedItems;
     private Coordinate writeCell;
     private Coordinate readCell;
     private double finalPoints;
@@ -26,6 +28,7 @@ public class Criteria extends Category{
     public Criteria(String name, int reference){
         super(name, reference);
         items = new LinkedList<>();
+        deletedItems = new LinkedList<>();
     }
 
     public Dimension getDimension() {
@@ -42,6 +45,20 @@ public class Criteria extends Category{
             weights += item.getWeight();
         }
         return weights;
+    }
+
+    public void deleteItem(Item item){
+        items.remove(item);
+        deletedItems.add(item);
+    }
+
+    public void restoreItem(Item item){
+        items.add(item);
+        deletedItems.remove(item);
+    }
+
+    public void permanentlyDeleteItem(Item item){
+        deletedItems.remove(item);
     }
 
     @Override
@@ -115,10 +132,6 @@ public class Criteria extends Category{
 
     public void setWeightsInformation(String weightsInformation) {
         this.weightsInformation = weightsInformation;
-    }
-
-    public void deleteItem(Item item){
-        items.remove(item);
     }
 
     public Coordinate getWriteCell() {

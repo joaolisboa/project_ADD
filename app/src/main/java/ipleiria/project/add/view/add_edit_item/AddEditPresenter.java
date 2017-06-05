@@ -43,7 +43,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
     private Criteria selectedCriteria;
     private String description;
-    private long weight;
+    private long weight = 1;
     private Item editingItem;
 
     private List<Uri> receivedFiles;
@@ -148,7 +148,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
     @Override
     public void verifyInput() {
-        if(description.isEmpty() || weight <=0 || selectedCriteria == null){
+        if(description == null || description.isEmpty() || weight <=0 || selectedCriteria == null){
             addEditView.hideFloatingActionButton();
         }else{
             addEditView.showFloatingActionButton();
