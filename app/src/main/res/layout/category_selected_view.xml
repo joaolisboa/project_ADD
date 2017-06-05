@@ -1,22 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+<LinearLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:background="#EAEAEA"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:visibility="gone"
+    android:orientation="vertical"    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <ImageView
+            android:id="@+id/expandable_arrow"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_keyboard_arrow_down_black_24dp"
+            />
+
         <TextView
             android:id="@+id/name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingStart="16dp"
+            android:paddingStart="8dp"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
             android:maxLines="3"
@@ -48,12 +60,14 @@
         android:id="@+id/expandable"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/observations"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:paddingTop="8dp"
@@ -62,9 +76,15 @@
             android:textSize="14sp" />
 
         <ImageButton
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:id="@+id/additional_info"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="@drawable/info_icon"
             />
+
     </LinearLayout>
 
     <View style="@style/Divider" />

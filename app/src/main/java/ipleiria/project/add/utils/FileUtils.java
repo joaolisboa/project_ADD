@@ -4,12 +4,18 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
+import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFHeader;
+import org.apache.poi.xwpf.usermodel.XWPFNum;
+import org.apache.poi.xwpf.usermodel.XWPFNumbering;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTNumFmt;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,6 +27,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Application;
+import ipleiria.project.add.data.model.Area;
+import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.source.MEOCloudService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.dropbox.DropboxClientFactory;
 import ipleiria.project.add.meocloud.data.MEOMetadata;
@@ -130,18 +139,69 @@ public class FileUtils {
         return files;
     }
 
-    private static void generateWordFile() {
-        try {
-            File file = new File(Application.getAppContext().getFilesDir(), "cv_avaliacao.xlsx");
-            InputStream is = new FileInputStream(file);
-            XWPFDocument document = new XWPFDocument(is);
-            XWPFHeader header = new XWPFHeader();
-            
+    public static void generateWordFile() {
+        /*File file = new File(Application.getAppContext().getFilesDir(), "cv_avaliacao.xlsx");
+            FileOutputStream out = new FileOutputStream(file);
+            XWPFDocument document = new XWPFDocument();
 
-            is.close();
-        } catch (IOException e) {
-            Log.e("LOCAL_FILE_COPY_OFFLINE", e.getMessage(), e);
-        }
+            XWPFParagraph title = document.createParagraph();
+            title.setAlignment(ParagraphAlignment.CENTER);
+            XWPFRun titleRun = title.createRun();
+            titleRun.setText("Curriculum Vitae Detalhado - Avaliação de Desempenho\nESTG - IPLEIRIA");
+            titleRun.setColor("000000");
+            titleRun.setBold(false);
+            titleRun.setFontFamily("Trebuchet MS");
+            titleRun.setFontSize(16);
+
+            for(Dimension dimension: CategoryRepository.getInstance().getDimensions()){
+                XWPFParagraph dimensionParagraph = document.createParagraph();
+                dimensionParagraph.setAlignment(ParagraphAlignment.NUM_TAB);
+                XWPFRun dimensionRun = dimensionParagraph.createRun();
+                dimensionRun.setText(dimension.getReference() + ". " + dimension.getName());
+                dimensionRun.setBold(true);
+                dimensionRun.setFontFamily("Tahoma");
+
+                for(Area area: dimension.getAreas()){
+                    for(Criteria criteria: area.getCriterias()){
+                        XWPFParagraph criteriaParagraph = document.createParagraph();
+                        XWPFRun criteriaRun = criteriaParagraph.createRun();
+                        criteriaRun.setText(criteria.getRealReference() + " - \"" + criteria.getName() + "\"");
+                        criteriaRun.setUnderline(UnderlinePatterns.SINGLE);
+                        criteriaRun.setFontFamily("Tahoma");
+                        criteriaRun.setFontSize(13);
+
+                        for(Item item: criteria.getItems()){
+                            XWPFParagraph descricao = document.createParagraph();
+                            criteriaParagraph.setAlignment(ParagraphAlignment.NUM_TAB);
+                            XWPFRun itemRun = descricao.createRun();
+                            itemRun.setText("Descriçao da atividade: " + item.getDescription());
+                            itemRun.setFontFamily("Arial");
+                            itemRun.setFontSize(11);
+
+                            XWPFParagraph doc = document.createParagraph();
+                            criteriaParagraph.setAlignment(ParagraphAlignment.NUM_TAB);
+                            XWPFRun docRun = doc.createRun();
+                            docRun.setText("Comprovativo: Em anexo");
+                            docRun.setFontFamily("Arial");
+                            docRun.setFontSize(11);
+
+                            XWPFParagraph points = document.createParagraph();
+                            criteriaParagraph.setAlignment(ParagraphAlignment.NUM_TAB);
+                            XWPFRun pointsRun = points.createRun();
+                            pointsRun.setText("\nPontuaçao: " + criteria.getFinalPoints());
+                            pointsRun.setFontFamily("Arial");
+                            pointsRun.setFontSize(11);
+                        }
+
+                    }
+                }
+
+            }
+
+            document.write(out);
+            out.close();
+
+        MEOCloudService.getInstance().uploadFile(Uri.fromFile(file), "export", "cv_avaliacao.xlsx");*/
     }
 
     public static void readExcel() {
@@ -153,10 +213,10 @@ public class FileUtils {
         try {
             File file = getExcelFile();
             InputStream inputStream = new FileInputStream(file);
-            Workbook wb = new XSSFWorkbook(inputStream);
+            XSSFWorkbook wb = new XSSFWorkbook(inputStream);
             wb.setForceFormulaRecalculation(true);
-            FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
-            Sheet sheet = wb.getSheetAt(0);
+            XSSFFormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
+            XSSFSheet sheet = wb.getSheetAt(0);
 
             int points = 0;
             // first 4 criteria have a special case with a 10 point limit

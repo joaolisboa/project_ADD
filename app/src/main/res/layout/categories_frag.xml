@@ -6,22 +6,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <include layout="@layout/category_selected_view"
             android:id="@+id/dimension" />
 
         <include layout="@layout/category_selected_view"
-            android:id="@+id/area" />
+            android:id="@+id/area"
+            android:layout_below="@id/dimension"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
 
         <include layout="@layout/category_selected_view"
-            android:id="@+id/criteria" />
+            android:id="@+id/criteria"
+            android:layout_below="@id/area"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <ListView
             android:id="@+id/category_list"
+            android:layout_below="@id/criteria"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:animateLayoutChanges="true"
@@ -31,6 +38,7 @@
 
         <ListView
             android:id="@+id/items_list"
+            android:layout_below="@id/criteria"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:animateLayoutChanges="true"
@@ -40,6 +48,35 @@
             android:visibility="gone"
             />
 
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/noItems"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/noItemsMain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/no_items"
+                android:textSize="16sp"
+                android:layout_marginBottom="@dimen/list_item_padding" />
+
+            <TextView
+                android:id="@+id/noItemsAdd"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="@drawable/touch_feedback"
+                android:gravity="center"
+                android:text="@string/no_items_add"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
 </ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout>

@@ -32,6 +32,7 @@ import ipleiria.project.add.utils.ActivityUtils;
 import ipleiria.project.add.utils.CircleTransformation;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.UserService;
+import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.view.categories.CategoriesActivity;
 import ipleiria.project.add.view.categories.CategoriesFragment;
 import ipleiria.project.add.view.categories.CategoriesPresenter;
@@ -153,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.export:
                 Uri uri = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
                 MEOCloudService.getInstance().uploadFile(uri, "export", "ficha_avaliacao.xlsx");
-
+                //FileUtils.generateWordFile();
                 return true;
         }
 

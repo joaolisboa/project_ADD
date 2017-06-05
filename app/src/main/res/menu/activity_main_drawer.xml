@@ -15,13 +15,13 @@
 
         <item
             android:id="@+id/list_items"
-            android:icon="@drawable/list"
+            android:icon="@drawable/list_black"
             android:title="Items"
             />
 
         <item
             android:id="@+id/categories"
-            android:icon="@drawable/list"
+            android:icon="@drawable/list_black"
             android:title="Categories"
             />
 

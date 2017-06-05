@@ -24,7 +24,7 @@ public interface ItemsDataSource {
 
     void moveItemsToNewUser();
 
-    void getRemoteItems(final FilesRepository.Callback<List<Item>> callback);
+    void getItems(final FilesRepository.Callback<List<Item>> callback);
 
     void getRemoteDeletedItems(final FilesRepository.Callback<List<Item>> callback);
 

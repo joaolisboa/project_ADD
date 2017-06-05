@@ -24,6 +24,7 @@ import android.widget.TextView;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.ItemClickListener;
 import ipleiria.project.add.view.itemdetail.ItemDetailActivity;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
@@ -289,7 +290,7 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
     /**
      * Listener for clicks on item and swipeLayout in the ListView.
      */
-    ItemActionListener itemActionListener = new ItemActionListener() {
+    ItemClickListener itemActionListener = new ItemClickListener() {
 
         @Override
         public void onItemClick(Item clickedIem) {
@@ -319,18 +320,5 @@ public class ItemsFragment extends Fragment implements ItemsContract.View{
             itemsPresenter.restoreItem(restoredItem);
         }
     };
-
-    interface ItemActionListener {
-
-        void onItemClick(Item clickedIem);
-
-        void onDeleteItem(Item deletedItem);
-
-        void onPermanentDeleteItem(Item deletedItem);
-
-        void onEditItem(Item editedItem);
-
-        void onRestoreItem(Item restoredItem);
-    }
 
 }

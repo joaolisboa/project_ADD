@@ -1,5 +1,7 @@
 package ipleiria.project.add.view.categories;
 
+import android.content.Intent;
+
 import java.util.List;
 
 import ipleiria.project.add.BasePresenter;
@@ -47,6 +49,22 @@ public class CategoriesContract {
         void showSelectedArea(Area area);
 
         void showSelectedCriteria(Criteria criteria);
+
+        void showNoItems();
+
+        void removeDeletedItem(Item item);
+
+        void openItemDetails(Item clickedIem);
+
+        void showFilesAddedMessage();
+
+        void showItemAddedMessage();
+
+        void showItemEditedMessage();
+
+        void enableListSwipe(boolean b);
+
+        void showSearchItems(List<Item> matchingItems);
     }
 
     interface Presenter extends BasePresenter {
@@ -62,6 +80,14 @@ public class CategoriesContract {
         void returnToCriteriaView();
 
         void refreshData();
+
+        void onItemClicked(Item clickedIem);
+
+        void deleteItem(Item deletedItem);
+
+        void onResult(int requestCode, int resultCode, Intent data);
+
+        void searchItems(String query);
     }
 
 }

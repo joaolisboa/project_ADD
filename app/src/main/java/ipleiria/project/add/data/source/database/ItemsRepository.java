@@ -105,7 +105,7 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     @Override
-    public void getRemoteItems(final FilesRepository.Callback<List<Item>> callback){
+    public void getItems(final FilesRepository.Callback<List<Item>> callback){
         itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -156,7 +156,7 @@ public class ItemsRepository implements ItemsDataSource {
     @Override
     public List<Item> getItems() {
         /*if(localItems.isEmpty() || cacheIsDirty){
-            return getRemoteItems();
+            return getItems();
         }*/
         return localItems;
     }

@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.ItemClickListener;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
@@ -31,9 +32,9 @@ public class ItemAdapter extends BaseSwipeAdapter {
     private boolean listingDeleted;
     private boolean enableSwipe;
     private LinkedHashMap<Item, TextView> attachedPointsTextView;
-    private ItemsFragment.ItemActionListener actionsListener;
+    private ItemClickListener actionsListener;
 
-    public ItemAdapter(List<Item> listItems, ItemsFragment.ItemActionListener actionsListener, boolean listingDeleted, boolean enableSwipe) {
+    public ItemAdapter(List<Item> listItems, ItemClickListener actionsListener, boolean listingDeleted, boolean enableSwipe) {
         setList(listItems);
         this.actionsListener = actionsListener;
         this.listingDeleted = listingDeleted;
@@ -158,7 +159,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
         return position;
     }
 
-    void onItemAdded(Item item) {
+    public void onItemAdded(Item item) {
         int pos = listItems.indexOf(item);
         if (pos < 0) {
             listItems.add(item);
@@ -169,13 +170,13 @@ public class ItemAdapter extends BaseSwipeAdapter {
         notifyDataSetChanged();
     }
 
-    void onItemRemoved(Item deletedItem) {
+    public void onItemRemoved(Item deletedItem) {
         listItems.remove(deletedItem);
         removeAttachedView(deletedItem);
         notifyDataSetChanged();
     }
 
-    void setItemPoints(Item item, double points){
+    public void setItemPoints(Item item, double points){
         attachedPointsTextView.get(item).setText(String.valueOf(points));
         notifyDataSetChanged();
     }
