@@ -80,10 +80,9 @@ public class GoogleSignInFragment extends Fragment implements GoogleSignInContra
         // Button listeners
         signInButton = (SignInButton) root.findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(this);
-        root.findViewById(R.id.sign_out_button).setOnClickListener(this);
-
-        SignInButton signInButton = (SignInButton) root.findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
+
+        root.findViewById(R.id.sign_out_button).setOnClickListener(this);
 
         return root;
     }

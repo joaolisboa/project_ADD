@@ -10,9 +10,12 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,9 +23,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Transformation;
 import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -42,10 +49,12 @@ import ipleiria.project.add.*;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.utils.UriHelper;
+import ipleiria.project.add.view.add_edit_item.AddEditActivity;
 import ipleiria.project.add.view.items.ItemsActivity;
 import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
+import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
 import static ipleiria.project.add.view.main.MainActivity.TAG;
 import static ipleiria.project.add.view.main.MainPresenter.REQUEST_TAKE_PHOTO;
 
@@ -87,12 +96,33 @@ public class MainFragment extends Fragment implements MainContract.View,
         pendingListView.setAdapter(listAdapter);
 
         // Set up floating action button
-        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
-        fab.setImageResource(R.drawable.add_white);
-        fab.setOnClickListener(new View.OnClickListener() {
+        final FloatingActionButton fabPhoto = (FloatingActionButton) getActivity().findViewById(R.id.fab_photo);
+        fabPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 takePicture();
+            }
+        });
+
+        final FloatingActionButton fabAdd = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(getContext(), AddEditActivity.class), REQUEST_ADD_NEW_ITEM);
+            }
+        });
+
+        FloatingActionButton fabMenu = (FloatingActionButton) getActivity().findViewById(R.id.fab_menu);
+        fabMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(fabPhoto.isShown() || fabAdd.isShown()){
+                    fabPhoto.hide();
+                    fabAdd.hide();
+                }else {
+                    fabPhoto.show();
+                    fabAdd.show();
+                }
             }
         });
 
@@ -175,6 +205,11 @@ public class MainFragment extends Fragment implements MainContract.View,
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         presenter.result(requestCode, resultCode, getContext());
+    }
+
+    @Override
+    public void showItemAddedMessage(){
+        Snackbar.make(getView(), "New item saved", Snackbar.LENGTH_LONG).show();
     }
 
     @Override

@@ -28,6 +28,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -68,6 +69,11 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     private TextView filesHeader;
     private ChipsInput chipsInput;
 
+    private TextView descriptionTextView;
+    private TextView weightTextView;
+
+    private ListView listView;
+
     public ItemDetailFragment() {
     }
 
@@ -90,10 +96,13 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
 
         filesHeader = (TextView) root.findViewById(R.id.file_label_subheader);
         chipsInput = (ChipsInput) root.findViewById(R.id.chips_input);
+        descriptionTextView = (TextView) root.findViewById(R.id.description);
+        weightTextView = (TextView) root.findViewById(R.id.weight);
 
         // Set up files list
-        ListView listView = (ListView) root.findViewById(R.id.listview);
+        listView = (ListView) root.findViewById(R.id.listview);
         listView.setAdapter(listFileAdapter);
+        setListViewHeightBasedOnItems();
 
         // Set up floating action button
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
@@ -108,6 +117,37 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         setHasOptionsMenu(true);
 
         return root;
+    }
+
+    public boolean setListViewHeightBasedOnItems() {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter != null) {
+
+            int numberOfItems = listAdapter.getCount();
+
+            // Get total height of all items.
+            int totalItemsHeight = 0;
+            for (int itemPos = 0; itemPos < numberOfItems; itemPos++) {
+                View item = listAdapter.getView(itemPos, null, listView);
+                item.measure(0, 0);
+                totalItemsHeight += item.getMeasuredHeight();
+            }
+
+            // Get total height of all item dividers.
+            int totalDividersHeight = listView.getDividerHeight() *
+                    (numberOfItems - 1);
+
+            // Set list height.
+            ViewGroup.LayoutParams params = listView.getLayoutParams();
+            params.height = totalItemsHeight + totalDividersHeight;
+            listView.setLayoutParams(params);
+            listView.requestLayout();
+
+            return true;
+
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -208,6 +248,8 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
 
     @Override
     public void showItemInfo(Item item) {
+        descriptionTextView.setText(item.getDescription());
+        weightTextView.setText("Weight: " + item.getWeight());
         ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(item.getDescription());
     }
 
@@ -216,6 +258,8 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         listFileAdapter.replaceData(files);
 
         filesHeader.setVisibility(View.VISIBLE);
+        setListViewHeightBasedOnItems();
+
     }
 
     @Override
@@ -227,6 +271,8 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     public void showAddedFile(ItemFile file) {
         listFileAdapter.onFileAdded(file);
         filesHeader.setVisibility(View.VISIBLE);
+        setListViewHeightBasedOnItems();
+
     }
 
     @Override

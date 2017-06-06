@@ -57,6 +57,7 @@ import ipleiria.project.add.view.items.ItemsActivity;
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 import static ipleiria.project.add.view.google_sign_in.GoogleSignInPresenter.SCOPES;
+import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
 import static ipleiria.project.add.view.main.MainFragment.REQUEST_AUTHORIZATION;
 
 /**
@@ -178,6 +179,8 @@ class MainPresenter implements MainContract.Presenter {
                 Intent photo = new Intent(context, ItemsActivity.class);
                 photo.putExtra("photo_uri", photoUri.toString());
                 context.startActivity(photo.setAction(SENDING_PHOTO));
+            }else if(requestCode == REQUEST_ADD_NEW_ITEM){
+                mainView.showItemAddedMessage();
             }
         }
     }

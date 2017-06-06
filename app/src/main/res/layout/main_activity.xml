@@ -39,14 +39,38 @@
                 android:layout_height="match_parent" />
 
             <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="182dp"
+                app:srcCompat="@drawable/photo_camera"
+                app:fabSize="normal"
+                android:visibility="invisible"
+                app:layout_anchor="@id/contentFrame"
+                app:layout_anchorGravity="bottom|end" />
+
+            <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/fab_margin"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="96dp"
                 app:srcCompat="@drawable/add_white"
                 app:fabSize="normal"
+                android:visibility="invisible"
                 app:layout_anchor="@id/contentFrame"
-                app:layout_anchorGravity="bottom|right|end" />
+                app:layout_anchorGravity="bottom|end" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:srcCompat="@drawable/vertical_menu"
+                app:fabSize="normal"
+                app:layout_anchor="@id/contentFrame"
+                app:layout_anchorGravity="bottom|end" />
 
         </android.support.design.widget.CoordinatorLayout>
 

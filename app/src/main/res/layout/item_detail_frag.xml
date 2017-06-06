@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:paddingBottom="32dp"
+    android:clipToPadding="false"
     tools:context="ipleiria.project.add.view.itemdetail.ItemDetailActivity">
 
     <LinearLayout
@@ -18,11 +20,41 @@
             android:layout_height="wrap_content"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
+            android:paddingTop="8dp"
             app:maxRows="5"
             app:chip_hasAvatarIcon="false"
             app:chip_deletable="true"
             android:imeOptions="actionDone"
             app:hint="Add tags" />
+
+        <TextView
+            android:id="@+id/info_label_subheader"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:paddingStart="72dp"
+            android:text="Info"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/weight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="72dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:textSize="18sp"/>
 
         <TextView
             android:id="@+id/file_label_subheader"
@@ -36,7 +68,8 @@
         <ListView
             android:id="@+id/listview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            />
 
     </LinearLayout>
 </ScrollView>

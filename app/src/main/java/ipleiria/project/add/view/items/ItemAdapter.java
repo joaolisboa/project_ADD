@@ -92,10 +92,10 @@ public class ItemAdapter extends BaseSwipeAdapter {
         swipeLayout.setSwipeEnabled(enableSwipe);
 
         TextView itemName = (TextView) convertView.findViewById(R.id.title_text_view);
-        TextView itemCriteria = (TextView) convertView.findViewById(R.id.category_text_view);
+        //TextView itemCriteria = (TextView) convertView.findViewById(R.id.category_text_view);
 
         itemName.setText(item.getDescription());
-        itemCriteria.setText(item.getCategoryReference() + ". " + item.getCriteria().getName());
+        //itemCriteria.setText(item.getCategoryReference() + ". " + item.getCriteria().getName());
 
         TextView numFilesView = (TextView) convertView.findViewById(R.id.num_files);
         TextView pointsView = (TextView) convertView.findViewById(R.id.points);
