@@ -76,8 +76,8 @@ public class SettingsPresenter implements SettingsContract.Presenter {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if (user != null) {
                 Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                updateAccountInfo();
             }
-            updateAccountInfo();
         }
     };
 

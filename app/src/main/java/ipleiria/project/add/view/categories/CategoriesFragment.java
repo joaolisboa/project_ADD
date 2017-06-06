@@ -130,6 +130,10 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
 
         setHasOptionsMenu(true);
 
+        if(savedInstanceState != null){
+            categoriesPresenter.restoreInstanceState(savedInstanceState);
+        }
+
         return root;
     }
 
@@ -168,6 +172,15 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         categoriesPresenter.onResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        // Save UI state changes to the savedInstanceState.
+        // This bundle will be passed to onCreate if the process is
+        // killed and restarted.
+        savedInstanceState.putAll(categoriesPresenter.saveInstanceState());
     }
 
     @Override
@@ -220,8 +233,8 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     private void showCategoryList(){
-        showLayout(categoryListView);
         swipeRefreshLayout.setScrollUpChild(categoryListView);
+        showLayout(categoryListView);
         hideLayout(noItemsView);
         hideLayout(itemsListView);
     }

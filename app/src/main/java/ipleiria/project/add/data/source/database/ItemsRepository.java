@@ -190,6 +190,7 @@ public class ItemsRepository implements ItemsDataSource {
     public void addNewItem(@NonNull DataSnapshot itemSnapshot, boolean deleted) {
         Item newItem = new Item((String) itemSnapshot.child("description").getValue());
         newItem.setDbKey(itemSnapshot.getKey());
+
         newItem.setWeight((Long) itemSnapshot.child("weight").getValue());
 
         String reference = (String) itemSnapshot.child("reference").getValue();

@@ -167,55 +167,6 @@ public class FilesRepository implements FilesDataSource {
 
     @Override
     public void getRemotePendingFiles(final ServiceCallback<List<ItemFile>> callback) {
-        /*new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final Semaphore semaphore = new Semaphore(-1);
-
-                if(meoCloudService.isAvailable()) {
-                    meoCloudService.getMetadata(PENDING_PATH, new BaseCallback<MEOMetadata>() {
-                        @Override
-                        public void onComplete(MEOMetadata result) {
-                            for(MEOMetadata meoMetadata: result.getContents()){
-                                if(!meoMetadata.isDir()){
-                                    ItemFile newFile = new ItemFile(meoMetadata.getName());
-                                    if(!pendingFiles.contains(newFile)) {
-                                        pendingFiles.add(newFile);
-                                    }
-                                }
-                            }
-                            semaphore.release();
-                        }
-                    });
-                }else{
-                    semaphore.release();
-                }
-                if(dropboxService.isAvailable()){
-                    dropboxService.getMetadata(PENDING_PATH, new BaseCallback<ListFolderResult>() {
-                        @Override
-                        public void onComplete(ListFolderResult result) {
-                            for(Metadata metadata: result.getEntries()){
-                                if(metadata instanceof FileMetadata) {
-                                    ItemFile newFile = new ItemFile(metadata.getName());
-                                    if(!pendingFiles.contains(newFile)) {
-                                        pendingFiles.add(newFile);
-                                    }
-                                }
-                            }
-                            semaphore.release();
-                        }
-                    });
-                }else{
-                    semaphore.release();
-                }
-                try {
-                    semaphore.acquire();
-                    callback.onComplete(pendingFiles);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();*/
         if(meoCloudService.isAvailable()) {
             meoCloudService.getMetadata(PENDING_PATH, new Callback<MEOMetadata>() {
                 @Override

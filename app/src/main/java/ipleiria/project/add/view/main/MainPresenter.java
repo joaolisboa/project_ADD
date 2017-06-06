@@ -100,12 +100,7 @@ class MainPresenter implements MainContract.Presenter {
         filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<ItemFile>>() {
             @Override
             public void onMEOComplete(List<ItemFile> result) {
-                for (ItemFile file : result) {
-                    if (!pendingFiles.contains(file)) {
-                        pendingFiles.add(file);
-                        mainView.addPendingFile(file);
-                    }
-                }
+                addFiles(result);
             }
 
             @Override
@@ -114,12 +109,7 @@ class MainPresenter implements MainContract.Presenter {
 
             @Override
             public void onDropboxComplete(List<ItemFile> result) {
-                for (ItemFile file : result) {
-                    if (!pendingFiles.contains(file)) {
-                        pendingFiles.add(file);
-                        mainView.addPendingFile(file);
-                    }
-                }
+                addFiles(result);
             }
 
             @Override
@@ -175,7 +165,7 @@ class MainPresenter implements MainContract.Presenter {
                     UserService.getInstance().initUser(user);
                     drawerView.setUserInfo(UserService.getInstance().getUser());
                 } else {
-                    Log.d(AUTH_TAG, "onAuthStateChanged:auth_failed");
+                    Log.e(AUTH_TAG, "onAuthStateChanged:auth_failed", task.getException());
                 }
             }
         });
@@ -213,12 +203,7 @@ class MainPresenter implements MainContract.Presenter {
             new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
                 @Override
                 public void onComplete(List<ItemFile> result) {
-                    for (ItemFile file : result) {
-                        if (!pendingFiles.contains(file)) {
-                            pendingFiles.add(file);
-                            mainView.addPendingFile(file);
-                        }
-                    }
+                    addFiles(result);
                 }
             }).execute();
         }
@@ -263,9 +248,8 @@ class MainPresenter implements MainContract.Presenter {
 
                 new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
                     @Override
-                    public void onComplete(List<ItemFile> pendingFiles) {
-                        System.out.println(pendingFiles);
-                        mainView.addPendingFiles(pendingFiles);
+                    public void onComplete(List<ItemFile> result) {
+                        addFiles(result);
                     }
                 }).execute();
             }
@@ -277,12 +261,7 @@ class MainPresenter implements MainContract.Presenter {
         filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<ItemFile>>() {
             @Override
             public void onMEOComplete(List<ItemFile> result) {
-                for (ItemFile file : result) {
-                    if (!pendingFiles.contains(file)) {
-                        pendingFiles.add(file);
-                        mainView.addPendingFile(file);
-                    }
-                }
+                addFiles(result);
             }
 
             @Override
@@ -301,10 +280,8 @@ class MainPresenter implements MainContract.Presenter {
 
         new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
             @Override
-            public void onComplete(List<ItemFile> pendingFiles) {
-                if (!pendingFiles.isEmpty()) {
-                    addFiles(pendingFiles);
-                }
+            public void onComplete(List<ItemFile> result) {
+                addFiles(result);
             }
         }).execute();
 
@@ -318,12 +295,12 @@ class MainPresenter implements MainContract.Presenter {
         for(ItemFile file: files){
             addFile(file);
         }
+        processPendingFiles();
     }
 
     private void addFile(ItemFile file){
         if (!pendingFiles.contains(file)) {
             pendingFiles.add(file);
-            mainView.addPendingFile(file);
         }
     }
 
@@ -331,7 +308,7 @@ class MainPresenter implements MainContract.Presenter {
         if (pendingFiles.isEmpty()) {
             mainView.showNoPendingFiles();
         } else {
-            mainView.showPendingFiles(filesRepository.getPendingFiles());
+            mainView.showPendingFiles(pendingFiles);
         }
     }
 

@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.categories;
 
 import android.content.Intent;
+import android.os.Bundle;
 
 import java.util.List;
 
@@ -88,6 +89,10 @@ public class CategoriesContract {
         void onResult(int requestCode, int resultCode, Intent data);
 
         void searchItems(String query);
+
+        Bundle saveInstanceState();
+
+        void restoreInstanceState(Bundle savedInstanceState);
     }
 
 }

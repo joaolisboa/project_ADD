@@ -219,6 +219,7 @@ public class MainFragment extends Fragment implements MainContract.View,
 
     @Override
     public void showPendingFiles(List<ItemFile> pendingFiles) {
+        listAdapter.clear();
         for(ItemFile file: pendingFiles) {
             addPendingFile(file);
         }

@@ -2,6 +2,7 @@ package ipleiria.project.add.view.categories;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -77,7 +78,6 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
             @Override
             public void onComplete(List<Dimension> result) {
-                //categoriesView.showDimensions(result);
 
                 itemsRepository.getItems(new FilesRepository.Callback<List<Item>>() {
                     @Override
@@ -267,6 +267,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         categoriesView.hideSelectedDimension();
         categoriesView.hideSelectedArea();
         categoriesView.hideSelectedCriteria();
+
         categoriesView.showDimensions(categoryRepository.getDimensions());
         currentFocus = ROOT_FOCUS;
     }
@@ -275,6 +276,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     public void returnToAreaView() {
         categoriesView.hideSelectedArea();
         categoriesView.hideSelectedCriteria();
+
         categoriesView.showSelectedDimension(selectedDimension);
         categoriesView.showAreas(selectedDimension.getAreas());
         currentFocus = DIMENSION_FOCUS;
@@ -283,6 +285,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     @Override
     public void returnToCriteriaView() {
         categoriesView.hideSelectedCriteria();
+
         categoriesView.showSelectedDimension(selectedDimension);
         categoriesView.showSelectedArea(selectedArea);
         categoriesView.showCriterias(selectedArea.getCriterias());
@@ -306,5 +309,31 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             action = null;
             categoriesView.enableListSwipe(true);
         }
+    }
+
+    @Override
+    public Bundle saveInstanceState() {
+        Bundle savedInstanceState = new Bundle();
+        savedInstanceState.putInt("focus", currentFocus);
+        savedInstanceState.putInt("dimension_ref", selectedDimension.getReference());
+        savedInstanceState.putInt("area_ref", selectedArea.getReference());
+        savedInstanceState.putInt("criteria_ref", selectedCriteria.getReference());
+
+        return savedInstanceState;
+    }
+
+    @Override
+    public void restoreInstanceState(Bundle savedInstanceState) {
+        int dimensionRef = savedInstanceState.getInt("dimension_ref");
+        int areaRef = savedInstanceState.getInt("area_ref");
+        int criteriaRef = savedInstanceState.getInt("criteria_ref");
+
+        currentFocus = savedInstanceState.getInt("focus");
+
+        selectedDimension = categoryRepository.getDimensions().get(dimensionRef-1);
+        selectedArea = selectedDimension.getArea(areaRef-1);
+        selectedCriteria = selectedArea.getCriteria(criteriaRef-1);
+
+        processList();
     }
 }

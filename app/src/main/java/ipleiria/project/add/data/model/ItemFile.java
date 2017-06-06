@@ -70,13 +70,12 @@ public class ItemFile {
 
     @Override
     public boolean equals(Object object){
-        if(this == object) return true;
-        if(object == null || getClass() != object.getClass()) {
-            return false;
-        }
+        //if(this == object) return true;
         if(dbKey != null && ((ItemFile) object).getDbKey() != null){
             return dbKey.equals(((ItemFile) object).getDbKey());
         }else{
+            System.out.println(filename + " --- " + ((ItemFile) object).getFilename());
+            System.out.println(filename.equals(((ItemFile) object).getFilename()));
             return filename.equals(((ItemFile) object).getFilename());
         }
     }

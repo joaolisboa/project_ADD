@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.R;
@@ -29,12 +30,27 @@ class CategoryAdapter extends BaseAdapter{
         attachedPointsTextView = new LinkedHashMap<>();
     }
 
-    private void setList(List<Category> items){
-        this.items = items;
+    private void setList(List<Category> categories){
+        this.items = categories;
     }
 
-    void replaceData(List<Category> items){
-        setList(items);
+    void replaceData(List<Category> categories){
+        LinkedList<Category> firstItems = new LinkedList<>();
+        LinkedList<Category> lastItems = new LinkedList<>();
+
+        for(Category category: categories){
+            if(category.getPoints() > 0){
+                firstItems.add(category);
+            }else{
+                lastItems.add(category);
+            }
+        }
+
+        LinkedList<Category> orderedList = new LinkedList<>();
+        orderedList.addAll(firstItems);
+        orderedList.addAll(lastItems);
+
+        setList(orderedList);
         notifyDataSetChanged();
     }
 
