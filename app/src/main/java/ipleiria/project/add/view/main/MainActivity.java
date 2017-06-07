@@ -132,7 +132,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
+            case R.id.categories:
+                startActivity(new Intent(this, CategoriesActivity.class));
+                return true;
+
+            case R.id.list_items:
+                startActivity(new Intent(this, ItemsActivity.class));
+                return true;
+
             case R.id.nav_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
@@ -143,19 +151,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(intent);
                 return true;
 
-            case R.id.list_items:
-                startActivity(new Intent(this, ItemsActivity.class));
-                return true;
-
-            case R.id.categories:
-                startActivity(new Intent(this, CategoriesActivity.class));
-                return true;
-
             case R.id.export:
-                Uri uri = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
-                MEOCloudService.getInstance().uploadFile(uri, "export", "ficha_avaliacao.xlsx");
-                //FileUtils.generateWordFile();
-                return true;
+                Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
+                FilesRepository.getInstance().uploadFile(sheet, "export", "ficha_avaliacao.xlsx");
+                FileUtils.generateNote("relatorio.txt");
+                Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
+                FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -168,12 +170,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View navHeader = navigationView.getHeaderView(0);
         ((TextView) navHeader.findViewById(R.id.user_name)).setText(user.getName());
         ((TextView) navHeader.findViewById(R.id.user_mail)).setText(user.getEmail());
+        ImageView profilePicView = (ImageView) navHeader.findViewById(R.id.profile_pic);
         Picasso.with(this)
                 .load(user.getPhoto_url())
                 .resize(100, 100)
                 .transform(new CircleTransformation())
                 .placeholder(R.drawable.profile_placeholder)
                 .error(R.drawable.profile_placeholder)
-                .into((ImageView) navHeader.findViewById(R.id.profile_pic));
+                .into(profilePicView);
+
+        profilePicView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            }
+        });
+
     }
 }

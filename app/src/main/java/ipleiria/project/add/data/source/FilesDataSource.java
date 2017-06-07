@@ -22,6 +22,8 @@ public interface FilesDataSource {
 
     void saveFile(ItemFile newFile, Uri uri);
 
+    void uploadFile(Uri uri, String path, String filename);
+
     File getCachedThumbnail(ItemFile file);
 
     void downloadThumbnail(ItemFile file, FilesRepository.BaseCallback<File> callback);

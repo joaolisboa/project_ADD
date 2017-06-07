@@ -3,14 +3,9 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_settings_black"
-            android:title="Settings"
-            />
-        <item
-            android:id="@+id/nav_trash"
-            android:icon="@drawable/delete_black"
-            android:title="Trash"
+            android:id="@+id/categories"
+            android:icon="@drawable/list_black"
+            android:title="Categories"
             />
 
         <item
@@ -20,9 +15,15 @@
             />
 
         <item
-            android:id="@+id/categories"
-            android:icon="@drawable/list_black"
-            android:title="Categories"
+            android:id="@+id/nav_trash"
+            android:icon="@drawable/delete_black"
+            android:title="Trash"
+            />
+
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings_black"
+            android:title="Settings"
             />
 
         <item

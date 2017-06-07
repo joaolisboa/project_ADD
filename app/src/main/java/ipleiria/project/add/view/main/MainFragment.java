@@ -112,16 +112,18 @@ public class MainFragment extends Fragment implements MainContract.View,
             }
         });
 
-        FloatingActionButton fabMenu = (FloatingActionButton) getActivity().findViewById(R.id.fab_menu);
+        final FloatingActionButton fabMenu = (FloatingActionButton) getActivity().findViewById(R.id.fab_menu);
         fabMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(fabPhoto.isShown() || fabAdd.isShown()){
                     fabPhoto.hide();
                     fabAdd.hide();
+                    fabMenu.setImageResource(R.drawable.vertical_menu);
                 }else {
                     fabPhoto.show();
                     fabAdd.show();
+                    fabMenu.setImageResource(R.drawable.close_white);
                 }
             }
         });

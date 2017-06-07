@@ -223,6 +223,17 @@ public class FilesRepository implements FilesDataSource {
         }
     }
 
+    @Override
+    public void uploadFile(Uri uri, String path, String filename){
+        if (meoCloudService.isAvailable()) {
+            meoCloudService.uploadFile(uri, path, filename);
+        }
+        if (dropboxService.isAvailable()) {
+            // dropbox creates folders automatically so we don't need to seperate the path and filename
+            dropboxService.uploadFile(uri, path + "/" + filename, null);
+        }
+    }
+
     private File getLocalPendingFile(String filename){
         return new File(Application.getAppContext().getFilesDir(), filename);
     }

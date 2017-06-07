@@ -20,6 +20,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTNumFmt;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -139,69 +140,42 @@ public class FileUtils {
         return files;
     }
 
-    public static void generateWordFile() {
-        /*File file = new File(Application.getAppContext().getFilesDir(), "cv_avaliacao.xlsx");
-            FileOutputStream out = new FileOutputStream(file);
-            XWPFDocument document = new XWPFDocument();
+    public static void generateNote(String sFileName) {
+        try {
+            File file = new File(Application.getAppContext().getFilesDir(), sFileName);
+            FileWriter writer = new FileWriter(file);
 
-            XWPFParagraph title = document.createParagraph();
-            title.setAlignment(ParagraphAlignment.CENTER);
-            XWPFRun titleRun = title.createRun();
-            titleRun.setText("Curriculum Vitae Detalhado - Avaliação de Desempenho\nESTG - IPLEIRIA");
-            titleRun.setColor("000000");
-            titleRun.setBold(false);
-            titleRun.setFontFamily("Trebuchet MS");
-            titleRun.setFontSize(16);
+            for (Dimension dimension : CategoryRepository.getInstance().getDimensions()) {
 
-            for(Dimension dimension: CategoryRepository.getInstance().getDimensions()){
-                XWPFParagraph dimensionParagraph = document.createParagraph();
-                dimensionParagraph.setAlignment(ParagraphAlignment.NUM_TAB);
-                XWPFRun dimensionRun = dimensionParagraph.createRun();
-                dimensionRun.setText(dimension.getReference() + ". " + dimension.getName());
-                dimensionRun.setBold(true);
-                dimensionRun.setFontFamily("Tahoma");
+                writer.append(dimension.getReference() + ". " + dimension.getName() + "\n");
 
-                for(Area area: dimension.getAreas()){
-                    for(Criteria criteria: area.getCriterias()){
-                        XWPFParagraph criteriaParagraph = document.createParagraph();
-                        XWPFRun criteriaRun = criteriaParagraph.createRun();
-                        criteriaRun.setText(criteria.getRealReference() + " - \"" + criteria.getName() + "\"");
-                        criteriaRun.setUnderline(UnderlinePatterns.SINGLE);
-                        criteriaRun.setFontFamily("Tahoma");
-                        criteriaRun.setFontSize(13);
+                for (Area area : dimension.getAreas()) {
+                    for (Criteria criteria : area.getCriterias()) {
+                        if (criteria.getItems().size() > 0) {
+                            writer.append(criteria.getRealReference() + " - \"" + criteria.getName() + "\"");
 
-                        for(Item item: criteria.getItems()){
-                            XWPFParagraph descricao = document.createParagraph();
-                            criteriaParagraph.setAlignment(ParagraphAlignment.NUM_TAB);
-                            XWPFRun itemRun = descricao.createRun();
-                            itemRun.setText("Descriçao da atividade: " + item.getDescription());
-                            itemRun.setFontFamily("Arial");
-                            itemRun.setFontSize(11);
+                            for (Item item : criteria.getItems()) {
+                                writer.append("Descriçao da atividade: " +"\n\t"+ item.getDescription() + "\n");
 
-                            XWPFParagraph doc = document.createParagraph();
-                            criteriaParagraph.setAlignment(ParagraphAlignment.NUM_TAB);
-                            XWPFRun docRun = doc.createRun();
-                            docRun.setText("Comprovativo: Em anexo");
-                            docRun.setFontFamily("Arial");
-                            docRun.setFontSize(11);
 
-                            XWPFParagraph points = document.createParagraph();
-                            criteriaParagraph.setAlignment(ParagraphAlignment.NUM_TAB);
-                            XWPFRun pointsRun = points.createRun();
-                            pointsRun.setText("\nPontuaçao: " + criteria.getFinalPoints());
-                            pointsRun.setFontFamily("Arial");
-                            pointsRun.setFontSize(11);
+                            }
+                            writer.append("\n\t"+ "Comprativo Em anexo"  );
+                            writer.append("\n\t"+ "Pontuação" + criteria.getFinalPoints() + "\n");
                         }
-
                     }
+
                 }
 
             }
 
-            document.write(out);
-            out.close();
+            writer.flush();
+            writer.close();
+        } catch (
+                IOException e)
 
-        MEOCloudService.getInstance().uploadFile(Uri.fromFile(file), "export", "cv_avaliacao.xlsx");*/
+        {
+            e.printStackTrace();
+        }
     }
 
     public static void readExcel() {
