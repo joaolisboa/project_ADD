@@ -279,6 +279,7 @@ public class ItemsRepository implements ItemsDataSource {
     public void deleteItem(@NonNull Item item) {
         // move item to deleted-items and delete original
         localItems.remove(item);
+
         item.getCriteria().deleteItem(item);
 
         // if item is being deleted and already has a copy in deletedFiles then copy

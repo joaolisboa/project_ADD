@@ -92,11 +92,11 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     @Override
     public void checkForEmptyList() {
         if (!listingDeleted) {
-            if (item.getFiles().isEmpty()) {
+            if (item.getFiles().isEmpty() /* && item.getEmails().isEmpty()*/) {
                 itemDetailView.showNoFiles();
             }
         } else {
-            if (item.getDeletedFiles().isEmpty()) {
+            if (item.getDeletedFiles().isEmpty() /* && item.getDeletedEmails().isEmpty()*/) {
                 itemDetailView.showNoFiles();
             }
         }

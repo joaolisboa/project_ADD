@@ -40,13 +40,13 @@ import ipleiria.project.add.data.model.ItemFile;
 public class ItemFileAdapter extends BaseSwipeAdapter {
 
     private ItemDetailContract.View itemsView;
-    private ItemDetailFragment.FileActionListener actionsListener;
+    private ItemDetailFragment.ActionListener actionsListener;
 
     private List<ItemFile> listFiles;
     private LinkedHashMap<ItemFile, ImageView> attachedImageViews;
     private boolean listingDeleted;
 
-    ItemFileAdapter(List<ItemFile> listFiles, ItemDetailFragment.FileActionListener actionsListener,
+    ItemFileAdapter(List<ItemFile> listFiles, ItemDetailFragment.ActionListener actionsListener,
                     boolean listingDeleted, ItemDetailContract.View itemsView) {
         setList(listFiles);
         this.itemsView = itemsView;

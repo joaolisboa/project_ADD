@@ -1,32 +1,23 @@
 package ipleiria.project.add.view.itemdetail;
 
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
-import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -35,15 +26,12 @@ import android.widget.TextView;
 import com.pchmn.materialchips.ChipsInput;
 import com.pchmn.materialchips.model.ChipInterface;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import ipleiria.project.add.utils.StringUtils;
+import ipleiria.project.add.data.model.Email;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
@@ -61,9 +49,12 @@ import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
 
 public class ItemDetailFragment extends Fragment implements ItemDetailContract.View {
 
+    private static final String TAG = "ITEM_DETAIL_ACTIVITY";
+
     private ItemDetailContract.Presenter itemDetailPresenter;
 
     private ItemFileAdapter listFileAdapter;
+    private ItemEmailAdapter listEmailAdapter;
 
     private ProgressDialog progressDialog;
     private TextView filesHeader;
@@ -72,7 +63,8 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     private TextView descriptionTextView;
     private TextView weightTextView;
 
-    private ListView listView;
+    private ListView fileList;
+    private ListView emailList;
 
     public ItemDetailFragment() {
     }
@@ -87,6 +79,7 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
 
         boolean listDeleted = getActivity().getIntent().getBooleanExtra(LIST_DELETED_KEY, false);
         listFileAdapter = new ItemFileAdapter(new LinkedList<ItemFile>(), fileActionListener, listDeleted, this);
+        listEmailAdapter = new ItemEmailAdapter(new LinkedList<Email>(), emailActionListener, listDeleted);
     }
 
     @Nullable
@@ -100,9 +93,13 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         weightTextView = (TextView) root.findViewById(R.id.weight);
 
         // Set up files list
-        listView = (ListView) root.findViewById(R.id.listview);
-        listView.setAdapter(listFileAdapter);
-        setListViewHeightBasedOnItems();
+        fileList = (ListView) root.findViewById(R.id.file_list);
+        fileList.setAdapter(listFileAdapter);
+
+        emailList = (ListView) root.findViewById(R.id.email_list);
+        emailList.setAdapter(listEmailAdapter);
+
+        setListsHeight();
 
         // Set up floating action button
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
@@ -119,8 +116,13 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         return root;
     }
 
-    public boolean setListViewHeightBasedOnItems() {
-        ListAdapter listAdapter = listView.getAdapter();
+    public void setListsHeight(){
+        setListViewHeightBasedOnItems(fileList);
+        setListViewHeightBasedOnItems(emailList);
+    }
+
+    public void setListViewHeightBasedOnItems(ListView listView) {
+        ListAdapter listAdapter = fileList.getAdapter();
         if (listAdapter != null) {
 
             int numberOfItems = listAdapter.getCount();
@@ -128,25 +130,22 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
             // Get total height of all items.
             int totalItemsHeight = 0;
             for (int itemPos = 0; itemPos < numberOfItems; itemPos++) {
-                View item = listAdapter.getView(itemPos, null, listView);
+                View item = listAdapter.getView(itemPos, null, fileList);
                 item.measure(0, 0);
                 totalItemsHeight += item.getMeasuredHeight();
             }
 
             // Get total height of all item dividers.
-            int totalDividersHeight = listView.getDividerHeight() *
+            int totalDividersHeight = fileList.getDividerHeight() *
                     (numberOfItems - 1);
 
             // Set list height.
-            ViewGroup.LayoutParams params = listView.getLayoutParams();
+            ViewGroup.LayoutParams params = fileList.getLayoutParams();
             params.height = totalItemsHeight + totalDividersHeight;
-            listView.setLayoutParams(params);
-            listView.requestLayout();
-
-            return true;
-
+            fileList.setLayoutParams(params);
+            fileList.requestLayout();
         } else {
-            return false;
+            Log.d(TAG, "List has no adapter");
         }
     }
 
@@ -258,8 +257,13 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         listFileAdapter.replaceData(files);
 
         filesHeader.setVisibility(View.VISIBLE);
-        setListViewHeightBasedOnItems();
+        setListViewHeightBasedOnItems(fileList);
+    }
 
+    @Override
+    public void showEmails(List<Email> emails) {
+        listEmailAdapter.replaceData(emails);
+        setListViewHeightBasedOnItems(emailList);
     }
 
     @Override
@@ -268,11 +272,20 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     }
 
     @Override
+    public void showAddedEmail(Email email) {
+        listEmailAdapter.onEmailAdded(email);
+    }
+
+    @Override
+    public void removeDeletedEmail(Email email) {
+        listEmailAdapter.onEmailRemoved(email);
+    }
+
+    @Override
     public void showAddedFile(ItemFile file) {
         listFileAdapter.onFileAdded(file);
         filesHeader.setVisibility(View.VISIBLE);
-        setListViewHeightBasedOnItems();
-
+        setListsHeight();
     }
 
     @Override
@@ -349,7 +362,35 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         }
     };
 
-    FileActionListener fileActionListener = new FileActionListener() {
+    ActionListener<Email> emailActionListener = new ActionListener<Email>() {
+
+        @Override
+        public void onFileClick(Email clickedEmail) {
+            //itemDetailPresenter.onItemClicked(clickedEmail);
+        }
+
+        @Override
+        public void onDeleteFile(Email deletedEmail) {
+            //itemDetailPresenter.deleteFile(deletedEmail);
+        }
+
+        @Override
+        public void onPermanentDeleteFile(Email deletedEmail) {
+            //itemDetailPresenter.permanentlyDeleteFile(deletedEmail);
+        }
+
+        @Override
+        public void onEditFile(Email editedEmail) {
+            //showEditFileDialog(editedFile);
+        }
+
+        @Override
+        public void onRestoreFile(Email restoredEmail) {
+            //itemDetailPresenter.restoreFile(restoredFile);
+        }
+    };
+
+    ActionListener<ItemFile> fileActionListener = new ActionListener<ItemFile>() {
 
         @Override
         public void onFileClick(ItemFile clickedFile) {
@@ -377,16 +418,16 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         }
     };
 
-    interface FileActionListener {
+    interface ActionListener<T> {
 
-        void onFileClick(ItemFile clickedFile);
+        void onFileClick(T clickedFile);
 
-        void onDeleteFile(ItemFile deletedFile);
+        void onDeleteFile(T deletedFile);
 
-        void onPermanentDeleteFile(ItemFile deletedFile);
+        void onPermanentDeleteFile(T deletedFile);
 
-        void onEditFile(ItemFile editedFile);
+        void onEditFile(T editedFile);
 
-        void onRestoreFile(ItemFile restoredFile);
+        void onRestoreFile(T restoredFile);
     }
 }

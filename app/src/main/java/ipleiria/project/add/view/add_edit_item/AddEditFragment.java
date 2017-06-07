@@ -266,6 +266,7 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
         tView = new AndroidTreeView(getContext(), treeRoot);
         tView.setDefaultNodeClickListener(nodeClickListener);
         tView.setUse2dScroll(false);
+        tView.setSelectionModeEnabled(true);
         tView.setDefaultAnimation(true);
         containerView.addView(tView.getView());
     }
@@ -301,6 +302,11 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
         public void onClick(TreeNode node, Object value) {
             Category item = (Category) value;
             if (item instanceof Criteria) {
+                /*if(!tView.getSelected().isEmpty()){
+                    tView.getSelected().get(0).setSelected(false);
+                }
+                node.getViewHolder().toggle(true);
+                node.setSelected(true);*/
                 addEditPresenter.selectedCriteria((Criteria) item);
             }
         }

@@ -18,6 +18,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.client.util.StringUtils;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
@@ -100,9 +101,18 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
         try {
             ListMessagesResponse listResponse =
                     gmailService.users().messages().list(user).setQ("to:" + email).execute();
-            System.out.println(listResponse.getMessages());
             for (int i = 0; i < listResponse.size(); i++) {
                 Message m = gmailService.users().messages().get(user, listResponse.getMessages().get(i).getId()).execute();
+                //System.out.println("PRETTY STRING: " + m.toPrettyString());
+                /*System.out.println("BODY PRETTY STRING: " + m.getPayload().getBody().toPrettyString());
+                MessagePart body = m.getPayload();
+                System.out.println(m.getSnippet());
+                for(MessagePart part: m.getPayload().getParts()){
+
+                }
+                System.out.println("All parts " + m.getPayload().getP());
+                System.out.println("body get Data: " + body.getBody().getData());
+                System.out.println(StringUtils.newStringUtf8(Base64.decodeBase64(body.getBody().getData())));*/
 
                 /* Message message = gmailService.users().messages().get(user, listResponse.getMessages().get(i).getId()).setFormat("raw").execute();
                 try {
@@ -117,6 +127,10 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
                 } catch (MessagingException e) {
                     e.printStackTrace();
                 }*/
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("Email string builder: ");
+                getPlainTextFromMessageParts(m.getPayload().getParts(), stringBuilder);
+                System.out.println(stringBuilder.toString());
 
                 List<MessagePart> parts = m.getPayload().getParts();
                 for (MessagePart part : parts) {
@@ -140,5 +154,17 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
         }
 
         return attachments;
+    }
+
+    private void getPlainTextFromMessageParts(List<MessagePart> messageParts, StringBuilder stringBuilder) {
+        for (MessagePart messagePart : messageParts) {
+            if (messagePart.getMimeType().equals("text/plain")) {
+                stringBuilder.append(StringUtils.newStringUtf8(Base64.decodeBase64(messagePart.getBody().getData())));
+            }
+
+            if (messagePart.getParts() != null) {
+                getPlainTextFromMessageParts(messagePart.getParts(), stringBuilder);
+            }
+        }
     }
 }

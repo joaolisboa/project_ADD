@@ -72,6 +72,11 @@ public class MainFragment extends Fragment implements MainContract.View,
     private ListView pendingListView;
     private ArrayAdapter<String> listAdapter;
 
+    private FloatingActionButton fabPhoto;
+    private FloatingActionButton fabAdd;
+    private FloatingActionButton fabMenu;
+    private boolean fabShow = false;
+
     public MainFragment() {}
 
     public static MainFragment newInstance() {
@@ -96,7 +101,7 @@ public class MainFragment extends Fragment implements MainContract.View,
         pendingListView.setAdapter(listAdapter);
 
         // Set up floating action button
-        final FloatingActionButton fabPhoto = (FloatingActionButton) getActivity().findViewById(R.id.fab_photo);
+        fabPhoto = (FloatingActionButton) getActivity().findViewById(R.id.fab_photo);
         fabPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,7 +109,7 @@ public class MainFragment extends Fragment implements MainContract.View,
             }
         });
 
-        final FloatingActionButton fabAdd = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
+        fabAdd = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,19 +117,12 @@ public class MainFragment extends Fragment implements MainContract.View,
             }
         });
 
-        final FloatingActionButton fabMenu = (FloatingActionButton) getActivity().findViewById(R.id.fab_menu);
+        fabMenu = (FloatingActionButton) getActivity().findViewById(R.id.fab_menu);
         fabMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(fabPhoto.isShown() || fabAdd.isShown()){
-                    fabPhoto.hide();
-                    fabAdd.hide();
-                    fabMenu.setImageResource(R.drawable.vertical_menu);
-                }else {
-                    fabPhoto.show();
-                    fabAdd.show();
-                    fabMenu.setImageResource(R.drawable.close_white);
-                }
+                fabShow = !fabShow;
+                toggleFabMenu();
             }
         });
 
@@ -225,6 +223,25 @@ public class MainFragment extends Fragment implements MainContract.View,
     public void onStop() {
         super.onStop();
         presenter.unsubscribe();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        fabShow = false;
+        toggleFabMenu();
+    }
+
+    private void toggleFabMenu(){
+        if(!fabShow){
+            fabPhoto.hide();
+            fabAdd.hide();
+            fabMenu.setImageResource(R.drawable.vertical_menu);
+        }else {
+            fabPhoto.show();
+            fabAdd.show();
+            fabMenu.setImageResource(R.drawable.close_white);
+        }
     }
 
     @Override
