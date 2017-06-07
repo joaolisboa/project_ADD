@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.WriteMode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +50,10 @@ public class DropboxUploadFile extends AsyncTask<String, Void, FileMetadata> {
         String remoteFilePath = params[1];
 
         try (InputStream is = Application.getAppContext().getContentResolver().openInputStream(localUri)) {
-            return mDbxClient.files().upload("/" + remoteFilePath).uploadAndFinish(is);
+            return mDbxClient.files()
+                    .uploadBuilder("/" + remoteFilePath)
+                    .withMode(WriteMode.OVERWRITE)
+                    .uploadAndFinish(is);
         } catch (DbxException | IOException e) {
             mException = e;
         }

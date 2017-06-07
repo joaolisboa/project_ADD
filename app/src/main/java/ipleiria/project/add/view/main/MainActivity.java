@@ -1,11 +1,13 @@
 package ipleiria.project.add.view.main;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,9 +24,11 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.List;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.R;
+import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.MEOCloudService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
@@ -53,11 +58,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     static final String TAG = "MAIN_ACTIVITY";
 
     private NavigationView navigationView;
+    private MainFragment mainFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+        setTitle("Pending Files");
 
         // Set up the toolbar.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -72,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
+        mainFragment = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
         if (mainFragment == null) {
             // Create the fragment
             mainFragment = MainFragment.newInstance();
@@ -131,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
         // Handle navigation view item clicks here.
         switch (item.getItemId()) {
             case R.id.categories:
@@ -152,11 +160,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
 
             case R.id.export:
-                Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
-                FilesRepository.getInstance().uploadFile(sheet, "export", "ficha_avaliacao.xlsx");
-                FileUtils.generateNote("relatorio.txt");
-                Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
-                FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
+                progressDialog.show();
+                progressDialog.setTitle("Creating sheet...");
+                ItemsRepository.getInstance().getItems(new FilesRepository.Callback<List<Item>>() {
+                    @Override
+                    public void onComplete(List<Item> result) {
+                        Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
+                        progressDialog.setTitle("Uploading sheet...");
+                        FilesRepository.getInstance().uploadFile(sheet, "export", "ficha_avaliacao.xlsx");
+                        progressDialog.setTitle("Uploading report...");
+                        FileUtils.generateNote("relatorio.txt");
+                        Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
+                        FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
+                        progressDialog.dismiss();
+                        Snackbar.make(mainFragment.getView(), "Exported file", Snackbar.LENGTH_SHORT);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Log.d(TAG, e.getMessage(), e);
+                        progressDialog.dismiss();
+                        Snackbar.make(mainFragment.getView(), "Error while exporting", Snackbar.LENGTH_SHORT);
+                    }
+                });
+
                 break;
         }
 
