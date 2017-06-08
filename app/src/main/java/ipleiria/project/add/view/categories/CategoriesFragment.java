@@ -158,14 +158,14 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         categoriesPresenter.subscribe();
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
         categoriesPresenter.unsubscribe();
     }
 
@@ -294,9 +294,9 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     @Override
-    public void openItemDetails(Item clickedIem) {
+    public void openItemDetails(Item clickedItem) {
         Intent intent = new Intent(getContext(), ItemDetailActivity.class);
-        intent.putExtra(ITEM_KEY, clickedIem.getDbKey());
+        intent.putExtra(ITEM_KEY, clickedItem.getDbKey());
         startActivity(intent);
     }
 
@@ -373,9 +373,10 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         cancel.setOnClickListener(onClickListener);
 
         if(view.getVisibility() == View.GONE) {
-            Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_down);
+            expand(view);
+            /*Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_down);
             view.startAnimation(slideUp);
-            view.setVisibility(View.VISIBLE);
+            view.setVisibility(View.VISIBLE);*/
         }
     }
 
@@ -458,7 +459,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         };
 
         // 1dp/ms
-        a.setDuration((int)(targetHeight / v.getContext().getResources().getDisplayMetrics().density));
+        a.setDuration((int)(targetHeight / v.getContext().getResources().getDisplayMetrics().density)*2);
         v.startAnimation(a);
     }
 

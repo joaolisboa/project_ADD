@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -155,12 +156,12 @@ public class FileUtils {
                             writer.append(criteria.getRealReference() + " - \"" + criteria.getName() + "\"");
 
                             for (Item item : criteria.getItems()) {
-                                writer.append("Descriçao da atividade: " +"\n\t"+ item.getDescription() + "\n");
+                                writer.append("\n\tDescriçao da atividade: " +"\n\t"+ item.getDescription() + "\n");
 
 
                             }
-                            writer.append("\n\t"+ "Comprativo Em anexo"  );
-                            writer.append("\n\t"+ "Pontuação" + criteria.getFinalPoints() + "\n");
+                            writer.append("\n\t"+ "Comprovativo Em anexo"  );
+                            writer.append("\n\t"+ "Pontuação " + criteria.getPoints() + "\n");
                         }
                     }
 
@@ -175,6 +176,51 @@ public class FileUtils {
 
         {
             e.printStackTrace();
+        }
+    }
+
+    public static void readExcel(Criteria criteria){
+        try {
+            File file = getExcelFile();
+            InputStream inputStream = new FileInputStream(file);
+            XSSFWorkbook wb = new XSSFWorkbook(inputStream);
+            wb.setForceFormulaRecalculation(true);
+            XSSFFormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
+            XSSFSheet sheet = wb.getSheetAt(0);
+
+            int points = 0;
+            if(criteria.getDimension().getReference() == 1 && criteria.getReference() <= 4){
+                points += criteria.getWeights();
+                if (points >= 10) {
+                    points = 10;
+                }
+                sheet.getRow(criteria.getWriteCell().y)
+                        .getCell(criteria.getWriteCell().x)
+                        .setCellValue(points);
+            }else{
+                if (criteria.getWeights() > 0) {
+                    sheet.getRow(criteria.getWriteCell().y)
+                            .getCell(criteria.getWriteCell().x)
+                            .setCellValue(criteria.getWeights());
+                }
+
+                try (FileOutputStream stream = new FileOutputStream(file)) {
+                    wb.write(stream);
+                }
+                evaluator.evaluateFormulaCell(sheet.getRow(criteria.getReadCell().y)
+                        .getCell(criteria.getReadCell().x));
+
+                if (criteria.getWeights() > 0) {
+                    double value = sheet.getRow(criteria.getReadCell().y)
+                            .getCell(criteria.getReadCell().x)
+                            .getNumericCellValue();
+                    criteria.setFinalPoints(value);
+                }
+            }
+
+            inputStream.close();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -228,7 +274,8 @@ public class FileUtils {
                 }
             }
 
-            // wb.close() - older version of apache poi(4.4 compatibility) doesn't have a close() method
+            // wb.close() - using older version of apache poi (due to 4.4 compatibility issues)
+            // which doesn't have a close() method
             inputStream.close();
         } catch (Exception e) {
             throw new IllegalStateException(e);

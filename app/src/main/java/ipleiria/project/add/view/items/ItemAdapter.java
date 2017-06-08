@@ -98,9 +98,9 @@ public class ItemAdapter extends BaseSwipeAdapter {
         //itemCriteria.setText(item.getCategoryReference() + ". " + item.getCriteria().getName());
 
         TextView numFilesView = (TextView) convertView.findViewById(R.id.num_files);
-        TextView pointsView = (TextView) convertView.findViewById(R.id.points);
+        TextView pointsView = (TextView) convertView.findViewById(R.id.weight);
         attachView(item, pointsView);
-        pointsView.setText(String.valueOf(item.getCriteria().getFinalPoints()));
+        pointsView.setText(String.valueOf(item.getWeight()));
 
         if (!listingDeleted) {
             numFilesView.setText(convertView.getContext().getString(R.string.num_files, item.getFiles().size()));

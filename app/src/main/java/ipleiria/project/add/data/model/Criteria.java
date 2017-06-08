@@ -66,10 +66,6 @@ public class Criteria extends Category{
         return getRealReference() + " " + name;
     }
 
-    public double getFinalPoints() {
-        return finalPoints;
-    }
-
     public void setFinalPoints(double finalPoints) {
         this.finalPoints = finalPoints;
     }

@@ -71,28 +71,33 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         refreshData();
     }
 
-
-    public void refreshData(){
+    public void refreshData() {
         categoriesView.showProgressDialog();
 
-        categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
+        if (categoryRepository.getDimensions().isEmpty()) {
+            categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
+                @Override
+                public void onComplete(List<Dimension> result) {
+                    refreshItems();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    categoriesView.hideProgressDialog();
+                }
+            });
+        }else{
+            refreshItems();
+        }
+    }
+
+    private void refreshItems() {
+        itemsRepository.getItems(new FilesRepository.Callback<List<Item>>() {
             @Override
-            public void onComplete(List<Dimension> result) {
-
-                itemsRepository.getItems(new FilesRepository.Callback<List<Item>>() {
-                    @Override
-                    public void onComplete(List<Item> result) {
-                        FileUtils.readExcel();
-                        processList();
-                        categoriesView.hideProgressDialog();
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        categoriesView.hideProgressDialog();
-                    }
-                });
-
+            public void onComplete(List<Item> result) {
+                evaluatePoints();
+                processList();
+                categoriesView.hideProgressDialog();
             }
 
             @Override
@@ -102,7 +107,18 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         });
     }
 
-    private void processList(){
+    private void evaluatePoints() {
+        switch (currentFocus) {
+            case CRITERIA_FOCUS:
+                FileUtils.readExcel(selectedCriteria);
+                break;
+
+            default:
+                FileUtils.readExcel();
+        }
+    }
+
+    private void processList() {
         switch (currentFocus) {
             case ROOT_FOCUS:
                 categoriesView.setTitle("Dimensions");
@@ -131,10 +147,10 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         }
     }
 
-    private void processItemsList(List<Item> items){
-        if(items.isEmpty()){
+    private void processItemsList(List<Item> items) {
+        if (items.isEmpty()) {
             categoriesView.showNoItems();
-        }else{
+        } else {
             categoriesView.showItemsList(items);
         }
     }
@@ -146,19 +162,18 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     @Override
     public void onResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode == RESULT_OK){
-            if(requestCode == REQUEST_ADD_NEW_ITEM){
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_ADD_NEW_ITEM) {
                 categoriesView.showItemAddedMessage();
             }
-            if(requestCode == REQUEST_ADD_NEW_ITEM_CHANGE){
+            if (requestCode == REQUEST_ADD_NEW_ITEM_CHANGE) {
                 categoriesView.showItemAddedMessage();
                 action = null;
                 categoriesView.enableListSwipe(true);
             }
-            if(requestCode == REQUEST_ITEM_EDIT){
+            if (requestCode == REQUEST_ITEM_EDIT) {
                 categoriesView.showItemEditedMessage();
             }
-            refreshData();
         }
     }
 
@@ -186,8 +201,8 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         String criteriaName = StringUtils.replaceDiacriticalMarks(item.getCriteria().getName().toLowerCase());
         String itemDescription = StringUtils.replaceDiacriticalMarks(item.getDescription().toLowerCase());
 
-        for(String tag: item.getTags()){
-            if(tag.contains(query)){
+        for (String tag : item.getTags()) {
+            if (tag.contains(query)) {
                 return true;
             }
         }
@@ -248,7 +263,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     @Override
     public boolean onBackPressed() {
-        switch(currentFocus){
+        switch (currentFocus) {
             case DIMENSION_FOCUS:
                 returnToDimensionView();
                 return true;
@@ -333,9 +348,9 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
         currentFocus = savedInstanceState.getInt("focus");
 
-        selectedDimension = categoryRepository.getDimensions().get(dimensionRef-1);
-        selectedArea = selectedDimension.getArea(areaRef-1);
-        selectedCriteria = selectedArea.getCriteria(criteriaRef-1);
+        selectedDimension = categoryRepository.getDimensions().get(dimensionRef - 1);
+        selectedArea = selectedDimension.getArea(areaRef - 1);
+        selectedCriteria = selectedArea.getCriteria(criteriaRef - 1);
 
         processList();
     }
