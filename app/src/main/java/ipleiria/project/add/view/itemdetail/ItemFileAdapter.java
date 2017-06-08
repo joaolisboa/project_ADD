@@ -40,13 +40,13 @@ import ipleiria.project.add.data.model.ItemFile;
 public class ItemFileAdapter extends BaseSwipeAdapter {
 
     private ItemDetailContract.View itemsView;
-    private ItemDetailFragment.ActionListener actionsListener;
+    private ItemDetailFragment.ActionListener<ItemFile> actionsListener;
 
     private List<ItemFile> listFiles;
     private LinkedHashMap<ItemFile, ImageView> attachedImageViews;
     private boolean listingDeleted;
 
-    ItemFileAdapter(List<ItemFile> listFiles, ItemDetailFragment.ActionListener actionsListener,
+    ItemFileAdapter(List<ItemFile> listFiles, ItemDetailFragment.ActionListener<ItemFile> actionsListener,
                     boolean listingDeleted, ItemDetailContract.View itemsView) {
         setList(listFiles);
         this.itemsView = itemsView;
@@ -118,23 +118,30 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         ItemFile file = (ItemFile) getItem(position);
 
         TextView filename = (TextView) convertView.findViewById(R.id.filename);
-        filename.setText(file.getFilename());
-
         ImageView thumbView = (ImageView) convertView.findViewById(R.id.file_thumbnail);
-        //thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
-        if (!attachedImageViews.containsValue(thumbView)) {
-            ImageView currentFilePreviousThumb = attachedImageViews.get(file);
-            if (currentFilePreviousThumb != null && thumbView != currentFilePreviousThumb) {
-                // if item already an imageview it'll reach here and reuse the thumb
-                thumbView.setImageDrawable(currentFilePreviousThumb.getDrawable());
-                attachedImageViews.remove(file);
-                attachedImageViews.put(file, thumbView);
-            } else {
-                // should only reach here on the first run
-                thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
-                attachImageViewToFile(file, thumbView);
+
+        String name = file.getFilename();
+        if(name.substring(name.lastIndexOf(".")+1).equals("eml")) {
+            filename.setText(name.substring(0, name.lastIndexOf(".")));
+            thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.email_black));
+        }else{
+            filename.setText(file.getFilename());
+            //thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
+            if (!attachedImageViews.containsValue(thumbView)) {
+                ImageView currentFilePreviousThumb = attachedImageViews.get(file);
+                if (currentFilePreviousThumb != null && thumbView != currentFilePreviousThumb) {
+                    // if item already an imageview it'll reach here and reuse the thumb
+                    thumbView.setImageDrawable(currentFilePreviousThumb.getDrawable());
+                    attachedImageViews.remove(file);
+                    attachedImageViews.put(file, thumbView);
+                } else {
+                    // should only reach here on the first run
+                    thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
+                    attachImageViewToFile(file, thumbView);
+                }
             }
         }
+
 
         FrameLayout itemLayout = (FrameLayout) convertView.findViewById(R.id.item_view);
         itemLayout.setOnClickListener(new View.OnClickListener() {

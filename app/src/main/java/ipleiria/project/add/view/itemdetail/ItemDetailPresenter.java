@@ -5,8 +5,22 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+
+import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.source.FilesRepository;
@@ -62,6 +76,7 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
         // ps: in case the user uses the app offline or already has a local file
         // we only delete the file if it start with tmp_ since that is the prefix added when
         // downloading the file
+        // TODO: 08-Jun-17 Delete temp file only when leaving the activity(avoid repeated downloads(faster reopening) if user wants to review the file)
         if (sharedFile != null && sharedFile.exists() && sharedFile.getName().startsWith("tmp_")) {
             sharedFile.delete();
             sharedFile = null;
@@ -173,22 +188,64 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
     @Override
     public void onItemClicked(final ItemFile clickedFile) {
-        itemDetailView.showLoadingIndicator();
-        filesRepository.getFileToShare(clickedFile, new FilesRepository.Callback<File>() {
-            @Override
-            public void onComplete(File result) {
-                itemDetailView.hideLoadingIndicator();
-                sharedFile = result;
-                itemDetailView.openFileShare(filesRepository.getRelativePath(result));
-            }
+        if(clickedFile.getFilename().substring(clickedFile.getFilename().lastIndexOf(".")+1).equals("eml")) {
+            Properties props = new Properties();
+            Session session = Session.getDefaultInstance(props, null);
+            try {
+                MimeMessage message = new MimeMessage(session, new FileInputStream(new File(Application.getAppContext().getFilesDir(), clickedFile.getFilename())));
+                System.out.println("clicked mail: " + clickedFile.getFilename());
+                System.out.println(message.getAllHeaderLines());
+                System.out.println(Arrays.toString(message.getAllRecipients()));
+                System.out.println(message.getSubject());
+                System.out.println(Arrays.toString(message.getFrom()));
+                System.out.println(message.getContentType());
 
-            @Override
-            public void onError(Exception e) {
-                itemDetailView.hideLoadingIndicator();
-                // show error message for file not found
-                Log.d(TAG, "File not found - missing locally and/or remotely");
-                Log.e(TAG, e.getMessage(), e);
+                Multipart mp = (Multipart)message.getContent();
+                System.out.println("multipart count: " + mp.getCount());
+                for (int i = 0; i < mp.getCount(); i++) {
+                    Part part = mp.getBodyPart(i);
+                    String disposition = part.getDisposition();
+
+                    if (disposition != null
+                            && (disposition.equals(Part.ATTACHMENT) || (disposition.equals(Part.INLINE)))) {
+                        System.out.println(part.getFileName());
+                        File attachedFile = new File(Application.getAppContext().getFilesDir(), "tmp_" + part.getFileName());
+                        InputStream in = part.getInputStream();
+                        FileOutputStream out = new FileOutputStream(attachedFile);
+                        byte[] buffer = new byte[1024 * 100];
+                        int nBytes;
+                        while((nBytes = in.read(buffer)) != -1){
+                            out.write(buffer, 0, nBytes);
+                            out.flush();
+                        }
+                        in.close();
+                        out.close();
+                        sharedFile = attachedFile;
+                        itemDetailView.openFileShare(filesRepository.getRelativePath(attachedFile));
+                    }
+                }
+
+            } catch (MessagingException | IOException e) {
+                e.printStackTrace();
             }
-        });
+        }else {
+            itemDetailView.showLoadingIndicator();
+            filesRepository.getFileToShare(clickedFile, new FilesRepository.Callback<File>() {
+                @Override
+                public void onComplete(File result) {
+                    itemDetailView.hideLoadingIndicator();
+                    sharedFile = result;
+                    itemDetailView.openFileShare(filesRepository.getRelativePath(result));
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    itemDetailView.hideLoadingIndicator();
+                    // show error message for file not found
+                    Log.d(TAG, "File not found - missing locally and/or remotely");
+                    Log.e(TAG, e.getMessage(), e);
+                }
+            });
+        }
     }
 }

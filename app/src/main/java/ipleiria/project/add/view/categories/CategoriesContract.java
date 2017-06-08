@@ -84,9 +84,9 @@ public class CategoriesContract {
 
         void forceRefreshData();
 
-        void onItemClicked(Item clickedIem);
+        void onItemClicked(Item clickedItem);
 
-        void deleteItem(Item deletedItem);
+        void deleteItem(Item deletedIttem);
 
         void onResult(int requestCode, int resultCode, Intent data);
 

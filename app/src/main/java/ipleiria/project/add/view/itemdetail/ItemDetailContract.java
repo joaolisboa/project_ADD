@@ -2,15 +2,12 @@ package ipleiria.project.add.view.itemdetail;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.view.MenuItem;
-import android.widget.ImageView;
 
 import java.io.File;
 import java.util.List;
 
 import ipleiria.project.add.BasePresenter;
 import ipleiria.project.add.BaseView;
-import ipleiria.project.add.data.model.Email;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 
@@ -26,13 +23,7 @@ public class ItemDetailContract {
 
         void showFiles(List<ItemFile> files);
 
-        void showEmails(List<Email> emails);
-
         void showNoFiles();
-
-        void showAddedEmail(Email email);
-
-        void removeDeletedEmail(Email email);
 
         void showAddedFile(ItemFile file);
 

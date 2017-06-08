@@ -9,7 +9,7 @@ import com.pchmn.materialchips.model.ChipInterface;
  * Created by Lisboa on 21-May-17.
  */
 
-public class TagChip implements ChipInterface {
+class TagChip implements ChipInterface {
 
     private String tag;
 

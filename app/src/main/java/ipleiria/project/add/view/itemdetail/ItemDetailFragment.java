@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import ipleiria.project.add.data.model.Email;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
@@ -54,7 +53,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     private ItemDetailContract.Presenter itemDetailPresenter;
 
     private ItemFileAdapter listFileAdapter;
-    private ItemEmailAdapter listEmailAdapter;
 
     private ProgressDialog progressDialog;
     private TextView filesHeader;
@@ -64,7 +62,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     private TextView weightTextView;
 
     private ListView fileList;
-    private ListView emailList;
 
     public ItemDetailFragment() {
     }
@@ -79,7 +76,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
 
         boolean listDeleted = getActivity().getIntent().getBooleanExtra(LIST_DELETED_KEY, false);
         listFileAdapter = new ItemFileAdapter(new LinkedList<ItemFile>(), fileActionListener, listDeleted, this);
-        listEmailAdapter = new ItemEmailAdapter(new LinkedList<Email>(), emailActionListener, listDeleted);
     }
 
     @Nullable
@@ -96,11 +92,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         fileList = (ListView) root.findViewById(R.id.file_list);
         fileList.setAdapter(listFileAdapter);
 
-        emailList = (ListView) root.findViewById(R.id.email_list);
-        emailList.setAdapter(listEmailAdapter);
-
-        setListsHeight();
-
         // Set up floating action button
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
         fab.setImageResource(R.drawable.add_white);
@@ -116,12 +107,10 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         return root;
     }
 
-    public void setListsHeight(){
-        setListViewHeightBasedOnItems(fileList);
-        setListViewHeightBasedOnItems(emailList);
-    }
-
-    public void setListViewHeightBasedOnItems(ListView listView) {
+    // when the list doesn't fit in the full layout view, it'll use it's own scrollview
+    // using it's own scrollview means that the layout doesn't scroll and only the view
+    // setting the height of the list to the real size means we can scroll using the layout scrollview
+    public void setListViewHeightBasedOnItems() {
         ListAdapter listAdapter = fileList.getAdapter();
         if (listAdapter != null) {
 
@@ -257,13 +246,7 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         listFileAdapter.replaceData(files);
 
         filesHeader.setVisibility(View.VISIBLE);
-        setListViewHeightBasedOnItems(fileList);
-    }
-
-    @Override
-    public void showEmails(List<Email> emails) {
-        listEmailAdapter.replaceData(emails);
-        setListViewHeightBasedOnItems(emailList);
+        setListViewHeightBasedOnItems();
     }
 
     @Override
@@ -272,20 +255,10 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     }
 
     @Override
-    public void showAddedEmail(Email email) {
-        listEmailAdapter.onEmailAdded(email);
-    }
-
-    @Override
-    public void removeDeletedEmail(Email email) {
-        listEmailAdapter.onEmailRemoved(email);
-    }
-
-    @Override
     public void showAddedFile(ItemFile file) {
         listFileAdapter.onFileAdded(file);
         filesHeader.setVisibility(View.VISIBLE);
-        setListsHeight();
+        setListViewHeightBasedOnItems();
     }
 
     @Override
@@ -359,34 +332,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
                 String tag = charSequence.subSequence(0, charSequence.length() - 1).toString();
                 chipsInput.addChip(tag, null);
             }
-        }
-    };
-
-    ActionListener<Email> emailActionListener = new ActionListener<Email>() {
-
-        @Override
-        public void onFileClick(Email clickedEmail) {
-            //itemDetailPresenter.onItemClicked(clickedEmail);
-        }
-
-        @Override
-        public void onDeleteFile(Email deletedEmail) {
-            //itemDetailPresenter.deleteFile(deletedEmail);
-        }
-
-        @Override
-        public void onPermanentDeleteFile(Email deletedEmail) {
-            //itemDetailPresenter.permanentlyDeleteFile(deletedEmail);
-        }
-
-        @Override
-        public void onEditFile(Email editedEmail) {
-            //showEditFileDialog(editedFile);
-        }
-
-        @Override
-        public void onRestoreFile(Email restoredEmail) {
-            //itemDetailPresenter.restoreFile(restoredFile);
         }
     };
 

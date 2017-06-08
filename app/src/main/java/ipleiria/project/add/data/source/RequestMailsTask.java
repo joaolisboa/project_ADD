@@ -103,31 +103,24 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
                     gmailService.users().messages().list(user).setQ("to:" + email).execute();
             for (int i = 0; i < listResponse.size(); i++) {
                 Message m = gmailService.users().messages().get(user, listResponse.getMessages().get(i).getId()).execute();
-                //System.out.println("PRETTY STRING: " + m.toPrettyString());
-                /*System.out.println("BODY PRETTY STRING: " + m.getPayload().getBody().toPrettyString());
-                MessagePart body = m.getPayload();
-                System.out.println(m.getSnippet());
-                for(MessagePart part: m.getPayload().getParts()){
 
-                }
-                System.out.println("All parts " + m.getPayload().getP());
-                System.out.println("body get Data: " + body.getBody().getData());
-                System.out.println(StringUtils.newStringUtf8(Base64.decodeBase64(body.getBody().getData())));*/
-
-                /* Message message = gmailService.users().messages().get(user, listResponse.getMessages().get(i).getId()).setFormat("raw").execute();
+                Message message = gmailService.users().messages().get(user, listResponse.getMessages().get(i).getId()).setFormat("raw").execute();
                 try {
                     byte[] emailBytes = Base64.decodeBase64(message.getRaw());
 
                     Properties props = new Properties();
                     Session session = Session.getDefaultInstance(props, null);
                     MimeMessage eml = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
-                    File emlFile = new File(Application.getAppContext().getFilesDir(), "test.eml");
+                    String filename = "Assunto: " + eml.getSubject() + ".eml";
+                    File emlFile = new File(Application.getAppContext().getFilesDir(), filename);
                     eml.writeTo(new FileOutputStream(emlFile));
+                    attachments.add(new ItemFile(filename));
 
                 } catch (MessagingException e) {
                     e.printStackTrace();
-                }*/
-                StringBuilder stringBuilder = new StringBuilder();
+                }
+
+                /*StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("Email string builder: ");
                 getPlainTextFromMessageParts(m.getPayload().getParts(), stringBuilder);
                 System.out.println(stringBuilder.toString());
@@ -145,10 +138,10 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
                         filesRepository.saveEmailAttachment(filename, fileByteArray);
                         attachments.add(new ItemFile(filename));
                     }
-                }
+                }*/
             }
         } catch (UserRecoverableAuthIOException userRecoverableException) {
-            // user didn't give permissions when signing up - ignore
+            // user didn't give permissions when signing up - catch and ignore
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
         }

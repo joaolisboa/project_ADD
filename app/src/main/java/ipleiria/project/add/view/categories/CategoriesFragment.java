@@ -411,8 +411,8 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     ItemClickListener itemActionListener = new ItemClickListener() {
 
         @Override
-        public void onItemClick(Item clickedIem) {
-            categoriesPresenter.onItemClicked(clickedIem);
+        public void onItemClick(Item clickedItem) {
+            categoriesPresenter.onItemClicked(clickedItem);
         }
 
         @Override

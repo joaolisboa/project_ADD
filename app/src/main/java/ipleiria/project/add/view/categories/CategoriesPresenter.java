@@ -86,21 +86,17 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     public void refreshData() {
         categoriesView.showProgressDialog();
 
-        if (categoryRepository.getDimensions().isEmpty()) {
-            categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
-                @Override
-                public void onComplete(List<Dimension> result) {
-                    refreshItems();
-                }
+        categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
+            @Override
+            public void onComplete(List<Dimension> result) {
+                refreshItems();
+            }
 
-                @Override
-                public void onError(Exception e) {
-                    categoriesView.hideProgressDialog();
-                }
-            });
-        } else {
-            refreshItems();
-        }
+            @Override
+            public void onError(Exception e) {
+                categoriesView.hideProgressDialog();
+            }
+        });
     }
 
     private void refreshItems() {
@@ -335,11 +331,11 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     @Override
-    public void onItemClicked(Item clickedIem) {
+    public void onItemClicked(Item clickedItem) {
         if (action == null) {
-            categoriesView.openItemDetails(clickedIem);
+            categoriesView.openItemDetails(clickedItem);
         } else {
-            itemsRepository.addFilesToItem(clickedIem, receivedFiles);
+            itemsRepository.addFilesToItem(clickedItem, receivedFiles);
             categoriesView.showFilesAddedMessage();
             action = null;
             categoriesView.enableListSwipe(true);
