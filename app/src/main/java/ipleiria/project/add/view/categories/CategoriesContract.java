@@ -82,6 +82,8 @@ public class CategoriesContract {
 
         void refreshData();
 
+        void forceRefreshData();
+
         void onItemClicked(Item clickedIem);
 
         void deleteItem(Item deletedItem);

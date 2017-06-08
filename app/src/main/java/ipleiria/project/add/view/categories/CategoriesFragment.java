@@ -115,7 +115,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                categoriesPresenter.refreshData();
+                categoriesPresenter.forceRefreshData();
             }
         });
 

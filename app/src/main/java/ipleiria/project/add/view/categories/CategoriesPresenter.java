@@ -44,12 +44,13 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     // showing selected dimension/area/criteria with the list of items of the selectedCriteria
     private static final int CRITERIA_FOCUS = 3;
 
-    private int currentFocus = ROOT_FOCUS;
+    private int currentFocus;
 
     private Dimension selectedDimension;
     private Area selectedArea;
     private Criteria selectedCriteria;
 
+    private boolean forceRefresh;
     private String action;
     private List<Uri> receivedFiles;
 
@@ -64,10 +65,21 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         this.categoriesView.setPresenter(this);
 
         this.receivedFiles = new ArrayList<>();
+
+        this.currentFocus = ROOT_FOCUS;
+        this.forceRefresh = true;
     }
 
     @Override
     public void subscribe() {
+        refreshData();
+    }
+
+    @Override
+    public void forceRefreshData() {
+        // force data refresh since there may be new data synced
+        // which require a full evaluation of the points
+        forceRefresh = true;
         refreshData();
     }
 
@@ -86,7 +98,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                     categoriesView.hideProgressDialog();
                 }
             });
-        }else{
+        } else {
             refreshItems();
         }
     }
@@ -108,14 +120,19 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     private void evaluatePoints() {
-        switch (currentFocus) {
-            case CRITERIA_FOCUS:
-                FileUtils.readExcel(selectedCriteria);
-                break;
-
-            default:
-                FileUtils.readExcel();
+        if (!forceRefresh) {
+            switch (currentFocus) {
+                case CRITERIA_FOCUS:
+                    // an item can be edited when items are shown(from details or list swipe action)
+                    // in these scenarios only evaluate the criteria in the excel file
+                    // to improve performance(~2x)
+                    FileUtils.readExcel(selectedCriteria);
+                    return;
+            }
         }
+        forceRefresh = false;
+        Log.d(TAG, "performing full refresh");
+        FileUtils.readExcel();
     }
 
     private void processList() {
