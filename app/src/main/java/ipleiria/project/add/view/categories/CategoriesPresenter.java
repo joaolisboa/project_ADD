@@ -117,12 +117,15 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
             case AREA_FOCUS:
                 categoriesView.setTitle("Criterias");
+                categoriesView.showSelectedDimension(selectedDimension);
                 categoriesView.showSelectedArea(selectedArea);
                 returnToCriteriaView();
                 break;
 
             case CRITERIA_FOCUS:
                 categoriesView.setTitle("Items");
+                categoriesView.showSelectedDimension(selectedDimension);
+                categoriesView.showSelectedArea(selectedArea);
                 categoriesView.showSelectedCriteria(selectedCriteria);
                 processItemsList(selectedCriteria.getItems());
         }
