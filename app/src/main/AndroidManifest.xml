@@ -46,16 +46,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.main.MainActivity" />
-        </activity>
-        <activity
-            android:name=".view.items.ItemsActivity"
-            android:label="@string/share_activity_label"
-            android:parentActivityName=".view.main.MainActivity"
-            android:theme="@style/AppTheme.OverlapSystemBar"
-            android:windowSoftInputMode="stateHidden">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.main.MainActivity" />
 
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -71,6 +61,16 @@
 
                 <data android:mimeType="*/*" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".view.items.ItemsActivity"
+            android:label="@string/share_activity_label"
+            android:parentActivityName=".view.main.MainActivity"
+            android:theme="@style/AppTheme.OverlapSystemBar"
+            android:windowSoftInputMode="stateHidden">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.main.MainActivity" />
         </activity>
         <activity
             android:name=".view.settings.SettingsActivity"

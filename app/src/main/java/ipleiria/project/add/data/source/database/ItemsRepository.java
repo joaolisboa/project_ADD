@@ -105,7 +105,15 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     @Override
-    public void getItems(final FilesRepository.Callback<List<Item>> callback){
+    public void getItems(boolean deleted, final FilesRepository.Callback<List<Item>> callback){
+        if(!deleted){
+            getItems(callback);
+        }else{
+            getRemoteDeletedItems(callback);
+        }
+    }
+
+    private void getItems(final FilesRepository.Callback<List<Item>> callback){
         itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -122,8 +130,7 @@ public class ItemsRepository implements ItemsDataSource {
         });
     }
 
-    @Override
-    public void getRemoteDeletedItems(final FilesRepository.Callback<List<Item>> callback){
+    private void getRemoteDeletedItems(final FilesRepository.Callback<List<Item>> callback){
         deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

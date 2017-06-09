@@ -2,6 +2,7 @@ package ipleiria.project.add.view.categories;
 
 import android.animation.Animator;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,14 +46,22 @@ import static ipleiria.project.add.R.id.area;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM_KEY;
 import static ipleiria.project.add.view.itemdetail.ItemDetailPresenter.ITEM_KEY;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ITEM_EDIT;
+import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
 
 /**
  * Created by Lisboa on 30-May-17.
  */
 
 public class CategoriesFragment extends Fragment implements CategoriesContract.View {
+
+    // on resume will show an item added message and enable swipe
+    // it differs because CHANGE comes externally(from another app)
+    // which disables the swiping until the file/item was added/created
+    public static final int REQUEST_ADD_NEW_ITEM_CHANGE = 2090;
+    // on resume will show an item added message
+    public static final int REQUEST_ADD_NEW_ITEM = 2091;
+    // on resume will show an item edited message
+    public static  final int REQUEST_ITEM_EDIT = 2092;
 
     private ProgressDialog progressDialog;
     private ScrollChildSwipeRefreshLayout swipeRefreshLayout;
@@ -82,8 +91,18 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        boolean listDeleted = getActivity().getIntent().getBooleanExtra(LIST_DELETED_KEY, false);
         categoriesAdapter = new CategoryAdapter(new LinkedList<Category>());
-        itemsAdapter = new ItemAdapter(new LinkedList<Item>(), itemActionListener, false, true);
+        // if the activity as received an intent with an action(adding files to items then swipe will be disabled)
+        itemsAdapter = new ItemAdapter(new LinkedList<Item>(), itemActionListener, listDeleted,
+                categoriesPresenter.getIntentAction() == null);
+
+        if(listDeleted){
+            getActivity().findViewById(R.id.fab_add).setVisibility(View.GONE);
+            setTitle("Trash");
+        }else{
+            setTitle("Dimensions");
+        }
     }
 
     @Nullable
@@ -138,14 +157,14 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     private void addItem() {
-        /*if(itemsPresenter.getIntentAction() != null) {
+        if(categoriesPresenter.getIntentAction() != null) {
             Intent intent = getActivity().getIntent();
-            // change intent to use a different activity, keeping extras and action
+            // change current intent to use a different activity, keeping extras and action
             intent.setComponent(new ComponentName(getContext(), AddEditActivity.class));
             startActivityForResult(intent, REQUEST_ADD_NEW_ITEM_CHANGE);
-        }else{*/
+        }else{
             startActivityForResult(new Intent(getContext(), AddEditActivity.class), REQUEST_ADD_NEW_ITEM);
-        //}
+        }
     }
 
     public boolean onBackPressed() {
@@ -278,6 +297,29 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     public void showNoItems() {
         showLayout(noItemsView);
         hideLayout(itemsListView);
+
+        noItemsView.findViewById(R.id.noItemsAdd).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addItem();
+            }
+        });
+    }
+
+    @Override
+    public void showNoDeletedItems() {
+        TextView mainText = (TextView) noItemsView.findViewById(R.id.noItemsMain);
+        mainText.setText(R.string.no_deleted_items);
+
+        noItemsView.findViewById(R.id.noItemsAdd).setVisibility(View.GONE);
+
+        showLayout(noItemsView);
+
+        itemsListView.setVisibility(View.GONE);
+        dimensionView.setVisibility(View.GONE);
+        areaView.setVisibility(View.GONE);
+        criteriaView.setVisibility(View.GONE);
+        categoryListView.setVisibility(View.GONE);
     }
 
     @Override
@@ -429,10 +471,14 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         }
 
         @Override
-        public void onPermanentDeleteItem(Item deletedItem) {}
+        public void onPermanentDeleteItem(Item deletedItem) {
+            categoriesPresenter.permanentlyDeleteItem(deletedItem);
+        }
 
         @Override
-        public void onRestoreItem(Item restoredItem) {}
+        public void onRestoreItem(Item restoredItem) {
+            categoriesPresenter.restoreItem(restoredItem);
+        }
     };
 
     public void expand(final View v) {

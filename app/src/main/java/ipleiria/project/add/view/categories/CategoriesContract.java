@@ -2,6 +2,7 @@ package ipleiria.project.add.view.categories;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import java.util.List;
 
@@ -66,6 +67,8 @@ public class CategoriesContract {
         void enableListSwipe(boolean b);
 
         void showSearchItems(List<Item> matchingItems);
+
+        void showNoDeletedItems();
     }
 
     interface Presenter extends BasePresenter {
@@ -88,9 +91,17 @@ public class CategoriesContract {
 
         void deleteItem(Item deletedIttem);
 
+        void permanentlyDeleteItem(Item item);
+
+        void restoreItem(Item item);
+
         void onResult(int requestCode, int resultCode, Intent data);
 
         void searchItems(String query);
+
+        void setIntentInfo(Intent intent);
+
+        String getIntentAction();
 
         Bundle saveInstanceState();
 

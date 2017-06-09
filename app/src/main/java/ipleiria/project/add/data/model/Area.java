@@ -23,6 +23,13 @@ public class Area extends Category{
 
     public double getPoints(){
         double points = 0;
+        // the special case with criterias where all first 4 criterias are handled as a single cell
+        // for points evaluation
+        // in this case we only return the points of the first criteria since they shouldn't be added
+        // ie. if one criteria has 5 points, it'll return 20 instead of 5
+        if(dimension.reference == 1 && reference == 1){
+            return criterias.get(0).getPoints();
+        }
         for(Criteria criteria: criterias){
             points += criteria.getPoints();
         }
@@ -31,7 +38,7 @@ public class Area extends Category{
 
     @Override
     public String getFormattedString() {
-        return dimension.getReference() + "." + reference + " " + name;
+        return dimension.getReference() + "." + reference + " - " + name;
     }
 
     public void addCriteria(Criteria criteria){

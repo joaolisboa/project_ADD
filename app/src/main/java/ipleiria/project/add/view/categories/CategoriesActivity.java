@@ -50,9 +50,12 @@ public class CategoriesActivity extends AppCompatActivity {
             ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), categoriesFragment, R.id.contentFrame);
         }
 
+        boolean listDeleted = getIntent().getBooleanExtra(LIST_DELETED_KEY, false);
         categoriesPresenter = new CategoriesPresenter(categoriesFragment,
                 CategoryRepository.getInstance(),
-                ItemsRepository.getInstance());
+                ItemsRepository.getInstance(),
+                listDeleted);
+        categoriesPresenter.setIntentInfo(getIntent());
     }
 
     public void onBackPressed() {

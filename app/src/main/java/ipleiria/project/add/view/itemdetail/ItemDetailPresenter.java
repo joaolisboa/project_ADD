@@ -84,17 +84,17 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     }
 
     private void processTags(List<String> tags) {
-        if(listingDeleted){
+        if (listingDeleted) {
             itemDetailView.showNoTags();
-        }else {
+        } else {
             itemDetailView.showTags(tags, itemFilesRepository.getTagSuggestions());
         }
     }
 
     private void processFiles(List<ItemFile> files) {
-        if(files.isEmpty()){
+        if (files.isEmpty()) {
             itemDetailView.showNoFiles();
-        }else{
+        } else {
             itemDetailView.showFiles(files);
         }
     }
@@ -178,8 +178,8 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
     @Override
     public void onResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode == RESULT_OK){
-            if(requestCode == REQUEST_ITEM_EDIT){
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_ITEM_EDIT) {
                 itemDetailView.showItemInfo(item);
                 processTags(item.getTags());
             }
@@ -188,47 +188,11 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
     @Override
     public void onItemClicked(final ItemFile clickedFile) {
-        if(clickedFile.getFilename().substring(clickedFile.getFilename().lastIndexOf(".")+1).equals("eml")) {
-            Properties props = new Properties();
-            Session session = Session.getDefaultInstance(props, null);
-            try {
-                MimeMessage message = new MimeMessage(session, new FileInputStream(new File(Application.getAppContext().getFilesDir(), clickedFile.getFilename())));
-                System.out.println("clicked mail: " + clickedFile.getFilename());
-                System.out.println(message.getAllHeaderLines());
-                System.out.println(Arrays.toString(message.getAllRecipients()));
-                System.out.println(message.getSubject());
-                System.out.println(Arrays.toString(message.getFrom()));
-                System.out.println(message.getContentType());
-
-                Multipart mp = (Multipart)message.getContent();
-                System.out.println("multipart count: " + mp.getCount());
-                for (int i = 0; i < mp.getCount(); i++) {
-                    Part part = mp.getBodyPart(i);
-                    String disposition = part.getDisposition();
-
-                    if (disposition != null
-                            && (disposition.equals(Part.ATTACHMENT) || (disposition.equals(Part.INLINE)))) {
-                        System.out.println(part.getFileName());
-                        File attachedFile = new File(Application.getAppContext().getFilesDir(), "tmp_" + part.getFileName());
-                        InputStream in = part.getInputStream();
-                        FileOutputStream out = new FileOutputStream(attachedFile);
-                        byte[] buffer = new byte[1024 * 100];
-                        int nBytes;
-                        while((nBytes = in.read(buffer)) != -1){
-                            out.write(buffer, 0, nBytes);
-                            out.flush();
-                        }
-                        in.close();
-                        out.close();
-                        sharedFile = attachedFile;
-                        itemDetailView.openFileShare(filesRepository.getRelativePath(attachedFile));
-                    }
-                }
-
-            } catch (MessagingException | IOException e) {
-                e.printStackTrace();
-            }
-        }else {
+        if (clickedFile.getFilename().substring(clickedFile.getFilename().lastIndexOf(".") + 1).equals("eml")) {
+            File email = new File(Application.getAppContext().getFilesDir(), clickedFile.getFilename());
+            sharedFile = email;
+            itemDetailView.openFileShare(filesRepository.getRelativePath(email));
+        } else {
             itemDetailView.showLoadingIndicator();
             filesRepository.getFileToShare(clickedFile, new FilesRepository.Callback<File>() {
                 @Override

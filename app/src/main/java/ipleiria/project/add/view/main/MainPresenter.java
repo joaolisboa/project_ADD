@@ -52,6 +52,7 @@ import ipleiria.project.add.data.source.RequestMailsTask;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.FileUtils;
+import ipleiria.project.add.view.categories.CategoriesActivity;
 import ipleiria.project.add.view.items.ItemsActivity;
 
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
@@ -172,11 +173,12 @@ class MainPresenter implements MainContract.Presenter {
         });
     }
 
+    // TODO: 09-Jun-17 presenter can't use context, start activity from fragment
     @Override
     public void result(int requestCode, int resultCode, Context context) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_TAKE_PHOTO) {
-                Intent photo = new Intent(context, ItemsActivity.class);
+                Intent photo = new Intent(context, CategoriesActivity.class);
                 photo.putExtra("photo_uri", photoUri.toString());
                 context.startActivity(photo.setAction(SENDING_PHOTO));
             }else if(requestCode == REQUEST_ADD_NEW_ITEM){

@@ -63,7 +63,7 @@ public class Criteria extends Category{
 
     @Override
     public String getFormattedString() {
-        return getRealReference() + " " + name;
+        return getRealReference() + " - " + name;
     }
 
     public void setFinalPoints(double finalPoints) {
@@ -94,6 +94,10 @@ public class Criteria extends Category{
 
     public List<Item> getItems(){
         return items;
+    }
+
+    public List<Item> getDeletedItems() {
+        return deletedItems;
     }
 
     public void addItem(Item item) {

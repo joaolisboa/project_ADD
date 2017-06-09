@@ -145,16 +145,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(new Intent(this, CategoriesActivity.class));
                 return true;
 
-            case R.id.list_items:
-                startActivity(new Intent(this, ItemsActivity.class));
-                return true;
-
             case R.id.nav_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
 
             case R.id.nav_trash:
-                Intent intent = new Intent(this, ItemsActivity.class);
+                Intent intent = new Intent(this, CategoriesActivity.class);
                 intent.putExtra(LIST_DELETED_KEY, true);
                 startActivity(intent);
                 return true;
@@ -162,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.export:
                 progressDialog.show();
                 progressDialog.setTitle("Creating sheet...");
-                ItemsRepository.getInstance().getItems(new FilesRepository.Callback<List<Item>>() {
+                ItemsRepository.getInstance().getItems(false, new FilesRepository.Callback<List<Item>>() {
                     @Override
                     public void onComplete(List<Item> result) {
                         Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));

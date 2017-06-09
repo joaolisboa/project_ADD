@@ -53,7 +53,7 @@ public class Item {
     }
 
     public void addFiles(List<ItemFile> files) {
-        files.addAll(files);
+        this.files.addAll(files);
         for(ItemFile file: files){
             file.setParent(this);
         }

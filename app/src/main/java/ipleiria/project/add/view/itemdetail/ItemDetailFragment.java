@@ -185,6 +185,9 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         String ext = filePath.substring(filePath.indexOf(".") + 1);
         String type = mime.getMimeTypeFromExtension(ext);
+        if(ext.equals("eml")){
+            type = "message/rfc822";
+        }
 
         Intent shareIntent = new Intent(Intent.ACTION_VIEW);
         Uri fileUri = UriHelper.getUriFromAppfile(filePath);

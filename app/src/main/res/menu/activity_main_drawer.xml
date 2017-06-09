@@ -9,12 +9,6 @@
             />
 
         <item
-            android:id="@+id/list_items"
-            android:icon="@drawable/list_black"
-            android:title="Items"
-            />
-
-        <item
             android:id="@+id/nav_trash"
             android:icon="@drawable/delete_black"
             android:title="Trash"

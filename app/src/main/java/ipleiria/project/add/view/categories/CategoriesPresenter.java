@@ -21,8 +21,10 @@ import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.utils.StringUtils;
+import ipleiria.project.add.utils.UriHelper;
 
 import static android.app.Activity.RESULT_OK;
+import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM_CHANGE;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ITEM_EDIT;
@@ -34,6 +36,7 @@ import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ITEM_EDIT;
 public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     private static final String TAG = "CATEGORIES_PRESENTER";
+    public static final String LIST_DELETED_KEY = "list_deleted";
 
     // only showing dimensions
     private static final int ROOT_FOCUS = 0;
@@ -50,6 +53,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     private Area selectedArea;
     private Criteria selectedCriteria;
 
+    private boolean listingDeleted;
     private boolean forceRefresh;
     private String action;
     private List<Uri> receivedFiles;
@@ -58,12 +62,14 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     private final ItemsRepository itemsRepository;
     private final CategoriesContract.View categoriesView;
 
-    public CategoriesPresenter(CategoriesContract.View categoriesView, CategoryRepository categoryRepository, ItemsRepository itemsRepository) {
+    public CategoriesPresenter(CategoriesContract.View categoriesView, CategoryRepository categoryRepository,
+                               ItemsRepository itemsRepository, boolean listingDeleted) {
         this.categoryRepository = categoryRepository;
         this.itemsRepository = itemsRepository;
         this.categoriesView = categoriesView;
         this.categoriesView.setPresenter(this);
 
+        this.listingDeleted = listingDeleted;
         this.receivedFiles = new ArrayList<>();
 
         this.currentFocus = ROOT_FOCUS;
@@ -78,7 +84,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     @Override
     public void forceRefreshData() {
         // force data refresh since there may be new data synced
-        // which require a full evaluation of the points
+        // which will require a full evaluation of the points
         forceRefresh = true;
         refreshData();
     }
@@ -100,11 +106,20 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     private void refreshItems() {
-        itemsRepository.getItems(new FilesRepository.Callback<List<Item>>() {
+        itemsRepository.getItems(listingDeleted, new FilesRepository.Callback<List<Item>>() {
             @Override
             public void onComplete(List<Item> result) {
-                evaluatePoints();
-                processList();
+                if (result.isEmpty()) {
+                    // don't bother showing dimensions or anything else if there are no items
+                    if (!listingDeleted) {
+                        categoriesView.showNoItems();
+                    } else {
+                        categoriesView.showNoDeletedItems();
+                    }
+                } else {
+                    evaluatePoints();
+                    processList();
+                }
                 categoriesView.hideProgressDialog();
             }
 
@@ -122,8 +137,12 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                     // an item can be edited when items are shown(from details or list swipe action)
                     // in these scenarios only evaluate the criteria in the excel file
                     // to improve performance(~2x)
+                    System.out.println("updating single criteria");
                     FileUtils.readExcel(selectedCriteria);
                     return;
+
+                default:
+                    break;
             }
         }
         forceRefresh = false;
@@ -156,11 +175,12 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 categoriesView.showSelectedDimension(selectedDimension);
                 categoriesView.showSelectedArea(selectedArea);
                 categoriesView.showSelectedCriteria(selectedCriteria);
-                processItemsList(selectedCriteria.getItems());
+                processItemsList(selectedCriteria);
         }
     }
 
-    private void processItemsList(List<Item> items) {
+    private void processItemsList(Criteria criteria) {
+        List<Item> items = (!listingDeleted ? criteria.getItems() : criteria.getDeletedItems());
         if (items.isEmpty()) {
             categoriesView.showNoItems();
         } else {
@@ -200,7 +220,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             // go back to previous state
             processList();
         } else {
-            List<Item> searchingList = itemsRepository.getItems();
+            List<Item> searchingList = (!listingDeleted ? itemsRepository.getItems() : itemsRepository.getDeletedItems());
             for (Item item : searchingList) {
                 if (itemMatchesQuery(item, query)) {
                     matchingItems.add(item);
@@ -269,7 +289,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         // only with AREA_FOCUS
         selectedCriteria = criteria;
         categoriesView.showSelectedCriteria(criteria);
-        processItemsList(criteria.getItems());
+        processItemsList(criteria);
         categoriesView.hideCategoryList();
         currentFocus = CRITERIA_FOCUS;
     }
@@ -331,6 +351,21 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     @Override
+    public void permanentlyDeleteItem(@NonNull Item item) {
+        itemsRepository.permanentlyDeleteItem(item);
+        categoriesView.removeDeletedItem(item);
+        // deleted items don't affect points so there's no point...
+        // in refreshing data
+    }
+
+    @Override
+    public void restoreItem(@NonNull Item item) {
+        itemsRepository.restoreItem(item);
+        categoriesView.removeDeletedItem(item);
+        refreshData();
+    }
+
+    @Override
     public void onItemClicked(Item clickedItem) {
         if (action == null) {
             categoriesView.openItemDetails(clickedItem);
@@ -339,7 +374,34 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             categoriesView.showFilesAddedMessage();
             action = null;
             categoriesView.enableListSwipe(true);
+            processItemsList(selectedCriteria);
         }
+    }
+
+    @Override
+    public void setIntentInfo(Intent intent) {
+        this.action = intent.getAction();
+
+        if (action != null) {
+            switch (action) {
+                case Intent.ACTION_SEND:
+                    receivedFiles.add(UriHelper.getUriFromExtra(intent));
+                    break;
+
+                case Intent.ACTION_SEND_MULTIPLE:
+                    receivedFiles.addAll(UriHelper.getUriListFromExtra(intent));
+                    break;
+
+                case SENDING_PHOTO:
+                    receivedFiles.add(Uri.parse(intent.getStringExtra("photo_uri")));
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public String getIntentAction() {
+        return action;
     }
 
     @Override

@@ -156,12 +156,12 @@ public class FileUtils {
                             writer.append(criteria.getRealReference() + " - \"" + criteria.getName() + "\"");
 
                             for (Item item : criteria.getItems()) {
-                                writer.append("\n\tDescriçao da atividade: " +"\n\t"+ item.getDescription() + "\n");
+                                writer.append("\n\tDescriçao da atividade: " + "\n\t" + item.getDescription() + "\n");
 
 
                             }
-                            writer.append("\n\t"+ "Comprovativo Em anexo"  );
-                            writer.append("\n\t"+ "Pontuação " + criteria.getPoints() + "\n");
+                            writer.append("\n\t" + "Comprovativo Em anexo");
+                            writer.append("\n\t" + "Pontuação " + criteria.getPoints() + "\n");
                         }
                     }
 
@@ -179,7 +179,7 @@ public class FileUtils {
         }
     }
 
-    public static void readExcel(Criteria criteria){
+    public static void readExcel(Criteria criteria) {
         try {
             File file = getExcelFile();
             InputStream inputStream = new FileInputStream(file);
@@ -188,21 +188,37 @@ public class FileUtils {
             XSSFFormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
             XSSFSheet sheet = wb.getSheetAt(0);
 
-            int points = 0;
-            if(criteria.getDimension().getReference() == 1 && criteria.getReference() <= 4){
-                points += criteria.getWeights();
-                if (points >= 10) {
-                    points = 10;
+            if (criteria.getRealReference().startsWith("1.1")) {
+                System.out.println("special case criteria");
+                int points = 0;
+                // the first four criterias in the excel file where the evaluation is made
+                // are a special case where four criterias count towards the same point value
+                // so in this case we can't perform an update on a single criteria but instead
+                // on all these four
+                for (Criteria specialCriteria : criteria.getArea().getCriterias()) {
+                    points += specialCriteria.getWeights();
+                    if (points >= 10) {
+                        points = 10;
+                    }
+                    sheet.getRow(specialCriteria.getWriteCell().y)
+                            .getCell(specialCriteria.getWriteCell().x)
+                            .setCellValue(points);
                 }
+                try (FileOutputStream stream = new FileOutputStream(file)) {
+                    wb.write(stream);
+                }
+                evaluator.evaluateFormulaCell(sheet.getRow(criteria.getReadCell().y)
+                        .getCell(criteria.getReadCell().x));
+                for (Criteria specialCriteria : criteria.getArea().getCriterias()) {
+                    double value = sheet.getRow(specialCriteria.getReadCell().y)
+                            .getCell(specialCriteria.getReadCell().x)
+                            .getNumericCellValue();
+                    specialCriteria.setFinalPoints(value);
+                }
+            } else {
                 sheet.getRow(criteria.getWriteCell().y)
                         .getCell(criteria.getWriteCell().x)
-                        .setCellValue(points);
-            }else{
-                if (criteria.getWeights() > 0) {
-                    sheet.getRow(criteria.getWriteCell().y)
-                            .getCell(criteria.getWriteCell().x)
-                            .setCellValue(criteria.getWeights());
-                }
+                        .setCellValue(criteria.getWeights());
 
                 try (FileOutputStream stream = new FileOutputStream(file)) {
                     wb.write(stream);
@@ -210,12 +226,10 @@ public class FileUtils {
                 evaluator.evaluateFormulaCell(sheet.getRow(criteria.getReadCell().y)
                         .getCell(criteria.getReadCell().x));
 
-                if (criteria.getWeights() > 0) {
-                    double value = sheet.getRow(criteria.getReadCell().y)
-                            .getCell(criteria.getReadCell().x)
-                            .getNumericCellValue();
-                    criteria.setFinalPoints(value);
-                }
+                double value = sheet.getRow(criteria.getReadCell().y)
+                        .getCell(criteria.getReadCell().x)
+                        .getNumericCellValue();
+                criteria.setFinalPoints(value);
             }
 
             inputStream.close();
@@ -253,11 +267,11 @@ public class FileUtils {
             }
             for (int i = 4; i < criterias.size(); i++) {
                 Criteria criteria = criterias.get(i);
-                if (criteria.getWeights() > 0) {
-                    sheet.getRow(criteria.getWriteCell().y)
-                            .getCell(criteria.getWriteCell().x)
-                            .setCellValue(criteria.getWeights());
-                }
+                sheet.getRow(criteria.getWriteCell().y)
+                        .getCell(criteria.getWriteCell().x)
+                        .setCellValue(criteria.getWeights());
+
+
             }
             try (FileOutputStream stream = new FileOutputStream(file)) {
                 wb.write(stream);
@@ -266,12 +280,10 @@ public class FileUtils {
 
             for (int i = 0; i < criterias.size(); i++) {
                 Criteria criteria = criterias.get(i);
-                if (criteria.getWeights() > 0) {
-                    double value = sheet.getRow(criteria.getReadCell().y)
-                            .getCell(criteria.getReadCell().x)
-                            .getNumericCellValue();
-                    criteria.setFinalPoints(value);
-                }
+                double value = sheet.getRow(criteria.getReadCell().y)
+                        .getCell(criteria.getReadCell().x)
+                        .getNumericCellValue();
+                criteria.setFinalPoints(value);
             }
 
             // wb.close() - using older version of apache poi (due to 4.4 compatibility issues)
