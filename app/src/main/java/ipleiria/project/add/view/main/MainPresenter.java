@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
@@ -241,28 +242,33 @@ class MainPresenter implements MainContract.Presenter {
         if (result.isSuccess()) {
             GoogleSignInAccount acct = result.getSignInAccount();
             if (acct != null) {
-                System.out.println(acct.getAccount());
-                GoogleAccountCredential credential =
-                        GoogleAccountCredential.usingOAuth2(Application.getAppContext(), Arrays.asList(SCOPES));
-                credential.setSelectedAccount(acct.getAccount());
-                HttpTransport transport = AndroidHttp.newCompatibleTransport();
-                JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-                mService = new Gmail.Builder(transport, jsonFactory, credential)
-                        .setApplicationName("Project ADD")
-                        .build();
-
-                new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
-                    @Override
-                    public void onComplete(List<ItemFile> result) {
-                        addFiles(result);
-                    }
-                }).execute();
+                buildGmailService(acct);
             }
         }
     }
 
+    private void buildGmailService(GoogleSignInAccount acct){
+        GoogleAccountCredential credential =
+                GoogleAccountCredential.usingOAuth2(Application.getAppContext(), Arrays.asList(SCOPES));
+        credential.setSelectedAccount(acct.getAccount());
+        HttpTransport transport = AndroidHttp.newCompatibleTransport();
+        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+        mService = new Gmail.Builder(transport, jsonFactory, credential)
+                .setApplicationName("Project ADD")
+                .build();
+
+        new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
+            @Override
+            public void onComplete(List<ItemFile> result) {
+                addFiles(result);
+            }
+        }).execute();
+    }
+
     @Override
     public void onSwipeRefresh() {
+        mainView.setLoadingIndicator(true);
+
         filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<ItemFile>>() {
             @Override
             public void onMEOComplete(List<ItemFile> result) {
@@ -283,14 +289,11 @@ class MainPresenter implements MainContract.Presenter {
             }
         });
 
-        new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
-            @Override
-            public void onComplete(List<ItemFile> result) {
-                addFiles(result);
-            }
-        }).execute();
+        if(mService == null){
+            // will make sure credentials exist, sign in and build the gmail service
+            checkForCachedCredentials();
+        }
 
-        mainView.setLoadingIndicator(true);
         processPendingFiles();
         mainView.setLoadingIndicator(false);
 

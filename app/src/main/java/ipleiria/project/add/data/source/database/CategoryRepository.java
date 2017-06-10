@@ -141,6 +141,15 @@ public class CategoryRepository implements CategoryDataSource {
         return criterias;
     }
 
+    public Criteria getCriteria(String reference){
+        String[] s = reference.split("\\.");
+        int dimension = Integer.valueOf(s[0]) - 1;
+        int area = Integer.valueOf(s[1]) - 1;
+        int criteria = Integer.valueOf(s[2]) - 1;
+
+        return getCriteria(dimension, area, criteria);
+    }
+
     // prefered over readCategories to get data in the presenter through callbacks
     @Override
     public DatabaseReference getReference() {

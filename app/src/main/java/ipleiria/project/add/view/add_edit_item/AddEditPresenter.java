@@ -33,6 +33,9 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
     public static final String EDITING_ITEM = "editing_item_action";
     public static final String EDITING_ITEM_KEY = "item_key";
+    // to save the user one step, we can select the criteria depending on the context
+    // ie. user opened a criteria with no items and clicked the option to add items
+    public static final String CRITERIA_SELECTED = "criteria_selected";
 
     private final AddEditContract.View addEditView;
 
@@ -109,6 +112,11 @@ public class AddEditPresenter implements AddEditContract.Presenter {
                     // because it already has data
                     addEditView.showFloatingActionButton();
                     break;
+
+                case CRITERIA_SELECTED:
+                    String reference = intent.getStringExtra(CRITERIA_SELECTED);
+                    selectedCriteria = categoryRepository.getCriteria(reference);
+                    addEditView.setSelectedCriteria(selectedCriteria);
             }
         }
         // no action means the app is opening to add a new item without file
@@ -167,20 +175,12 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
     @Override
     public void finishAction() {
-        /*if(description == null || description.isEmpty()){
-            addEditView.showEmptyDescriptionError();
-            return;
-        }
-        if(selectedCriteria == null){
-            addEditView.showNoSelectedCriteriaError();
-            return;
-        }*/
-
         if(intentAction != null) {
             switch (intentAction) {
                 case Intent.ACTION_SEND:
                 case Intent.ACTION_SEND_MULTIPLE:
                 case SENDING_PHOTO:
+                case CRITERIA_SELECTED:
                     Item item = new Item(description);
                     item.setCriteria(selectedCriteria);
                     item.setWeight(weight);

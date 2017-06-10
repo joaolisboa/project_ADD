@@ -142,6 +142,7 @@ public class MainFragment extends Fragment implements MainContract.View,
             @Override
             public void onRefresh() {
                 presenter.onSwipeRefresh();
+                presenter.buildGoogleClient(getActivity(), MainFragment.this, getString(R.string.default_web_client_id));
             }
         });
 

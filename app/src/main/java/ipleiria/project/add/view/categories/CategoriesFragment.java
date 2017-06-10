@@ -43,6 +43,7 @@ import ipleiria.project.add.view.items.ItemsFragment;
 import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
 
 import static ipleiria.project.add.R.id.area;
+import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.CRITERIA_SELECTED;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM_KEY;
 import static ipleiria.project.add.view.itemdetail.ItemDetailPresenter.ITEM_KEY;
@@ -163,7 +164,12 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
             intent.setComponent(new ComponentName(getContext(), AddEditActivity.class));
             startActivityForResult(intent, REQUEST_ADD_NEW_ITEM_CHANGE);
         }else{
-            startActivityForResult(new Intent(getContext(), AddEditActivity.class), REQUEST_ADD_NEW_ITEM);
+            Intent intent = new Intent(getContext(), AddEditActivity.class);
+            if(categoriesPresenter.getSelectedCriteria() != null){
+                intent.setAction(CRITERIA_SELECTED);
+                intent.putExtra(CRITERIA_SELECTED, categoriesPresenter.getSelectedCriteria().getRealReference());
+            }
+            startActivityForResult(intent, REQUEST_ADD_NEW_ITEM);
         }
     }
 

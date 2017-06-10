@@ -103,6 +103,8 @@ public class CategoriesContract {
 
         String getIntentAction();
 
+        Criteria getSelectedCriteria();
+
         Bundle saveInstanceState();
 
         void restoreInstanceState(Bundle savedInstanceState);

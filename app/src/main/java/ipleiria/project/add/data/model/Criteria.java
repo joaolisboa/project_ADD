@@ -83,8 +83,8 @@ public class Criteria extends Category{
     }
 
     public String getRealReference() {
-        return getDimension().getReference() + "." +
-                getArea().getReference() + "." +
+        return getDimension().reference + "." +
+                getArea().reference + "." +
                 reference;
     }
 

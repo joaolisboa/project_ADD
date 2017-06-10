@@ -10,6 +10,4 @@ interface CategoryDataSource {
 
     DatabaseReference getReference();
 
-
-
 }

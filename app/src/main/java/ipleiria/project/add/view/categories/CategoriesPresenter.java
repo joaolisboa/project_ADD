@@ -405,12 +405,23 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     @Override
+    public Criteria getSelectedCriteria() {
+        return selectedCriteria;
+    }
+
+    @Override
     public Bundle saveInstanceState() {
         Bundle savedInstanceState = new Bundle();
         savedInstanceState.putInt("focus", currentFocus);
-        savedInstanceState.putInt("dimension_ref", selectedDimension.getReference());
-        savedInstanceState.putInt("area_ref", selectedArea.getReference());
-        savedInstanceState.putInt("criteria_ref", selectedCriteria.getReference());
+        if(selectedDimension != null) {
+            savedInstanceState.putInt("dimension_ref", selectedDimension.getReference());
+            if(selectedArea != null){
+                savedInstanceState.putInt("area_ref", selectedArea.getReference());
+                if(selectedCriteria != null){
+                    savedInstanceState.putInt("criteria_ref", selectedCriteria.getReference());
+                }
+            }
+        }
 
         return savedInstanceState;
     }

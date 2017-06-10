@@ -201,11 +201,7 @@ public class ItemsRepository implements ItemsDataSource {
         newItem.setWeight((Long) itemSnapshot.child("weight").getValue());
 
         String reference = (String) itemSnapshot.child("reference").getValue();
-        String[] s = reference.split("\\.");
-        int dimension = Integer.valueOf(s[0]) - 1;
-        int area = Integer.valueOf(s[1]) - 1;
-        int criteria = Integer.valueOf(s[2]) - 1;
-        Criteria criteriaO = CategoryRepository.getInstance().getCriteria(dimension, area, criteria);
+        Criteria criteriaO = CategoryRepository.getInstance().getCriteria(reference);
         newItem.setCriteria(criteriaO);
         if(deleted){
             criteriaO.deleteItem(newItem);

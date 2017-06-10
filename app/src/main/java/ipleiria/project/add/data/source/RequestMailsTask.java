@@ -99,8 +99,7 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
         String email = emailAux[0] + "+addestg@" + emailAux[1];
 
         try {
-            ListMessagesResponse listResponse =
-                    gmailService.users().messages().list(user).setQ("to:" + email).execute();
+            ListMessagesResponse listResponse = gmailService.users().messages().list(user).setQ("to:" + email).execute();
             for (int i = 0; i < listResponse.size(); i++) {
                 Message m = gmailService.users().messages().get(user, listResponse.getMessages().get(i).getId()).execute();
 
