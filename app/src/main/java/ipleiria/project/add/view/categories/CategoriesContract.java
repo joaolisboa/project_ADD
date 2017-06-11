@@ -56,7 +56,7 @@ public class CategoriesContract {
 
         void removeDeletedItem(Item item);
 
-        void openItemDetails(Item clickedIem);
+        void openItemDetails(Item clickedItem, boolean listingDeleted);
 
         void showFilesAddedMessage();
 

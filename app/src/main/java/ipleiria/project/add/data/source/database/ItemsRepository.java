@@ -105,12 +105,38 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     @Override
-    public void getItems(boolean deleted, final FilesRepository.Callback<List<Item>> callback){
-        if(!deleted){
-            getItems(callback);
-        }else{
-            getRemoteDeletedItems(callback);
-        }
+    public void getItems(final boolean deleted, final FilesRepository.Callback<List<Item>> callback){
+        itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                    addNewItem(itemSnapshot, false);
+                }
+                deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for(DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                            addNewItem(itemSnapshot, true);
+                        }
+                        if(deleted) {
+                            callback.onComplete(localDeletedItems);
+                        }else{
+                            callback.onComplete(localItems);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        callback.onError(databaseError.toException());
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onError(databaseError.toException());
+            }
+        });
     }
 
     private void getItems(final FilesRepository.Callback<List<Item>> callback){
@@ -121,6 +147,7 @@ public class ItemsRepository implements ItemsDataSource {
                     addNewItem(itemSnapshot, false);
                 }
                 callback.onComplete(localItems);
+
             }
 
             @Override
@@ -130,14 +157,14 @@ public class ItemsRepository implements ItemsDataSource {
         });
     }
 
-    private void getRemoteDeletedItems(final FilesRepository.Callback<List<Item>> callback){
+    private void getDeletedItems(final FilesRepository.Callback<List<Item>> callback){
         deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
                     addNewItem(itemSnapshot, true);
                 }
-                callback.onComplete(localItems);
+                callback.onComplete(localDeletedItems);
             }
 
             @Override

@@ -92,6 +92,10 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         fileList = (ListView) root.findViewById(R.id.file_list);
         fileList.setAdapter(listFileAdapter);
 
+        if(getActivity().getIntent().getBooleanExtra(LIST_DELETED_KEY, false)){
+            root.findViewById(R.id.text_helper).setVisibility(View.VISIBLE);
+        }
+
         // Set up floating action button
         FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
         fab.setImageResource(R.drawable.add_white);

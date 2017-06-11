@@ -2,11 +2,14 @@ package ipleiria.project.add.view.categories;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -91,18 +94,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     public void refreshData() {
         categoriesView.showProgressDialog();
-
-        categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
-            @Override
-            public void onComplete(List<Dimension> result) {
-                refreshItems();
-            }
-
-            @Override
-            public void onError(Exception e) {
-                categoriesView.hideProgressDialog();
-            }
-        });
+        new RefreshTask().execute();
     }
 
     private void refreshItems() {
@@ -368,7 +360,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     @Override
     public void onItemClicked(Item clickedItem) {
         if (action == null) {
-            categoriesView.openItemDetails(clickedItem);
+            categoriesView.openItemDetails(clickedItem, listingDeleted);
         } else {
             itemsRepository.addFilesToItem(clickedItem, receivedFiles);
             categoriesView.showFilesAddedMessage();
@@ -439,5 +431,23 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         selectedCriteria = selectedArea.getCriteria(criteriaRef - 1);
 
         processList();
+    }
+
+    private class RefreshTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
+                @Override
+                public void onComplete(List<Dimension> result) {
+                    refreshItems();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    categoriesView.hideProgressDialog();
+                }
+            });
+            return null;
+        }
     }
 }

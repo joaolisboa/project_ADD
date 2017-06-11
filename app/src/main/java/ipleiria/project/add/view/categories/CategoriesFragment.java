@@ -210,23 +210,20 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
 
     @Override
     public void showProgressDialog() {
-        if (progressDialog == null) {
-            progressDialog = new ProgressDialog(getContext());
-            progressDialog.setMessage(getString(R.string.loading));
-            progressDialog.setIndeterminate(true);
-        }
-
-        progressDialog.show();
+        swipeRefreshLayout.setRefreshing(true);
     }
 
     @Override
     public void hideProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-        if(swipeRefreshLayout.isRefreshing()){
-            swipeRefreshLayout.setRefreshing(false);
-        }
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                if(swipeRefreshLayout.isRefreshing()){
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            }
+        });
+
     }
 
     @Override
@@ -342,8 +339,9 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     @Override
-    public void openItemDetails(Item clickedItem) {
+    public void openItemDetails(Item clickedItem, boolean listingDeleted) {
         Intent intent = new Intent(getContext(), ItemDetailActivity.class);
+        intent.putExtra(LIST_DELETED_KEY, listingDeleted);
         intent.putExtra(ITEM_KEY, clickedItem.getDbKey());
         startActivity(intent);
     }

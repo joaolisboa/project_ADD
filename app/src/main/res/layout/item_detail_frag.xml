@@ -9,10 +9,31 @@
     android:clipToPadding="false"
     tools:context="ipleiria.project.add.view.itemdetail.ItemDetailActivity">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/text_helper"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:paddingTop="8dp"
+                android:background="#EAEAEA"
+                android:gravity="center"
+                android:textSize="17sp"
+                android:textColor="@color/primary_text"
+                android:text="@string/deleted_files_top_banner"/>
+
+            <View style="@style/Divider" />
+        </LinearLayout>
 
         <com.pchmn.materialchips.ChipsInput
             android:id="@+id/chips_input"
