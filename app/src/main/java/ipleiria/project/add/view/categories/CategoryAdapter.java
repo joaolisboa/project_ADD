@@ -19,22 +19,18 @@ import ipleiria.project.add.data.model.Item;
  * Created by Lisboa on 30-May-17.
  */
 
-class CategoryAdapter extends BaseAdapter{
+public class CategoryAdapter extends BaseAdapter{
 
     private List<Category> items;
     private LinkedHashMap<Category, TextView> attachedPointsTextView;
 
-    CategoryAdapter(List<Category> items){
+    public CategoryAdapter(List<Category> items){
         setList(items);
 
         attachedPointsTextView = new LinkedHashMap<>();
     }
 
     private void setList(List<Category> categories){
-        this.items = categories;
-    }
-
-    void replaceData(List<Category> categories){
         LinkedList<Category> firstItems = new LinkedList<>();
         LinkedList<Category> lastItems = new LinkedList<>();
 
@@ -50,7 +46,11 @@ class CategoryAdapter extends BaseAdapter{
         orderedList.addAll(firstItems);
         orderedList.addAll(lastItems);
 
-        setList(orderedList);
+        this.items = orderedList;
+    }
+
+    void replaceData(List<Category> categories){
+        setList(categories);
         notifyDataSetChanged();
     }
 

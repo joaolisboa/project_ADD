@@ -27,8 +27,13 @@ public class CategoryNodeHolder extends TreeNode.BaseNodeViewHolder<Category>  {
     public View createNodeView(TreeNode node, Category value) {
         final LayoutInflater inflater = LayoutInflater.from(context);
         final View view = inflater.inflate(layout, null, false);
+
         TextView tvValue = (TextView) view.findViewById(R.id.node_value);
         tvValue.setText(value.getReference() + ". " + value.getName());
+
+        TextView points = (TextView) view.findViewById(R.id.points);
+        points.setText(String.valueOf(value.getPoints()));
+
         return view;
     }
 }

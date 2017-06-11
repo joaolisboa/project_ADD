@@ -291,12 +291,13 @@ class MainPresenter implements MainContract.Presenter {
 
         if(mService == null){
             // will make sure credentials exist, sign in and build the gmail service
+            // this fixes an issue where when returning to the app after signing into google
+            // causes a crash when refreshing because the service wasn't initialized
             checkForCachedCredentials();
         }
 
         processPendingFiles();
         mainView.setLoadingIndicator(false);
-
     }
 
     private void addFiles(List<ItemFile> files){

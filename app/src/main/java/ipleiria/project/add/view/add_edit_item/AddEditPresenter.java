@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.utils.StringUtils;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.data.model.Criteria;
@@ -63,25 +66,35 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
     @Override
     public void subscribe(Intent intent) {
-        if (!categoryRepository.getDimensions().isEmpty()) {
-            addEditView.createTreeView(categoryRepository.getDimensions());
-        } else {
-            readCategories();
-        }
+        readCategories();
         setIntentInfo(intent);
     }
 
     private void readCategories() {
-        categoryRepository.getReference().addListenerForSingleValueEvent(new ValueEventListener() {
+        categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                categoryRepository.addDimensions(dataSnapshot);
+            public void onComplete(List<Dimension> result) {
+                readItems();
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
+    }
+
+    private void readItems() {
+        itemsRepository.getItems(false, new FilesRepository.Callback<List<Item>>() {
+            @Override
+            public void onComplete(List<Item> result) {
+                FileUtils.readExcel();
                 addEditView.createTreeView(categoryRepository.getDimensions());
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
+            public void onError(Exception e) {
+
             }
         });
     }

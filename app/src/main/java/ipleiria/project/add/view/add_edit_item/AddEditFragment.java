@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.view.CategoryNodeHolder;
@@ -40,6 +41,7 @@ import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.view.categories.CategoryAdapter;
 import ipleiria.project.add.view.items.ItemsActivity;
 
 import static android.content.Context.SEARCH_SERVICE;
@@ -174,7 +176,7 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
 
     @Override
     public void showSearchItems(List<Criteria> criterias){
-        ArrayAdapter<Criteria> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, criterias);
+        CategoryAdapter adapter = new CategoryAdapter(new LinkedList<Category>(criterias));
         searchListView.setAdapter(adapter);
 
         searchListView.setVisibility(View.VISIBLE);
@@ -217,10 +219,6 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     public void finishAction() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(descriptionEditText.getWindowToken(), 0);
-        /*if(addEditPresenter.getIntentAction() != null){
-            Intent intent = new Intent(getContext(), ItemsActivity.class);
-            startActivity(intent);
-        }*/
         getActivity().setResult(Activity.RESULT_OK);
         getActivity().finish();
     }
@@ -267,7 +265,6 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
         tView.setDefaultNodeClickListener(nodeClickListener);
         tView.setUse2dScroll(false);
         tView.setSelectionModeEnabled(true);
-        tView.setDefaultAnimation(true);
         containerView.addView(tView.getView());
     }
 
@@ -302,11 +299,12 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
         public void onClick(TreeNode node, Object value) {
             Category item = (Category) value;
             if (item instanceof Criteria) {
-                /*if(!tView.getSelected().isEmpty()){
+                if(!tView.getSelected().isEmpty()){
                     tView.getSelected().get(0).setSelected(false);
                 }
-                node.getViewHolder().toggle(true);
-                node.setSelected(true);*/
+                node.setSelectable(true);
+                node.setSelected(true);
+                tView.selectNode(node, true);
                 addEditPresenter.selectedCriteria((Criteria) item);
             }
         }
