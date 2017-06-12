@@ -69,6 +69,8 @@ public class CategoriesContract {
         void showSearchItems(List<Item> matchingItems);
 
         void showNoDeletedItems();
+
+        void openPeriodSelection(CharSequence periods[]);
     }
 
     interface Presenter extends BasePresenter {
@@ -98,6 +100,10 @@ public class CategoriesContract {
         void onResult(int requestCode, int resultCode, Intent data);
 
         void searchItems(String query);
+
+        void setPeriodSelection();
+
+        void switchPeriod(int position);
 
         void setIntentInfo(Intent intent);
 

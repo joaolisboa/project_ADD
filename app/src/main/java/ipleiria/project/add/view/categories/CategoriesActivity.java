@@ -56,6 +56,7 @@ public class CategoriesActivity extends AppCompatActivity {
                 ItemsRepository.getInstance(),
                 listDeleted);
         categoriesPresenter.setIntentInfo(getIntent());
+
     }
 
     public void onBackPressed() {

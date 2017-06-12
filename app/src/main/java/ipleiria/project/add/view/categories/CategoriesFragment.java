@@ -3,6 +3,7 @@ package ipleiria.project.add.view.categories;
 import android.animation.Animator;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,8 +13,11 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
@@ -54,6 +58,8 @@ import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
  */
 
 public class CategoriesFragment extends Fragment implements CategoriesContract.View {
+
+    private static final String TAG = "CATEGORIES_FRAGMENT";
 
     // on resume will show an item added message and enable swipe
     // it differs because CHANGE comes externally(from another app)
@@ -173,6 +179,19 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+
+            case R.id.app_bar_period:
+                // TODO: 12-Jun-17 open dialog to change evaluation period
+                categoriesPresenter.setPeriodSelection();
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     public boolean onBackPressed() {
         return categoriesPresenter.onBackPressed();
     }
@@ -229,6 +248,19 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     @Override
     public void setTitle(String title) {
         ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(title);
+    }
+
+    @Override
+    public void openPeriodSelection(CharSequence periods[]) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Select evaluation period");
+        builder.setItems(periods, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                categoriesPresenter.switchPeriod(which);
+            }
+        });
+        builder.show();
     }
 
     @Override
@@ -300,6 +332,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     public void showNoItems() {
         showLayout(noItemsView);
         hideLayout(itemsListView);
+        hideLayout(categoryListView);
 
         noItemsView.findViewById(R.id.noItemsAdd).setOnClickListener(new View.OnClickListener() {
             @Override

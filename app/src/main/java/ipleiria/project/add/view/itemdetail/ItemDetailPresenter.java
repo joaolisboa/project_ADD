@@ -53,8 +53,10 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     private File sharedFile;
 
     ItemDetailPresenter(@NonNull ItemDetailContract.View itemDetailView, FilesRepository filesRepository,
+                        ItemFilesRepository itemFilesRepository,
                         Item item, boolean listingDeleted) {
         this.filesRepository = filesRepository;
+        this.itemFilesRepository = itemFilesRepository;
         this.itemDetailView = itemDetailView;
         this.itemDetailView.setPresenter(this);
 
@@ -64,7 +66,7 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
     @Override
     public void subscribe() {
-        this.itemFilesRepository = ItemFilesRepository.newInstance(item);
+        //this.itemFilesRepository = ItemFilesRepository.newInstance(item);
 
         List<ItemFile> files = (!listingDeleted ? item.getFiles() : item.getDeletedFiles());
         processFiles(files);

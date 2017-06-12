@@ -18,8 +18,10 @@ import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.FileUtils;
@@ -81,6 +83,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     @Override
     public void subscribe() {
+        categoriesView.setTitle(UserService.getInstance().getUser().getEvaluationPeriods().get(0).toString());
         refreshData();
     }
 
@@ -145,25 +148,21 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     private void processList() {
         switch (currentFocus) {
             case ROOT_FOCUS:
-                categoriesView.setTitle("Dimensions");
                 returnToDimensionView();
                 break;
 
             case DIMENSION_FOCUS:
-                categoriesView.setTitle("Areas");
                 categoriesView.showSelectedDimension(selectedDimension);
                 returnToAreaView();
                 break;
 
             case AREA_FOCUS:
-                categoriesView.setTitle("Criterias");
                 categoriesView.showSelectedDimension(selectedDimension);
                 categoriesView.showSelectedArea(selectedArea);
                 returnToCriteriaView();
                 break;
 
             case CRITERIA_FOCUS:
-                categoriesView.setTitle("Items");
                 categoriesView.showSelectedDimension(selectedDimension);
                 categoriesView.showSelectedArea(selectedArea);
                 categoriesView.showSelectedCriteria(selectedCriteria);
@@ -175,6 +174,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         List<Item> items = (!listingDeleted ? criteria.getItems() : criteria.getDeletedItems());
         if (items.isEmpty()) {
             categoriesView.showNoItems();
+            currentFocus = ROOT_FOCUS;
         } else {
             categoriesView.showItemsList(items);
         }
@@ -245,20 +245,6 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             criteriaClicked((Criteria) category);
         } else {
             Log.e(TAG, "Invalid object - shouldn't happen");
-        }
-
-        switch (currentFocus) {
-            case ROOT_FOCUS:
-                categoriesView.setTitle("Dimensions");
-                break;
-
-            case DIMENSION_FOCUS:
-                categoriesView.setTitle("Areas");
-                break;
-
-            case AREA_FOCUS:
-                categoriesView.setTitle("Criterias");
-                break;
         }
     }
 
@@ -368,6 +354,28 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             categoriesView.enableListSwipe(true);
             processItemsList(selectedCriteria);
         }
+    }
+
+    @Override
+    public void setPeriodSelection() {
+        /*itemsRepository.setCurrentPeriod(evaluationPeriod);
+        categoriesView.setTitle(evaluationPeriod.toString());
+        forceRefreshData();*/
+        CharSequence periods[] = new CharSequence[UserService.getInstance().getUser().getEvaluationPeriods().size()];
+        int i = 0;
+        for(EvaluationPeriod evaluationPeriod: UserService.getInstance().getUser().getEvaluationPeriods()){
+            periods[i] = evaluationPeriod.toString();
+            i++;
+        }
+        categoriesView.openPeriodSelection(periods);
+    }
+
+    @Override
+    public void switchPeriod(int position){
+        EvaluationPeriod evaluationPeriod = UserService.getInstance().getUser().getEvaluationPeriods().get(position);
+        itemsRepository.setCurrentPeriod(evaluationPeriod);
+        categoriesView.setTitle(evaluationPeriod.toString());
+        forceRefreshData();
     }
 
     @Override

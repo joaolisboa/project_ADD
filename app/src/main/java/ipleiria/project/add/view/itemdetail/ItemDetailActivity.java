@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.database.ItemFilesRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.ActivityUtils;
 
@@ -42,12 +43,14 @@ public class ItemDetailActivity extends AppCompatActivity {
 
         String itemKey = getIntent().getStringExtra(ITEM_KEY);
         Item item;
+        ItemsRepository itemsRepository = ItemsRepository.getInstance();
         if(!listDeleted){
-            item = ItemsRepository.getInstance().getItem(itemKey);
+            item = itemsRepository.getItem(itemKey);
         }else{
-            item = ItemsRepository.getInstance().getDeletedItem(itemKey);
+            item = itemsRepository.getDeletedItem(itemKey);
         }
-        new ItemDetailPresenter(itemDetailFragment, FilesRepository.getInstance(), item, listDeleted);
+        new ItemDetailPresenter(itemDetailFragment, FilesRepository.getInstance(),
+                ItemFilesRepository.getInstance(item, itemsRepository), item, listDeleted);
 
     }
 

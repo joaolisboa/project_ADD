@@ -29,23 +29,23 @@ public class ItemFilesRepository implements ItemFilesDataSource {
 
     private Item item;
 
-    public ItemFilesRepository(Item item) {
+    public ItemFilesRepository(Item item, ItemsRepository itemsRepository) {
         this.item = item;
-        this.itemsRepository = ItemsRepository.getInstance();
+        this.itemsRepository = itemsRepository;
 
         this.itemFilesReference = itemsRepository.getItemsReference().child(item.getDbKey()).child("files");
         this.itemDeletedFilesReference = itemsRepository.getDeletedItemsReference().child(item.getDbKey()).child("files");
     }
 
-    public static ItemFilesRepository getInstance(Item item) {
+    public static ItemFilesRepository getInstance(Item item, ItemsRepository itemsRepository) {
         if (INSTANCE == null) {
-            INSTANCE = new ItemFilesRepository(item);
+            INSTANCE = new ItemFilesRepository(item, itemsRepository);
         }
         return INSTANCE;
     }
 
-    public static ItemFilesRepository newInstance(Item item) {
-        INSTANCE = new ItemFilesRepository(item);
+    public static ItemFilesRepository newInstance(Item item, ItemsRepository itemsRepository) {
+        INSTANCE = new ItemFilesRepository(item, itemsRepository);
         return INSTANCE;
     }
 

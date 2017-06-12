@@ -1,13 +1,11 @@
 package ipleiria.project.add.data.model;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,71 +15,82 @@ import java.util.List;
 
 public class User {
 
-    @NonNull String uid;
-
-    String name;
-    String email;
-    List<String> secondaryEmails;
-    Uri photo_url;
-    boolean isAnonymous;
+    private String uid;
+    private String name;
+    private String email;
+    private Uri photoUrl;
+    private boolean isAnonymous;
+    private String department;
+    private List<EvaluationPeriod> evaluationPeriods;
 
     public User() {
     }
 
     public User(String uid) {
         this.uid = uid;
-        this.secondaryEmails = new LinkedList<>();
+        this.evaluationPeriods = new LinkedList<>();
     }
 
-    public User(String uid, String email, Uri photo_url, String name) {
+    public User(String uid, String email, Uri photoUrl, String name) {
         this(uid);
         this.email = email;
-        this.photo_url = photo_url;
+        this.photoUrl = photoUrl;
         this.name = name;
     }
 
-    @NonNull
     public String getUid() {
         return uid;
     }
 
-    public void setUid(@NonNull String uid) {
+    public void setUid(String uid) {
         this.uid = uid;
     }
 
-    @Nullable
+    public void setDepartment(String department){
+        this.department = department;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(@Nullable String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
-    @Nullable
-    public Uri getPhoto_url() {
-        return photo_url;
+    public Uri getPhotoUrl() {
+        return photoUrl;
     }
 
-    public void setPhoto_url(@Nullable Uri photo_url) {
-        this.photo_url = photo_url;
+    public void setPhotoUrl(Uri photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
-    @Nullable
+    public List<EvaluationPeriod> getEvaluationPeriods() {
+        return evaluationPeriods;
+    }
+
+    public void addEvaluationPeriod(EvaluationPeriod period){
+        evaluationPeriods.add(period);
+    }
+
     public String getName() {
         return name;
     }
 
-    public void setName(@Nullable String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    @NonNull
     public boolean isAnonymous() {
         return isAnonymous;
     }
 
-    public void setAnonymous(@NonNull boolean anonymous) {
+    public void setAnonymous(boolean anonymous) {
         isAnonymous = anonymous;
     }
 
@@ -89,4 +98,5 @@ public class User {
     public String toString(){
         return name + ":" + email + ":" + isAnonymous;
     }
+
 }

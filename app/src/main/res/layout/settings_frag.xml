@@ -8,6 +8,15 @@
     android:paddingTop="8dp"
     tools:context=".view.settings.SettingsActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Services"
+        android:textSize="14sp"
+        android:textColor="@color/primary"/>
+
     <LinearLayout
         android:id="@+id/account_info"
         android:layout_width="match_parent"
@@ -127,5 +136,17 @@
 
     <View
         style="@style/Divider" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Account - todo show/edit user info"
+        android:textSize="14sp"
+        android:textColor="@color/primary"/>
+
+
 
 </LinearLayout>

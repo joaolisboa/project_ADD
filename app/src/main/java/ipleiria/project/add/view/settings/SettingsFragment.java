@@ -169,7 +169,7 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
         accountDescription.setText(getString(R.string.account_syncing_status, user.getEmail()));
 
         Picasso.with(getContext())
-                .load(user.getPhoto_url())
+                .load(user.getPhotoUrl())
                 .resize(100, 100)
                 .transform(new CircleTransformation())
                 .placeholder(R.drawable.profile_placeholder)

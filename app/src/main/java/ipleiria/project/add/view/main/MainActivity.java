@@ -5,11 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,8 +27,6 @@ import ipleiria.project.add.Application;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.FilesRepository;
-import ipleiria.project.add.data.source.MEOCloudService;
-import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.ActivityUtils;
 import ipleiria.project.add.utils.CircleTransformation;
@@ -39,11 +34,6 @@ import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.view.categories.CategoriesActivity;
-import ipleiria.project.add.view.categories.CategoriesFragment;
-import ipleiria.project.add.view.categories.CategoriesPresenter;
-import ipleiria.project.add.view.items.ItemsActivity;
-import ipleiria.project.add.view.items.ItemsFragment;
-import ipleiria.project.add.view.items.ItemsPresenter;
 import ipleiria.project.add.view.settings.SettingsActivity;
 
 import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
@@ -195,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ((TextView) navHeader.findViewById(R.id.user_mail)).setText(user.getEmail());
         ImageView profilePicView = (ImageView) navHeader.findViewById(R.id.profile_pic);
         Picasso.with(this)
-                .load(user.getPhoto_url())
+                .load(user.getPhotoUrl())
                 .resize(100, 100)
                 .transform(new CircleTransformation())
                 .placeholder(R.drawable.profile_placeholder)

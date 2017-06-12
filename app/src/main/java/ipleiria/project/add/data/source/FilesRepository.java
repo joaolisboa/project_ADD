@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -24,6 +25,7 @@ import java.util.concurrent.Semaphore;
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.meocloud.data.MEOMetadata;
@@ -47,8 +49,9 @@ public class FilesRepository implements FilesDataSource {
     private final MEOCloudService meoCloudService;
 
     private List<ItemFile> localFiles;
-
     private List<ItemFile> pendingFiles;
+
+    private EvaluationPeriod currentPeriod;
 
     public FilesRepository() {
         UserService userService = UserService.getInstance();
@@ -94,6 +97,10 @@ public class FilesRepository implements FilesDataSource {
         INSTANCE = null;
     }
 
+    public void setCurrentPeriod(EvaluationPeriod currentPeriod) {
+        this.currentPeriod = currentPeriod;
+    }
+
     private void searchForLocalFiles(List<Dimension> dimensions) {
         for (Dimension dimension : dimensions) {
             File dimensiondir = new File(Application.getAppContext().getFilesDir() + "/" + dimension.getReference());
@@ -119,7 +126,13 @@ public class FilesRepository implements FilesDataSource {
     }
 
     private String getRelativePath(Criteria criteria) {
-        return "/" + criteria.getDimension().getReference() +
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentPeriod.getStartDate());
+        String startYear = String.valueOf(calendar.get(Calendar.YEAR));
+        calendar.setTime(currentPeriod.getEndDate());
+        String endYear = String.valueOf(calendar.get(Calendar.YEAR));
+        return "/" + startYear + "_" + endYear +
+                "/" + criteria.getDimension().getReference() +
                 "/" + criteria.getArea().getReference() +
                 "/" + criteria.getReference();
     }

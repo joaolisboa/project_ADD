@@ -18,6 +18,7 @@ import java.util.Map;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Criteria;
+import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.utils.UriHelper;
@@ -45,10 +46,13 @@ public class ItemsRepository implements ItemsDataSource {
      */
     private List<Item> localItems;
     private List<Item> localDeletedItems;
-    // this list will contain all tags from all tags to provide autocomplete suggestions
+    // this list will contain all tags from all items to provide autocomplete suggestions
     private List<String> tags;
 
-    // force reading remotely if required, otherwise will get local items
+    // value of the currently selected period by the user
+    private EvaluationPeriod currentPeriod;
+
+    // TODO: 12-Jun-17 force reading remotely, otherwise will get local items
     private boolean cacheIsDirty;
 
     // Prevent direct instantiation.
@@ -58,7 +62,7 @@ public class ItemsRepository implements ItemsDataSource {
         this.tags = new LinkedList<>();
         this.cacheIsDirty = false;
 
-        // test tags
+        // test/default tags
         tags.add("projeto");
         tags.add("exemplo");
         tags.add("visual");
@@ -75,6 +79,14 @@ public class ItemsRepository implements ItemsDataSource {
         this.itemsReference = FirebaseDatabase.getInstance().getReference().child(ITEMS).child(userUid);
         this.itemsReference.keepSynced(true);
         this.deletedItemsReference = FirebaseDatabase.getInstance().getReference().child(DELETED_ITEMS).child(userUid);
+        this.deletedItemsReference.keepSynced(true);
+    }
+
+    public void setCurrentPeriod(EvaluationPeriod evaluationPeriod) {
+        String userUid = UserService.getInstance().getUser().getUid();
+        this.itemsReference = FirebaseDatabase.getInstance().getReference().child(ITEMS).child(userUid).child(evaluationPeriod.getDbKey());
+        this.itemsReference.keepSynced(true);
+        this.deletedItemsReference = FirebaseDatabase.getInstance().getReference().child(DELETED_ITEMS).child(userUid).child(evaluationPeriod.getDbKey());
         this.deletedItemsReference.keepSynced(true);
     }
 
@@ -105,22 +117,24 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     @Override
-    public void getItems(final boolean deleted, final FilesRepository.Callback<List<Item>> callback){
+    public void getItems(final boolean deleted, final FilesRepository.Callback<List<Item>> callback) {
         itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                localItems = new LinkedList<>();
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
                     addNewItem(itemSnapshot, false);
                 }
                 deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for(DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                        localDeletedItems = new LinkedList<>();
+                        for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
                             addNewItem(itemSnapshot, true);
                         }
-                        if(deleted) {
+                        if (deleted) {
                             callback.onComplete(localDeletedItems);
-                        }else{
+                        } else {
                             callback.onComplete(localItems);
                         }
                     }
@@ -139,11 +153,11 @@ public class ItemsRepository implements ItemsDataSource {
         });
     }
 
-    private void getItems(final FilesRepository.Callback<List<Item>> callback){
+    private void getItems(final FilesRepository.Callback<List<Item>> callback) {
         itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
                     addNewItem(itemSnapshot, false);
                 }
                 callback.onComplete(localItems);
@@ -157,11 +171,11 @@ public class ItemsRepository implements ItemsDataSource {
         });
     }
 
-    private void getDeletedItems(final FilesRepository.Callback<List<Item>> callback){
+    private void getDeletedItems(final FilesRepository.Callback<List<Item>> callback) {
         deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
                     addNewItem(itemSnapshot, true);
                 }
                 callback.onComplete(localDeletedItems);
@@ -228,13 +242,13 @@ public class ItemsRepository implements ItemsDataSource {
         newItem.setWeight((Long) itemSnapshot.child("weight").getValue());
 
         String reference = (String) itemSnapshot.child("reference").getValue();
-        Criteria criteriaO = CategoryRepository.getInstance().getCriteria(reference);
-        newItem.setCriteria(criteriaO);
-        if(deleted){
-            criteriaO.deleteItem(newItem);
+        Criteria criteria = CategoryRepository.getInstance().getCriteria(reference);
+        newItem.setCriteria(criteria);
+        if (deleted) {
+            criteria.deleteItem(newItem);
         }
 
-        for(DataSnapshot tagSnapshot: itemSnapshot.child("tags").getChildren()){
+        for (DataSnapshot tagSnapshot : itemSnapshot.child("tags").getChildren()) {
             newItem.addTag(tagSnapshot.getValue(String.class));
         }
 
@@ -273,8 +287,8 @@ public class ItemsRepository implements ItemsDataSource {
         item.setDescription(newDescription);
         System.out.println("new weight: " + weight);
         item.setWeight(weight);
-        if(!item.getCriteria().equals(newCriteria)){
-            for(ItemFile file: item.getFiles()){
+        if (!item.getCriteria().equals(newCriteria)) {
+            for (ItemFile file : item.getFiles()) {
                 filesRepository.moveFile(file, newCriteria);
             }
             item.setCriteria(newCriteria);
@@ -282,12 +296,12 @@ public class ItemsRepository implements ItemsDataSource {
         // we can only edit items in the non-deleted list so it should always be false
         saveItem(item, false);
         // if the item has a deleted version(one or more files were deleted) we also need to update it
-        if(localDeletedItems.contains(item)){
+        if (localDeletedItems.contains(item)) {
             int pos = localDeletedItems.indexOf(item);
             Item deletedVersion = localDeletedItems.get(pos);
             deletedVersion.setDescription(item.getDescription());
-            if(!deletedVersion.getCriteria().equals(newCriteria)){
-                for(ItemFile file: deletedVersion.getDeletedFiles()){
+            if (!deletedVersion.getCriteria().equals(newCriteria)) {
+                for (ItemFile file : deletedVersion.getDeletedFiles()) {
                     filesRepository.moveFile(file, newCriteria);
                 }
                 deletedVersion.setCriteria(newCriteria);
@@ -343,7 +357,7 @@ public class ItemsRepository implements ItemsDataSource {
         localItems.remove(item);
         item.getCriteria().permanentlyDeleteItem(item);
 
-        if(itemsReference.child(item.getDbKey()) != null) {
+        if (itemsReference.child(item.getDbKey()) != null) {
             itemsReference.child(item.getDbKey()).removeValue();
         }
         deletedItemsReference.child(item.getDbKey()).removeValue();
@@ -369,7 +383,7 @@ public class ItemsRepository implements ItemsDataSource {
                 originalItem.addFile(fileToRestore);
             }
             item = originalItem;
-        } else{
+        } else {
             for (ItemFile file : item.getDeletedFiles()) {
                 filesRepository.restoreFile(file);
                 file.setDeleted(false);
@@ -409,7 +423,7 @@ public class ItemsRepository implements ItemsDataSource {
         return tags;
     }
 
-    void saveDeletedItemToDatabase(Item item){
+    void saveDeletedItemToDatabase(Item item) {
         DatabaseReference deletedItemRef = getDeletedItemsReference();
         Map<String, Object> values = new HashMap<>();
         if (item.getDbKey() == null || item.getDbKey().isEmpty()) {
@@ -418,24 +432,16 @@ public class ItemsRepository implements ItemsDataSource {
         } else {
             deletedItemRef = deletedItemRef.child(item.getDbKey());
         }
+
         if (!item.getDeletedFiles().isEmpty()) {
-            System.out.println("writing deleted files: " + Arrays.toString(item.getDeletedFiles().toArray()));
             Map<String, Object> deletedFileList = getFileList(deletedItemRef.child("files"), item.getDeletedFiles());
             values.put("files", deletedFileList);
-            values.put("reference", item.getCategoryReference());
-            values.put("description", item.getDescription());
-            values.put("weight", item.getWeight());
-            values.put("tags", item.getTags());
-            deletedItemRef.setValue(values);
-        } else {
-            // no deleted files means we can delete the whole item in the deleted-items
-            deletedItemRef.removeValue(new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                    Log.d(TAG, "Deleting item from deleted-items due to empty list");
-                }
-            });
         }
+        values.put("reference", item.getCategoryReference());
+        values.put("description", item.getDescription());
+        values.put("weight", item.getWeight());
+        values.put("tags", item.getTags());
+        deletedItemRef.setValue(values);
     }
 
     void saveItemToDatabase(Item item) {
@@ -443,7 +449,7 @@ public class ItemsRepository implements ItemsDataSource {
 
         // when updating the item in db make sure it wasn't deleted otherwise
         // it'll create the item again after changes are made
-        if(localItems.contains(item)){
+        if (localItems.contains(item)) {
             Map<String, Object> values = new HashMap<>();
             if (item.getDbKey() == null || item.getDbKey().isEmpty()) {
                 itemRef = itemRef.push();

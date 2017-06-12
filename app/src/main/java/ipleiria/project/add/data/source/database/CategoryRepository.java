@@ -75,6 +75,9 @@ public class CategoryRepository implements CategoryDataSource {
         databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                dimensions = new LinkedList<>();
+                areas = new LinkedList<>();
+                criterias = new LinkedList<>();
                 addDimensions(dataSnapshot);
                 callback.onComplete(dimensions);
             }
