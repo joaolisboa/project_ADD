@@ -15,6 +15,12 @@ public class Dimension extends Category{
 
     }
 
+    public Dimension(String name, int reference){
+        super(name, reference);
+        this.areas = new LinkedList<>();
+    }
+
+    @Override
     public double getPoints(){
         double points = 0;
         for(Area area: areas){
@@ -28,9 +34,22 @@ public class Dimension extends Category{
         return reference + " - " + name;
     }
 
-    public Dimension(String name, int reference){
-        super(name, reference);
-        this.areas = new LinkedList<>();
+    @Override
+    public int getNumberOfItems() {
+        int num = 0;
+        for(Area area: areas){
+            num += area.getNumberOfItems();
+        }
+        return num;
+    }
+
+    @Override
+    public int getNumberOfDeletedItems() {
+        int num = 0;
+        for(Area area: areas){
+            num += area.getNumberOfDeletedItems();
+        }
+        return num;
     }
 
     public void addArea(Area area){

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
@@ -66,13 +67,15 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     private final CategoryRepository categoryRepository;
     private final ItemsRepository itemsRepository;
     private final CategoriesContract.View categoriesView;
+    private final DrawerView drawerView;
 
-    public CategoriesPresenter(CategoriesContract.View categoriesView, CategoryRepository categoryRepository,
+    public CategoriesPresenter(CategoriesContract.View categoriesView, DrawerView drawerView, CategoryRepository categoryRepository,
                                ItemsRepository itemsRepository, boolean listingDeleted) {
         this.categoryRepository = categoryRepository;
         this.itemsRepository = itemsRepository;
         this.categoriesView = categoriesView;
         this.categoriesView.setPresenter(this);
+        this.drawerView = drawerView;
 
         this.listingDeleted = listingDeleted;
         this.receivedFiles = new ArrayList<>();
@@ -83,8 +86,13 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     @Override
     public void subscribe() {
-        categoriesView.setTitle(UserService.getInstance().getUser().getEvaluationPeriods().get(0).toString());
+        if(listingDeleted){
+            categoriesView.setTitle("Trash " + itemsRepository.getCurrentPeriod().toString());
+        }else {
+            categoriesView.setTitle(itemsRepository.getCurrentPeriod().toString());
+        }
         refreshData();
+        drawerView.setUserInfo(UserService.getInstance().getUser());
     }
 
     @Override

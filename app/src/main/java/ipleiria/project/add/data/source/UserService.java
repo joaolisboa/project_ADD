@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ipleiria.project.add.Application;
+import ipleiria.project.add.Callbacks;
 import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.NetworkState;
@@ -82,7 +83,7 @@ public class UserService {
         return INSTANCE;
     }
 
-    public void initUser(FirebaseUser firebaseUser) {
+    public void initUser(FirebaseUser firebaseUser, final Callbacks.BaseCallback<User> callback) {
         User user = new User(firebaseUser.getUid());
 
         String displayName = firebaseUser.getDisplayName();
@@ -110,6 +111,9 @@ public class UserService {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 setAdditionalInfo(dataSnapshot);
+                if(callback != null) {
+                    callback.onComplete(getUser());
+                }
             }
 
             @Override
@@ -119,7 +123,6 @@ public class UserService {
         });
 
         preferences.edit().putString(USER_UID_KEY, firebaseUser.getUid()).apply();
-
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -154,7 +157,7 @@ public class UserService {
             e.printStackTrace();
         }
         ItemsRepository.getInstance().initUser(getUser().getUid());
-        ItemsRepository.getInstance().setCurrentPeriod(mostRecentStart);
+        ItemsRepository.getInstance().initCurrentPeriod(mostRecentStart);
     }
 
     @SuppressLint("SimpleDateFormat")

@@ -47,7 +47,10 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import ipleiria.project.add.Application;
+import ipleiria.project.add.Callbacks;
+import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.data.model.ItemFile;
+import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.RequestMailsTask;
 import ipleiria.project.add.data.source.UserService;
@@ -74,7 +77,7 @@ class MainPresenter implements MainContract.Presenter {
 
     private final UserService userService;
     private final MainContract.View mainView;
-    private final MainContract.DrawerView drawerView;
+    private final DrawerView drawerView;
 
     private GoogleApiClient googleApiClient;
     private Gmail mService;
@@ -86,7 +89,7 @@ class MainPresenter implements MainContract.Presenter {
     // ensure we want to sign to avoid consequent calls to authStateListener
     private boolean authFlag = false;
 
-    MainPresenter(@NonNull UserService userService, @NonNull MainContract.View mainView, @NonNull MainContract.DrawerView drawerView) {
+    MainPresenter( UserService userService, MainContract.View mainView, DrawerView drawerView) {
         this.userService = userService;
         this.mainView = mainView;
         this.mainView.setPresenter(this);
@@ -140,7 +143,12 @@ class MainPresenter implements MainContract.Presenter {
                     // user signed in successfully
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     authFlag = true;
-                    UserService.getInstance().initUser(user);
+                    UserService.getInstance().initUser(user, new Callbacks.BaseCallback<User>() {
+                        @Override
+                        public void onComplete(User user) {
+                            drawerView.setUserInfo(UserService.getInstance().getUser());
+                        }
+                    });
                     ItemsRepository.getInstance().initUser(user.getUid());
                     if (!user.isAnonymous()) {
                         // if user is not anonymous get google credentials and fetch emails
@@ -165,8 +173,12 @@ class MainPresenter implements MainContract.Presenter {
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in_anonymously:" + user.getUid());
                     authFlag = true;
-                    UserService.getInstance().initUser(user);
-                    drawerView.setUserInfo(UserService.getInstance().getUser());
+                    UserService.getInstance().initUser(user, new Callbacks.BaseCallback<User>() {
+                        @Override
+                        public void onComplete(User user) {
+                            drawerView.setUserInfo(user);
+                        }
+                    });
                 } else {
                     Log.e(AUTH_TAG, "onAuthStateChanged:auth_failed", task.getException());
                 }

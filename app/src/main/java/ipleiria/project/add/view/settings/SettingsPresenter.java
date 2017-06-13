@@ -7,6 +7,7 @@ import com.dropbox.core.android.Auth;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.dropbox.DropboxCallback;
 import ipleiria.project.add.dropbox.DropboxClientFactory;
 import ipleiria.project.add.meocloud.MEOCallback;
@@ -35,6 +36,7 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     private final DropboxService dropboxService;
     private final MEOCloudService meoCloudService;
     private final SettingsContract.View settingsView;
+    private final DrawerView drawerView;
 
     private final FirebaseAuth firebaseAuth;
 
@@ -46,11 +48,12 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     // this can be fixed with MEO but Dropbox would require change to their code
     private boolean loginIntent = false;
 
-    public SettingsPresenter(@NonNull SettingsContract.View settingsView) {
-        this.userService = UserService.getInstance();
+    public SettingsPresenter(SettingsContract.View settingsView, DrawerView drawerView, UserService userService) {
+        this.userService = userService;
         this.dropboxService = DropboxService.getInstance(userService.getDropboxToken());
         this.meoCloudService = MEOCloudService.getInstance(userService.getMeoCloudToken());
 
+        this.drawerView = drawerView;
         this.settingsView = settingsView;
         this.settingsView.setPresenter(this);
 
@@ -138,6 +141,7 @@ public class SettingsPresenter implements SettingsContract.Presenter {
             updateServicesStatus();
             loginIntent = false;
         }
+        drawerView.setUserInfo(UserService.getInstance().getUser());
     }
 
     @Override

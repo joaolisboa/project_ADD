@@ -176,7 +176,7 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
 
     @Override
     public void showSearchItems(List<Criteria> criterias){
-        CategoryAdapter adapter = new CategoryAdapter(new LinkedList<Category>(criterias));
+        CategoryAdapter adapter = new CategoryAdapter(new LinkedList<Category>(criterias), false);
         searchListView.setAdapter(adapter);
 
         searchListView.setVisibility(View.VISIBLE);

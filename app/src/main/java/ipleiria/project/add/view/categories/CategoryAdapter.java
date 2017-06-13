@@ -21,13 +21,15 @@ import ipleiria.project.add.data.model.Item;
 
 public class CategoryAdapter extends BaseAdapter{
 
+    private boolean listingDeleted;
     private List<Category> items;
-    private LinkedHashMap<Category, TextView> attachedPointsTextView;
+    //private LinkedHashMap<Category, TextView> attachedPointsTextView;
 
-    public CategoryAdapter(List<Category> items){
+    public CategoryAdapter(List<Category> items, boolean listingDeleted){
         setList(items);
 
-        attachedPointsTextView = new LinkedHashMap<>();
+        this.listingDeleted = listingDeleted;
+        //attachedPointsTextView = new LinkedHashMap<>();
     }
 
     private void setList(List<Category> categories){
@@ -35,10 +37,16 @@ public class CategoryAdapter extends BaseAdapter{
         LinkedList<Category> lastItems = new LinkedList<>();
 
         for(Category category: categories){
-            if(category.getPoints() > 0){
-                firstItems.add(category);
+            if(!listingDeleted){
+                if(category.getPoints() > 0){
+                    firstItems.add(category);
+                }else{
+                    lastItems.add(category);
+                }
             }else{
-                lastItems.add(category);
+                if(category.getNumberOfDeletedItems() > 0){
+                    firstItems.add(category);
+                }
             }
         }
 
@@ -82,16 +90,22 @@ public class CategoryAdapter extends BaseAdapter{
         }
 
         Category category = getItem(position);
-        attachView(category, viewHolder.points);
+        //attachView(category, viewHolder.points);
 
         viewHolder.name.setText(category.getFormattedString());
-        viewHolder.description.setText(category.getName());
+        if (!listingDeleted) {
+            viewHolder.numItems.setText(convertView.getContext()
+                    .getString(R.string.num_items, category.getNumberOfItems()));
+        } else {
+            viewHolder.numItems.setText(convertView.getContext()
+                    .getString(R.string.num_deleted_items, category.getNumberOfDeletedItems()));
+        }
         viewHolder.points.setText(String.valueOf(category.getPoints()));
 
         return convertView;
     }
 
-    void setCategoryPoints(Category category, double points){
+    /*void setCategoryPoints(Category category, double points){
         attachedPointsTextView.get(category).setText(String.valueOf(points));
     }
 
@@ -101,16 +115,18 @@ public class CategoryAdapter extends BaseAdapter{
 
     private void removeAttachedView(Category category) {
         attachedPointsTextView.remove(category);
-    }
+    }*/
 
     private class ViewHolder {
 
         TextView name;
+        TextView numItems;
         TextView description;
         TextView points;
 
         ViewHolder(View view) {
             name = (TextView) view.findViewById(R.id.name);
+            numItems = (TextView) view.findViewById(R.id.num_items);
             description = (TextView) view.findViewById(R.id.description);
             points = (TextView) view.findViewById(R.id.points);
         }

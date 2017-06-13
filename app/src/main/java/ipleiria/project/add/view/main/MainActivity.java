@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.List;
 
 import ipleiria.project.add.Application;
+import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.FilesRepository;
@@ -43,7 +44,7 @@ import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
  * Created by Lisboa on 04-May-17.
  */
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainContract.DrawerView {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, DrawerView {
 
     static final String TAG = "MAIN_ACTIVITY";
 
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setCheckedItem(R.id.nav_home);
 
         mainFragment = (MainFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
         if (mainFragment == null) {
@@ -78,42 +80,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         new MainPresenter(UserService.getInstance(), mainFragment, this);
-
-        /*BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.menu_home);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                // handle desired action here
-                // One possibility of action is to replace the contents above the nav bar
-                // return true if you want the item to be displayed as the selected item
-                Fragment selectedFragment = null;
-                switch(item.getItemId()){
-                    case R.id.menu_home:
-                        MainFragment mainFragment1 = MainFragment.newInstance();
-                        new MainPresenter(UserService.getInstance(), mainFragment1, MainActivity.this);
-                        selectedFragment = mainFragment1;
-                        break;
-
-                    case R.id.menu_all:
-                        CategoriesFragment fragment = CategoriesFragment.newInstance();
-                        new CategoriesPresenter(fragment, CategoryRepository.getInstance(), ItemsRepository.getInstance());
-                        selectedFragment = fragment;
-                        break;
-
-                    case R.id.menu_trash:
-                        ItemsFragment itemsFragment = ItemsFragment.newInstance();
-                        new ItemsPresenter(ItemsRepository.getInstance(), itemsFragment, true);
-                        selectedFragment = itemsFragment;
-                        break;
-                }
-
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.contentFrame, selectedFragment);
-                transaction.commit();
-                return true;
-            }
-        });*/
     }
 
     @Override
@@ -131,18 +97,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final ProgressDialog progressDialog = new ProgressDialog(this);
         // Handle navigation view item clicks here.
         switch (item.getItemId()) {
-            case R.id.categories:
+            case R.id.nav_home:
+                break;
+
+            case R.id.nav_categories:
                 startActivity(new Intent(this, CategoriesActivity.class));
+                finish();
                 return true;
 
             case R.id.nav_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
+                finish();
                 return true;
 
             case R.id.nav_trash:
                 Intent intent = new Intent(this, CategoriesActivity.class);
                 intent.putExtra(LIST_DELETED_KEY, true);
                 startActivity(intent);
+                finish();
                 return true;
 
             case R.id.export:

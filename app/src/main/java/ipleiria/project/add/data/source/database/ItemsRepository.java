@@ -82,12 +82,14 @@ public class ItemsRepository implements ItemsDataSource {
         this.deletedItemsReference.keepSynced(true);
     }
 
+    public void initCurrentPeriod(EvaluationPeriod evaluationPeriod){
+        if(currentPeriod == null){
+            currentPeriod = evaluationPeriod;
+        }
+    }
+
     public void setCurrentPeriod(EvaluationPeriod evaluationPeriod) {
-        String userUid = UserService.getInstance().getUser().getUid();
-        this.itemsReference = FirebaseDatabase.getInstance().getReference().child(ITEMS).child(userUid).child(evaluationPeriod.getDbKey());
-        this.itemsReference.keepSynced(true);
-        this.deletedItemsReference = FirebaseDatabase.getInstance().getReference().child(DELETED_ITEMS).child(userUid).child(evaluationPeriod.getDbKey());
-        this.deletedItemsReference.keepSynced(true);
+        currentPeriod = evaluationPeriod;
     }
 
     /**
@@ -108,24 +110,28 @@ public class ItemsRepository implements ItemsDataSource {
 
     @Override
     public DatabaseReference getDeletedItemsReference() {
-        return deletedItemsReference;
+        return deletedItemsReference.child(currentPeriod.getDbKey());
     }
 
     @Override
     public DatabaseReference getItemsReference() {
-        return itemsReference;
+        return itemsReference.child(currentPeriod.getDbKey());
+    }
+
+    public EvaluationPeriod getCurrentPeriod() {
+        return currentPeriod;
     }
 
     @Override
     public void getItems(final boolean deleted, final FilesRepository.Callback<List<Item>> callback) {
-        itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        getItemsReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 localItems = new LinkedList<>();
                 for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
                     addNewItem(itemSnapshot, false);
                 }
-                deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                getDeletedItemsReference().addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         localDeletedItems = new LinkedList<>();
@@ -154,7 +160,7 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     private void getItems(final FilesRepository.Callback<List<Item>> callback) {
-        itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        getItemsReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
@@ -172,7 +178,7 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     private void getDeletedItems(final FilesRepository.Callback<List<Item>> callback) {
-        deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        getDeletedItemsReference().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
@@ -285,7 +291,6 @@ public class ItemsRepository implements ItemsDataSource {
     @Override
     public void editItem(Item item, String newDescription, Criteria newCriteria, long weight) {
         item.setDescription(newDescription);
-        System.out.println("new weight: " + weight);
         item.setWeight(weight);
         if (!item.getCriteria().equals(newCriteria)) {
             for (ItemFile file : item.getFiles()) {
@@ -348,7 +353,7 @@ public class ItemsRepository implements ItemsDataSource {
 
         item.clearFiles();
         saveDeletedItemToDatabase(item);
-        itemsReference.child(item.getDbKey()).removeValue();
+        getItemsReference().child(item.getDbKey()).removeValue();
     }
 
     @Override
@@ -357,10 +362,10 @@ public class ItemsRepository implements ItemsDataSource {
         localItems.remove(item);
         item.getCriteria().permanentlyDeleteItem(item);
 
-        if (itemsReference.child(item.getDbKey()) != null) {
-            itemsReference.child(item.getDbKey()).removeValue();
+        if (getItemsReference().child(item.getDbKey()) != null) {
+            getItemsReference().child(item.getDbKey()).removeValue();
         }
-        deletedItemsReference.child(item.getDbKey()).removeValue();
+        getDeletedItemsReference().child(item.getDbKey()).removeValue();
 
         for (ItemFile file : item.getDeletedFiles()) {
             filesRepository.permanentlyDeleteFile(file);
@@ -395,7 +400,7 @@ public class ItemsRepository implements ItemsDataSource {
         item.clearDeletedFiles();
 
         saveItemToDatabase(item);
-        deletedItemsReference.child(item.getDbKey()).removeValue();
+        getDeletedItemsReference().child(item.getDbKey()).removeValue();
     }
 
     @Override

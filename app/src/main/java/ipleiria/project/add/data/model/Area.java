@@ -41,6 +41,24 @@ public class Area extends Category{
         return dimension.getReference() + "." + reference + " - " + name;
     }
 
+    @Override
+    public int getNumberOfItems() {
+        int num = 0;
+        for(Criteria criteria: criterias){
+            num += criteria.getNumberOfItems();
+        }
+        return num;
+    }
+
+    @Override
+    public int getNumberOfDeletedItems() {
+        int num = 0;
+        for(Criteria criteria: criterias){
+            num += criteria.getNumberOfDeletedItems();
+        }
+        return num;
+    }
+
     public void addCriteria(Criteria criteria){
         criteria.setArea(this);
         criterias.add(criteria);

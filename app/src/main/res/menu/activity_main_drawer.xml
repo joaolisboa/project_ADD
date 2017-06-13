@@ -3,7 +3,13 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/categories"
+            android:id="@+id/nav_home"
+            android:icon="@drawable/home_black"
+            android:title="Home"
+            />
+
+        <item
+            android:id="@+id/nav_categories"
             android:icon="@drawable/list_black"
             android:title="Categories"
             />

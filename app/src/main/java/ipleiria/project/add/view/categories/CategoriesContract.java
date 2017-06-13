@@ -28,8 +28,6 @@ public class CategoriesContract {
 
         void setTitle(String title);
 
-        void setCategoryPoints(Category category);
-
         void showDimensions(List<Dimension> dimensions);
 
         void showAreas(List<Area> areas);

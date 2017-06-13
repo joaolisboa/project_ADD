@@ -131,7 +131,7 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if (user != null) {
                 Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                UserService.getInstance().initUser(user);
+                UserService.getInstance().initUser(user, null);
                 ItemsRepository.getInstance().moveItemsToNewUser();
             }
         }

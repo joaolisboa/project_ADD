@@ -39,6 +39,16 @@ public class Criteria extends Category{
         return finalPoints;
     }
 
+    @Override
+    public int getNumberOfItems() {
+        return items.size();
+    }
+
+    @Override
+    public int getNumberOfDeletedItems() {
+        return deletedItems.size();
+    }
+
     public double getWeights(){
         double weights = 0;
         for(Item item: items){

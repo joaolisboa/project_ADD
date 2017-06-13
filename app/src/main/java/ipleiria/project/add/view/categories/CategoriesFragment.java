@@ -3,6 +3,7 @@ package ipleiria.project.add.view.categories;
 import android.animation.Animator;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -12,11 +13,15 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -24,6 +29,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -99,7 +105,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         super.onCreate(savedInstanceState);
 
         boolean listDeleted = getActivity().getIntent().getBooleanExtra(LIST_DELETED_KEY, false);
-        categoriesAdapter = new CategoryAdapter(new LinkedList<Category>());
+        categoriesAdapter = new CategoryAdapter(new LinkedList<Category>(), listDeleted);
         // if the activity as received an intent with an action(adding files to items then swipe will be disabled)
         itemsAdapter = new ItemAdapter(new LinkedList<Item>(), itemActionListener, listDeleted,
                 categoriesPresenter.getIntentAction() == null);
@@ -177,6 +183,29 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
             }
             startActivityForResult(intent, REQUEST_ADD_NEW_ITEM);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        getActivity().getMenuInflater().inflate(R.menu.items_activity_menu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.app_bar_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                categoriesPresenter.searchItems(newText);
+                return false;
+            }
+        });
     }
 
     @Override
@@ -261,11 +290,6 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
             }
         });
         builder.show();
-    }
-
-    @Override
-    public void setCategoryPoints(Category category){
-        categoriesAdapter.setCategoryPoints(category, category.getPoints());
     }
 
     @Override

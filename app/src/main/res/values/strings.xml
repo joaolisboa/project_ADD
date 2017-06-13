@@ -46,14 +46,16 @@
     <string name="account_syncing_status">Synced: %1$s</string>
     <string name="google_sign_in_helper">Sign in with Google to sync data</string>
     <string name="edit_email_desc">You can use the verified emails to send files to projectaddestg@gmail.com and receive them in the app</string>
+
+
     <string name="number_of_emails">%d email(s)</string>
-    <string name="number_of_delete_items">%d item(s)</string>
     <string name="email_already_exists">Email already exists</string>
     <string name="invalid_email">Email invalid</string>
     <string name="filename_format">File: %1$s</string>
     <string name="num_files">%d file(s)</string>
     <string name="num_deleted_files">%d deleted file(s)</string>
-    <string name="title_activity_item_detail">ItemDetailActivity</string>
+    <string name="num_items">%d item(s)</string>
+    <string name="num_deleted_items">%d deleted item(s)</string>
 
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>

@@ -40,12 +40,6 @@ public class MainContract {
         void showItemAddedMessage();
     }
 
-    interface DrawerView {
-
-        void setUserInfo(User user);
-
-    }
-
     interface Presenter extends BasePresenter {
 
         void onSwipeRefresh();

@@ -49,6 +49,10 @@ public abstract class Category{
 
     public abstract String getFormattedString();
 
+    public abstract int getNumberOfItems();
+
+    public abstract int getNumberOfDeletedItems();
+
     @Override
     public boolean equals(Object obj) {
         return obj.getClass() == getClass() && dbKey.equals(((Category) obj).getDbKey());
