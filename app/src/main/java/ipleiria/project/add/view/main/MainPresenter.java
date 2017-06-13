@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
@@ -20,50 +19,36 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 import com.google.api.services.gmail.Gmail;
-import com.google.api.services.gmail.GmailScopes;
-import com.google.api.services.gmail.model.ListMessagesResponse;
-import com.google.api.services.gmail.model.Message;
-import com.google.api.services.gmail.model.MessagePart;
-import com.google.api.services.gmail.model.MessagePartBody;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.Callbacks;
 import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.data.model.ItemFile;
+import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.RequestMailsTask;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;
-import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.view.categories.CategoriesActivity;
-import ipleiria.project.add.view.items.ItemsActivity;
 
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 import static ipleiria.project.add.view.google_sign_in.GoogleSignInPresenter.SCOPES;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
-import static ipleiria.project.add.view.main.MainFragment.REQUEST_AUTHORIZATION;
 
 /**
  * Created by Lisboa on 05-May-17.
@@ -83,8 +68,10 @@ class MainPresenter implements MainContract.Presenter {
     private Gmail mService;
 
     private final FilesRepository filesRepository;
-    private List<ItemFile> pendingFiles;
+    private List<PendingFile> pendingFiles;
+    private List<PendingFile> selectedPendingFiles;
 
+    private File sharedFile;
     private Uri photoUri;
     // ensure we want to sign to avoid consequent calls to authStateListener
     private boolean authFlag = false;
@@ -97,15 +84,16 @@ class MainPresenter implements MainContract.Presenter {
 
         this.filesRepository = FilesRepository.getInstance();
         this.pendingFiles = new LinkedList<>();
+        this.selectedPendingFiles = new LinkedList<>();
     }
 
     @Override
     public void subscribe() {
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
 
-        filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<ItemFile>>() {
+        filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<PendingFile>>() {
             @Override
-            public void onMEOComplete(List<ItemFile> result) {
+            public void onMEOComplete(List<PendingFile> result) {
                 addFiles(result);
             }
 
@@ -114,7 +102,7 @@ class MainPresenter implements MainContract.Presenter {
             }
 
             @Override
-            public void onDropboxComplete(List<ItemFile> result) {
+            public void onDropboxComplete(List<PendingFile> result) {
                 addFiles(result);
             }
 
@@ -123,6 +111,17 @@ class MainPresenter implements MainContract.Presenter {
             }
         });
 
+        // android doesn't seem to ever delete temp file or files with deleteOnExit()
+        // so when activity resumes if a file was shared we delete it
+        // ps: in case the user uses the app offline or already has a local file
+        // we only delete the file if it start with tmp_ since that is the prefix added when
+        // downloading the file
+        // TODO: 08-Jun-17 Delete temp file only when leaving the activity(avoid repeated downloads(faster reopening) if user wants to review the file)
+        if (sharedFile != null && sharedFile.exists() && sharedFile.getName().startsWith("tmp_")) {
+            sharedFile.delete();
+            sharedFile = null;
+        }
+        pendingFiles = filesRepository.getPendingFiles();
         processPendingFiles();
     }
 
@@ -188,12 +187,10 @@ class MainPresenter implements MainContract.Presenter {
 
     // TODO: 09-Jun-17 presenter can't use context, start activity from fragment
     @Override
-    public void result(int requestCode, int resultCode, Context context) {
+    public void result(int requestCode, int resultCode) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_TAKE_PHOTO) {
-                Intent photo = new Intent(context, CategoriesActivity.class);
-                photo.putExtra("photo_uri", photoUri.toString());
-                context.startActivity(photo.setAction(SENDING_PHOTO));
+                mainView.addPhotoURIToItems(photoUri.toString());
             }else if(requestCode == REQUEST_ADD_NEW_ITEM){
                 mainView.showItemAddedMessage();
             }
@@ -220,12 +217,83 @@ class MainPresenter implements MainContract.Presenter {
         } else if (mService != null) {
             new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
                 @Override
-                public void onComplete(List<ItemFile> result) {
+                public void onComplete(List<PendingFile> result) {
                     addFiles(result);
                 }
             }).execute();
         }
 
+    }
+
+    @Override
+    public void createThumbnail(final PendingFile file) {
+        filesRepository.getPendingFileThumbnail(file.getFilename(), new FilesRepository.BaseCallback<File>() {
+            @Override
+            public void onComplete(File result) {
+                mainView.setFileThumbnail(file, result);
+            }
+        });
+    }
+
+    @Override
+    public void onFileClicked(final PendingFile clickedFile) {
+        if (clickedFile.getFilename().substring(clickedFile.getFilename().lastIndexOf(".") + 1).equals("eml")) {
+            File email = new File(Application.getAppContext().getFilesDir(), clickedFile.getFilename());
+            sharedFile = email;
+            mainView.openFileShare(filesRepository.getRelativePath(email));
+        } else {
+            mainView.showLoadingIndicator();
+            filesRepository.getPendingFile(clickedFile, new FilesRepository.Callback<File>() {
+                @Override
+                public void onComplete(File result) {
+                    mainView.hideLoadingIndicator();
+                    sharedFile = result;
+                    mainView.openFileShare(filesRepository.getRelativePath(result));
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    mainView.hideLoadingIndicator();
+                    // show error message for file not found
+                    Log.d(TAG, "File not found - missing locally and/or remotely");
+                    Log.e(TAG, e.getMessage(), e);
+                }
+            });
+        }
+    }
+
+    @Override
+    public boolean isFileSelected(PendingFile file) {
+        return selectedPendingFiles.contains(file);
+    }
+
+    @Override
+    public void onFileSelected(PendingFile file) {
+        if(isFileSelected(file)){
+            selectedPendingFiles.remove(file);
+        }else{
+            selectedPendingFiles.add(file);
+        }
+
+        if(!selectedPendingFiles.isEmpty()){
+            mainView.setSelectMode(true);
+            mainView.showAddToItemOption();
+        }else{
+            mainView.setSelectMode(false);
+            mainView.hideAddToItemOption();
+        }
+    }
+
+    @Override
+    public void onFileRemoved(PendingFile file) {
+        mainView.removePendingFile(file);
+        // delete the file from selected list in case the file was deleted while selected
+        selectedPendingFiles.remove(file);
+    }
+
+    @Override
+    public void addPendingFilesToItems() {
+        mainView.addFilesToItems(new ArrayList<>(selectedPendingFiles));
     }
 
     private void checkForCachedCredentials() {
@@ -271,7 +339,7 @@ class MainPresenter implements MainContract.Presenter {
 
         new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
             @Override
-            public void onComplete(List<ItemFile> result) {
+            public void onComplete(List<PendingFile> result) {
                 addFiles(result);
             }
         }).execute();
@@ -279,11 +347,11 @@ class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void onSwipeRefresh() {
-        mainView.setLoadingIndicator(true);
+        mainView.showLoadingIndicator();
 
-        filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<ItemFile>>() {
+        filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<PendingFile>>() {
             @Override
-            public void onMEOComplete(List<ItemFile> result) {
+            public void onMEOComplete(List<PendingFile> result) {
                 addFiles(result);
             }
 
@@ -292,8 +360,8 @@ class MainPresenter implements MainContract.Presenter {
             }
 
             @Override
-            public void onDropboxComplete(List<ItemFile> result) {
-                addFiles(pendingFiles);
+            public void onDropboxComplete(List<PendingFile> result) {
+                addFiles(result);
             }
 
             @Override
@@ -309,17 +377,17 @@ class MainPresenter implements MainContract.Presenter {
         }
 
         processPendingFiles();
-        mainView.setLoadingIndicator(false);
+        mainView.hideLoadingIndicator();
     }
 
-    private void addFiles(List<ItemFile> files){
-        for(ItemFile file: files){
+    private void addFiles(List<PendingFile> files){
+        for(PendingFile file: files){
             addFile(file);
         }
         processPendingFiles();
     }
 
-    private void addFile(ItemFile file){
+    private void addFile(PendingFile file){
         if (!pendingFiles.contains(file)) {
             pendingFiles.add(file);
         }

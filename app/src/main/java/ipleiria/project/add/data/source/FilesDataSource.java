@@ -9,6 +9,7 @@ import java.util.List;
 
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.ItemFile;
+import ipleiria.project.add.data.model.PendingFile;
 
 /**
  * Created by Lisboa on 06-May-17.
@@ -18,7 +19,9 @@ public interface FilesDataSource {
 
     String getRelativePath(File file);
 
-    void getRemotePendingFiles(final FilesRepository.ServiceCallback<List<ItemFile>> callback);
+    void getRemotePendingFiles(final FilesRepository.ServiceCallback<List<PendingFile>> callback);
+
+    void addPendingFiles(List<PendingFile> files);
 
     void saveFile(ItemFile newFile, Uri uri);
 
@@ -43,8 +46,6 @@ public interface FilesDataSource {
     void restoreFile(ItemFile restoredFile);
 
     void renameFile(ItemFile file, String oldFilename, String newFilename);
-
-    void addPendingFiles(List<ItemFile> files);
 
     void saveEmailAttachment(String filename, byte[] fileByteArray) throws IOException;
 }

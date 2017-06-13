@@ -21,6 +21,7 @@ import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
@@ -30,6 +31,7 @@ import ipleiria.project.add.utils.StringUtils;
 import ipleiria.project.add.utils.UriHelper;
 
 import static android.app.Activity.RESULT_OK;
+import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PENDING_FILES;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM_CHANGE;
@@ -402,6 +404,13 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
                 case SENDING_PHOTO:
                     receivedFiles.add(Uri.parse(intent.getStringExtra("photo_uri")));
+                    break;
+
+                case SENDING_PENDING_FILES:
+                    ArrayList<PendingFile> pendingFiles = intent.getParcelableArrayListExtra("pending_files");
+                    for(PendingFile file: pendingFiles){
+                        System.out.println(file);
+                    }
                     break;
             }
         }

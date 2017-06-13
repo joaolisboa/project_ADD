@@ -123,7 +123,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
         String name = file.getFilename();
         if(name.substring(name.lastIndexOf(".")+1).equals("eml")) {
             filename.setText(name.substring(0, name.lastIndexOf(".")));
-            thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.email_black));
+            thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.email_thumbnail));
         }else{
             filename.setText(file.getFilename());
             //thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));

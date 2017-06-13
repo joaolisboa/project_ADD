@@ -53,6 +53,7 @@ import javax.sql.DataSource;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.ItemFile;
+import ipleiria.project.add.data.model.PendingFile;
 
 import static ipleiria.project.add.view.google_sign_in.GoogleSignInPresenter.SCOPES;
 
@@ -60,7 +61,7 @@ import static ipleiria.project.add.view.google_sign_in.GoogleSignInPresenter.SCO
  * Created by Lisboa on 17-May-17.
  */
 
-public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
+public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
 
     private static final String TAG = "REQUEST_MAIL_TASK";
 
@@ -80,20 +81,20 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
 
     public interface MailCallback {
 
-        void onComplete(List<ItemFile> pendingFiles);
+        void onComplete(List<PendingFile> pendingFiles);
 
     }
 
     @Override
-    protected void onPostExecute(List<ItemFile> pendingFiles) {
+    protected void onPostExecute(List<PendingFile> pendingFiles) {
         super.onPostExecute(pendingFiles);
         callback.onComplete(pendingFiles);
     }
 
     @Override
-    protected List<ItemFile> doInBackground(Void... params) {
+    protected List<PendingFile> doInBackground(Void... params) {
         String user = "me";
-        List<ItemFile> attachments = new ArrayList<>();
+        List<PendingFile> attachments = new ArrayList<>();
 
         String[] emailAux = userEmail.split("@");
         String email = emailAux[0] + "+addestg@" + emailAux[1];
@@ -113,7 +114,7 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<ItemFile>> {
                     String filename = "Assunto: " + eml.getSubject() + ".eml";
                     File emlFile = new File(Application.getAppContext().getFilesDir(), filename);
                     eml.writeTo(new FileOutputStream(emlFile));
-                    attachments.add(new ItemFile(filename));
+                    attachments.add(new PendingFile(new ItemFile(filename), PendingFile.EMAIL));
 
                 } catch (MessagingException e) {
                     e.printStackTrace();

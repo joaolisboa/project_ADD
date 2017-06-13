@@ -54,6 +54,7 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
 
     private static final String TAG = "AddEditFragment";
     public static final String SENDING_PHOTO = "SendingPhotoAction";
+    public static final String SENDING_PENDING_FILES = "SendingPendingFilesAction";
 
     private ViewGroup containerView;
     private EditText descriptionEditText;

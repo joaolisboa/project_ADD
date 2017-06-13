@@ -1,5 +1,6 @@
 package ipleiria.project.add.data.source;
 
+import android.app.ApplicationErrorReport;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
@@ -27,9 +28,14 @@ import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.ItemFile;
+import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.meocloud.data.MEOMetadata;
 import ipleiria.project.add.utils.NetworkState;
+
+import static ipleiria.project.add.data.model.PendingFile.DROPBOX;
+import static ipleiria.project.add.data.model.PendingFile.EMAIL;
+import static ipleiria.project.add.data.model.PendingFile.MEO_CLOUD;
 
 /**
  * Created by Lisboa on 06-May-17.
@@ -49,7 +55,7 @@ public class FilesRepository implements FilesDataSource {
     private final MEOCloudService meoCloudService;
 
     private List<ItemFile> localFiles;
-    private List<ItemFile> pendingFiles;
+    private List<PendingFile> pendingFiles;
 
     private EvaluationPeriod currentPeriod;
 
@@ -155,6 +161,158 @@ public class FilesRepository implements FilesDataSource {
         return getRelativePath(file.getParent().getCriteria()) + "/" + newFilename;
     }
 
+    public void getPendingFile(PendingFile pendingFile, Callback<File> callback){
+        switch(pendingFile.getProvider()){
+
+            case MEO_CLOUD:
+            case DROPBOX:
+                downloadPendingFile(pendingFile.getFilename(), callback);
+                break;
+
+            case EMAIL:
+                File email = new File(Application.getAppContext().getFilesDir(), pendingFile.getFilename());
+                callback.onComplete(email);
+                break;
+
+        }
+    }
+
+    public void getPendingFileThumbnail(String filename, final BaseCallback<File> callback){
+        File localThumb = getCachedThumbnail(filename);
+        if (localThumb.exists()) {
+            callback.onComplete(localThumb);
+        } else {
+            downloadPendingThumbnail(filename, callback);
+        }
+    }
+
+    private void downloadPendingThumbnail(String filename, final BaseCallback<File> callback){
+        final String filePath = PENDING_PATH + filename;
+
+        if (meoCloudService.isAvailable()) {
+            // meo cloud is preferred since it can create thumbnails for special files(like pdf)
+            // dropbox will serve as a fallback
+            meoCloudService.downloadThumbnail(filePath, new Callback<File>() {
+                @Override
+                public void onComplete(File result) {
+                    callback.onComplete(result);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if (dropboxService.isAvailable()) {
+                        dropboxService.downloadThumbnail(filePath, new Callback<File>() {
+                            @Override
+                            public void onComplete(File result) {
+                                callback.onComplete(result);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                // ignore
+                            }
+                        });
+                    }
+                }
+            });
+        } else if (dropboxService.isAvailable()) {
+            dropboxService.downloadThumbnail(filePath, new Callback<File>() {
+                @Override
+                public void onComplete(File result) {
+                    callback.onComplete(result);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    //ignore
+                }
+            });
+        }
+
+        if (meoCloudService.isAvailable()) {
+            // meo cloud is preferred since it can create thumbnails for special files(like pdf)
+            // dropbox will serve as a fallback
+            meoCloudService.downloadThumbnail(filePath, new Callback<File>() {
+                @Override
+                public void onComplete(File result) {
+                    callback.onComplete(result);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if (dropboxService.isAvailable()) {
+                        dropboxService.downloadThumbnail(filePath, new Callback<File>() {
+                            @Override
+                            public void onComplete(File result) {
+                                callback.onComplete(result);
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                // ignore
+                            }
+                        });
+                    }
+                }
+            });
+        } else if (dropboxService.isAvailable()) {
+            dropboxService.downloadThumbnail(filePath, new Callback<File>() {
+                @Override
+                public void onComplete(File result) {
+                    callback.onComplete(result);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    //ignore
+                }
+            });
+        }
+    }
+
+    private void downloadPendingFile(String filename, final Callback<File> callback){
+        /*final String path = PENDING_PATH + filename;
+        if (meoCloudService.isAvailable()) {
+            // dropbox will serve as a fallback
+            meoCloudService.downloadFile(path, new Callback<File>() {
+                @Override
+                public void onComplete(File result) {
+                    callback.onComplete(result);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if (dropboxService.isAvailable()) {
+                        dropboxService.downloadFile(path, callback);
+                    }
+                }
+            });
+        } else if (dropboxService.isAvailable()) {
+            dropboxService.downloadFile(path, callback);
+        }*/
+
+        final String path = PENDING_PATH + filename;
+        final String toFile = "tmp_" + filename;
+        if (meoCloudService.isAvailable()) {
+            // dropbox will serve as a fallback
+            meoCloudService.downloadTempFile(path, toFile, new Callback<File>() {
+                @Override
+                public void onComplete(File result) {
+                    callback.onComplete(result);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if (dropboxService.isAvailable()) {
+                        dropboxService.downloadTempFile(path, toFile, callback);
+                    }
+                }
+            });
+        } else if (dropboxService.isAvailable()) {
+            dropboxService.downloadTempFile(path, toFile, callback);
+        }
+    }
+
     @Override
     public String getRelativePath(File file) {
         int start = Application.getAppContext().getFilesDir().getAbsolutePath().length();
@@ -162,7 +320,7 @@ public class FilesRepository implements FilesDataSource {
     }
 
     @Override
-    public void addPendingFiles(List<ItemFile> files) {
+    public void addPendingFiles(List<PendingFile> files) {
         pendingFiles.addAll(files);
     }
 
@@ -175,11 +333,11 @@ public class FilesRepository implements FilesDataSource {
             f.write(fileByteArray);
             f.close();
         }
-        pendingFiles.add(new ItemFile(filename));
+        pendingFiles.add(new PendingFile(new ItemFile(filename), EMAIL));
     }
 
     @Override
-    public void getRemotePendingFiles(final ServiceCallback<List<ItemFile>> callback) {
+    public void getRemotePendingFiles(final ServiceCallback<List<PendingFile>> callback) {
         if(meoCloudService.isAvailable()) {
             meoCloudService.getMetadata(PENDING_PATH, new Callback<MEOMetadata>() {
                 @Override
@@ -187,8 +345,9 @@ public class FilesRepository implements FilesDataSource {
                     for(MEOMetadata meoMetadata: result.getContents()){
                         if(!meoMetadata.isDir()){
                             ItemFile newFile = new ItemFile(meoMetadata.getName());
-                            if(!pendingFiles.contains(newFile)) {
-                                pendingFiles.add(newFile);
+                            PendingFile pendingFile = new PendingFile(newFile, MEO_CLOUD);
+                            if(!pendingFiles.contains(pendingFile)) {
+                                pendingFiles.add(pendingFile);
                             }
                         }
                     }
@@ -208,8 +367,9 @@ public class FilesRepository implements FilesDataSource {
                     for(Metadata metadata: result.getEntries()){
                         if(metadata instanceof FileMetadata) {
                             ItemFile newFile = new ItemFile(metadata.getName());
-                            if(!pendingFiles.contains(newFile)) {
-                                pendingFiles.add(newFile);
+                            PendingFile pendingFile = new PendingFile(newFile, DROPBOX);
+                            if(!pendingFiles.contains(pendingFile)) {
+                                pendingFiles.add(pendingFile);
                             }
                         }
                     }
@@ -331,7 +491,7 @@ public class FilesRepository implements FilesDataSource {
         if (meoCloudService.isAvailable()) {
             // meo cloud is preferred since it can create thumbnails for special files(like pdf)
             // dropbox will serve as a fallback
-            meoCloudService.downloadThumbnail(getFilePath(file), new Callback<File>() {
+            meoCloudService.downloadThumbnail(filePath, new Callback<File>() {
                 @Override
                 public void onComplete(File result) {
                     callback.onComplete(result);
@@ -468,7 +628,7 @@ public class FilesRepository implements FilesDataSource {
         }
     }
 
-    public List<ItemFile> getPendingFiles() {
+    public List<PendingFile> getPendingFiles() {
         return pendingFiles;
     }
 
