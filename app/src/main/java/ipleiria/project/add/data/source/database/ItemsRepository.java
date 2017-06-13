@@ -85,11 +85,17 @@ public class ItemsRepository implements ItemsDataSource {
     public void initCurrentPeriod(EvaluationPeriod evaluationPeriod){
         if(currentPeriod == null){
             currentPeriod = evaluationPeriod;
+            filesRepository.setCurrentPeriod(evaluationPeriod);
         }
     }
 
     public void setCurrentPeriod(EvaluationPeriod evaluationPeriod) {
         currentPeriod = evaluationPeriod;
+        filesRepository.setCurrentPeriod(evaluationPeriod);
+    }
+
+    public EvaluationPeriod getCurrentPeriod() {
+        return currentPeriod;
     }
 
     /**
@@ -116,10 +122,6 @@ public class ItemsRepository implements ItemsDataSource {
     @Override
     public DatabaseReference getItemsReference() {
         return itemsReference.child(currentPeriod.getDbKey());
-    }
-
-    public EvaluationPeriod getCurrentPeriod() {
-        return currentPeriod;
     }
 
     @Override
