@@ -73,7 +73,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
             listFiles.remove(pos);
             listFiles.add(pos, file);
         }
-        //notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     void onFileRemoved(ItemFile deletedFile) {

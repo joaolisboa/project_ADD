@@ -131,7 +131,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
         new DropboxUploadFile(DropboxClientFactory.getClient(), new DropboxCallback<FileMetadata>() {
             @Override
             public void onComplete(FileMetadata result) {
-                Log.d(TAG, "DROPBOX - uploaded " + result.getName());
+                Log.d(TAG, "DROPBOX - uploaded " + result.getPathLower());
             }
 
             @Override

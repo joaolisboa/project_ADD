@@ -75,6 +75,8 @@ public class MEOMoveFile extends AsyncTask<String, Void, MEOCloudResponse<MEOMet
             bodyMap.put("to_path", "/" + toPath);
 
             String trash = MEOCloudAPI.API_METHOD_METADATA + "/" + MEOCloudAPI.API_MODE + TRASH_FOLDER;
+            System.out.println("from:" + fromPath);
+            System.out.println("to:" + toPath);
 
             // if destination file already exists with same name delete source file
             Response metaResponse = HttpRequestor.get(token, trash, null);

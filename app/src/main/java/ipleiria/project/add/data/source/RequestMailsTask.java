@@ -142,6 +142,7 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
             }
         } catch (UserRecoverableAuthIOException userRecoverableException) {
             // user didn't give permissions when signing up - catch and ignore
+            Log.d(TAG, "User didn't give permission to access to Gmail");
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
         }

@@ -185,7 +185,6 @@ class MainPresenter implements MainContract.Presenter {
         });
     }
 
-    // TODO: 09-Jun-17 presenter can't use context, start activity from fragment
     @Override
     public void result(int requestCode, int resultCode) {
         if (resultCode == Activity.RESULT_OK) {
@@ -294,6 +293,13 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void addPendingFilesToItems() {
         mainView.addFilesToItems(new ArrayList<>(selectedPendingFiles));
+        pendingFiles.removeAll(selectedPendingFiles);
+        selectedPendingFiles = new LinkedList<>();
+    }
+
+    @Override
+    public void refreshPendingFiles() {
+        mainView.showPendingFiles(filesRepository.getPendingFiles());
     }
 
     private void checkForCachedCredentials() {
@@ -348,7 +354,7 @@ class MainPresenter implements MainContract.Presenter {
     @Override
     public void onSwipeRefresh() {
         mainView.showLoadingIndicator();
-
+        pendingFiles = new LinkedList<>();
         filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<PendingFile>>() {
             @Override
             public void onMEOComplete(List<PendingFile> result) {
@@ -381,6 +387,7 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     private void addFiles(List<PendingFile> files){
+        filesRepository.addPendingFiles(files);
         for(PendingFile file: files){
             addFile(file);
         }
@@ -397,7 +404,7 @@ class MainPresenter implements MainContract.Presenter {
         if (pendingFiles.isEmpty()) {
             mainView.showNoPendingFiles();
         } else {
-            mainView.showPendingFiles(pendingFiles);
+            mainView.showPendingFiles(filesRepository.getPendingFiles());
         }
     }
 

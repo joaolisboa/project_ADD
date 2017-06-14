@@ -21,7 +21,7 @@ public class PendingFile implements Parcelable{
         this.provider = provider;
     }
 
-    public ItemFile getFile() {
+    public ItemFile getItemFile() {
         return file;
     }
 

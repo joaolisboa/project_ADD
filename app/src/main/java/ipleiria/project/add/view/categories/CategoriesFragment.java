@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.categories;
 
 import android.animation.Animator;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,7 +19,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,7 +31,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -49,7 +49,6 @@ import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.view.add_edit_item.AddEditActivity;
 import ipleiria.project.add.view.itemdetail.ItemDetailActivity;
 import ipleiria.project.add.view.items.ItemAdapter;
-import ipleiria.project.add.view.items.ItemsFragment;
 import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
 
 import static ipleiria.project.add.R.id.area;
@@ -213,7 +212,6 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         switch(item.getItemId()){
 
             case R.id.app_bar_period:
-                // TODO: 12-Jun-17 open dialog to change evaluation period
                 categoriesPresenter.setPeriodSelection();
 
         }
@@ -415,12 +413,14 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
 
     @Override
     public void showFilesAddedMessage() {
-        showMessage("Files saved to item");
+        //showMessage("Files saved to item");
     }
 
     @Override
     public void enableListSwipe(boolean b) {
         itemsAdapter.enableSwipe(true);
+        getActivity().setResult(Activity.RESULT_OK);
+        getActivity().finish();
     }
 
     @Override
@@ -441,45 +441,23 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
 
     private void setSelectedViewInfo(Category category, final View view, View.OnClickListener onClickListener){
         if(category instanceof Criteria) {
-            final View expandable = view.findViewById(R.id.expandable);
-            String observations = ((Criteria)category).getObservations();
-            TextView observationView = (TextView) expandable.findViewById(R.id.observations);
-            if(observations != null && !observations.isEmpty()) {
-                observationView.setText(observations);
-            }else{
-                observationView.setText("No observations");
-            }
-
-            final View expandableArrow = view.findViewById(R.id.expandable_arrow);
-            expandableArrow.setVisibility(View.VISIBLE);
-
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (expandable.getVisibility() == View.GONE) {
-                        expand(expandable);
-                        expandableArrow.animate().rotation(180).setDuration(200).start();
-                    } else {
-                        collapse(expandable);
-                        expandableArrow.animate().rotation(0).setDuration(200).start();
-                    }
-                }
-            });
+            view.findViewById(R.id.additional_info).setVisibility(View.VISIBLE);
         }
+
+        ImageView expandableArrow = (ImageView) view.findViewById(R.id.expandable_arrow);
+        expandableArrow.setVisibility(View.VISIBLE);
 
         TextView name = (TextView) view.findViewById(R.id.name);
         TextView points = (TextView) view.findViewById(R.id.points);
-        ImageButton cancel = (ImageButton) view.findViewById(R.id.cancel);
 
         name.setText(category.getFormattedString());
         points.setText(String.valueOf(category.getPoints()));
-        cancel.setOnClickListener(onClickListener);
+        view.setOnClickListener(onClickListener);
 
         if(view.getVisibility() == View.GONE) {
             expand(view);
-            /*Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_down);
-            view.startAnimation(slideUp);
-            view.setVisibility(View.VISIBLE);*/
+            expandableArrow.setRotation(0);
+            expandableArrow.animate().rotation(180).setDuration(200).start();
         }
     }
 

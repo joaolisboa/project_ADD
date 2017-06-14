@@ -10,7 +10,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Arrays;
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,11 +19,16 @@ import java.util.Map;
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.EvaluationPeriod;
+import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
+
+import static ipleiria.project.add.data.model.PendingFile.DROPBOX;
+import static ipleiria.project.add.data.model.PendingFile.EMAIL;
+import static ipleiria.project.add.data.model.PendingFile.MEO_CLOUD;
 
 /**
  * Created by Lisboa on 04-May-17.
@@ -415,6 +420,23 @@ public class ItemsRepository implements ItemsDataSource {
         saveItem(item, false);
     }
 
+    public void addPendingFilesToItem(Item item, List<PendingFile> receivedPendingFiles) {
+        for(PendingFile file: receivedPendingFiles){
+            item.addFile(file.getItemFile());
+
+            switch(file.getProvider()){
+                case MEO_CLOUD:
+                case DROPBOX:
+                    filesRepository.movePendingFile(file, item, item.getCriteria());
+                    break;
+                case EMAIL:
+                    File email = new File(Application.getAppContext().getFilesDir(), file.getFilename());
+                    filesRepository.saveFile(file.getItemFile(), Uri.fromFile(email));
+                    break;
+            }
+        }
+    }
+
     @Override
     public void addTag(String tag) {
         tags.add(tag);
@@ -493,5 +515,4 @@ public class ItemsRepository implements ItemsDataSource {
         }
         return fileList;
     }
-
 }

@@ -61,6 +61,8 @@ public class MainContract {
         void addPhotoURIToItems(String photoURI);
 
         void addFilesToItems(ArrayList<PendingFile> pendingFiles);
+
+        boolean isFileSelected(PendingFile file);
     }
 
     interface Presenter extends BasePresenter {
@@ -87,6 +89,7 @@ public class MainContract {
 
         void addPendingFilesToItems();
 
+        void refreshPendingFiles();
     }
 
 }

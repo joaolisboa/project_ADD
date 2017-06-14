@@ -15,7 +15,7 @@
             android:layout_width="280dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginBottom="72dp"
+            android:layout_marginBottom="36dp"
             android:text="Avaliaçao Desempenho de Docentes"
             android:textAlignment="center"
             android:textColor="@color/primary_text"
@@ -51,7 +51,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
-            android:layout_gravity="center_horizontal"
+            android:paddingBottom="8dp"
+            android:paddingStart="22dp"
             android:text="Evaluation Period"
             android:textSize="18sp"/>
 

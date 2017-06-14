@@ -24,15 +24,20 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Area;
+import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.MEOCloudService;
+import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.dropbox.DropboxClientFactory;
 import ipleiria.project.add.meocloud.data.MEOMetadata;
 import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
@@ -102,18 +107,6 @@ public class FileUtils {
         }
     }
 
-    /*public static List<File> getLocalFiles(Context context){
-        List<File> files = new LinkedList<>();
-        for(Dimension dimension: ApplicationData.getInstance().getDimensions()){
-            File dimensiondir = new File(context.getFilesDir().getAbsolutePath() + "/" + dimension.getReference());
-            if(dimensiondir.isDirectory()){
-                goThroughFolder(dimensiondir, files);
-            }
-        }
-        Log.d(TAG, "Local files found: " + files);
-        return files;
-    }*/
-
     private static void goThroughFolder(File dir, List<File> files) {
         for (File fileInDir : dir.listFiles()) {
             if (fileInDir.isDirectory()) {
@@ -143,28 +136,40 @@ public class FileUtils {
 
     public static void generateNote(String sFileName) {
         try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy");
+            int yearStart = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate()));
+            int yearEnd = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate()));
             File file = new File(Application.getAppContext().getFilesDir(), sFileName);
             FileWriter writer = new FileWriter(file);
+            writer.append("Curriculum Vitae Detalhado - Avaliação de Desempenho \n");
+            writer.append("\t ESTG - IPLEIRIA \n");
+            writer.append("Nome do Avaliado: " + UserService.getInstance().getUser().getName()+"\n");
+            writer.append("Categoria:  \n");
+            writer.append("Unidade Orgânica: Escola Superior de Tecnologia e Gestão \n");
+            writer.append("Departamento: Departamento de " + UserService.getInstance().getUser().getDepartment()+"\n");
+            writer.append("Regime de contratação:  \n");
+            writer.append("Período em avaliação: " + yearStart +" a " +yearEnd +"\n");
+
 
             for (Dimension dimension : CategoryRepository.getInstance().getDimensions()) {
+                if(dimension.getNumberOfItems() > 0) {
+                    writer.append(dimension.getReference() + ". " + dimension.getName() + "\n");
 
-                writer.append(dimension.getReference() + ". " + dimension.getName() + "\n");
+                    for (Area area : dimension.getAreas()) {
+                        for (Criteria criteria : area.getCriterias()) {
+                            if (criteria.getItems().size() > 0) {
+                                writer.append(criteria.getRealReference() + " - \"" + criteria.getName() + "\"");
 
-                for (Area area : dimension.getAreas()) {
-                    for (Criteria criteria : area.getCriterias()) {
-                        if (criteria.getItems().size() > 0) {
-                            writer.append(criteria.getRealReference() + " - \"" + criteria.getName() + "\"");
-
-                            for (Item item : criteria.getItems()) {
-                                writer.append("\n\tDescriçao da atividade: " + "\n\t" + item.getDescription() + "\n");
-
-
+                                for (Item item : criteria.getItems()) {
+                                    writer.append("\n\tDescriçao da atividade: " + "\n\t" + item.getDescription() + "\n");
+                                }
+                                writer.append("\n\t" + "Comprovativo Em anexo");
+                                writer.append("\n\t" + "Pontuação " + criteria.getPoints() + "\n");
                             }
-                            writer.append("\n\t" + "Comprovativo Em anexo");
-                            writer.append("\n\t" + "Pontuação " + criteria.getPoints() + "\n");
                         }
-                    }
 
+                    }
                 }
 
             }
@@ -187,6 +192,25 @@ public class FileUtils {
             wb.setForceFormulaRecalculation(true);
             XSSFFormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
             XSSFSheet sheet = wb.getSheetAt(0);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy");
+            int yearStart = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate()));
+            int yearEnd = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate()));
+            int duration = 0;
+            if( yearEnd - yearStart * 12 > 0) {
+                duration = yearEnd - yearStart * 12;
+            }else{
+                duration = 12;
+            }
+            sheet.getRow(2).getCell(7).setCellValue(duration);
+            Log.d("WRITE EXCEL", "user: " + UserService.getInstance().getUser().getName());
+            sheet.getRow(1).getCell(2).setCellValue(UserService.getInstance().getUser().getName());
+            Log.d("WRITE EXCEL", "depart " + UserService.getInstance().getUser().getDepartment());
+            sheet.getRow(2).getCell(2).setCellValue(UserService.getInstance().getUser().getDepartment());
+            String startDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate());
+            String endDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate());
+            sheet.getRow(2).getCell(10).setCellValue(startDate);
+            sheet.getRow(2).getCell(13).setCellValue(endDate);
 
             if (criteria.getRealReference().startsWith("1.1")) {
                 System.out.println("special case criteria");
@@ -251,6 +275,25 @@ public class FileUtils {
             wb.setForceFormulaRecalculation(true);
             XSSFFormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
             XSSFSheet sheet = wb.getSheetAt(0);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy");
+            int yearStart = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate()));
+            int yearEnd = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate()));
+            int duration = 0;
+            if( yearEnd - yearStart * 12 > 0) {
+                duration = yearEnd - yearStart * 12;
+            }else{
+                duration = 12;
+            }
+            sheet.getRow(2).getCell(7).setCellValue(duration);
+            Log.d("WRITE EXCEL", "user: " + UserService.getInstance().getUser().getName());
+            sheet.getRow(1).getCell(2).setCellValue(UserService.getInstance().getUser().getName());
+            Log.d("WRITE EXCEL", "depart " + UserService.getInstance().getUser().getDepartment());
+            sheet.getRow(2).getCell(2).setCellValue(UserService.getInstance().getUser().getDepartment());
+            String startDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate());
+            String endDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate());
+            sheet.getRow(2).getCell(10).setCellValue(startDate);
+            sheet.getRow(2).getCell(13).setCellValue(endDate);
 
             int points = 0;
             // first 4 criteria have a special case with a 10 point limit

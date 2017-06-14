@@ -107,6 +107,9 @@ public class UserService {
         user.setName(displayName);
         this.user = user;
 
+        this.userDatabaseReference = FirebaseDatabase.getInstance().getReference().child(USER_REF).child(user.getUid());
+        this.userDatabaseReference.keepSynced(true);
+
         userDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -146,15 +149,6 @@ public class UserService {
             }
 
             user.addEvaluationPeriod(evaluationPeriod);
-        }
-
-        try {
-            EvaluationPeriod evaluationPeriod = new EvaluationPeriod("test_dbkey");
-            evaluationPeriod.setStartDate(dateFormat.parse("01-09-2013"));
-            evaluationPeriod.setEndDate(dateFormat.parse("31-08-2016"));
-            user.addEvaluationPeriod(evaluationPeriod);
-        } catch (ParseException e) {
-            e.printStackTrace();
         }
         ItemsRepository.getInstance().initUser(getUser().getUid());
         ItemsRepository.getInstance().initCurrentPeriod(mostRecentStart);

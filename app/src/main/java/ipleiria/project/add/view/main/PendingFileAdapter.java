@@ -36,7 +36,6 @@ public class PendingFileAdapter extends BaseSwipeAdapter {
     private List<PendingFile> files;
 
     private boolean selectMode = false;
-
     private LinkedHashMap<PendingFile, ImageView> attachedImageViews;
 
     public PendingFileAdapter(List<PendingFile> files, MainFragment.PendingActionListener actionsListener,
@@ -121,8 +120,14 @@ public class PendingFileAdapter extends BaseSwipeAdapter {
             }*/
         }
 
-
         FrameLayout itemLayout = (FrameLayout) convertView.findViewById(R.id.item_view);
+
+        if(mainView.isFileSelected(file)){
+            itemLayout.setBackgroundColor(ContextCompat.getColor(convertView.getContext(), R.color.gray_light));
+        }else{
+            itemLayout.setBackgroundColor(ContextCompat.getColor(convertView.getContext(), R.color.white));
+        }
+
         itemLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

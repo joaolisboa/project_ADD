@@ -170,6 +170,7 @@ public class MainFragment extends Fragment implements MainContract.View,
     @Override
     public void onResume(){
         super.onResume();
+        presenter.refreshPendingFiles();
         fabShow = false;
         toggleFabMenu();
     }
@@ -281,7 +282,7 @@ public class MainFragment extends Fragment implements MainContract.View,
         fabMenu.hide();
         if(snackbar == null){
             snackbar = Snackbar.make(getView(), "Add file(s) to item", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("GO", new View.OnClickListener() {
+                    .setAction("ADD", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             presenter.addPendingFilesToItems();
@@ -315,14 +316,14 @@ public class MainFragment extends Fragment implements MainContract.View,
     public void addPhotoURIToItems(String photoURI) {
         Intent intent = new Intent(getContext(), CategoriesActivity.class);
         intent.putExtra("photo_uri", photoURI);
-        getContext().startActivity(intent.setAction(SENDING_PHOTO));
+        getActivity().startActivityForResult(intent.setAction(SENDING_PHOTO), REQUEST_ADD_NEW_ITEM);
     }
 
     @Override
     public void addFilesToItems(ArrayList<PendingFile> pendingFiles) {
         Intent intent = new Intent(getContext(), CategoriesActivity.class);
         intent.putParcelableArrayListExtra("pending_files", pendingFiles);
-        getContext().startActivity(intent.setAction(SENDING_PENDING_FILES));
+        getActivity().startActivityForResult(intent.setAction(SENDING_PENDING_FILES), REQUEST_ADD_NEW_ITEM);
     }
 
     @Override
@@ -384,6 +385,11 @@ public class MainFragment extends Fragment implements MainContract.View,
         for(PendingFile file: pendingFiles) {
             addPendingFile(file);
         }
+    }
+
+    @Override
+    public boolean isFileSelected(PendingFile file){
+        return presenter.isFileSelected(file);
     }
 
     @Override

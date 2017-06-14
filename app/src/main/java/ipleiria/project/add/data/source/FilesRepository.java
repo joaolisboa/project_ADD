@@ -1,32 +1,27 @@
 package ipleiria.project.add.data.source;
 
-import android.app.ApplicationErrorReport;
 import android.net.Uri;
-import android.os.Handler;
 import android.util.Log;
 
 import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.FolderMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
-import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.EvaluationPeriod;
+import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.source.database.CategoryRepository;
@@ -166,7 +161,7 @@ public class FilesRepository implements FilesDataSource {
 
             case MEO_CLOUD:
             case DROPBOX:
-                downloadPendingFile(pendingFile.getFilename(), callback);
+                downloadTempPendingFile(pendingFile.getFilename(), callback);
                 break;
 
             case EMAIL:
@@ -271,7 +266,7 @@ public class FilesRepository implements FilesDataSource {
     }
 
     private void downloadPendingFile(String filename, final Callback<File> callback){
-        /*final String path = PENDING_PATH + filename;
+        final String path = PENDING_PATH + filename;
         if (meoCloudService.isAvailable()) {
             // dropbox will serve as a fallback
             meoCloudService.downloadFile(path, new Callback<File>() {
@@ -289,8 +284,10 @@ public class FilesRepository implements FilesDataSource {
             });
         } else if (dropboxService.isAvailable()) {
             dropboxService.downloadFile(path, callback);
-        }*/
+        }
+    }
 
+    private void downloadTempPendingFile(String filename, final Callback<File> callback){
         final String path = PENDING_PATH + filename;
         final String toFile = "tmp_" + filename;
         if (meoCloudService.isAvailable()) {
@@ -321,7 +318,11 @@ public class FilesRepository implements FilesDataSource {
 
     @Override
     public void addPendingFiles(List<PendingFile> files) {
-        pendingFiles.addAll(files);
+        for(PendingFile file: files){
+            if(!pendingFiles.contains(file)){
+                pendingFiles.add(file);
+            }
+        }
     }
 
     @Override
@@ -484,6 +485,38 @@ public class FilesRepository implements FilesDataSource {
         }
     }
 
+    public void movePendingFile(final PendingFile pendingFile, Item item, Criteria criteria){
+        //pendingFiles.remove(pendingFile);
+        final String from = PENDING_PATH + pendingFile.getFilename();
+        final String to = getFilePath(pendingFile.getItemFile(), criteria);
+        if(pendingFiles.contains(pendingFile)){
+            item.addFile(pendingFile.getItemFile());
+        }
+
+        downloadPendingFile(pendingFile.getFilename(), new Callback<File>() {
+            @Override
+            public void onComplete(File result) {
+                System.out.println(pendingFile.getProvider());
+                if(pendingFile.getProvider().equals(MEO_CLOUD)) {
+                    meoCloudService.moveFile(from, to);
+                    dropboxService.uploadFile(Uri.fromFile(result), getFilePath(pendingFile.getItemFile()), null);
+                }else if(pendingFile.getProvider().equals(DROPBOX)) {
+                    System.out.println("uploading to meo");
+                    if (meoCloudService.isAvailable()) {
+                        String relativePath = getRelativePath(pendingFile.getItemFile().getParent().getCriteria());
+                        meoCloudService.uploadFile(Uri.fromFile(result),
+                                relativePath.substring(1), pendingFile.getFilename());
+                    }
+                    System.out.println("dropbox move");
+                    dropboxService.moveFile(from, to);
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {}
+        });
+    }
+
     @Override
     public void downloadThumbnail(ItemFile file, final BaseCallback<File> callback) {
         final String filePath = getFilePath(file);
@@ -629,7 +662,17 @@ public class FilesRepository implements FilesDataSource {
     }
 
     public List<PendingFile> getPendingFiles() {
-        return pendingFiles;
+        List<PendingFile> files = new LinkedList<>();
+        for(PendingFile file: pendingFiles){
+            if(file.getItemFile().getParent() == null) {
+                files.add(file);
+            }
+        }
+        return files;
+    }
+
+    public void removePendingFiles(List<PendingFile> selectedPendingFiles) {
+        pendingFiles.removeAll(selectedPendingFiles);
     }
 
     // in some cases we don't care about errors, ie. downloading thumbnails

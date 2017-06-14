@@ -2,6 +2,7 @@ package ipleiria.project.add.view.add_edit_item;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.utils.StringUtils;
@@ -24,6 +26,7 @@ import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 
+import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PENDING_FILES;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 
 /**
@@ -53,6 +56,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
     private Item editingItem;
 
     private List<Uri> receivedFiles;
+    private List<PendingFile> receivedPendingFiles;
 
     AddEditPresenter(@NonNull AddEditContract.View addEditView, @NonNull ItemsRepository itemsRepository) {
         this.itemsRepository = itemsRepository;
@@ -62,6 +66,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
         this.addEditView.setPresenter(this);
 
         this.receivedFiles = new ArrayList<>();
+        this.receivedPendingFiles = new ArrayList<>();
     }
 
     @Override
@@ -71,15 +76,20 @@ public class AddEditPresenter implements AddEditContract.Presenter {
     }
 
     private void readCategories() {
-        categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
+        new Handler().post(new Runnable() {
             @Override
-            public void onComplete(List<Dimension> result) {
-                readItems();
-            }
+            public void run() {
+                categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
+                    @Override
+                    public void onComplete(List<Dimension> result) {
+                        readItems();
+                    }
 
-            @Override
-            public void onError(Exception e) {
+                    @Override
+                    public void onError(Exception e) {
 
+                    }
+                });
             }
         });
     }
@@ -114,6 +124,10 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
                 case SENDING_PHOTO:
                     receivedFiles.add(Uri.parse(intent.getStringExtra("photo_uri")));
+                    break;
+
+                case SENDING_PENDING_FILES:
+                    receivedPendingFiles = intent.getParcelableArrayListExtra("pending_files");
                     break;
 
                 case EDITING_ITEM:
@@ -194,11 +208,15 @@ public class AddEditPresenter implements AddEditContract.Presenter {
                 case Intent.ACTION_SEND_MULTIPLE:
                 case SENDING_PHOTO:
                 case CRITERIA_SELECTED:
+                case SENDING_PENDING_FILES:
                     Item item = new Item(description);
                     item.setCriteria(selectedCriteria);
                     item.setWeight(weight);
                     itemsRepository.saveItem(item, false);
                     itemsRepository.addFilesToItem(item, receivedFiles);
+                    if(!receivedFiles.isEmpty()) {
+                        itemsRepository.addPendingFilesToItem(item, receivedPendingFiles);
+                    }
                     break;
 
                 case EDITING_ITEM:

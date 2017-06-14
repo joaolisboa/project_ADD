@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.setup;
 
 import android.app.DatePickerDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -20,6 +22,8 @@ import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.UserService;
 
+import static ipleiria.project.add.data.source.UserService.USER_DATA_KEY;
+
 /**
  * Created by J on 06/06/2017.
  */
@@ -29,7 +33,8 @@ public class SetupFragment extends Fragment {
 
     private Date startDate_;
     private Date endDate_;
-
+    private String name_;
+    private String department_;
     public SetupFragment() {
     }
 
@@ -50,10 +55,12 @@ public class SetupFragment extends Fragment {
 
         final EditText startDate = (EditText) root.findViewById(R.id.startDate);
         final EditText endDate = (EditText) root.findViewById(R.id.endDate);
-
+        final EditText name = (EditText) root.findViewById(R.id.name);
         final String myFormat = "dd-MM-yyyy";
+        final Spinner department = (Spinner) root.findViewById(R.id.department);
         final Calendar myCalendar = Calendar.getInstance();
         final SimpleDateFormat sdf = new SimpleDateFormat(myFormat);
+        final SharedPreferences sharedPreferences = getActivity().getSharedPreferences(USER_DATA_KEY,0);
 
         startDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,12 +100,19 @@ public class SetupFragment extends Fragment {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                name_ = name.getText().toString();
                 User user = UserService.getInstance().getUser();
                 EvaluationPeriod evaluationPeriod = new EvaluationPeriod();
                 evaluationPeriod.setStartDate(startDate_);
                 evaluationPeriod.setEndDate(endDate_);
+                department_ = department.getSelectedItem().toString().toUpperCase();
+                user.setDepartment(department_);
                 user.addEvaluationPeriod(evaluationPeriod);
+                user.setName(name_);
                 UserService.getInstance().saveUserInfo();
+                sharedPreferences.edit().putBoolean("my_first_time", false).apply();
+                getActivity().finish();
+
             }
         });
 

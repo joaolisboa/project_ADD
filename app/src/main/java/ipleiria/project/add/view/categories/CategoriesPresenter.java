@@ -66,21 +66,30 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     private String action;
     private List<Uri> receivedFiles;
 
+    private List<PendingFile> receivedPendingFiles;
+
     private final CategoryRepository categoryRepository;
     private final ItemsRepository itemsRepository;
+    private final UserService userService;
+
     private final CategoriesContract.View categoriesView;
     private final DrawerView drawerView;
 
-    public CategoriesPresenter(CategoriesContract.View categoriesView, DrawerView drawerView, CategoryRepository categoryRepository,
-                               ItemsRepository itemsRepository, boolean listingDeleted) {
+    public CategoriesPresenter(CategoriesContract.View categoriesView, DrawerView drawerView,
+                               CategoryRepository categoryRepository,
+                               ItemsRepository itemsRepository,
+                               UserService userService,
+                               boolean listingDeleted) {
         this.categoryRepository = categoryRepository;
         this.itemsRepository = itemsRepository;
+        this.userService = userService;
         this.categoriesView = categoriesView;
         this.categoriesView.setPresenter(this);
         this.drawerView = drawerView;
 
         this.listingDeleted = listingDeleted;
         this.receivedFiles = new ArrayList<>();
+        this.receivedPendingFiles = new ArrayList<>();
 
         this.currentFocus = ROOT_FOCUS;
         this.forceRefresh = true;
@@ -94,7 +103,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             categoriesView.setTitle(itemsRepository.getCurrentPeriod().toString());
         }
         refreshData();
-        drawerView.setUserInfo(UserService.getInstance().getUser());
+        drawerView.setUserInfo(userService.getUser());
     }
 
     @Override
@@ -107,7 +116,23 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     public void refreshData() {
         categoriesView.showProgressDialog();
-        new RefreshTask().execute();
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
+                    @Override
+                    public void onComplete(List<Dimension> result) {
+                        refreshItems();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        categoriesView.hideProgressDialog();
+                    }
+                });
+            }
+        });
+        //new RefreshTask().execute();
     }
 
     private void refreshItems() {
@@ -358,7 +383,11 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         if (action == null) {
             categoriesView.openItemDetails(clickedItem, listingDeleted);
         } else {
-            itemsRepository.addFilesToItem(clickedItem, receivedFiles);
+            if(action.equals(SENDING_PHOTO)) {
+                itemsRepository.addFilesToItem(clickedItem, receivedFiles);
+            }else if(action.equals(SENDING_PENDING_FILES)){
+                itemsRepository.addPendingFilesToItem(clickedItem, receivedPendingFiles);
+            }
             categoriesView.showFilesAddedMessage();
             action = null;
             categoriesView.enableListSwipe(true);
@@ -368,12 +397,9 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     @Override
     public void setPeriodSelection() {
-        /*itemsRepository.setCurrentPeriod(evaluationPeriod);
-        categoriesView.setTitle(evaluationPeriod.toString());
-        forceRefreshData();*/
-        CharSequence periods[] = new CharSequence[UserService.getInstance().getUser().getEvaluationPeriods().size()];
+        CharSequence periods[] = new CharSequence[userService.getUser().getEvaluationPeriods().size()];
         int i = 0;
-        for(EvaluationPeriod evaluationPeriod: UserService.getInstance().getUser().getEvaluationPeriods()){
+        for(EvaluationPeriod evaluationPeriod: userService.getUser().getEvaluationPeriods()){
             periods[i] = evaluationPeriod.toString();
             i++;
         }
@@ -382,9 +408,13 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     @Override
     public void switchPeriod(int position){
-        EvaluationPeriod evaluationPeriod = UserService.getInstance().getUser().getEvaluationPeriods().get(position);
+        EvaluationPeriod evaluationPeriod = userService.getUser().getEvaluationPeriods().get(position);
         itemsRepository.setCurrentPeriod(evaluationPeriod);
-        categoriesView.setTitle(evaluationPeriod.toString());
+        if(listingDeleted){
+            categoriesView.setTitle("Trash " + evaluationPeriod.toString());
+        }else {
+            categoriesView.setTitle(evaluationPeriod.toString());
+        }
         forceRefreshData();
     }
 
@@ -407,10 +437,8 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                     break;
 
                 case SENDING_PENDING_FILES:
-                    ArrayList<PendingFile> pendingFiles = intent.getParcelableArrayListExtra("pending_files");
-                    for(PendingFile file: pendingFiles){
-                        System.out.println(file);
-                    }
+                    receivedPendingFiles = intent.getParcelableArrayListExtra("pending_files");
+                    System.out.println(receivedFiles);
                     break;
             }
         }
