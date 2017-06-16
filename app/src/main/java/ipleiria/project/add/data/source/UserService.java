@@ -62,11 +62,11 @@ public class UserService {
         this.preferences = Application.getAppContext().getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE);
 
         String userUid = preferences.getString(USER_UID_KEY, null);
-        if(userUid != null) {
+        if (userUid != null) {
             this.userDatabaseReference = FirebaseDatabase.getInstance().getReference().child(USER_REF).child(userUid);
             this.userDatabaseReference.keepSynced(true);
             this.user = new User(userUid);
-        }else{
+        } else {
             this.user = new User();
         }
         dropboxToken = preferences.getString(DROPBOX_PREFS_KEY, null);
@@ -85,9 +85,15 @@ public class UserService {
         return INSTANCE;
     }
 
-    public void setUser(User user){
-        System.out.println(user.getDepartment());
-        System.out.println(user.getName());
+    public void setUser(User user) {
+        EvaluationPeriod mostRecentStart = null;
+        for (EvaluationPeriod evaluationPeriod : user.getEvaluationPeriods()) {
+            if (mostRecentStart == null || evaluationPeriod.getStartDate()
+                    .compareTo(mostRecentStart.getStartDate()) > 0) {
+                mostRecentStart = evaluationPeriod;
+            }
+        }
+        ItemsRepository.getInstance().initCurrentPeriod(mostRecentStart);
         this.user = user;
     }
 
@@ -115,8 +121,10 @@ public class UserService {
         user.setAnonymous(firebaseUser.isAnonymous());
         user.setPhotoUrl(profileUri);
 
-        if(this.user != null){
+        if (this.user != null) {
             user.addEvaluationPeriods(this.user.getEvaluationPeriods());
+            user.setDepartment(this.user.getDepartment());
+            user.setName(this.user.getName());
         }
 
         this.user = user;
@@ -127,7 +135,7 @@ public class UserService {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 setAdditionalInfo(dataSnapshot);
-                if(callback != null) {
+                if (callback != null) {
                     callback.onComplete(getUser());
                 }
                 saveUserInfo();
@@ -143,19 +151,25 @@ public class UserService {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private void setAdditionalInfo(DataSnapshot snapshot){
-        user.setName((String)snapshot.child("name").getValue());
-        user.setDepartment((String)snapshot.child("department").getValue());
+    private void setAdditionalInfo(DataSnapshot snapshot) {
+        String name = (String) snapshot.child("name").getValue();
+        if(name != null && !name.isEmpty()){
+            user.setName((String) snapshot.child("name").getValue());
+        }
+        String department = (String) snapshot.child("department").getValue();
+        if(department != null && !department.isEmpty()){
+            user.setDepartment((String) snapshot.child("department").getValue());
+        }
 
         EvaluationPeriod mostRecentStart = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        for(DataSnapshot periodsSnapshot: snapshot.child("evaluationPeriods").getChildren()){
+        for (DataSnapshot periodsSnapshot : snapshot.child("evaluationPeriods").getChildren()) {
             EvaluationPeriod evaluationPeriod = new EvaluationPeriod(periodsSnapshot.getKey());
             try {
-                Date startDate = dateFormat.parse((String)periodsSnapshot.child("startDate").getValue());
+                Date startDate = dateFormat.parse((String) periodsSnapshot.child("startDate").getValue());
                 evaluationPeriod.setStartDate(startDate);
-                evaluationPeriod.setEndDate(dateFormat.parse((String)periodsSnapshot.child("endDate").getValue()));
-                if(mostRecentStart == null || startDate.compareTo(mostRecentStart.getStartDate()) > 0){
+                evaluationPeriod.setEndDate(dateFormat.parse((String) periodsSnapshot.child("endDate").getValue()));
+                if (mostRecentStart == null || startDate.compareTo(mostRecentStart.getStartDate()) > 0) {
                     mostRecentStart = evaluationPeriod;
                 }
             } catch (ParseException e) {
@@ -165,20 +179,21 @@ public class UserService {
             user.addEvaluationPeriod(evaluationPeriod);
         }
         ItemsRepository.getInstance().initUser(getUser().getUid());
+        if (mostRecentStart == null && !user.getEvaluationPeriods().isEmpty()) {
+            mostRecentStart = user.getEvaluationPeriods().get(0);
+        }
         ItemsRepository.getInstance().initCurrentPeriod(mostRecentStart);
     }
 
     @SuppressLint("SimpleDateFormat")
-    public void saveUserInfo(){
+    public void saveUserInfo() {
         userDatabaseReference.child("name").setValue(user.getName());
-        System.out.println(user.getName());
         userDatabaseReference.child("department").setValue(user.getDepartment());
-        System.out.println(user.getDepartment());
 
         DatabaseReference ref = userDatabaseReference.child("evaluationPeriods");
         Map<String, Object> periodsMap = new HashMap<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        for(EvaluationPeriod evaluationPeriod: user.getEvaluationPeriods()){
+        for (EvaluationPeriod evaluationPeriod : user.getEvaluationPeriods()) {
             Map<String, Object> period = new HashMap<>();
             if (evaluationPeriod.getDbKey() == null || evaluationPeriod.getDbKey().isEmpty()) {
                 ref = ref.push();

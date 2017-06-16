@@ -1,5 +1,8 @@
 package ipleiria.project.add.data.model;
 
+import android.annotation.SuppressLint;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -45,15 +48,23 @@ public class EvaluationPeriod {
     }
 
     @Override
+    @SuppressLint("SimpleDateFormat")
     public String toString() {
-        return (startDate.getYear() + 1900) + " - " + (endDate.getYear() + 1900);
+        SimpleDateFormat year = new SimpleDateFormat("yyyy");
+        return (year.format(startDate) + " - " + year.format(endDate));
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof EvaluationPeriod){
-
+            SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+            if(format.format(startDate).equals(format.format((((EvaluationPeriod)obj)).getStartDate()))){
+                return true;
+            }
+            if(format.format(endDate).equals(format.format((((EvaluationPeriod)obj)).getEndDate()))){
+                return true;
+            }
         }
-        return false;
+        return super.equals(obj);
     }
 }

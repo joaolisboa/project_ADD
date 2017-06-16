@@ -101,6 +101,9 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
 
         try {
             ListMessagesResponse listResponse = gmailService.users().messages().list(user).setQ("to:" + email).execute();
+            if(listResponse.getMessages() == null){
+                throw new IOException("No messages found");
+            }
             for (int i = 0; i < listResponse.getMessages().size(); i++) {
                 Message message = gmailService.users()
                         .messages().get(user, listResponse.getMessages().get(i).getId())
