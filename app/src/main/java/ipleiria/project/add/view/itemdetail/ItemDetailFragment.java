@@ -295,8 +295,10 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     private void showEditFileDialog(final ItemFile file) {
         View view = View.inflate(getContext(), R.layout.rename_file_dialog, null);
         final EditText input = (EditText) view.findViewById(R.id.new_filename);
-        input.setText(file.getFilename());
-        input.setSelection(file.getFilename().lastIndexOf("."));
+        String filename = file.getFilename();
+        String filenameWithoutExt = filename.substring(0, filename.lastIndexOf("."));
+        input.setText(filenameWithoutExt);
+        input.setSelection(filenameWithoutExt.length());
 
         final InputMethodManager inputMethodManager = (InputMethodManager)
                 getContext().getSystemService(Context.INPUT_METHOD_SERVICE);

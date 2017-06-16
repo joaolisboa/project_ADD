@@ -145,7 +145,8 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
     public void renameFile(@NonNull ItemFile file, @NonNull String newFilename) {
         String oldFilename = file.getFilename();
         if (!oldFilename.equals(newFilename)) {
-            file.setFilename(newFilename);
+            String ext = file.getFilename().substring(file.getFilename().lastIndexOf("."));
+            file.setFilename(newFilename + ext);
             itemFilesRepository.renameItemFile(file);
             filesRepository.renameFile(file, oldFilename, newFilename);
             itemDetailView.showAddedFile(file);
