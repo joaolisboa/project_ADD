@@ -24,11 +24,12 @@ public class User {
     private List<EvaluationPeriod> evaluationPeriods;
 
     public User() {
+        this.evaluationPeriods = new LinkedList<>();
     }
 
     public User(String uid) {
+        this();
         this.uid = uid;
-        this.evaluationPeriods = new LinkedList<>();
     }
 
     public User(String uid, String email, Uri photoUrl, String name) {
@@ -75,7 +76,15 @@ public class User {
     }
 
     public void addEvaluationPeriod(EvaluationPeriod period){
-        evaluationPeriods.add(period);
+        if(!evaluationPeriods.contains(period)) {
+            evaluationPeriods.add(period);
+        }
+    }
+
+    public void addEvaluationPeriods(List<EvaluationPeriod> periods){
+        for(EvaluationPeriod evaluationPeriod: periods){
+            addEvaluationPeriod(evaluationPeriod);
+        }
     }
 
     public String getName() {

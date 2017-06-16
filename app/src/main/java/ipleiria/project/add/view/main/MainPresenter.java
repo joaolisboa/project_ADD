@@ -1,7 +1,6 @@
 package ipleiria.project.add.view.main;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -36,17 +35,14 @@ import java.util.List;
 import ipleiria.project.add.Application;
 import ipleiria.project.add.Callbacks;
 import ipleiria.project.add.DrawerView;
-import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.RequestMailsTask;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;
-import ipleiria.project.add.view.categories.CategoriesActivity;
 
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
-import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 import static ipleiria.project.add.view.google_sign_in.GoogleSignInPresenter.SCOPES;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
 
@@ -186,12 +182,13 @@ class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void result(int requestCode, int resultCode) {
+    public void result(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_TAKE_PHOTO) {
                 mainView.addPhotoURIToItems(photoUri.toString());
             }else if(requestCode == REQUEST_ADD_NEW_ITEM){
-                mainView.showItemAddedMessage();
+                String itemKey = data.getStringExtra("item_added_key");
+                mainView.showItemAdded(itemKey);
             }
         }
     }

@@ -45,6 +45,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     private static final String TAG = "CATEGORIES_PRESENTER";
     public static final String LIST_DELETED_KEY = "list_deleted";
+    public static final String OPEN_ITEM_ADDED = "open_item_added";
 
     // only showing dimensions
     private static final int ROOT_FOCUS = 0;
@@ -97,9 +98,9 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     @Override
     public void subscribe() {
-        if(listingDeleted){
+        if (listingDeleted) {
             categoriesView.setTitle("Trash " + itemsRepository.getCurrentPeriod().toString());
-        }else {
+        } else {
             categoriesView.setTitle(itemsRepository.getCurrentPeriod().toString());
         }
         refreshData();
@@ -116,23 +117,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     public void refreshData() {
         categoriesView.showProgressDialog();
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
-                    @Override
-                    public void onComplete(List<Dimension> result) {
-                        refreshItems();
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        categoriesView.hideProgressDialog();
-                    }
-                });
-            }
-        });
-        //new RefreshTask().execute();
+        new RefreshTask().execute();
     }
 
     private void refreshItems() {
@@ -146,11 +131,23 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                     } else {
                         categoriesView.showNoDeletedItems();
                     }
+                    categoriesView.hideProgressDialog();
                 } else {
-                    evaluatePoints();
-                    processList();
+                    final Handler handler = new Handler();
+                    Runnable runnable = new Runnable() {
+                        public void run() {
+                            evaluatePoints();
+                            handler.post(new Runnable() {
+                                public void run() {
+                                    processList();
+                                    categoriesView.hideProgressDialog();
+                                }
+                            });
+
+                        }
+                    };
+                    new Thread(runnable).start();
                 }
-                categoriesView.hideProgressDialog();
             }
 
             @Override
@@ -224,6 +221,12 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     public void onResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_ADD_NEW_ITEM) {
+                String itemKey = data.getStringExtra("item_added_key");
+                Item item = itemsRepository.getItem(itemKey);
+                selectedCriteria = item.getCriteria();
+                selectedArea = item.getArea();
+                selectedDimension = item.getDimension();
+                currentFocus = CRITERIA_FOCUS;
                 categoriesView.showItemAddedMessage();
             }
             if (requestCode == REQUEST_ADD_NEW_ITEM_CHANGE) {
@@ -383,9 +386,9 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         if (action == null) {
             categoriesView.openItemDetails(clickedItem, listingDeleted);
         } else {
-            if(action.equals(SENDING_PHOTO)) {
+            if (action.equals(SENDING_PHOTO)) {
                 itemsRepository.addFilesToItem(clickedItem, receivedFiles);
-            }else if(action.equals(SENDING_PENDING_FILES)){
+            } else if (action.equals(SENDING_PENDING_FILES)) {
                 itemsRepository.addPendingFilesToItem(clickedItem, receivedPendingFiles);
             }
             categoriesView.showFilesAddedMessage();
@@ -399,7 +402,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     public void setPeriodSelection() {
         CharSequence periods[] = new CharSequence[userService.getUser().getEvaluationPeriods().size()];
         int i = 0;
-        for(EvaluationPeriod evaluationPeriod: userService.getUser().getEvaluationPeriods()){
+        for (EvaluationPeriod evaluationPeriod : userService.getUser().getEvaluationPeriods()) {
             periods[i] = evaluationPeriod.toString();
             i++;
         }
@@ -407,12 +410,12 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     @Override
-    public void switchPeriod(int position){
+    public void switchPeriod(int position) {
         EvaluationPeriod evaluationPeriod = userService.getUser().getEvaluationPeriods().get(position);
         itemsRepository.setCurrentPeriod(evaluationPeriod);
-        if(listingDeleted){
+        if (listingDeleted) {
             categoriesView.setTitle("Trash " + evaluationPeriod.toString());
-        }else {
+        } else {
             categoriesView.setTitle(evaluationPeriod.toString());
         }
         forceRefreshData();
@@ -438,9 +441,19 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
                 case SENDING_PENDING_FILES:
                     receivedPendingFiles = intent.getParcelableArrayListExtra("pending_files");
-                    System.out.println(receivedFiles);
+                    break;
+
+                case OPEN_ITEM_ADDED:
+                    String itemKey = intent.getStringExtra("item_added_key");
+                    Item item = itemsRepository.getItem(itemKey);
+                    selectedCriteria = item.getCriteria();
+                    selectedArea = item.getArea();
+                    selectedDimension = item.getDimension();
+                    currentFocus = CRITERIA_FOCUS;
                     break;
             }
+
+            action = null;
         }
     }
 
@@ -458,11 +471,11 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     public Bundle saveInstanceState() {
         Bundle savedInstanceState = new Bundle();
         savedInstanceState.putInt("focus", currentFocus);
-        if(selectedDimension != null) {
+        if (selectedDimension != null) {
             savedInstanceState.putInt("dimension_ref", selectedDimension.getReference());
-            if(selectedArea != null){
+            if (selectedArea != null) {
                 savedInstanceState.putInt("area_ref", selectedArea.getReference());
-                if(selectedCriteria != null){
+                if (selectedCriteria != null) {
                     savedInstanceState.putInt("criteria_ref", selectedCriteria.getReference());
                 }
             }

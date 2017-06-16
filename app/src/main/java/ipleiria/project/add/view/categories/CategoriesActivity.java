@@ -78,7 +78,7 @@ public class CategoriesActivity extends AppCompatActivity implements NavigationV
         boolean listDeleted = getIntent().getBooleanExtra(LIST_DELETED_KEY, false);
 
         // set up the drawer layout
-        if(getIntent().getAction() == null){
+        //if(getIntent().getAction() == null){
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                     this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -86,13 +86,7 @@ public class CategoriesActivity extends AppCompatActivity implements NavigationV
             toggle.syncState();
             navigationView = (NavigationView) findViewById(R.id.nav_view);
             navigationView.setNavigationItemSelectedListener(this);
-
-            if(listDeleted) {
-                navigationView.setCheckedItem(R.id.nav_trash);
-            }else{
-                navigationView.setCheckedItem(R.id.nav_categories);
-            }
-        }
+        //}
 
         categoriesFragment = (CategoriesFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
         if (categoriesFragment == null) {

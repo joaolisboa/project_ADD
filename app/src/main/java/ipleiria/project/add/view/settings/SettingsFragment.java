@@ -166,7 +166,7 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
     @Override
     public void setUserInfo(User user) {
         accountName.setText(user.getName());
-        accountDescription.setText(getString(R.string.account_syncing_status, user.getEmail()));
+        accountDescription.setText(user.getEmail());
 
         Picasso.with(getContext())
                 .load(user.getPhotoUrl())

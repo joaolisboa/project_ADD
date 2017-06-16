@@ -66,6 +66,8 @@ public class UserService {
             this.userDatabaseReference = FirebaseDatabase.getInstance().getReference().child(USER_REF).child(userUid);
             this.userDatabaseReference.keepSynced(true);
             this.user = new User(userUid);
+        }else{
+            this.user = new User();
         }
         dropboxToken = preferences.getString(DROPBOX_PREFS_KEY, null);
         meoCloudToken = preferences.getString(MEO_PREFS_KEY, null);
@@ -83,12 +85,23 @@ public class UserService {
         return INSTANCE;
     }
 
+    public void setUser(User user){
+        System.out.println(user.getDepartment());
+        System.out.println(user.getName());
+        this.user = user;
+    }
+
     public void initUser(FirebaseUser firebaseUser, final Callbacks.BaseCallback<User> callback) {
         User user = new User(firebaseUser.getUid());
 
         String displayName = firebaseUser.getDisplayName();
         Uri profileUri = firebaseUser.getPhotoUrl();
 
+        // a firebase user has several providers
+        // in order to get provider data we need to get the first
+        // provider data that is valid
+        // trying to get provider data specifically with the provider id
+        // as google didn't work at the time of development
         for (UserInfo userInfo : firebaseUser.getProviderData()) {
             if (displayName == null && userInfo.getDisplayName() != null) {
                 displayName = userInfo.getDisplayName();
@@ -97,16 +110,16 @@ public class UserService {
                 profileUri = userInfo.getPhotoUrl();
             }
         }
-        if (firebaseUser.isAnonymous()) {
-            displayName = "Anonymous";
-        }
 
         user.setEmail(firebaseUser.getEmail());
         user.setAnonymous(firebaseUser.isAnonymous());
         user.setPhotoUrl(profileUri);
-        user.setName(displayName);
-        this.user = user;
 
+        if(this.user != null){
+            user.addEvaluationPeriods(this.user.getEvaluationPeriods());
+        }
+
+        this.user = user;
         this.userDatabaseReference = FirebaseDatabase.getInstance().getReference().child(USER_REF).child(user.getUid());
         this.userDatabaseReference.keepSynced(true);
 
@@ -117,6 +130,7 @@ public class UserService {
                 if(callback != null) {
                     callback.onComplete(getUser());
                 }
+                saveUserInfo();
             }
 
             @Override
@@ -157,7 +171,9 @@ public class UserService {
     @SuppressLint("SimpleDateFormat")
     public void saveUserInfo(){
         userDatabaseReference.child("name").setValue(user.getName());
+        System.out.println(user.getName());
         userDatabaseReference.child("department").setValue(user.getDepartment());
+        System.out.println(user.getDepartment());
 
         DatabaseReference ref = userDatabaseReference.child("evaluationPeriods");
         Map<String, Object> periodsMap = new HashMap<>();

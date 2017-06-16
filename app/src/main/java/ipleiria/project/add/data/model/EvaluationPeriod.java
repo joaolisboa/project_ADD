@@ -48,4 +48,12 @@ public class EvaluationPeriod {
     public String toString() {
         return (startDate.getYear() + 1900) + " - " + (endDate.getYear() + 1900);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof EvaluationPeriod){
+
+        }
+        return false;
+    }
 }

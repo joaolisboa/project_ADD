@@ -245,19 +245,27 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
 
     @Override
     public void checkAndRequestGmailPermission(){
-        HttpTransport transport = AndroidHttp.newCompatibleTransport();
-        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        Gmail mService = new Gmail.Builder(transport, jsonFactory, googleAccountCredential)
-                .setApplicationName("Project ADD")
-                .build();
-        // check if user has given permissions to app
-        try{
-            mService.users().messages().list("me").getUserId();
-        } catch (IOException ex) {
-            if(ex instanceof UserRecoverableAuthIOException){
-                signInView.requestAuth(((UserRecoverableAuthIOException)ex).getIntent());
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                HttpTransport transport = AndroidHttp.newCompatibleTransport();
+                JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+                Gmail mService = new Gmail.Builder(transport, jsonFactory, googleAccountCredential)
+                        .setApplicationName("Project ADD")
+                        .build();
+                // check if user has given permissions to app
+                try{
+                    // make a request that should fail if user has no permissions
+                    mService.users().messages().list("me").execute();
+                } catch (IOException ex) {
+                    Log.e("email",ex.getMessage(),ex);
+                    if(ex instanceof UserRecoverableAuthIOException){
+                        signInView.requestAuth(((UserRecoverableAuthIOException)ex).getIntent());
+                    }
+                }
             }
-        }
+        }).start();
+
     }
 
     // user is anonymous and upgrading to a Google Account
@@ -282,7 +290,6 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
                             googleAccountCredential = GoogleAccountCredential
                                     .usingOAuth2(Application.getAppContext(), Arrays.asList(SCOPES));
                             googleAccountCredential.setSelectedAccount(acct.getAccount());
-                            // TODO: 07-May-17 delete previous anon user and his old data
                         } else {
                             Log.d(TAG, firebaseAuth.getCurrentUser().getUid());
                         }

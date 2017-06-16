@@ -109,10 +109,10 @@ public class SetupFragment extends Fragment {
                 user.setDepartment(department_);
                 user.addEvaluationPeriod(evaluationPeriod);
                 user.setName(name_);
+                UserService.getInstance().setUser(user);
                 UserService.getInstance().saveUserInfo();
                 sharedPreferences.edit().putBoolean("my_first_time", false).apply();
                 getActivity().finish();
-
             }
         });
 

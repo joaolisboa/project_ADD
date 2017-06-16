@@ -2,6 +2,7 @@ package ipleiria.project.add.view.add_edit_item;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -35,7 +36,7 @@ import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PH
 
 public class AddEditPresenter implements AddEditContract.Presenter {
 
-    private static final String TAG  ="AddEditPresenter";
+    private static final String TAG = "AddEditPresenter";
 
     public static final String EDITING_ITEM = "editing_item_action";
     public static final String EDITING_ITEM_KEY = "item_key";
@@ -71,27 +72,13 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
     @Override
     public void subscribe(Intent intent) {
+        addEditView.showProgressDialog();
         readCategories();
         setIntentInfo(intent);
     }
 
     private void readCategories() {
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
-                    @Override
-                    public void onComplete(List<Dimension> result) {
-                        readItems();
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-
-                    }
-                });
-            }
-        });
+        new RefreshTask().execute();
     }
 
     private void readItems() {
@@ -109,10 +96,37 @@ public class AddEditPresenter implements AddEditContract.Presenter {
         });
     }
 
+    private void refreshItems() {
+        itemsRepository.getItems(false, new FilesRepository.Callback<List<Item>>() {
+            @Override
+            public void onComplete(List<Item> result) {
+                final Handler handler = new Handler();
+                Runnable runnable = new Runnable() {
+                    public void run() {
+                        FileUtils.readExcel();
+                        handler.post(new Runnable() {
+                            public void run() {
+                                addEditView.hideProgressDialog();
+                                addEditView.createTreeView(categoryRepository.getDimensions());
+                            }
+                        });
+
+                    }
+                };
+                new Thread(runnable).start();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                addEditView.hideProgressDialog();
+            }
+        });
+    }
+
     private void setIntentInfo(Intent intent) {
         intentAction = intent.getAction();
 
-        if(intentAction != null) {
+        if (intentAction != null) {
             switch (intentAction) {
                 case Intent.ACTION_SEND:
                     receivedFiles.add(UriHelper.getUriFromExtra(intent));
@@ -183,18 +197,18 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
     @Override
     public void verifyInput() {
-        if(description == null || description.isEmpty() || weight <=0 || selectedCriteria == null){
+        if (description == null || description.isEmpty() || weight <= 0 || selectedCriteria == null) {
             addEditView.hideFloatingActionButton();
-        }else{
+        } else {
             addEditView.showFloatingActionButton();
         }
     }
 
     @Override
     public void setWeight(String weight) {
-        if(weight == null || weight.isEmpty()) {
+        if (weight == null || weight.isEmpty()) {
             this.weight = 1;
-        }else{
+        } else {
             this.weight = Integer.valueOf(weight);
         }
         verifyInput();
@@ -202,7 +216,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
     @Override
     public void finishAction() {
-        if(intentAction != null) {
+        if (intentAction != null) {
             switch (intentAction) {
                 case Intent.ACTION_SEND:
                 case Intent.ACTION_SEND_MULTIPLE:
@@ -214,23 +228,47 @@ public class AddEditPresenter implements AddEditContract.Presenter {
                     item.setWeight(weight);
                     itemsRepository.saveItem(item, false);
                     itemsRepository.addFilesToItem(item, receivedFiles);
-                    if(!receivedFiles.isEmpty()) {
+                    if (!receivedPendingFiles.isEmpty()) {
                         itemsRepository.addPendingFilesToItem(item, receivedPendingFiles);
                     }
+                    addEditView.finishAction(item);
                     break;
 
                 case EDITING_ITEM:
                     itemsRepository.editItem(editingItem, description, selectedCriteria, weight);
+                    addEditView.finishAction();
                     break;
             }
-        }else{
+        } else {
             // creating new item
             Item item = new Item(description);
             item.setCriteria(selectedCriteria);
             item.setWeight(weight);
             itemsRepository.saveItem(item, false);
+            addEditView.finishAction(item);
         }
-        addEditView.finishAction();
+    }
+
+    public String getIntentAction(){
+        return intentAction;
+    }
+
+    private class RefreshTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
+                @Override
+                public void onComplete(List<Dimension> result) {
+                    refreshItems();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    addEditView.hideProgressDialog();
+                }
+            });
+            return null;
+        }
     }
 
 }

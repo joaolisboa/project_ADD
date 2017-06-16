@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.add_edit_item;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -45,6 +46,7 @@ import ipleiria.project.add.view.categories.CategoryAdapter;
 import ipleiria.project.add.view.items.ItemsActivity;
 
 import static android.content.Context.SEARCH_SERVICE;
+import static ipleiria.project.add.view.categories.CategoriesPresenter.OPEN_ITEM_ADDED;
 
 /**
  * Created by Lisboa on 07-May-17.
@@ -65,6 +67,7 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     private SearchView searchView;
     private AndroidTreeView tView;
 
+    private ProgressDialog progressDialog;
     private FloatingActionButton fab;
 
     private AddEditContract.Presenter addEditPresenter;
@@ -216,6 +219,18 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
         return descriptionEditText.getText().toString();
     }
 
+    // returns item with result.OK to open item in Categories when added
+    @Override
+    public void finishAction(Item item) {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(descriptionEditText.getWindowToken(), 0);
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("item_added_key", item.getDbKey());
+        resultIntent.setAction(OPEN_ITEM_ADDED);
+        getActivity().setResult(Activity.RESULT_OK, resultIntent);
+        getActivity().finish();
+    }
+
     @Override
     public void finishAction() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -242,6 +257,23 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     @Override
     public void hideFloatingActionButton() {
         fab.hide();
+    }
+
+    @Override
+    public void showProgressDialog() {
+        if(progressDialog == null){
+            progressDialog = new ProgressDialog(getContext());
+            progressDialog.setMessage("Loading");
+        }
+
+        progressDialog.show();
+    }
+
+    @Override
+    public void hideProgressDialog() {
+        if(progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.hide();
+        }
     }
 
     @Override

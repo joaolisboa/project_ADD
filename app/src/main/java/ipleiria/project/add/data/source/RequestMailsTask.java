@@ -101,10 +101,10 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
 
         try {
             ListMessagesResponse listResponse = gmailService.users().messages().list(user).setQ("to:" + email).execute();
-            for (int i = 0; i < listResponse.size(); i++) {
-                Message m = gmailService.users().messages().get(user, listResponse.getMessages().get(i).getId()).execute();
-
-                Message message = gmailService.users().messages().get(user, listResponse.getMessages().get(i).getId()).setFormat("raw").execute();
+            for (int i = 0; i < listResponse.getMessages().size(); i++) {
+                Message message = gmailService.users()
+                        .messages().get(user, listResponse.getMessages().get(i).getId())
+                        .setFormat("raw").execute();
                 try {
                     byte[] emailBytes = Base64.decodeBase64(message.getRaw());
 
@@ -119,26 +119,6 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
                 } catch (MessagingException e) {
                     e.printStackTrace();
                 }
-
-                /*StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("Email string builder: ");
-                getPlainTextFromMessageParts(m.getPayload().getParts(), stringBuilder);
-                System.out.println(stringBuilder.toString());
-
-                List<MessagePart> parts = m.getPayload().getParts();
-                for (MessagePart part : parts) {
-                    if (part.getFilename() != null && part.getFilename().length() > 0) {
-                        String filename = part.getFilename();
-                        String attId = part.getBody().getAttachmentId();
-
-                        MessagePartBody attachPart = gmailService.users().messages().attachments().
-                                get(user, m.getId(), attId).execute();
-
-                        byte[] fileByteArray = Base64.decodeBase64(attachPart.getData());
-                        filesRepository.saveEmailAttachment(filename, fileByteArray);
-                        attachments.add(new ItemFile(filename));
-                    }
-                }*/
             }
         } catch (UserRecoverableAuthIOException userRecoverableException) {
             // user didn't give permissions when signing up - catch and ignore

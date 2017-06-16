@@ -80,7 +80,6 @@ public class SettingsActivity extends AppCompatActivity implements NavigationVie
         toggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.nav_home);
 
         settingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
         if (settingsFragment == null) {

@@ -33,6 +33,8 @@ public class AddEditContract {
 
         String getDescriptionText();
 
+        void finishAction(Item item);
+
         void finishAction();
 
         void showEmptyDescriptionError();
@@ -42,6 +44,10 @@ public class AddEditContract {
         void showFloatingActionButton();
 
         void hideFloatingActionButton();
+
+        void showProgressDialog();
+
+        void hideProgressDialog();
     }
 
     interface Presenter {
@@ -59,6 +65,8 @@ public class AddEditContract {
         void verifyInput();
 
         void setWeight(String weight);
+
+        String getIntentAction();
     }
 
 }

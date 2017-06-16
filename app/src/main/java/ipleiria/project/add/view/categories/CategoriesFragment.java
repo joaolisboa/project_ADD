@@ -413,14 +413,13 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
 
     @Override
     public void showFilesAddedMessage() {
-        //showMessage("Files saved to item");
+        showMessage("Files saved to item");
     }
 
     @Override
     public void enableListSwipe(boolean b) {
         itemsAdapter.enableSwipe(true);
         getActivity().setResult(Activity.RESULT_OK);
-        getActivity().finish();
     }
 
     @Override

@@ -38,6 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.*;
+import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.view.add_edit_item.AddEditActivity;
@@ -47,6 +48,7 @@ import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PENDING_FILES;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
+import static ipleiria.project.add.view.categories.CategoriesPresenter.OPEN_ITEM_ADDED;
 import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
 import static ipleiria.project.add.view.main.MainActivity.TAG;
 import static ipleiria.project.add.view.main.MainPresenter.REQUEST_TAKE_PHOTO;
@@ -151,7 +153,7 @@ public class MainFragment extends Fragment implements MainContract.View,
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        presenter.result(requestCode, resultCode);
+        presenter.result(requestCode, resultCode, data);
     }
 
     @Override
@@ -240,8 +242,16 @@ public class MainFragment extends Fragment implements MainContract.View,
     }
 
     @Override
-    public void showItemAddedMessage(){
-        Snackbar.make(getView(), "New item saved", Snackbar.LENGTH_LONG).show();
+    public void showItemAdded(String itemKey){
+        Intent openItemAdded = new Intent(getContext(), CategoriesActivity.class);
+        if(itemKey != null) {
+            openItemAdded.putExtra("item_added_key", itemKey);
+            openItemAdded.setAction(OPEN_ITEM_ADDED);
+        } else{
+            Log.d(TAG, "Shouldn't happen");
+        }
+        startActivity(openItemAdded);
+        //Snackbar.make(getView(), "New item saved", Snackbar.LENGTH_LONG).show();
     }
 
     @Override

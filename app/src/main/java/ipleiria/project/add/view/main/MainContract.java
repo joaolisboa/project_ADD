@@ -44,7 +44,7 @@ public class MainContract {
 
         void removePendingFile(PendingFile file);
 
-        void showItemAddedMessage();
+        void showItemAdded(String itemKey);
 
         void requestThumbnail(PendingFile file);
 
@@ -69,7 +69,7 @@ public class MainContract {
 
         void onSwipeRefresh();
 
-        void result(int requestCode, int resultCode);
+        void result(int requestCode, int resultCode, Intent data);
 
         void setPhotoUri(Uri photoUri);
 
