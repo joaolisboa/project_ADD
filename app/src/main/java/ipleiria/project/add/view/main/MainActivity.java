@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -124,34 +125,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.nav_categories:
                 startActivity(new Intent(this, CategoriesActivity.class));
-                return true;
+                break;
 
             case R.id.nav_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
-                return true;
+                break;
 
             case R.id.nav_trash:
                 Intent intent = new Intent(this, CategoriesActivity.class);
                 intent.putExtra(LIST_DELETED_KEY, true);
                 startActivity(intent);
-                return true;
+                break;
 
             case R.id.export:
                 progressDialog.show();
-                progressDialog.setTitle("Creating sheet...");
+                progressDialog.setMessage("Creating files and exporting...");
                 ItemsRepository.getInstance().getItems(false, new FilesRepository.Callback<List<Item>>() {
                     @Override
                     public void onComplete(List<Item> result) {
-                        FileUtils.readExcel();
-                        Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
-                        progressDialog.setTitle("Uploading sheet...");
-                        FilesRepository.getInstance().uploadFile(sheet, "export", "ficha_avaliacao.xlsx");
-                        progressDialog.setTitle("Uploading report...");
-                        FileUtils.generateNote("relatorio.txt");
-                        Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
-                        FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
-                        progressDialog.dismiss();
-                        Snackbar.make(mainFragment.getView(), "Exported file", Snackbar.LENGTH_SHORT);
+                        final Handler handler = new Handler();
+                        Runnable runnable = new Runnable() {
+                            public void run() {
+                                FileUtils.readExcel();
+                                Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
+                                FilesRepository.getInstance().uploadFile(sheet, "export", "ficha_avaliacao.xlsx");
+                                FileUtils.generateNote("relatorio.txt");
+                                Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
+                                FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
+                                handler.post(new Runnable() {
+                                    public void run() {
+
+                                        progressDialog.dismiss();
+                                        Snackbar.make(mainFragment.getView(), "Exported files", Snackbar.LENGTH_SHORT);
+                                    }
+                                });
+
+                            }
+                        };
+                        new Thread(runnable).start();
                     }
 
                     @Override
@@ -239,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void setUserInfo(User user) {
+        navigationView.setCheckedItem(R.id.nav_home);
         View navHeader = navigationView.getHeaderView(0);
         ((TextView) navHeader.findViewById(R.id.user_name)).setText(user.getName());
         ((TextView) navHeader.findViewById(R.id.user_mail)).setText(user.getEmail());

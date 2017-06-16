@@ -105,6 +105,12 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         }
         refreshData();
         drawerView.setUserInfo(userService.getUser());
+        categoriesView.selectNavigationItem(listingDeleted);
+    }
+
+    @Override
+    public void unsubscribe() {
+        categoriesView.hideProgressDialog();
     }
 
     @Override
@@ -210,11 +216,6 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         } else {
             categoriesView.showItemsList(items);
         }
-    }
-
-    @Override
-    public void unsubscribe() {
-        categoriesView.hideProgressDialog();
     }
 
     @Override
@@ -497,6 +498,10 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         selectedCriteria = selectedArea.getCriteria(criteriaRef - 1);
 
         processList();
+    }
+
+    public boolean getListingDeleted(){
+        return listingDeleted;
     }
 
     private class RefreshTask extends AsyncTask<Void, Void, Void> {

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -79,13 +80,13 @@ public class CategoriesActivity extends AppCompatActivity implements NavigationV
 
         // set up the drawer layout
         //if(getIntent().getAction() == null){
-            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-            drawer.addDrawerListener(toggle);
-            toggle.syncState();
-            navigationView = (NavigationView) findViewById(R.id.nav_view);
-            navigationView.setNavigationItemSelectedListener(this);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
         //}
 
         categoriesFragment = (CategoriesFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
@@ -106,7 +107,7 @@ public class CategoriesActivity extends AppCompatActivity implements NavigationV
         if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         }
-        if(!categoriesFragment.onBackPressed()) {
+        if (!categoriesFragment.onBackPressed()) {
             // Selected fragment did not consume the back press event.
             super.onBackPressed();
         }
@@ -119,36 +120,53 @@ public class CategoriesActivity extends AppCompatActivity implements NavigationV
         switch (item.getItemId()) {
             case R.id.nav_home:
                 startActivity(new Intent(this, MainActivity.class));
-                return true;
+                break;
 
             case R.id.nav_categories:
+                if(categoriesPresenter.getListingDeleted()){
+                    Intent intent = new Intent(this, CategoriesActivity.class);
+                    startActivity(intent);
+                }
                 break;
 
             case R.id.nav_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
-                return true;
+                break;
 
             case R.id.nav_trash:
-                Intent intent = new Intent(this, CategoriesActivity.class);
-                intent.putExtra(LIST_DELETED_KEY, true);
-                startActivity(intent);
-                return true;
+                if(!categoriesPresenter.getListingDeleted()){
+                    Intent intent = new Intent(this, CategoriesActivity.class);
+                    intent.putExtra(LIST_DELETED_KEY, true);
+                    startActivity(intent);
+                }
+                break;
 
             case R.id.export:
                 progressDialog.show();
-                progressDialog.setTitle("Creating sheet...");
+                progressDialog.setMessage("Creating files and exporting...");
                 ItemsRepository.getInstance().getItems(false, new FilesRepository.Callback<List<Item>>() {
                     @Override
                     public void onComplete(List<Item> result) {
-                        Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
-                        progressDialog.setTitle("Uploading sheet...");
-                        FilesRepository.getInstance().uploadFile(sheet, "export", "ficha_avaliacao.xlsx");
-                        progressDialog.setTitle("Uploading report...");
-                        FileUtils.generateNote("relatorio.txt");
-                        Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
-                        FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
-                        progressDialog.dismiss();
-                        Snackbar.make(categoriesFragment.getView(), "Exported file", Snackbar.LENGTH_SHORT);
+                        final Handler handler = new Handler();
+                        Runnable runnable = new Runnable() {
+                            public void run() {
+                                FileUtils.readExcel();
+                                Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
+                                FilesRepository.getInstance().uploadFile(sheet, "export", "ficha_avaliacao.xlsx");
+                                FileUtils.generateNote("relatorio.txt");
+                                Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
+                                FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
+                                handler.post(new Runnable() {
+                                    public void run() {
+
+                                        progressDialog.dismiss();
+                                        Snackbar.make(categoriesFragment.getView(), "Exported files", Snackbar.LENGTH_SHORT);
+                                    }
+                                });
+
+                            }
+                        };
+                        new Thread(runnable).start();
                     }
 
                     @Override
@@ -235,26 +253,24 @@ public class CategoriesActivity extends AppCompatActivity implements NavigationV
 
     @Override
     public void setUserInfo(User user) {
-        if(navigationView != null) {
-            View navHeader = navigationView.getHeaderView(0);
-            ((TextView) navHeader.findViewById(R.id.user_name)).setText(user.getName());
-            ((TextView) navHeader.findViewById(R.id.user_mail)).setText(user.getEmail());
-            ImageView profilePicView = (ImageView) navHeader.findViewById(R.id.profile_pic);
-            Picasso.with(this)
-                    .load(user.getPhotoUrl())
-                    .resize(100, 100)
-                    .transform(new CircleTransformation())
-                    .placeholder(R.drawable.profile_placeholder)
-                    .error(R.drawable.profile_placeholder)
-                    .into(profilePicView);
+        View navHeader = navigationView.getHeaderView(0);
+        ((TextView) navHeader.findViewById(R.id.user_name)).setText(user.getName());
+        ((TextView) navHeader.findViewById(R.id.user_mail)).setText(user.getEmail());
+        ImageView profilePicView = (ImageView) navHeader.findViewById(R.id.profile_pic);
+        Picasso.with(this)
+                .load(user.getPhotoUrl())
+                .resize(100, 100)
+                .transform(new CircleTransformation())
+                .placeholder(R.drawable.profile_placeholder)
+                .error(R.drawable.profile_placeholder)
+                .into(profilePicView);
 
-            profilePicView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(CategoriesActivity.this, SettingsActivity.class));
-                }
-            });
-        }
+        profilePicView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(CategoriesActivity.this, SettingsActivity.class));
+            }
+        });
     }
 
 }

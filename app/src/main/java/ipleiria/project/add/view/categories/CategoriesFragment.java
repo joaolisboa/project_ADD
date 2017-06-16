@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -257,6 +258,16 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     @Override
     public void showProgressDialog() {
         swipeRefreshLayout.setRefreshing(true);
+    }
+
+    @Override
+    public void selectNavigationItem(boolean listDeleted) {
+        NavigationView navigationView = (NavigationView) getActivity().findViewById(R.id.nav_view);
+        if(!listDeleted) {
+            navigationView.setCheckedItem(R.id.nav_categories);
+        }else{
+            navigationView.setCheckedItem(R.id.nav_trash);
+        }
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.util.List;
 
 import ipleiria.project.add.BasePresenter;
 import ipleiria.project.add.BaseView;
+import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
@@ -23,6 +24,8 @@ public class CategoriesContract {
     interface View extends BaseView<Presenter> {
 
         void showProgressDialog();
+
+        void selectNavigationItem(boolean listDeleted);
 
         void hideProgressDialog();
 
