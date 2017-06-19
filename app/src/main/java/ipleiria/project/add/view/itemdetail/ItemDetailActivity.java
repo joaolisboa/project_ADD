@@ -14,8 +14,8 @@ import ipleiria.project.add.data.source.database.ItemFilesRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.ActivityUtils;
 
+import static ipleiria.project.add.view.categories.CategoriesPresenter.LIST_DELETED_KEY;
 import static ipleiria.project.add.view.itemdetail.ItemDetailPresenter.ITEM_KEY;
-import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
 
 /**
  * Created by Lisboa on 10-May-17.

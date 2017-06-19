@@ -83,6 +83,8 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
 
         void onComplete(List<PendingFile> pendingFiles);
 
+        void onEmailAdded(PendingFile pendingEmail);
+
     }
 
     @Override
@@ -117,8 +119,9 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
                     String filename = "Assunto: " + eml.getSubject() + ".eml";
                     File emlFile = new File(Application.getAppContext().getFilesDir(), filename);
                     eml.writeTo(new FileOutputStream(emlFile));
-                    attachments.add(new PendingFile(new ItemFile(filename), PendingFile.EMAIL));
-
+                    PendingFile emailFile = new PendingFile(new ItemFile(filename), PendingFile.EMAIL);
+                    attachments.add(emailFile);
+                    callback.onEmailAdded(emailFile);
                 } catch (MessagingException e) {
                     e.printStackTrace();
                 }
@@ -131,17 +134,5 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
         }
 
         return attachments;
-    }
-
-    private void getPlainTextFromMessageParts(List<MessagePart> messageParts, StringBuilder stringBuilder) {
-        for (MessagePart messagePart : messageParts) {
-            if (messagePart.getMimeType().equals("text/plain")) {
-                stringBuilder.append(StringUtils.newStringUtf8(Base64.decodeBase64(messagePart.getBody().getData())));
-            }
-
-            if (messagePart.getParts() != null) {
-                getPlainTextFromMessageParts(messagePart.getParts(), stringBuilder);
-            }
-        }
     }
 }

@@ -55,6 +55,7 @@ public class EvaluationPeriod {
     }
 
     @Override
+    @SuppressLint("SimpleDateFormat")
     public boolean equals(Object obj) {
         if(obj instanceof EvaluationPeriod){
             SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");

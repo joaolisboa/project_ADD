@@ -1,4 +1,4 @@
-package ipleiria.project.add.view.items;
+package ipleiria.project.add.view;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
@@ -92,10 +92,8 @@ public class ItemAdapter extends BaseSwipeAdapter {
         swipeLayout.setSwipeEnabled(enableSwipe);
 
         TextView itemName = (TextView) convertView.findViewById(R.id.title_text_view);
-        //TextView itemCriteria = (TextView) convertView.findViewById(R.id.category_text_view);
 
         itemName.setText(item.getDescription());
-        //itemCriteria.setText(item.getCategoryReference() + ". " + item.getCriteria().getName());
 
         TextView numFilesView = (TextView) convertView.findViewById(R.id.num_files);
         TextView pointsView = (TextView) convertView.findViewById(R.id.weight);
@@ -176,11 +174,6 @@ public class ItemAdapter extends BaseSwipeAdapter {
         notifyDataSetChanged();
     }
 
-    public void setItemPoints(Item item, double points){
-        attachedPointsTextView.get(item).setText(String.valueOf(points));
-        notifyDataSetChanged();
-    }
-
     private void attachView(Item item, TextView view) {
         attachedPointsTextView.put(item, view);
     }
@@ -191,5 +184,6 @@ public class ItemAdapter extends BaseSwipeAdapter {
 
     public void enableSwipe(boolean enableSwipe) {
         this.enableSwipe = enableSwipe;
+        //notifyDataSetChanged();
     }
 }

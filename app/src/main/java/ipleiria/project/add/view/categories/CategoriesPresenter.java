@@ -33,9 +33,10 @@ import ipleiria.project.add.utils.UriHelper;
 import static android.app.Activity.RESULT_OK;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PENDING_FILES;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM_CHANGE;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ITEM_EDIT;
+import static ipleiria.project.add.view.categories.CategoriesFragment.REQUEST_ADD_NEW_ITEM;
+import static ipleiria.project.add.view.categories.CategoriesFragment.REQUEST_ADD_NEW_ITEM_CHANGE;
+import static ipleiria.project.add.view.categories.CategoriesFragment.REQUEST_ITEM_EDIT;
+import static ipleiria.project.add.view.main.MainPresenter.REQUEST_TAKE_PHOTO;
 
 /**
  * Created by Lisboa on 30-May-17.
@@ -58,14 +59,14 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     private int currentFocus;
 
-    private Dimension selectedDimension;
-    private Area selectedArea;
-    private Criteria selectedCriteria;
+    private String selectedDimension;
+    private String selectedArea;
+    private String selectedCriteria;
 
     private boolean listingDeleted;
-    private boolean forceRefresh;
     private String action;
     private List<Uri> receivedFiles;
+    private Uri photoUri;
 
     private List<PendingFile> receivedPendingFiles;
 
@@ -93,7 +94,6 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         this.receivedPendingFiles = new ArrayList<>();
 
         this.currentFocus = ROOT_FOCUS;
-        this.forceRefresh = true;
     }
 
     @Override
@@ -113,17 +113,19 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         categoriesView.hideProgressDialog();
     }
 
-    @Override
-    public void forceRefreshData() {
-        // force data refresh since there may be new data synced
-        // which will require a full evaluation of the points
-        forceRefresh = true;
-        refreshData();
-    }
-
     public void refreshData() {
         categoriesView.showProgressDialog();
-        new RefreshTask().execute();
+        categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
+            @Override
+            public void onComplete(List<Dimension> result) {
+                refreshItems();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                categoriesView.hideProgressDialog();
+            }
+        });
     }
 
     private void refreshItems() {
@@ -142,7 +144,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                     final Handler handler = new Handler();
                     Runnable runnable = new Runnable() {
                         public void run() {
-                            evaluatePoints();
+                            FileUtils.readExcel();
                             handler.post(new Runnable() {
                                 public void run() {
                                     processList();
@@ -163,26 +165,6 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         });
     }
 
-    private void evaluatePoints() {
-        if (!forceRefresh) {
-            switch (currentFocus) {
-                case CRITERIA_FOCUS:
-                    // an item can be edited when items are shown(from details or list swipe action)
-                    // in these scenarios only evaluate the criteria in the excel file
-                    // to improve performance(~2x)
-                    System.out.println("updating single criteria");
-                    FileUtils.readExcel(selectedCriteria);
-                    return;
-
-                default:
-                    break;
-            }
-        }
-        forceRefresh = false;
-        Log.d(TAG, "performing full refresh");
-        FileUtils.readExcel();
-    }
-
     private void processList() {
         switch (currentFocus) {
             case ROOT_FOCUS:
@@ -190,21 +172,25 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 break;
 
             case DIMENSION_FOCUS:
-                categoriesView.showSelectedDimension(selectedDimension);
+                categoriesView.showSelectedDimension(categoryRepository.getDimension(selectedDimension));
                 returnToAreaView();
                 break;
 
             case AREA_FOCUS:
-                categoriesView.showSelectedDimension(selectedDimension);
-                categoriesView.showSelectedArea(selectedArea);
+                Dimension dimension = categoryRepository.getDimension(selectedDimension);
+                categoriesView.showSelectedDimension(dimension);
+                categoriesView.showSelectedArea(dimension.getArea(selectedArea));
                 returnToCriteriaView();
                 break;
 
             case CRITERIA_FOCUS:
-                categoriesView.showSelectedDimension(selectedDimension);
-                categoriesView.showSelectedArea(selectedArea);
-                categoriesView.showSelectedCriteria(selectedCriteria);
-                processItemsList(selectedCriteria);
+                Dimension dimension_ = categoryRepository.getDimension(selectedDimension);
+                categoriesView.showSelectedDimension(dimension_);
+                Area area = dimension_.getArea(selectedArea);
+                categoriesView.showSelectedArea(area);
+                Criteria criteria = area.getCriteria(selectedCriteria);
+                categoriesView.showSelectedCriteria(criteria);
+                processItemsList(criteria);
         }
     }
 
@@ -224,9 +210,9 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             if (requestCode == REQUEST_ADD_NEW_ITEM) {
                 String itemKey = data.getStringExtra("item_added_key");
                 Item item = itemsRepository.getItem(itemKey);
-                selectedCriteria = item.getCriteria();
-                selectedArea = item.getArea();
-                selectedDimension = item.getDimension();
+                selectedCriteria = item.getCriteria().getDbKey();
+                selectedArea = item.getArea().getDbKey();
+                selectedDimension = item.getDimension().getDbKey();
                 currentFocus = CRITERIA_FOCUS;
                 categoriesView.showItemAddedMessage();
             }
@@ -237,6 +223,45 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             }
             if (requestCode == REQUEST_ITEM_EDIT) {
                 categoriesView.showItemEditedMessage();
+            }
+            if (requestCode == REQUEST_TAKE_PHOTO) {
+                categoriesView.enableListSwipe(false);
+                action = SENDING_PHOTO;
+                receivedFiles.add(photoUri);
+            }
+        }
+    }
+
+    @Override
+    public void setIntentInfo(Intent intent) {
+        this.action = intent.getAction();
+
+        if (action != null) {
+            switch (action) {
+                case Intent.ACTION_SEND:
+                    receivedFiles.add(UriHelper.getUriFromExtra(intent));
+                    break;
+
+                case Intent.ACTION_SEND_MULTIPLE:
+                    receivedFiles.addAll(UriHelper.getUriListFromExtra(intent));
+                    break;
+
+                case SENDING_PHOTO:
+                    receivedFiles.add(Uri.parse(intent.getStringExtra("photo_uri")));
+                    break;
+
+                case SENDING_PENDING_FILES:
+                    receivedPendingFiles = intent.getParcelableArrayListExtra("pending_files");
+                    break;
+
+                case OPEN_ITEM_ADDED:
+                    String itemKey = intent.getStringExtra("item_added_key");
+                    Item item = itemsRepository.getItem(itemKey);
+                    selectedCriteria = item.getCriteria().getDbKey();
+                    selectedArea = item.getArea().getDbKey();
+                    selectedDimension = item.getDimension().getDbKey();
+                    currentFocus = CRITERIA_FOCUS;
+                    break;
             }
         }
     }
@@ -288,7 +313,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     private void dimensionClicked(Dimension dimension) {
-        selectedDimension = dimension;
+        selectedDimension = dimension.getDbKey();
         categoriesView.showSelectedDimension(dimension);
         categoriesView.showAreas(dimension.getAreas());
         currentFocus = DIMENSION_FOCUS;
@@ -296,15 +321,14 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     private void areaClicked(Area area) {
-        selectedArea = area;
+        selectedArea = area.getDbKey();
         categoriesView.showSelectedArea(area);
         categoriesView.showCriterias(area.getCriterias());
         currentFocus = AREA_FOCUS;
     }
 
     private void criteriaClicked(Criteria criteria) {
-        // only with AREA_FOCUS
-        selectedCriteria = criteria;
+        selectedCriteria = criteria.getDbKey();
         categoriesView.showSelectedCriteria(criteria);
         processItemsList(criteria);
         categoriesView.hideCategoryList();
@@ -345,8 +369,9 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         categoriesView.hideSelectedArea();
         categoriesView.hideSelectedCriteria();
 
-        categoriesView.showSelectedDimension(selectedDimension);
-        categoriesView.showAreas(selectedDimension.getAreas());
+        Dimension dimension = categoryRepository.getDimension(selectedDimension);
+        categoriesView.showSelectedDimension(dimension);
+        categoriesView.showAreas(dimension.getAreas());
         currentFocus = DIMENSION_FOCUS;
     }
 
@@ -354,9 +379,11 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     public void returnToCriteriaView() {
         categoriesView.hideSelectedCriteria();
 
-        categoriesView.showSelectedDimension(selectedDimension);
-        categoriesView.showSelectedArea(selectedArea);
-        categoriesView.showCriterias(selectedArea.getCriterias());
+        Dimension dimension = categoryRepository.getDimension(selectedDimension);
+        categoriesView.showSelectedDimension(dimension);
+        Area area = dimension.getArea(selectedArea);
+        categoriesView.showSelectedArea(area);
+        categoriesView.showCriterias(area.getCriterias());
         currentFocus = AREA_FOCUS;
     }
 
@@ -395,7 +422,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             categoriesView.showFilesAddedMessage();
             action = null;
             categoriesView.enableListSwipe(true);
-            processItemsList(selectedCriteria);
+            processItemsList(categoryRepository.getCriteria(selectedCriteria));
         }
     }
 
@@ -419,43 +446,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         } else {
             categoriesView.setTitle(evaluationPeriod.toString());
         }
-        forceRefreshData();
-    }
-
-    @Override
-    public void setIntentInfo(Intent intent) {
-        this.action = intent.getAction();
-
-        if (action != null) {
-            switch (action) {
-                case Intent.ACTION_SEND:
-                    receivedFiles.add(UriHelper.getUriFromExtra(intent));
-                    break;
-
-                case Intent.ACTION_SEND_MULTIPLE:
-                    receivedFiles.addAll(UriHelper.getUriListFromExtra(intent));
-                    break;
-
-                case SENDING_PHOTO:
-                    receivedFiles.add(Uri.parse(intent.getStringExtra("photo_uri")));
-                    break;
-
-                case SENDING_PENDING_FILES:
-                    receivedPendingFiles = intent.getParcelableArrayListExtra("pending_files");
-                    break;
-
-                case OPEN_ITEM_ADDED:
-                    String itemKey = intent.getStringExtra("item_added_key");
-                    Item item = itemsRepository.getItem(itemKey);
-                    selectedCriteria = item.getCriteria();
-                    selectedArea = item.getArea();
-                    selectedDimension = item.getDimension();
-                    currentFocus = CRITERIA_FOCUS;
-                    break;
-            }
-
-            action = null;
-        }
+        refreshData();
     }
 
     @Override
@@ -465,7 +456,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     @Override
     public Criteria getSelectedCriteria() {
-        return selectedCriteria;
+        return categoryRepository.getCriteria(selectedCriteria);
     }
 
     @Override
@@ -473,11 +464,13 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         Bundle savedInstanceState = new Bundle();
         savedInstanceState.putInt("focus", currentFocus);
         if (selectedDimension != null) {
-            savedInstanceState.putInt("dimension_ref", selectedDimension.getReference());
+            Dimension dimension = categoryRepository.getDimension(selectedDimension);
+            savedInstanceState.putInt("dimension_ref", dimension.getReference());
             if (selectedArea != null) {
-                savedInstanceState.putInt("area_ref", selectedArea.getReference());
+                Area area = dimension.getArea(selectedArea);
+                savedInstanceState.putInt("area_ref", area.getReference());
                 if (selectedCriteria != null) {
-                    savedInstanceState.putInt("criteria_ref", selectedCriteria.getReference());
+                    savedInstanceState.putInt("criteria_ref", area.getCriteria(selectedCriteria).getReference());
                 }
             }
         }
@@ -493,32 +486,22 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
         currentFocus = savedInstanceState.getInt("focus");
 
-        selectedDimension = categoryRepository.getDimensions().get(dimensionRef - 1);
-        selectedArea = selectedDimension.getArea(areaRef - 1);
-        selectedCriteria = selectedArea.getCriteria(criteriaRef - 1);
+        Dimension dimension = categoryRepository.getDimensions().get(dimensionRef - 1);
+        selectedDimension = dimension.getDbKey();
+        Area area = dimension.getArea(areaRef - 1);
+        selectedArea = area.getDbKey();
+        selectedCriteria = area.getCriteria(criteriaRef - 1).getDbKey();
 
         processList();
     }
 
-    public boolean getListingDeleted(){
+    @Override
+    public void setPhotoUri(Uri photoUri) {
+        this.photoUri = photoUri;
+    }
+
+    public boolean isListingDeleted(){
         return listingDeleted;
     }
 
-    private class RefreshTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
-                @Override
-                public void onComplete(List<Dimension> result) {
-                    refreshItems();
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    categoriesView.hideProgressDialog();
-                }
-            });
-            return null;
-        }
-    }
 }

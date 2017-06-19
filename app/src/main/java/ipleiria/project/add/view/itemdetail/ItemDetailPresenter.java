@@ -28,9 +28,7 @@ import ipleiria.project.add.data.source.database.ItemFilesRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 
 import static android.app.Activity.RESULT_OK;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM_CHANGE;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ITEM_EDIT;
+import static ipleiria.project.add.view.categories.CategoriesFragment.REQUEST_ITEM_EDIT;
 
 /**
  * Created by Lisboa on 10-May-17.

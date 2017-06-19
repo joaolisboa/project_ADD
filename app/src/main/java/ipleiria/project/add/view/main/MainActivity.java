@@ -51,7 +51,7 @@ import ipleiria.project.add.view.settings.SettingsActivity;
 import ipleiria.project.add.view.setup.SetupActivity;
 
 import static ipleiria.project.add.data.source.UserService.USER_DATA_KEY;
-import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
+import static ipleiria.project.add.view.categories.CategoriesPresenter.LIST_DELETED_KEY;
 
 
 /**
@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (sharedPreferences.getBoolean("my_first_time", true)) {
             //the app is being launched for first time, start setup
             startActivity(new Intent(this, SetupActivity.class));
+            finish();
         }
 
         // Set up the toolbar.

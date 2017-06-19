@@ -30,8 +30,6 @@ public class SettingsPresenter implements SettingsContract.Presenter {
 
     private static final String TAG = "SETTINGS_PRESENTER";
 
-    static final int REQUEST_TAKE_PHOTO = 2002;
-
     private final UserService userService;
     private final DropboxService dropboxService;
     private final MEOCloudService meoCloudService;

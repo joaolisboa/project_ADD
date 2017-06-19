@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.categories;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
@@ -65,7 +66,7 @@ public class CategoriesContract {
 
         void showItemEditedMessage();
 
-        void enableListSwipe(boolean b);
+        void enableListSwipe(boolean enable);
 
         void showSearchItems(List<Item> matchingItems);
 
@@ -88,8 +89,6 @@ public class CategoriesContract {
 
         void refreshData();
 
-        void forceRefreshData();
-
         void onItemClicked(Item clickedItem);
 
         void deleteItem(Item deletedIttem);
@@ -111,6 +110,8 @@ public class CategoriesContract {
         String getIntentAction();
 
         Criteria getSelectedCriteria();
+
+        void setPhotoUri(Uri photoUri);
 
         Bundle saveInstanceState();
 

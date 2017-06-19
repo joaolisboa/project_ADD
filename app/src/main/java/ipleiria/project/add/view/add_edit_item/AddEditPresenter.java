@@ -78,20 +78,15 @@ public class AddEditPresenter implements AddEditContract.Presenter {
     }
 
     private void readCategories() {
-        new RefreshTask().execute();
-    }
-
-    private void readItems() {
-        itemsRepository.getItems(false, new FilesRepository.Callback<List<Item>>() {
+        categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
             @Override
-            public void onComplete(List<Item> result) {
-                FileUtils.readExcel();
-                addEditView.createTreeView(categoryRepository.getDimensions());
+            public void onComplete(List<Dimension> result) {
+                refreshItems();
             }
 
             @Override
             public void onError(Exception e) {
-
+                addEditView.hideProgressDialog();
             }
         });
     }
@@ -156,7 +151,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
                 case CRITERIA_SELECTED:
                     String reference = intent.getStringExtra(CRITERIA_SELECTED);
-                    selectedCriteria = categoryRepository.getCriteria(reference);
+                    selectedCriteria = categoryRepository.getCriteriaFromReference(reference);
                     addEditView.setSelectedCriteria(selectedCriteria);
             }
         }
@@ -251,24 +246,6 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
     public String getIntentAction(){
         return intentAction;
-    }
-
-    private class RefreshTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
-                @Override
-                public void onComplete(List<Dimension> result) {
-                    refreshItems();
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    addEditView.hideProgressDialog();
-                }
-            });
-            return null;
-        }
     }
 
 }

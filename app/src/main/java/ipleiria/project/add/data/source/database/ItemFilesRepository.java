@@ -83,7 +83,7 @@ public class ItemFilesRepository implements ItemFilesDataSource {
         } else {
             // if item in the 'opposite' list is missing create it
             item.addDeletedFile(file);
-            itemsRepository.addItem(item, true);
+            itemsRepository.addItem(item, null, true);
         }
 
         itemsRepository.saveDeletedItemToDatabase(item);
@@ -141,7 +141,7 @@ public class ItemFilesRepository implements ItemFilesDataSource {
         } else {
             // if item in the 'opposite' list is missing create it
             item.addFile(file);
-            itemsRepository.addItem(item, false);
+            itemsRepository.addItem(item, null, false);
         }
 
         itemsRepository.saveItemToDatabase(item);

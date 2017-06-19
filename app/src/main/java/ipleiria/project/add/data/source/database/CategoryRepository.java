@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.data.model.Area;
+import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.source.FilesRepository;
@@ -55,20 +56,6 @@ public class CategoryRepository implements CategoryDataSource {
 
     public static void destroyInstance() {
         INSTANCE = null;
-    }
-
-    public void readCriteria() {
-        databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                addDimensions(dataSnapshot);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, databaseError.getMessage(), databaseError.toException());
-            }
-        });
     }
 
     public void readData(final FilesRepository.Callback<List<Dimension>> callback){
@@ -140,11 +127,38 @@ public class CategoryRepository implements CategoryDataSource {
         return dimensions.get(dimension).getArea(area).getCriteria(criteria);
     }
 
+    public Dimension getDimension(String key){
+        for(Dimension dimension: dimensions){
+            if(dimension.getDbKey().equals(key)){
+                return dimension;
+            }
+        }
+        return null;
+    }
+
+    public Area getArea(String key){
+        for(Area area: areas){
+            if(area.getDbKey().equals(key)){
+                return area;
+            }
+        }
+        return null;
+    }
+
+    public Criteria getCriteria(String key){
+        for(Criteria criteria: criterias){
+            if(criteria.getDbKey().equals(key)){
+                return criteria;
+            }
+        }
+        return null;
+    }
+
     public List<Criteria> getCriterias() {
         return criterias;
     }
 
-    public Criteria getCriteria(String reference){
+    public Criteria getCriteriaFromReference(String reference){
         String[] s = reference.split("\\.");
         int dimension = Integer.valueOf(s[0]) - 1;
         int area = Integer.valueOf(s[1]) - 1;

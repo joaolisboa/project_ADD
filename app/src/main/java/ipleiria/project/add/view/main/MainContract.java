@@ -20,7 +20,6 @@ import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.model.User;
-import ipleiria.project.add.view.items.ItemsContract;
 
 /**
  * Created by Lisboa on 05-May-17.
@@ -38,15 +37,11 @@ public class MainContract {
 
         void showPendingFiles(List<PendingFile> pendingFiles);
 
-        void addPendingFiles(List<PendingFile> pendingFiles);
-
         void addPendingFile(PendingFile file);
 
         void removePendingFile(PendingFile file);
 
         void showItemAdded(String itemKey);
-
-        void requestThumbnail(PendingFile file);
 
         void setFileThumbnail(PendingFile file, File thumbnail);
 

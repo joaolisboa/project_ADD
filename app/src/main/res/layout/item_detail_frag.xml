@@ -15,8 +15,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/text_helper"
+        <LinearLayout android:id="@+id/text_helper"
             android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,6 +34,15 @@
             <View style="@style/Divider" />
         </LinearLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:layout_marginTop="12dp"
+            android:text="Tags"
+            android:textSize="14sp"
+            android:textColor="@color/primary"/>
+
         <com.pchmn.materialchips.ChipsInput
             android:id="@+id/chips_input"
             android:layout_width="match_parent"
@@ -48,43 +56,73 @@
             android:imeOptions="actionDone"
             app:hint="Add tags" />
 
-        <TextView
-            android:id="@+id/info_label_subheader"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:gravity="center"
-            android:paddingStart="72dp"
-            android:text="Info"
-            android:textSize="18sp" />
+        <View style="@style/Divider" />
 
         <TextView
-            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            android:text="Description"
+            android:textSize="14sp"
+            android:textColor="@color/primary"/>
+
+        <TextView android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
+            android:textColor="@color/primary_text"
             android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/weight"
+        <View style="@style/Divider" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="72dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:textSize="18sp"/>
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Weight"
+                android:textSize="14sp"
+                android:textColor="@color/primary"/>
+
+            <TextView
+                android:id="@+id/weight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="12dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="8dp"
+                android:text="1"
+                android:textColor="@color/primary_text"
+                android:paddingBottom="8dp"
+                android:textSize="20sp"/>
+
+        </LinearLayout>
+
+        <View style="@style/Divider" />
 
         <TextView
             android:id="@+id/file_label_subheader"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:gravity="center"
-            android:paddingStart="72dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="16dp"
             android:text="Files"
-            android:textSize="18sp" />
+            android:textSize="14sp"
+            android:textColor="@color/primary"/>
 
         <ListView
             android:id="@+id/file_list"

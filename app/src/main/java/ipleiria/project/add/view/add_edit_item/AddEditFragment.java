@@ -43,7 +43,6 @@ import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.view.categories.CategoryAdapter;
-import ipleiria.project.add.view.items.ItemsActivity;
 
 import static android.content.Context.SEARCH_SERVICE;
 import static ipleiria.project.add.view.categories.CategoriesPresenter.OPEN_ITEM_ADDED;

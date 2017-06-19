@@ -43,18 +43,18 @@ import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
+import static ipleiria.project.add.view.categories.CategoriesFragment.REQUEST_ADD_NEW_ITEM;
 import static ipleiria.project.add.view.google_sign_in.GoogleSignInPresenter.SCOPES;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
 
 /**
  * Created by Lisboa on 05-May-17.
  */
 
-class MainPresenter implements MainContract.Presenter {
+public class MainPresenter implements MainContract.Presenter {
 
     private static final String TAG = "MAIN_PRESENTER";
 
-    static final int REQUEST_TAKE_PHOTO = 2002;
+    public static final int REQUEST_TAKE_PHOTO = 2002;
 
     private final UserService userService;
     private final MainContract.View mainView;
@@ -72,7 +72,7 @@ class MainPresenter implements MainContract.Presenter {
     // ensure we want to sign to avoid consequent calls to authStateListener
     private boolean authFlag = false;
 
-    MainPresenter( UserService userService, MainContract.View mainView, DrawerView drawerView) {
+    MainPresenter(UserService userService, MainContract.View mainView, DrawerView drawerView) {
         this.userService = userService;
         this.mainView = mainView;
         this.mainView.setPresenter(this);
@@ -138,7 +138,7 @@ class MainPresenter implements MainContract.Presenter {
                     // user signed in successfully
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     authFlag = true;
-                    UserService.getInstance().initUser(user, new Callbacks.BaseCallback<User>() {
+                    userService.initUser(user, new Callbacks.BaseCallback<User>() {
                         @Override
                         public void onComplete(User user) {
                             drawerView.setUserInfo(UserService.getInstance().getUser());
@@ -168,7 +168,7 @@ class MainPresenter implements MainContract.Presenter {
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     Log.d(AUTH_TAG, "onAuthStateChanged:signed_in_anonymously:" + user.getUid());
                     authFlag = true;
-                    UserService.getInstance().initUser(user, new Callbacks.BaseCallback<User>() {
+                    userService.initUser(user, new Callbacks.BaseCallback<User>() {
                         @Override
                         public void onComplete(User user) {
                             drawerView.setUserInfo(user);
@@ -215,6 +215,11 @@ class MainPresenter implements MainContract.Presenter {
                 @Override
                 public void onComplete(List<PendingFile> result) {
                     addFiles(result);
+                }
+
+                @Override
+                public void onEmailAdded(PendingFile pendingEmail) {
+                    addFile(pendingEmail);
                 }
             }).execute();
         }
@@ -344,6 +349,11 @@ class MainPresenter implements MainContract.Presenter {
             @Override
             public void onComplete(List<PendingFile> result) {
                 addFiles(result);
+            }
+
+            @Override
+            public void onEmailAdded(PendingFile pendingEmail) {
+                addFile(pendingEmail);
             }
         }).execute();
     }

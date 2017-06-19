@@ -1,6 +1,7 @@
 package ipleiria.project.add.view.setup;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,6 +22,7 @@ import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.UserService;
+import ipleiria.project.add.view.main.MainActivity;
 
 import static ipleiria.project.add.data.source.UserService.USER_DATA_KEY;
 
@@ -112,6 +114,7 @@ public class SetupFragment extends Fragment {
                 UserService.getInstance().setUser(user);
                 UserService.getInstance().saveUserInfo();
                 sharedPreferences.edit().putBoolean("my_first_time", false).apply();
+                startActivity(new Intent(getContext(), MainActivity.class));
                 getActivity().finish();
             }
         });

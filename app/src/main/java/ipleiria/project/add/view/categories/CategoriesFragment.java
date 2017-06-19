@@ -7,19 +7,26 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,6 +44,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -47,17 +57,18 @@ import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
+import ipleiria.project.add.view.ItemAdapter;
+import ipleiria.project.add.view.ScrollChildSwipeRefreshLayout;
 import ipleiria.project.add.view.add_edit_item.AddEditActivity;
 import ipleiria.project.add.view.itemdetail.ItemDetailActivity;
-import ipleiria.project.add.view.items.ItemAdapter;
-import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
 
 import static ipleiria.project.add.R.id.area;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.CRITERIA_SELECTED;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM_KEY;
+import static ipleiria.project.add.view.categories.CategoriesPresenter.LIST_DELETED_KEY;
 import static ipleiria.project.add.view.itemdetail.ItemDetailPresenter.ITEM_KEY;
-import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
+import static ipleiria.project.add.view.main.MainPresenter.REQUEST_TAKE_PHOTO;
 
 /**
  * Created by Lisboa on 30-May-17.
@@ -76,7 +87,6 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     // on resume will show an item edited message
     public static  final int REQUEST_ITEM_EDIT = 2092;
 
-    private ProgressDialog progressDialog;
     private ScrollChildSwipeRefreshLayout swipeRefreshLayout;
 
     // views with details about the category
@@ -84,6 +94,11 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     private LinearLayout areaView;
     private LinearLayout criteriaView;
     private LinearLayout noItemsView;
+
+    private FloatingActionButton fabPhoto;
+    private FloatingActionButton fabAdd;
+    private FloatingActionButton fabMenu;
+    private boolean fabShow = false;
 
     private CategoryAdapter categoriesAdapter;
     private ListView categoryListView;
@@ -147,16 +162,33 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                categoriesPresenter.forceRefreshData();
+                categoriesPresenter.refreshData();
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
-        fab.setImageResource(R.drawable.add_white);
-        fab.setOnClickListener(new View.OnClickListener() {
+        // Set up floating action buttons
+        fabPhoto = (FloatingActionButton) getActivity().findViewById(R.id.fab_photo);
+        fabPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                takePicture();
+            }
+        });
+
+        fabAdd = (FloatingActionButton) getActivity().findViewById(R.id.fab_add);
+        fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addItem();
+            }
+        });
+
+        fabMenu = (FloatingActionButton) getActivity().findViewById(R.id.fab_menu);
+        fabMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fabShow = !fabShow;
+                toggleFabMenu();
             }
         });
 
@@ -233,6 +265,8 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     public void onResume() {
         super.onResume();
         categoriesPresenter.subscribe();
+        fabShow = false;
+        toggleFabMenu();
     }
 
     @Override
@@ -244,6 +278,18 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         categoriesPresenter.onResult(requestCode, resultCode, data);
+    }
+
+    private void toggleFabMenu(){
+        if(!fabShow){
+            fabPhoto.hide();
+            fabAdd.hide();
+            fabMenu.setImageResource(R.drawable.vertical_menu);
+        }else {
+            fabPhoto.show();
+            fabAdd.show();
+            fabMenu.setImageResource(R.drawable.close_white);
+        }
     }
 
     @Override
@@ -280,12 +326,58 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
                 }
             }
         });
-
     }
 
     @Override
     public void setTitle(String title) {
         ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(title);
+    }
+
+    public void takePicture() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (Exception ex) {
+                Log.e(TAG, ex.getMessage(), ex);
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(getContext(),
+                        "ipleiria.project.add.store",
+                        photoFile);
+                categoriesPresenter.setPhotoUri(photoURI);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
+                // give permission to camera to read/write to URI - required for Android 4.4
+                List<ResolveInfo> resolvedIntentActivities = getContext().getPackageManager().
+                        queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolvedIntentInfo : resolvedIntentActivities) {
+                    String packageName = resolvedIntentInfo.activityInfo.packageName;
+                    getContext().grantUriPermission(packageName, photoURI,
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+        }
+    }
+
+    private File createImageFile() throws Exception {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date());
+        String imageFileName = timeStamp + "_";
+        File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        return image;
     }
 
     @Override
@@ -428,8 +520,8 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     @Override
-    public void enableListSwipe(boolean b) {
-        itemsAdapter.enableSwipe(true);
+    public void enableListSwipe(boolean enable) {
+        itemsAdapter.enableSwipe(enable);
         getActivity().setResult(Activity.RESULT_OK);
     }
 

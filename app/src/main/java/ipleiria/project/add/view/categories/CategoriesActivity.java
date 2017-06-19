@@ -49,7 +49,8 @@ import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.view.main.MainActivity;
 import ipleiria.project.add.view.settings.SettingsActivity;
 
-import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
+import static ipleiria.project.add.view.categories.CategoriesPresenter.LIST_DELETED_KEY;
+
 
 /**
  * Created by Lisboa on 30-May-17.
@@ -123,7 +124,7 @@ public class CategoriesActivity extends AppCompatActivity implements NavigationV
                 break;
 
             case R.id.nav_categories:
-                if(categoriesPresenter.getListingDeleted()){
+                if(categoriesPresenter.isListingDeleted()){
                     Intent intent = new Intent(this, CategoriesActivity.class);
                     startActivity(intent);
                 }
@@ -134,7 +135,7 @@ public class CategoriesActivity extends AppCompatActivity implements NavigationV
                 break;
 
             case R.id.nav_trash:
-                if(!categoriesPresenter.getListingDeleted()){
+                if(!categoriesPresenter.isListingDeleted()){
                     Intent intent = new Intent(this, CategoriesActivity.class);
                     intent.putExtra(LIST_DELETED_KEY, true);
                     startActivity(intent);

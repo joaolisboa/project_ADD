@@ -1,4 +1,4 @@
-package ipleiria.project.add.view.items;
+package ipleiria.project.add.view;
 
 import android.content.Context;
 import android.support.v4.view.ViewCompat;

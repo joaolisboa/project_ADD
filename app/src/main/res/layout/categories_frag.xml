@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ipleiria.project.add.view.ScrollChildSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".view.categories.CategoriesActivity"
     android:id="@+id/refresh_layout"
@@ -78,4 +78,4 @@
 
     </RelativeLayout>
 
-</ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout>
+</ipleiria.project.add.view.ScrollChildSwipeRefreshLayout>

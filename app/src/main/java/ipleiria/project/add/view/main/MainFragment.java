@@ -41,15 +41,15 @@ import ipleiria.project.add.*;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.utils.UriHelper;
+import ipleiria.project.add.view.ScrollChildSwipeRefreshLayout;
 import ipleiria.project.add.view.add_edit_item.AddEditActivity;
 import ipleiria.project.add.view.categories.CategoriesActivity;
-import ipleiria.project.add.view.items.ScrollChildSwipeRefreshLayout;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PENDING_FILES;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
+import static ipleiria.project.add.view.categories.CategoriesFragment.REQUEST_ADD_NEW_ITEM;
 import static ipleiria.project.add.view.categories.CategoriesPresenter.OPEN_ITEM_ADDED;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ADD_NEW_ITEM;
 import static ipleiria.project.add.view.main.MainActivity.TAG;
 import static ipleiria.project.add.view.main.MainPresenter.REQUEST_TAKE_PHOTO;
 
@@ -96,7 +96,7 @@ public class MainFragment extends Fragment implements MainContract.View,
         pendingListView = (ListView) root.findViewById(R.id.pending_list);
         pendingListView.setAdapter(listAdapter);
 
-        // Set up floating action button
+        // Set up floating action buttons
         fabPhoto = (FloatingActionButton) getActivity().findViewById(R.id.fab_photo);
         fabPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -255,11 +255,6 @@ public class MainFragment extends Fragment implements MainContract.View,
     }
 
     @Override
-    public void requestThumbnail(PendingFile file) {
-        presenter.createThumbnail(file);
-    }
-
-    @Override
     public void setFileThumbnail(PendingFile file, File thumbnail) {
         listAdapter.setThumbnail(file, thumbnail);
     }
@@ -388,13 +383,6 @@ public class MainFragment extends Fragment implements MainContract.View,
     @Override
     public void removePendingFile(PendingFile file) {
         listAdapter.onFileRemoved(file);
-    }
-
-    @Override
-    public void addPendingFiles(List<PendingFile> pendingFiles) {
-        for(PendingFile file: pendingFiles) {
-            addPendingFile(file);
-        }
     }
 
     @Override

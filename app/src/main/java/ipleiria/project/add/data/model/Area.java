@@ -78,6 +78,15 @@ public class Area extends Category{
         return criterias.get(index);
     }
 
+    public Criteria getCriteria(String key){
+        for(Criteria criteria: criterias){
+            if(criteria.getDbKey().equals(key)){
+                return criteria;
+            }
+        }
+        return null;
+    }
+
     public Dimension getDimension() {
         return dimension;
     }

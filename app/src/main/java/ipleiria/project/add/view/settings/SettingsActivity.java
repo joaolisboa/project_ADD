@@ -48,7 +48,7 @@ import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.view.categories.CategoriesActivity;
 import ipleiria.project.add.view.main.MainActivity;
 
-import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
+import static ipleiria.project.add.view.categories.CategoriesPresenter.LIST_DELETED_KEY;
 
 /**
  * Created by Lisboa on 06-May-17.

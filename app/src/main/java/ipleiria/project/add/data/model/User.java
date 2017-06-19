@@ -75,6 +75,15 @@ public class User {
         return evaluationPeriods;
     }
 
+    public EvaluationPeriod getEvaluationPeriod(String dbKey){
+        for(EvaluationPeriod period: evaluationPeriods){
+            if(period.getDbKey().equals(dbKey)){
+                return period;
+            }
+        }
+        return null;
+    }
+
     public void addEvaluationPeriod(EvaluationPeriod period){
         if(!evaluationPeriods.contains(period)) {
             evaluationPeriods.add(period);

@@ -33,6 +33,9 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:ems="10"
+                android:maxLines="1"
+                android:inputType="textPersonName"
+                android:imeOptions="actionDone"
                 android:focusable="true"
                 android:hint="Name"
                 android:textColor="@color/primary_text" />

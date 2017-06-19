@@ -71,6 +71,15 @@ public class Dimension extends Category{
         return areas.get(index);
     }
 
+    public Area getArea(String key){
+        for(Area area: areas){
+            if(area.getDbKey().equals(key)){
+                return area;
+            }
+        }
+        return null;
+    }
+
     @Override
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();

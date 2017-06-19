@@ -39,8 +39,8 @@ import ipleiria.project.add.view.add_edit_item.AddEditActivity;
 
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM_KEY;
-import static ipleiria.project.add.view.items.ItemsFragment.REQUEST_ITEM_EDIT;
-import static ipleiria.project.add.view.items.ItemsPresenter.LIST_DELETED_KEY;
+import static ipleiria.project.add.view.categories.CategoriesFragment.REQUEST_ITEM_EDIT;
+import static ipleiria.project.add.view.categories.CategoriesPresenter.LIST_DELETED_KEY;
 
 /**
  * Created by Lisboa on 10-May-17.
@@ -245,7 +245,7 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     @Override
     public void showItemInfo(Item item) {
         descriptionTextView.setText(item.getDescription());
-        weightTextView.setText("Weight: " + item.getWeight());
+        weightTextView.setText(String.valueOf(item.getWeight()));
         ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(item.getDescription());
     }
 

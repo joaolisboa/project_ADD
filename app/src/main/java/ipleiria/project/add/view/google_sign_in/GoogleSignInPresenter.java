@@ -41,7 +41,6 @@ import ipleiria.project.add.Application;
 import ipleiria.project.add.Manifest;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.data.source.UserService;
-import ipleiria.project.add.view.items.ItemsActivity;
 
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 import static ipleiria.project.add.view.google_sign_in.GoogleSignInFragment.RC_SIGN_IN;

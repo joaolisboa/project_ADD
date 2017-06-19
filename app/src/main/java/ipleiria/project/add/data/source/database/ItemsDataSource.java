@@ -34,9 +34,9 @@ public interface ItemsDataSource {
 
     Item getDeletedItem(@NonNull String dbKey);
 
-    void addNewItem(@NonNull DataSnapshot itemSnapshot, boolean listDeleted);
+    void addNewItem(@NonNull DataSnapshot itemSnapshot, String periodDbKey, boolean listDeleted);
 
-    void addItem(Item item, boolean flag);
+    void addItem(Item item, String periodDbKey, boolean flag);
 
     void saveItem(@NonNull Item item, boolean flag);
 

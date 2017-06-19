@@ -151,7 +151,6 @@ public class FileUtils {
             writer.append("Regime de contratação:  \n");
             writer.append("Período em avaliação: " + yearStart +" a " +yearEnd +"\n");
 
-
             for (Dimension dimension : CategoryRepository.getInstance().getDimensions()) {
                 if(dimension.getNumberOfItems() > 0) {
                     writer.append(dimension.getReference() + ". " + dimension.getName() + "\n");
@@ -184,84 +183,6 @@ public class FileUtils {
         }
     }
 
-    public static void readExcel(Criteria criteria) {
-        try {
-            File file = getExcelFile();
-            InputStream inputStream = new FileInputStream(file);
-            XSSFWorkbook wb = new XSSFWorkbook(inputStream);
-            wb.setForceFormulaRecalculation(true);
-            XSSFFormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
-            XSSFSheet sheet = wb.getSheetAt(0);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy");
-            int yearStart = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate()));
-            int yearEnd = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate()));
-            int duration = 0;
-            if( yearEnd - yearStart * 12 > 0) {
-                duration = yearEnd - yearStart * 12;
-            }else{
-                duration = 12;
-            }
-            sheet.getRow(2).getCell(7).setCellValue(duration);
-            Log.d("WRITE EXCEL", "user: " + UserService.getInstance().getUser().getName());
-            sheet.getRow(1).getCell(2).setCellValue(UserService.getInstance().getUser().getName());
-            Log.d("WRITE EXCEL", "depart " + UserService.getInstance().getUser().getDepartment());
-            sheet.getRow(2).getCell(2).setCellValue(UserService.getInstance().getUser().getDepartment());
-            String startDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate());
-            String endDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate());
-            sheet.getRow(2).getCell(10).setCellValue(startDate);
-            sheet.getRow(2).getCell(13).setCellValue(endDate);
-
-            if (criteria.getRealReference().startsWith("1.1")) {
-                System.out.println("special case criteria");
-                int points = 0;
-                // the first four criterias in the excel file where the evaluation is made
-                // are a special case where four criterias count towards the same point value
-                // so in this case we can't perform an update on a single criteria but instead
-                // on all these four
-                for (Criteria specialCriteria : criteria.getArea().getCriterias()) {
-                    points += specialCriteria.getWeights();
-                    if (points >= 10) {
-                        points = 10;
-                    }
-                    sheet.getRow(specialCriteria.getWriteCell().y)
-                            .getCell(specialCriteria.getWriteCell().x)
-                            .setCellValue(points);
-                }
-                try (FileOutputStream stream = new FileOutputStream(file)) {
-                    wb.write(stream);
-                }
-                evaluator.evaluateFormulaCell(sheet.getRow(criteria.getReadCell().y)
-                        .getCell(criteria.getReadCell().x));
-                for (Criteria specialCriteria : criteria.getArea().getCriterias()) {
-                    double value = sheet.getRow(specialCriteria.getReadCell().y)
-                            .getCell(specialCriteria.getReadCell().x)
-                            .getNumericCellValue();
-                    specialCriteria.setFinalPoints(value);
-                }
-            } else {
-                sheet.getRow(criteria.getWriteCell().y)
-                        .getCell(criteria.getWriteCell().x)
-                        .setCellValue(criteria.getWeights());
-
-                try (FileOutputStream stream = new FileOutputStream(file)) {
-                    wb.write(stream);
-                }
-                evaluator.evaluateFormulaCell(sheet.getRow(criteria.getReadCell().y)
-                        .getCell(criteria.getReadCell().x));
-
-                double value = sheet.getRow(criteria.getReadCell().y)
-                        .getCell(criteria.getReadCell().x)
-                        .getNumericCellValue();
-                criteria.setFinalPoints(value);
-            }
-
-            inputStream.close();
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     public static void readExcel() {
         // part of poi-shadow - newer version incompatible with API 19(4.4)
         //System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory", "com.fasterxml.aalto.stax.InputFactoryImpl");
@@ -286,9 +207,7 @@ public class FileUtils {
                 duration = 12;
             }
             sheet.getRow(2).getCell(7).setCellValue(duration);
-            Log.d("WRITE EXCEL", "user: " + UserService.getInstance().getUser().getName());
             sheet.getRow(1).getCell(2).setCellValue(UserService.getInstance().getUser().getName());
-            Log.d("WRITE EXCEL", "depart " + UserService.getInstance().getUser().getDepartment());
             sheet.getRow(2).getCell(2).setCellValue(UserService.getInstance().getUser().getDepartment());
             String startDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate());
             String endDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate());
