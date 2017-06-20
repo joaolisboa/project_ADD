@@ -86,15 +86,11 @@ public class UserService {
     }
 
     public void setUser(User user) {
-        EvaluationPeriod mostRecentStart = null;
-        for (EvaluationPeriod evaluationPeriod : user.getEvaluationPeriods()) {
-            if (mostRecentStart == null || evaluationPeriod.getStartDate()
-                    .compareTo(mostRecentStart.getStartDate()) > 0) {
-                mostRecentStart = evaluationPeriod;
-            }
-        }
-        ItemsRepository.getInstance().initCurrentPeriod(mostRecentStart);
-        this.user = user;
+        this.user.setName(user.getName());
+        this.user.setDepartment(user.getDepartment());
+        this.user.addEvaluationPeriods(user.getEvaluationPeriods());
+        saveUserInfo();
+        ItemsRepository.getInstance().initCurrentPeriod(user);
     }
 
     public void initUser(FirebaseUser firebaseUser, final Callbacks.BaseCallback<User> callback) {
@@ -117,28 +113,27 @@ public class UserService {
             }
         }
 
-        user.setEmail(firebaseUser.getEmail());
-        user.setAnonymous(firebaseUser.isAnonymous());
-        user.setPhotoUrl(profileUri);
+        this.user.setUid(firebaseUser.getUid());
+        this.user.setEmail(firebaseUser.getEmail());
+        this.user.setAnonymous(firebaseUser.isAnonymous());
+        this.user.setPhotoUrl(profileUri);
 
-        if (this.user != null) {
-            user.addEvaluationPeriods(this.user.getEvaluationPeriods());
-            user.setDepartment(this.user.getDepartment());
-            user.setName(this.user.getName());
-        }
-
-        this.user = user;
         this.userDatabaseReference = FirebaseDatabase.getInstance().getReference().child(USER_REF).child(user.getUid());
         this.userDatabaseReference.keepSynced(true);
 
         userDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                setAdditionalInfo(dataSnapshot);
+                User snapUser = getUserFromSnapshot(dataSnapshot);
+                getUser().setDepartment(snapUser.getDepartment());
+                getUser().setName(snapUser.getName());
+                getUser().addEvaluationPeriods(snapUser.getEvaluationPeriods());
+
+                ItemsRepository.getInstance().initCurrentPeriod(getUser());
+
                 if (callback != null) {
                     callback.onComplete(getUser());
                 }
-                saveUserInfo();
             }
 
             @Override
@@ -178,18 +173,74 @@ public class UserService {
 
             user.addEvaluationPeriod(evaluationPeriod);
         }
-        ItemsRepository.getInstance().initUser(getUser().getUid());
-        if (mostRecentStart == null && !user.getEvaluationPeriods().isEmpty()) {
-            mostRecentStart = user.getEvaluationPeriods().get(0);
+    }
+
+    private User getUserFromSnapshot(DataSnapshot snapshot){
+        User user = new User(snapshot.getKey());
+        user.setName((String) snapshot.child("name").getValue());
+        user.setDepartment((String) snapshot.child("department").getValue());
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        for (DataSnapshot periodsSnapshot : snapshot.child("evaluationPeriods").getChildren()) {
+            EvaluationPeriod evaluationPeriod = new EvaluationPeriod(periodsSnapshot.getKey());
+            try {
+                Date startDate = dateFormat.parse((String) periodsSnapshot.child("startDate").getValue());
+                evaluationPeriod.setStartDate(startDate);
+                evaluationPeriod.setEndDate(dateFormat.parse((String) periodsSnapshot.child("endDate").getValue()));
+            } catch (ParseException e) {
+                Log.e(TAG, "Error parsing date from firebase", e);
+            }
+            user.addEvaluationPeriod(evaluationPeriod);
         }
-        ItemsRepository.getInstance().initCurrentPeriod(mostRecentStart);
+
+        return user;
+    }
+
+    // initiate references, get data of logged in account and merge evaluation periods
+    public void moveUserInfoToNewUser(final FirebaseUser firebaseUser, final Callbacks.BaseCallback<Void> callback){
+        preferences.edit().putString(USER_UID_KEY, firebaseUser.getUid()).apply();
+
+        userDatabaseReference = FirebaseDatabase.getInstance().getReference().child(USER_REF).child(firebaseUser.getUid());
+        userDatabaseReference.keepSynced(true);
+
+        userDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User newUser = getUserFromSnapshot(dataSnapshot);
+                // merge data
+                newUser.setAnonymous(firebaseUser.isAnonymous());
+                newUser.setEmail(firebaseUser.getEmail());
+                Uri profileUri = null;
+                for (UserInfo userInfo : firebaseUser.getProviderData()) {
+                    if (profileUri == null && userInfo.getPhotoUrl() != null) {
+                        profileUri = userInfo.getPhotoUrl();
+                    }
+                }
+                newUser.setPhotoUrl(profileUri);
+
+                newUser.addEvaluationPeriods(user.getEvaluationPeriods());
+                // if moving to a new user(first login or downgrading to anynomous, the data needs to be set
+                if(newUser.getDepartment() == null || newUser.getDepartment().isEmpty()){
+                    newUser.setDepartment(user.getDepartment());
+                }
+                if(newUser.getName() == null || newUser.getName().isEmpty()){
+                    newUser.setName(user.getName());
+                }
+                user = newUser;
+                callback.onComplete(null);
+                saveUserInfo();
+                ItemsRepository.getInstance().initCurrentPeriod(user);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "Failed to read user info from firebase db", databaseError.toException());
+            }
+        });
     }
 
     @SuppressLint("SimpleDateFormat")
     public void saveUserInfo() {
-        userDatabaseReference.child("name").setValue(user.getName());
-        userDatabaseReference.child("department").setValue(user.getDepartment());
-
         DatabaseReference ref = userDatabaseReference.child("evaluationPeriods");
         Map<String, Object> periodsMap = new HashMap<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
@@ -205,6 +256,8 @@ public class UserService {
             period.put("endDate", dateFormat.format(evaluationPeriod.getEndDate()));
             periodsMap.put(evaluationPeriod.getDbKey(), period);
         }
+        userDatabaseReference.child("name").setValue(user.getName());
+        userDatabaseReference.child("department").setValue(user.getDepartment());
         userDatabaseReference.child("evaluationPeriods").setValue(periodsMap);
     }
 

@@ -179,8 +179,8 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
     }
 
     @Override
-    public void setAnonymousUserInfo() {
-        accountName.setText(R.string.anonymous_name);
+    public void setAnonymousUserInfo(User user) {
+        accountName.setText(user.getName());
         accountDescription.setText(getString(R.string.google_sign_in_helper));
         profileImageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.profile_placeholder));
     }

@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import ipleiria.project.add.Application;
+import ipleiria.project.add.Callbacks;
 import ipleiria.project.add.Manifest;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.data.source.UserService;
@@ -61,6 +62,9 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
     private GoogleApiClient googleApiClient;
     private FirebaseAuth firebaseAuth;
     private GoogleAccountCredential googleAccountCredential;
+
+    // ensure the user clicked a button so that user info and items are only transferred when the user intends to
+    private boolean authIntent = false;
 
     public GoogleSignInPresenter(@NonNull GoogleSignInContract.View signInView) {
         this.signInView = signInView;
@@ -130,8 +134,15 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if (user != null) {
                 Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                UserService.getInstance().initUser(user, null);
-                ItemsRepository.getInstance().moveItemsToNewUser();
+                ItemsRepository.getInstance().readAllItems();
+                if(authIntent) {
+                    UserService.getInstance().moveUserInfoToNewUser(user, new Callbacks.BaseCallback<Void>() {
+                        @Override
+                        public void onComplete(Void result) {
+                            ItemsRepository.getInstance().moveItemsToNewUser();
+                        }
+                    });
+                }
             }
         }
     };
@@ -152,11 +163,13 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
 
     @Override
     public void signIn() {
+        authIntent = true;
         signInView.signIn(googleApiClient);
     }
 
     @Override
     public void downgradeAccount() {
+        authIntent = true;
         if (firebaseAuth.getCurrentUser() != null) {
             firebaseAuth.signOut();
             firebaseAuth.signInAnonymously();

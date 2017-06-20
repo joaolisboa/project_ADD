@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (sharedPreferences.getBoolean("my_first_time", true)) {
             //the app is being launched for first time, start setup
             startActivity(new Intent(this, SetupActivity.class));
-            finish();
         }
 
         // Set up the toolbar.

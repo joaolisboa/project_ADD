@@ -23,6 +23,7 @@ import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.PendingFile;
+import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.utils.UriHelper;
@@ -85,9 +86,17 @@ public class ItemsRepository implements ItemsDataSource {
         this.deletedItemsReference.keepSynced(true);
     }
 
-    public void initCurrentPeriod(EvaluationPeriod evaluationPeriod){
-        if(currentPeriod == null){
-            setCurrentPeriod(evaluationPeriod);
+    public void initCurrentPeriod(User user){
+        EvaluationPeriod mostRecentStart = null;
+        for (EvaluationPeriod evaluationPeriod : user.getEvaluationPeriods()) {
+            if (mostRecentStart == null || evaluationPeriod.getStartDate()
+                    .compareTo(mostRecentStart.getStartDate()) > 0) {
+                mostRecentStart = evaluationPeriod;
+            }
+        }
+
+        if(currentPeriod == null && mostRecentStart != null){
+            setCurrentPeriod(mostRecentStart);
         }
     }
 
@@ -135,6 +144,43 @@ public class ItemsRepository implements ItemsDataSource {
         return itemsReference.child(currentPeriod.getDbKey());
     }
 
+    // simply read all items and store
+    public void readAllItems(){
+        itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot periodSnapshot: dataSnapshot.getChildren()){
+                    localItems.put(periodSnapshot.getKey(), new LinkedList<Item>());
+
+                    for (DataSnapshot itemSnapshot: periodSnapshot.getChildren()) {
+                        localItems.get(periodSnapshot.getKey()).add(transformItem(itemSnapshot, false));
+                    }
+                }
+                deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for(DataSnapshot periodSnapshot: dataSnapshot.getChildren()){
+                            localDeletedItems.put(periodSnapshot.getKey(), new LinkedList<Item>());
+
+                            for (DataSnapshot itemSnapshot: periodSnapshot.getChildren()) {
+                                localDeletedItems.get(periodSnapshot.getKey()).add(transformItem(itemSnapshot, true));
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    // read all items, store and send back
     @Override
     public void getItems(final boolean deleted, final FilesRepository.Callback<List<Item>> callback) {
         itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -147,7 +193,7 @@ public class ItemsRepository implements ItemsDataSource {
                         localItems.get(periodSnapshot.getKey()).add(transformItem(itemSnapshot, false));
                     }
                 }
-                getDeletedItemsReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for(DataSnapshot periodSnapshot: dataSnapshot.getChildren()){
@@ -183,6 +229,7 @@ public class ItemsRepository implements ItemsDataSource {
     @Override
     public void moveItemsToNewUser() {
         Log.d(TAG, "Moving files to new user: " + UserService.getInstance().getUser().getUid());
+        initUser(UserService.getInstance().getUser().getUid());
         for(Map.Entry<String, List<Item>> entry: localItems.entrySet()){
             for (Item item : entry.getValue()) {
                 saveItemToDatabase(entry.getKey(), item);
@@ -551,7 +598,7 @@ public class ItemsRepository implements ItemsDataSource {
 
         // when updating the item in db make sure it wasn't deleted otherwise
         // it'll create the item again after changes are made
-        if (localItems.get(currentPeriod.getDbKey()).contains(item)) {
+        if (localItems.get(periodDbKey).contains(item)) {
             Map<String, Object> values = new HashMap<>();
             if (item.getDbKey() == null || item.getDbKey().isEmpty()) {
                 itemRef = itemRef.push();

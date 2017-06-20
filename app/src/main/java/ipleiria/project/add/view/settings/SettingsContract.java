@@ -22,7 +22,7 @@ public class SettingsContract {
 
         void setUserInfo(User user);
 
-        void setAnonymousUserInfo();
+        void setAnonymousUserInfo(User user);
 
         void setMEOCloudStatus(boolean status);
 

@@ -86,9 +86,9 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     private void updateAccountInfo() {
         User user = userService.getUser();
         if (user.isAnonymous()) {
-            settingsView.setAnonymousUserInfo();
+            settingsView.setAnonymousUserInfo(user);
         } else {
-            settingsView.setUserInfo(userService.getUser());
+            settingsView.setUserInfo(user);
         }
     }
 
