@@ -2,14 +2,12 @@ package ipleiria.project.add.view.categories;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -133,7 +131,11 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             @Override
             public void onComplete(List<Item> result) {
                 if (result.isEmpty()) {
-                    // don't bother showing dimensions or anything else if there are no items
+                    // don't show dimensions or anything else if there are no items
+                    categoriesView.hideSelectedDimension();
+                    categoriesView.hideSelectedArea();
+                    categoriesView.hideSelectedCriteria();
+
                     if (!listingDeleted) {
                         categoriesView.showNoItems();
                     } else {
@@ -172,23 +174,20 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 break;
 
             case DIMENSION_FOCUS:
-                categoriesView.showSelectedDimension(categoryRepository.getDimension(selectedDimension));
                 returnToAreaView();
                 break;
 
             case AREA_FOCUS:
-                Dimension dimension = categoryRepository.getDimension(selectedDimension);
-                categoriesView.showSelectedDimension(dimension);
-                categoriesView.showSelectedArea(dimension.getArea(selectedArea));
                 returnToCriteriaView();
                 break;
 
             case CRITERIA_FOCUS:
                 Dimension dimension_ = categoryRepository.getDimension(selectedDimension);
-                categoriesView.showSelectedDimension(dimension_);
                 Area area = dimension_.getArea(selectedArea);
-                categoriesView.showSelectedArea(area);
                 Criteria criteria = area.getCriteria(selectedCriteria);
+
+                categoriesView.showSelectedDimension(dimension_);
+                categoriesView.showSelectedArea(area);
                 categoriesView.showSelectedCriteria(criteria);
                 processItemsList(criteria);
         }
@@ -198,7 +197,6 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         List<Item> items = (!listingDeleted ? criteria.getItems() : criteria.getDeletedItems());
         if (items.isEmpty()) {
             categoriesView.showNoItems();
-            currentFocus = ROOT_FOCUS;
         } else {
             categoriesView.showItemsList(items);
         }
@@ -380,8 +378,8 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         categoriesView.hideSelectedCriteria();
 
         Dimension dimension = categoryRepository.getDimension(selectedDimension);
-        categoriesView.showSelectedDimension(dimension);
         Area area = dimension.getArea(selectedArea);
+        categoriesView.showSelectedDimension(dimension);
         categoriesView.showSelectedArea(area);
         categoriesView.showCriterias(area.getCriterias());
         currentFocus = AREA_FOCUS;
@@ -448,6 +446,8 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         } else {
             categoriesView.setTitle(evaluationPeriod.toString());
         }
+        // go to root view when changing period
+        currentFocus = ROOT_FOCUS;
         refreshData();
     }
 
