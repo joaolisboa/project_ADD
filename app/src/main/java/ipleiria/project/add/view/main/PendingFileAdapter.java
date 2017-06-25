@@ -161,7 +161,7 @@ public class PendingFileAdapter extends BaseSwipeAdapter {
             @Override
             public void onClick(View v) {
                 actionsListener.onFileDelete((PendingFile) getItem(position));
-                closeItem(position);
+                closeAllItems();
             }
         });
     }

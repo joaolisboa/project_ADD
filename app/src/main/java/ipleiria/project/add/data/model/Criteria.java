@@ -120,6 +120,16 @@ public class Criteria extends Category{
         }
     }
 
+    public void addDeletedItem(Item item) {
+        if(!deletedItems.contains(item)) {
+            deletedItems.add(item);
+        }else{
+            int pos = deletedItems.indexOf(item);
+            deletedItems.remove(pos);
+            deletedItems.add(pos, item);
+        }
+    }
+
     public String getObservations() {
         return observations;
     }

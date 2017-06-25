@@ -37,8 +37,6 @@ public class MainContract {
 
         void showPendingFiles(List<PendingFile> pendingFiles);
 
-        void addPendingFile(PendingFile file);
-
         void removePendingFile(PendingFile file);
 
         void showItemAdded(String itemKey);
@@ -71,8 +69,6 @@ public class MainContract {
         void buildGoogleClient(FragmentActivity fragment,
                                GoogleApiClient.OnConnectionFailedListener onConnectionFailedListener,
                                String webClientID);
-
-        void createThumbnail(PendingFile file);
 
         void onFileClicked(final PendingFile file);
 

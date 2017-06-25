@@ -283,10 +283,7 @@ public class ItemsRepository implements ItemsDataSource {
 
         String reference = (String) itemSnapshot.child("reference").getValue();
         Criteria criteria = CategoryRepository.getInstance().getCriteriaFromReference(reference);
-        newItem.setCriteria(criteria);
-        if (deleted) {
-            criteria.deleteItem(newItem);
-        }
+        newItem.setCriteria(criteria, deleted);
 
         for (DataSnapshot tagSnapshot : itemSnapshot.child("tags").getChildren()) {
             newItem.addTag(tagSnapshot.getValue(String.class));
@@ -313,10 +310,7 @@ public class ItemsRepository implements ItemsDataSource {
 
         String reference = (String) itemSnapshot.child("reference").getValue();
         Criteria criteria = CategoryRepository.getInstance().getCriteriaFromReference(reference);
-        newItem.setCriteria(criteria);
-        if (deleted) {
-            criteria.deleteItem(newItem);
-        }
+        newItem.setCriteria(criteria, deleted);
 
         for (DataSnapshot tagSnapshot : itemSnapshot.child("tags").getChildren()) {
             newItem.addTag(tagSnapshot.getValue(String.class));
@@ -375,7 +369,7 @@ public class ItemsRepository implements ItemsDataSource {
             for (ItemFile file : item.getFiles()) {
                 filesRepository.moveFile(file, newCriteria);
             }
-            item.setCriteria(newCriteria);
+            item.setCriteria(newCriteria, false);
         }
         // we can only edit items in the non-deleted list so it should always be false
         saveItem(item, false);
@@ -388,7 +382,8 @@ public class ItemsRepository implements ItemsDataSource {
                 for (ItemFile file : deletedVersion.getDeletedFiles()) {
                     filesRepository.moveFile(file, newCriteria);
                 }
-                deletedVersion.setCriteria(newCriteria);
+                //edit deleted version
+                deletedVersion.setCriteria(newCriteria, true);
             }
             saveDeletedItemToDatabase(deletedVersion);
         }
@@ -485,11 +480,78 @@ public class ItemsRepository implements ItemsDataSource {
     @Override
     public void addFilesToItem(Item item, List<Uri> receivedFiles) {
         for (Uri uri : receivedFiles) {
-            ItemFile file = new ItemFile(UriHelper.getFileName(Application.getAppContext(), uri));
+            String filename = UriHelper.getFileName(Application.getAppContext(), uri);
+            ItemFile file = new ItemFile(filename);
+
+            // file doesn't have dbkey so it will compare by filename(see equals in ItemFile)
+            if(item.getFiles().contains(file)){
+                Log.d(TAG, "filename alread exists: " + filename);
+                file.setFilename(getRepeatedFilename(item, filename));
+                Log.d(TAG, "altered filename: " + file.getFilename());
+            }
             item.addFile(file);
             filesRepository.saveFile(file, uri);
         }
         saveItem(item, false);
+    }
+
+    // this will make files with the same filename use the parenthesis method like Windows
+    // where it'll add ([int]) to the end of the filename or increment if it exists
+    private String getRepeatedFilename(Item item, String filename){
+        String ext = filename.substring(filename.lastIndexOf(".")); // no need to cut '.'
+        String nameNoExt = filename.substring(0, filename.lastIndexOf("."));
+        if(nameNoExt.lastIndexOf("(") != -1 && nameNoExt.lastIndexOf(")") != -1){
+            // char '(' and ')' exists in the name
+            String valueInParenthesis =
+                    nameNoExt.substring(nameNoExt.lastIndexOf("(")+1, nameNoExt.lastIndexOf(")"));
+
+            // check if number in parenthesis is an integer to determine
+            if(isInteger(valueInParenthesis)){
+                String nameNoParenthesis = nameNoExt.substring(0, nameNoExt.lastIndexOf("("));
+                int copyNum = Integer.parseInt(valueInParenthesis) + 1;
+                nameNoExt = nameNoParenthesis + "(" + copyNum + ")";
+            }else {
+                // last block of parenthesis isn't a number
+                // - invalid filename to increment copy number so add the default
+                nameNoExt = nameNoExt.concat("(1)");
+            }
+        }else{
+            nameNoExt = nameNoExt.concat("(1)");
+        }
+
+        String newEditedFilename = nameNoExt + ext;
+        // confirm if new filename doesn't exist(in case it's being added again
+        // ie. _name_(1) exists, return _name_(2)
+        if(item.getFiles().contains(new ItemFile(newEditedFilename))){
+            newEditedFilename = getRepeatedFilename(item, newEditedFilename);
+        }
+
+        return newEditedFilename;
+    }
+
+    // check if string is integer - faster than Integer.parseInt, regex and numberformatexception
+    private boolean isInteger(String str) {
+        if (str == null) {
+            return false;
+        }
+        int length = str.length();
+        if (length == 0) {
+            return false;
+        }
+        int i = 0;
+        if (str.charAt(0) == '-') {
+            if (length == 1) {
+                return false;
+            }
+            i = 1;
+        }
+        for (; i < length; i++) {
+            char c = str.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void addPendingFilesToItem(Item item, List<PendingFile> receivedPendingFiles) {

@@ -125,7 +125,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
                 } else {
                     actionsListener.onRestoreItem((Item) getItem(position));
                 }
-                closeItem(position);
+                closeAllItems();
             }
         });
 
@@ -137,7 +137,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
                 } else {
                     actionsListener.onPermanentDeleteItem((Item) getItem(position));
                 }
-                closeItem(position);
+                closeAllItems();
             }
         });
     }

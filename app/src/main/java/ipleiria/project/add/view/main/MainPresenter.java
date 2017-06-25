@@ -227,16 +227,6 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public void createThumbnail(final PendingFile file) {
-        filesRepository.getPendingFileThumbnail(file.getFilename(), new FilesRepository.BaseCallback<File>() {
-            @Override
-            public void onComplete(File result) {
-                mainView.setFileThumbnail(file, result);
-            }
-        });
-    }
-
-    @Override
     public void onFileClicked(final PendingFile clickedFile) {
         if (clickedFile.getFilename().substring(clickedFile.getFilename().lastIndexOf(".") + 1).equals("eml")) {
             File email = new File(Application.getAppContext().getFilesDir(), clickedFile.getFilename());

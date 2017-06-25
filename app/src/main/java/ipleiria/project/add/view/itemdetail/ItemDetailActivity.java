@@ -57,7 +57,9 @@ public class ItemDetailActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.item_detail_menu, menu);
+        if(!getIntent().getBooleanExtra(LIST_DELETED_KEY, false)){
+            getMenuInflater().inflate(R.menu.item_detail_menu, menu);
+        }
         return true;
     }
 

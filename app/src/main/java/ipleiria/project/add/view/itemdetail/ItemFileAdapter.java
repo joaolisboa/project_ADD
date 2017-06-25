@@ -171,7 +171,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                 } else {
                     actionsListener.onRestoreFile((ItemFile) getItem(position));
                 }
-                closeItem(position);
+                closeAllItems();
             }
         });
 
@@ -183,7 +183,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
                 } else {
                     actionsListener.onPermanentDeleteFile((ItemFile) getItem(position));
                 }
-                closeItem(position);
+                closeAllItems();
             }
         });
     }

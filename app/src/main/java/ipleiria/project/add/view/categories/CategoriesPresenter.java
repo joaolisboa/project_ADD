@@ -414,7 +414,9 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         if (action == null) {
             categoriesView.openItemDetails(clickedItem, listingDeleted);
         } else {
-            if (action.equals(SENDING_PHOTO)) {
+            if (action.equals(SENDING_PHOTO)
+                    || action.equals(Intent.ACTION_SEND)
+                    || action.equals(Intent.ACTION_SEND_MULTIPLE)) {
                 itemsRepository.addFilesToItem(clickedItem, receivedFiles);
             } else if (action.equals(SENDING_PENDING_FILES)) {
                 itemsRepository.addPendingFilesToItem(clickedItem, receivedPendingFiles);
@@ -498,10 +500,6 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     @Override
     public void setPhotoUri(Uri photoUri) {
         this.photoUri = photoUri;
-    }
-
-    public boolean isListingDeleted(){
-        return listingDeleted;
     }
 
 }

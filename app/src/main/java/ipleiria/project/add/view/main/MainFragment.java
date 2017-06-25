@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -172,6 +173,8 @@ public class MainFragment extends Fragment implements MainContract.View,
     @Override
     public void onResume(){
         super.onResume();
+        NavigationView navigationView = (NavigationView) getActivity().findViewById(R.id.nav_view);
+        navigationView.setCheckedItem(R.id.nav_home);
         presenter.refreshPendingFiles();
         fabShow = false;
         toggleFabMenu();
@@ -373,11 +376,6 @@ public class MainFragment extends Fragment implements MainContract.View,
     @Override
     public void showPendingFiles(List<PendingFile> pendingFiles) {
         listAdapter.replaceData(pendingFiles);
-    }
-
-    @Override
-    public void addPendingFile(PendingFile file){
-        listAdapter.onFileAdded(file);
     }
 
     @Override

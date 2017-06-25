@@ -91,9 +91,13 @@ public class Item {
         return criteria;
     }
 
-    public void setCriteria(Criteria criteria){
+    public void setCriteria(Criteria criteria, boolean deleted){
         this.criteria = criteria;
-        criteria.addItem(this);
+        if(deleted){
+            criteria.addDeletedItem(this);
+        }else {
+            criteria.addItem(this);
+        }
     }
 
     public Dimension getDimension(){

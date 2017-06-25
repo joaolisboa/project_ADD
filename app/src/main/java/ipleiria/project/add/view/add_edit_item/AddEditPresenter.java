@@ -219,7 +219,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
                 case CRITERIA_SELECTED:
                 case SENDING_PENDING_FILES:
                     Item item = new Item(description);
-                    item.setCriteria(selectedCriteria);
+                    item.setCriteria(selectedCriteria, false);
                     item.setWeight(weight);
                     itemsRepository.saveItem(item, false);
                     itemsRepository.addFilesToItem(item, receivedFiles);
@@ -237,7 +237,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
         } else {
             // creating new item
             Item item = new Item(description);
-            item.setCriteria(selectedCriteria);
+            item.setCriteria(selectedCriteria, false);
             item.setWeight(weight);
             itemsRepository.saveItem(item, false);
             addEditView.finishAction(item);
