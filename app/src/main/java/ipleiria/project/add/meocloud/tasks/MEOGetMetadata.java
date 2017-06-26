@@ -34,6 +34,9 @@ public class MEOGetMetadata extends AsyncTask<String, Void, MEOCloudResponse<MEO
     @Override
     protected void onPostExecute(MEOCloudResponse<MEOMetadata> result) {
         super.onPostExecute(result);
+        if(result == null){
+            exception = new Exception("NULL RESPONSE - POSSIBLE TIMEOUT");
+        }
         if (exception != null) {
             callback.onError(exception);
         } else {

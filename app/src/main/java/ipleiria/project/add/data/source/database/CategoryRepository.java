@@ -1,6 +1,5 @@
 package ipleiria.project.add.data.source.database;
 
-import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
@@ -13,10 +12,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.data.model.Area;
-import ipleiria.project.add.data.model.Category;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.UserService;
 
 /**
  * Created by Lisboa on 06-May-17.
@@ -86,7 +86,19 @@ public class CategoryRepository implements CategoryDataSource {
     private void addDimension(DataSnapshot snapshot) {
         Dimension dimension = new Dimension(snapshot.child("name").getValue(String.class),
                 snapshot.child("reference").getValue(Integer.class));
+        dimension.setWeight(snapshot.child("defaultWeight").getValue(Integer.class));
+        dimension.setMinWeight(snapshot.child("minWeight").getValue(Integer.class));
+        dimension.setMaxWeight(snapshot.child("maxWeight").getValue(Integer.class));
         dimension.setDbKey(snapshot.getKey());
+
+        // if user has defined his own weights then override default weight value to user defined
+        User user = UserService.getInstance().getUser();
+        if(user.getDimensionWeightLimit(dimension.getDbKey()) == 0){
+            user.setDimensionWeightLimit(dimension.getDbKey(), dimension.getWeight());
+        }else{
+            dimension.setWeight(user.getDimensionWeightLimit(dimension.getDbKey()));
+        }
+
         for (DataSnapshot areaSnap : snapshot.child("areas").getChildren()) {
             Area area = new Area(areaSnap.child("name").getValue(String.class),
                     areaSnap.child("reference").getValue(Integer.class));

@@ -31,7 +31,7 @@
                 android:textColor="@color/primary_text"
                 android:text="@string/deleted_files_top_banner"/>
 
-            <View style="@style/Divider" />
+            <View style="@style/horizontal_divider" />
         </LinearLayout>
 
         <TextView
@@ -56,7 +56,7 @@
             android:imeOptions="actionDone"
             app:hint="Add tags" />
 
-        <View style="@style/Divider" />
+        <View style="@style/horizontal_divider" />
 
         <TextView
             android:layout_width="match_parent"
@@ -78,7 +78,7 @@
             android:textColor="@color/primary_text"
             android:textSize="16sp" />
 
-        <View style="@style/Divider" />
+        <View style="@style/horizontal_divider" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -111,7 +111,7 @@
 
         </LinearLayout>
 
-        <View style="@style/Divider" />
+        <View style="@style/horizontal_divider" />
 
         <TextView
             android:id="@+id/file_label_subheader"

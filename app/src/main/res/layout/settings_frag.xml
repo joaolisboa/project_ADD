@@ -66,7 +66,7 @@
     </LinearLayout>
 
     <View
-        style="@style/Divider" />
+        style="@style/horizontal_divider" />
 
     <LinearLayout
         android:id="@+id/dropbox"
@@ -100,7 +100,7 @@
     </LinearLayout>
 
     <View
-        style="@style/Divider" />
+        style="@style/horizontal_divider" />
 
     <LinearLayout
         android:id="@+id/meocloud"
@@ -135,7 +135,7 @@
     </LinearLayout>
 
     <View
-        style="@style/Divider" />
+        style="@style/horizontal_divider" />
 
     <TextView
         android:layout_width="match_parent"
@@ -147,6 +147,24 @@
         android:textSize="14sp"
         android:textColor="@color/primary"/>
 
+    <LinearLayout
+        android:id="@+id/dimension_limits"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:orientation="horizontal"
+        android:divider="@drawable/vertical_divider"
+        android:showDividers="middle"
+        android:onClick="onDropboxClick">
+
+        <!--
+        dimension weights are inserted programatically
+        with layout dimension_weight_limit_layout
+        -->
+
+    </LinearLayout>
+
+    <View
+        style="@style/horizontal_divider" />
 
 
 </LinearLayout>

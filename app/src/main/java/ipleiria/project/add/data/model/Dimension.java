@@ -10,6 +10,9 @@ import java.util.List;
 public class Dimension extends Category{
 
     private List<Area> areas;
+    private int weight;
+    private int minWeight;
+    private int maxWeight;
 
     public Dimension(){
 
@@ -18,6 +21,7 @@ public class Dimension extends Category{
     public Dimension(String name, int reference){
         super(name, reference);
         this.areas = new LinkedList<>();
+        this.weight = 0;
     }
 
     @Override
@@ -80,6 +84,26 @@ public class Dimension extends Category{
         return null;
     }
 
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    public int getMinWeight() {
+        return minWeight;
+    }
+
+    public void setMinWeight(int minWeight) {
+        this.minWeight = minWeight;
+    }
+
+    public int getMaxWeight() {
+        return maxWeight;
+    }
+
+    public void setMaxWeight(int maxWeight) {
+        this.maxWeight = maxWeight;
+    }
+
     @Override
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
@@ -90,4 +114,7 @@ public class Dimension extends Category{
         return stringBuilder.toString();
     }
 
+    public int getWeight() {
+        return weight;
+    }
 }

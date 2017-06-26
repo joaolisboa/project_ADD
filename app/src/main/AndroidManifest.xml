@@ -58,16 +58,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.items.ItemsActivity"
-            android:label="@string/share_activity_label"
-            android:parentActivityName=".view.main.MainActivity"
-            android:theme="@style/AppTheme.OverlapSystemBar"
-            android:windowSoftInputMode="stateHidden">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.main.MainActivity" />
-        </activity>
-        <activity
             android:name=".view.settings.SettingsActivity"
             android:label="@string/settings_activity_title"
             android:parentActivityName=".view.main.MainActivity"
@@ -79,12 +69,12 @@
         <activity
             android:name=".view.add_edit_item.AddEditActivity"
             android:label="Add Item"
-            android:parentActivityName=".view.items.ItemsActivity"
+            android:parentActivityName=".view.categories.CategoriesActivity"
             android:theme="@style/AppTheme.OverlapSystemBar"
             android:windowSoftInputMode="stateHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.items.ItemsActivity" />
+                android:value=".view.categories.CategoriesActivity" />
         </activity>
         <activity
             android:name=".view.google_sign_in.GoogleSignInActivity"
@@ -96,11 +86,11 @@
         </activity>
         <activity
             android:name=".view.itemdetail.ItemDetailActivity"
-            android:parentActivityName=".view.items.ItemsActivity"
+            android:parentActivityName=".view.categories.CategoriesActivity"
             android:windowSoftInputMode="stateHidden|adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.items.ItemsActivity" />
+                android:value=".view.categories.CategoriesActivity" />
         </activity>
         <activity
             android:name="com.dropbox.core.android.AuthActivity"

@@ -118,11 +118,13 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
 
             case R.id.export:
                 exportFiles();
-                break;
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return false; // don't select item
 
             case R.id.create_period:
                 createPeriod();
-                break;
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return false; // don't select item
 
         }
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -151,12 +153,8 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
         });
     }
 
-    public BaseDrawerActivity getBaseActivity(){
-        return this;
-    }
-
     private void exportFiles(){
-        final ProgressDialog progressDialog = new ProgressDialog(this);
+        final ProgressDialog progressDialog = new ProgressDialog(BaseDrawerActivity.this);
         progressDialog.show();
         progressDialog.setMessage("Creating files and exporting...");
         ItemsRepository.getInstance().getItems(false, new FilesRepository.Callback<List<Item>>() {
@@ -166,16 +164,18 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
                 Runnable runnable = new Runnable() {
                     public void run() {
                         FileUtils.readExcel();
-                        Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
-                        FilesRepository.getInstance().uploadFile(sheet, "export", "ficha_avaliacao.xlsx");
                         FileUtils.generateNote("relatorio.txt");
-                        Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
-                        FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
+
                         handler.post(new Runnable() {
                             public void run() {
+                                Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
+                                FilesRepository.getInstance().uploadFile(sheet, "export", "ficha_avaliacao.xlsx");
+                                Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
+                                FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
 
                                 progressDialog.dismiss();
-                                Snackbar.make(findViewById(R.id.contentFrame), "Exported files", Snackbar.LENGTH_SHORT);
+                                View rootView = getWindow().getDecorView().findViewById(R.id.activity_frame);
+                                Snackbar.make(drawerLayout.findViewById(R.id.activity_frame), "Exported files", Snackbar.LENGTH_SHORT);
                             }
                         });
 
@@ -188,7 +188,8 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
             public void onError(Exception e) {
                 Log.d(TAG, e.getMessage(), e);
                 progressDialog.dismiss();
-                Snackbar.make(findViewById(R.id.contentFrame), "Error while exporting", Snackbar.LENGTH_SHORT);
+                View rootView = getWindow().getDecorView().findViewById(R.id.activity_frame);
+                Snackbar.make(rootView, "Error while exporting", Snackbar.LENGTH_SHORT);
             }
         });
     }

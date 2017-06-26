@@ -1,22 +1,10 @@
 package ipleiria.project.add.utils;
 
-import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
-import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFHeader;
-import org.apache.poi.xwpf.usermodel.XWPFNum;
-import org.apache.poi.xwpf.usermodel.XWPFNumbering;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTNumFmt;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,87 +13,24 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Area;
-import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.User;
-import ipleiria.project.add.data.source.MEOCloudService;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
-import ipleiria.project.add.dropbox.DropboxClientFactory;
-import ipleiria.project.add.meocloud.data.MEOMetadata;
-import ipleiria.project.add.meocloud.exceptions.HttpErrorException;
-import ipleiria.project.add.meocloud.MEOCallback;
-import ipleiria.project.add.meocloud.MEOCloudClient;
-import ipleiria.project.add.meocloud.tasks.MEOCreateFolderTree;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
-import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.R;
-
-import static ipleiria.project.add.utils.PathUtils.TRASH_FOLDER;
 
 /**
  * Created by Lisboa on 26-Apr-17.
  */
 
 public class FileUtils {
-
-    private static final String TAG = "FILE_UTILS";
-
-    public static void copyFileToLocalDir(Context context, Uri src, Criteria criteria) {
-        String filename = UriHelper.getFileName(context, src);
-        String path = PathUtils.getLocalFilePath(context, filename, criteria);
-        File dir = new File(path.substring(0, path.lastIndexOf("/")));
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        File destFile = new File(path);
-        try {
-            InputStream is = context.getContentResolver().openInputStream(src);
-            FileOutputStream outStream = new FileOutputStream(destFile);
-
-            int nRead;
-            byte[] data = new byte[16384];
-
-            if (is != null) {
-                while ((nRead = is.read(data, 0, data.length)) != -1) {
-                    outStream.write(data, 0, nRead);
-                }
-            }
-            outStream.close();
-            is.close();
-        } catch (IOException e) {
-            Log.e("LOCAL_FILE_COPY_OFFLIME", e.getMessage(), e);
-        }
-    }
-
-    public static void deleteFile(String path) {
-        File file = new File(path);
-        if (file.exists()) {
-            boolean success = file.delete();
-            Log.d("FILE_ACTION", "file delete successful? " + success);
-        }
-    }
-
-    public static void renameFile(String from, String to) {
-        File src = new File(from);
-        if (src.exists()) {
-            File dir = new File(to.substring(0, to.lastIndexOf("/")));
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            File dest = new File(to);
-            boolean success = src.renameTo(dest);
-            Log.d("FILE_ACTION", "file rename successful: " + success);
-        }
-    }
 
     public static void generateNote(String sFileName) {
         try {
@@ -171,6 +96,7 @@ public class FileUtils {
             XSSFSheet sheet = wb.getSheetAt(0);
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy");
+
             int yearStart = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate()));
             int yearEnd = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate()));
             int duration = 0;
@@ -186,6 +112,26 @@ public class FileUtils {
             String endDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate());
             sheet.getRow(2).getCell(10).setCellValue(startDate);
             sheet.getRow(2).getCell(13).setCellValue(endDate);
+
+            List<Dimension> dimensions = CategoryRepository.getInstance().getDimensions();
+            User user = UserService.getInstance().getUser();
+            if (user.getDimensionWeightLimit(dimensions.get(0).getDbKey()) == 0) {
+                sheet.getRow(6).getCell(5).setCellValue(dimensions.get(0).getWeight());
+            } else {
+                sheet.getRow(6).getCell(5).setCellValue(user.getDimensionWeightLimit(dimensions.get(0).getDbKey()));
+            }
+
+            if (user.getDimensionWeightLimit(dimensions.get(1).getDbKey()) == 0) {
+                sheet.getRow(6).getCell(7).setCellValue(dimensions.get(1).getWeight());
+            } else {
+                sheet.getRow(6).getCell(7).setCellValue(user.getDimensionWeightLimit(dimensions.get(1).getDbKey()));
+            }
+
+            if (user.getDimensionWeightLimit(dimensions.get(2).getDbKey()) == 0) {
+                sheet.getRow(6).getCell(10).setCellValue(dimensions.get(2).getWeight());
+            } else {
+                sheet.getRow(6).getCell(10).setCellValue(user.getDimensionWeightLimit(dimensions.get(2).getDbKey()));
+            }
 
             int points = 0;
             // first 4 criteria have a special case with a 10 point limit

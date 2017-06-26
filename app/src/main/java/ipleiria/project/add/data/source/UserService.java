@@ -26,6 +26,7 @@ import java.util.Map;
 
 import ipleiria.project.add.Application;
 import ipleiria.project.add.Callbacks;
+import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.NetworkState;
@@ -128,6 +129,7 @@ public class UserService {
                 getUser().setDepartment(snapUser.getDepartment());
                 getUser().setName(snapUser.getName());
                 getUser().addEvaluationPeriods(snapUser.getEvaluationPeriods());
+                getUser().setDimensionWeightLimits(snapUser.getDimensionWeightLimits());
 
                 ItemsRepository.getInstance().initCurrentPeriod(getUser());
 
@@ -143,36 +145,6 @@ public class UserService {
         });
 
         preferences.edit().putString(USER_UID_KEY, firebaseUser.getUid()).apply();
-    }
-
-    @SuppressLint("SimpleDateFormat")
-    private void setAdditionalInfo(DataSnapshot snapshot) {
-        String name = (String) snapshot.child("name").getValue();
-        if(name != null && !name.isEmpty()){
-            user.setName((String) snapshot.child("name").getValue());
-        }
-        String department = (String) snapshot.child("department").getValue();
-        if(department != null && !department.isEmpty()){
-            user.setDepartment((String) snapshot.child("department").getValue());
-        }
-
-        EvaluationPeriod mostRecentStart = null;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        for (DataSnapshot periodsSnapshot : snapshot.child("evaluationPeriods").getChildren()) {
-            EvaluationPeriod evaluationPeriod = new EvaluationPeriod(periodsSnapshot.getKey());
-            try {
-                Date startDate = dateFormat.parse((String) periodsSnapshot.child("startDate").getValue());
-                evaluationPeriod.setStartDate(startDate);
-                evaluationPeriod.setEndDate(dateFormat.parse((String) periodsSnapshot.child("endDate").getValue()));
-                if (mostRecentStart == null || startDate.compareTo(mostRecentStart.getStartDate()) > 0) {
-                    mostRecentStart = evaluationPeriod;
-                }
-            } catch (ParseException e) {
-                Log.e(TAG, "Error parsing date from firebase", e);
-            }
-
-            user.addEvaluationPeriod(evaluationPeriod);
-        }
     }
 
     private User getUserFromSnapshot(DataSnapshot snapshot){
@@ -191,6 +163,10 @@ public class UserService {
                 Log.e(TAG, "Error parsing date from firebase", e);
             }
             user.addEvaluationPeriod(evaluationPeriod);
+        }
+
+        for(DataSnapshot weightsSnapshot: snapshot.child("dimensions_weights").getChildren()){
+            user.setDimensionWeightLimit(weightsSnapshot.getKey(), weightsSnapshot.getValue(Integer.class));
         }
 
         return user;
@@ -226,6 +202,8 @@ public class UserService {
                 if(newUser.getName() == null || newUser.getName().isEmpty()){
                     newUser.setName(user.getName());
                 }
+                newUser.setDimensionWeightLimits(user.getDimensionWeightLimits());
+
                 user = newUser;
                 callback.onComplete(null);
                 saveUserInfo();
@@ -259,6 +237,10 @@ public class UserService {
         userDatabaseReference.child("name").setValue(user.getName());
         userDatabaseReference.child("department").setValue(user.getDepartment());
         userDatabaseReference.child("evaluationPeriods").setValue(periodsMap);
+        //DatabaseReference dimensionWeightsRef = userDatabaseReference.child("dimensions_weights")
+        for(Map.Entry<String, Integer> weight: user.getDimensionWeightLimits().entrySet()){
+            userDatabaseReference.child("dimensions_weights").child(weight.getKey()).setValue(weight.getValue());
+        }
     }
 
     public static void destroyInstance() {

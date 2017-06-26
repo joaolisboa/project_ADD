@@ -1,7 +1,10 @@
 package ipleiria.project.add.view.settings;
 
+import java.util.List;
+
 import ipleiria.project.add.BasePresenter;
 import ipleiria.project.add.BaseView;
+import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.User;
 
 /**
@@ -27,6 +30,8 @@ public class SettingsContract {
         void setMEOCloudStatus(boolean status);
 
         void setDropboxStatus(boolean status);
+
+        void setDimensionViews(List<Dimension> dimensions, User user);
     }
 
     interface Presenter extends BasePresenter{
@@ -44,6 +49,10 @@ public class SettingsContract {
         void setLoginIntention(boolean loginIntent);
 
         void updateServicesStatus();
+
+        boolean isWeightValid(Dimension dimension, int weightInserted);
+
+        void setWeight(Dimension dimension, int weightInserted);
     }
 
 }

@@ -12,14 +12,20 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dropbox.core.android.Auth;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 import ipleiria.project.add.*;
+import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.meocloud.MEOCloudAPI;
 import ipleiria.project.add.utils.CircleTransformation;
 import ipleiria.project.add.utils.NetworkState;
@@ -37,6 +43,7 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
     private ImageView meocloudState;
     private ImageView dropboxState;
 
+    private LinearLayout dimensionWeightLimitsLayout;
     private ImageView profileImageView;
     private TextView accountName;
     private TextView accountDescription;
@@ -58,6 +65,8 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.settings_frag, container, false);
+
+        dimensionWeightLimitsLayout = (LinearLayout) root.findViewById(R.id.dimension_limits);
 
         profileImageView = (ImageView) root.findViewById(R.id.profile_pic);
         accountName = (TextView) root.findViewById(R.id.account_name);
@@ -204,6 +213,68 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
         }else{
             dropboxState.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.check_black));
         }
+    }
+
+    @Override
+    public void setDimensionViews(List<Dimension> dimensions, User user) {
+        for(final Dimension dimension: dimensions){
+            LinearLayout dimensionView =
+                    (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.dimension_weight_limit_layout, null);
+            dimensionWeightLimitsLayout.addView(dimensionView);
+
+            TextView name = (TextView) dimensionView.findViewById(R.id.name);
+            TextView weightLimit = (TextView) dimensionView.findViewById(R.id.weight_limit);
+
+            name.setText(dimension.getName());
+            weightLimit.setText(String.valueOf(dimension.getWeight()));
+
+            dimensionView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    createEditWeightDialog(dimension);
+                }
+            });
+
+        }
+    }
+
+    private void createEditWeightDialog(final Dimension dimension){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        // Inflate the custom dialog layout
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LinearLayout dialogView = (LinearLayout) inflater.inflate(R.layout.edit_dimension_weight_dialog, null);
+
+        final EditText weightInput = (EditText) dialogView.findViewById(R.id.weight_limit);
+        weightInput.setText(String.valueOf(dimension.getWeight()));
+        TextView dimensionName = (TextView) dialogView.findViewById(R.id.dimension_name);
+        dimensionName.setText(dimension.getName());
+
+        builder.setView(dialogView)
+                .setPositiveButton("Ok", null)
+                .setNegativeButton("Cancel", null);
+        AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int weightInserted = Integer.valueOf(weightInput.getText().toString());
+                        if(settingsPresenter.isWeightValid(dimension, weightInserted)){
+                            settingsPresenter.setWeight(dimension, weightInserted);
+                            dialog.dismiss();
+                        }else{
+                            weightInput.setError("Limit must be between " + dimension.getMinWeight()
+                                    + " and " + dimension.getMaxWeight());
+                        }
+                    }
+                });
+            }
+        });
+
+        dialog.show();
     }
 
     public void showNoNetworkHint() {

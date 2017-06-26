@@ -7,7 +7,12 @@ import com.dropbox.core.android.Auth;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.List;
+
 import ipleiria.project.add.DrawerView;
+import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.dropbox.DropboxCallback;
 import ipleiria.project.add.dropbox.DropboxClientFactory;
 import ipleiria.project.add.meocloud.MEOCallback;
@@ -18,7 +23,6 @@ import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.DropboxService;
 import ipleiria.project.add.data.source.MEOCloudService;
 import ipleiria.project.add.data.source.UserService;
-import ipleiria.project.add.utils.HttpStatus;
 
 import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
 
@@ -33,6 +37,8 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     private final UserService userService;
     private final DropboxService dropboxService;
     private final MEOCloudService meoCloudService;
+    private final CategoryRepository categoryRepository;
+
     private final SettingsContract.View settingsView;
     private final DrawerView drawerView;
 
@@ -46,10 +52,12 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     // this can be fixed with MEO but Dropbox would require change to their code
     private boolean loginIntent = false;
 
-    public SettingsPresenter(SettingsContract.View settingsView, DrawerView drawerView, UserService userService) {
+    public SettingsPresenter(SettingsContract.View settingsView, DrawerView drawerView,
+                             UserService userService, CategoryRepository categoryRepository) {
         this.userService = userService;
         this.dropboxService = DropboxService.getInstance(userService.getDropboxToken());
         this.meoCloudService = MEOCloudService.getInstance(userService.getMeoCloudToken());
+        this.categoryRepository = categoryRepository;
 
         this.drawerView = drawerView;
         this.settingsView = settingsView;
@@ -62,6 +70,18 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     public void subscribe() {
         firebaseAuth.addAuthStateListener(authStateListener);
         updateServicesStatus();
+
+        categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
+            @Override
+            public void onComplete(List<Dimension> dimensions) {
+                settingsView.setDimensionViews(dimensions, userService.getUser());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // ignore
+            }
+        });
     }
 
     @Override
@@ -101,6 +121,17 @@ public class SettingsPresenter implements SettingsContract.Presenter {
         if (DropboxClientFactory.isClientInitialized()) {
             settingsView.setDropboxStatus(true);
         }
+    }
+
+    @Override
+    public boolean isWeightValid(Dimension dimension, int weightInserted) {
+        return weightInserted >= dimension.getMinWeight() && weightInserted <= dimension.getMaxWeight();
+    }
+
+    @Override
+    public void setWeight(Dimension dimension, int weightInserted) {
+        userService.getUser().setDimensionWeightLimit(dimension.getDbKey(), weightInserted);
+        userService.saveUserInfo();
     }
 
     @Override

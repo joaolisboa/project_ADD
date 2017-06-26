@@ -7,6 +7,7 @@ import android.widget.FrameLayout;
 import ipleiria.project.add.BaseDrawerActivity;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.source.UserService;
+import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.utils.ActivityUtils;
 
 /**
@@ -31,7 +32,7 @@ public class SettingsActivity extends BaseDrawerActivity {
                     getSupportFragmentManager(), settingsFragment, R.id.contentFrame);
         }
 
-        new SettingsPresenter(settingsFragment, this, UserService.getInstance());
+        new SettingsPresenter(settingsFragment, this, UserService.getInstance(), CategoryRepository.getInstance());
     }
 
     public void onDropboxClick(View view) {

@@ -6,8 +6,11 @@ import android.net.Uri;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Lisboa on 04-May-17.
@@ -22,9 +25,11 @@ public class User {
     private boolean isAnonymous;
     private String department;
     private List<EvaluationPeriod> evaluationPeriods;
+    private Map<String, Integer> dimensionWeightLimits;
 
     public User() {
         this.evaluationPeriods = new LinkedList<>();
+        this.dimensionWeightLimits = new LinkedHashMap<>();
     }
 
     public User(String uid) {
@@ -112,9 +117,28 @@ public class User {
         isAnonymous = anonymous;
     }
 
+    public int getDimensionWeightLimit(String dimensionKey){
+        if(dimensionWeightLimits.containsKey(dimensionKey)) {
+            return dimensionWeightLimits.get(dimensionKey);
+        }else{
+            return 0;
+        }
+    }
+
+    public void setDimensionWeightLimit(String dimensionKey, int weight){
+        dimensionWeightLimits.put(dimensionKey, weight);
+    }
+
     @Override
     public String toString(){
         return name + ":" + email + ":" + isAnonymous;
     }
 
+    public Map<String, Integer> getDimensionWeightLimits() {
+        return dimensionWeightLimits;
+    }
+
+    public void setDimensionWeightLimits(Map<String, Integer> dimensionWeightLimits){
+        this.dimensionWeightLimits = dimensionWeightLimits;
+    }
 }
