@@ -215,17 +215,6 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
         chipsInput.setFilterableList(suggestionChips);
         chipsInput.addChipsListener(chipsListener);
         chipsInput.setShowChipDetailed(false);
-
-        // doesn't work ?
-        /*chipsInput.setChipValidator(new ChipsInput.ChipValidator() {
-            @Override
-            public boolean areEquals(ChipInterface chipInterface, ChipInterface chipInterface1) {
-                String obj1 = StringUtils.replaceDiacriticalMarks(chipInterface.getLabel()).toLowerCase();
-                String obj2 = StringUtils.replaceDiacriticalMarks(chipInterface1.getLabel()).toLowerCase();
-                return obj1.contains(obj2);
-            }
-        });*/
-
         chipsInput.setVisibility(View.VISIBLE);
     }
 

@@ -107,33 +107,6 @@ public class FileUtils {
         }
     }
 
-    private static void goThroughFolder(File dir, List<File> files) {
-        for (File fileInDir : dir.listFiles()) {
-            if (fileInDir.isDirectory()) {
-                goThroughFolder(fileInDir, files);
-            } else {
-                files.add(fileInDir);
-            }
-        }
-    }
-
-    public static File getUserThumbnail(Context context) {
-        return new File(context.getFilesDir() + "/user_thumb.jpg");
-    }
-
-    public static List<File> getLocalDeletedFiles(Context context) {
-        List<File> files = new LinkedList<>();
-        File trashDir = new File(context.getFilesDir() + TRASH_FOLDER);
-        if (!trashDir.exists()) {
-            trashDir.mkdirs();
-            if (trashDir.list() != null && trashDir.list().length == 0) {
-                Collections.addAll(files, trashDir.listFiles());
-            }
-        }
-        Log.d(TAG, "Local deleted files found: " + files);
-        return files;
-    }
-
     public static void generateNote(String sFileName) {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");

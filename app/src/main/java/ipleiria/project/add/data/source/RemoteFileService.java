@@ -31,6 +31,8 @@ interface RemoteFileService<I> {
 
     void deleteFile(String path);
 
+    // base callback can't be used because one of the services needs to act
+    // as a fallback(dropbox) in case it fails
     void downloadThumbnail(String path, FilesRepository.Callback<File> callback);
 
 }
