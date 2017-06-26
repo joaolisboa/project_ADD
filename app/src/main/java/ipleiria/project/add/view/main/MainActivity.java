@@ -27,7 +27,7 @@ public class MainActivity extends BaseDrawerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getLayoutInflater().inflate(R.layout.main_activity, (FrameLayout)findViewById(R.id.activity_frame));
+        setContentView(R.layout.main_activity);
         setTitle("Pending Files");
 
         SharedPreferences sharedPreferences = getSharedPreferences(USER_DATA_KEY,0);

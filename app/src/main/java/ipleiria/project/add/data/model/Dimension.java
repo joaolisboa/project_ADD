@@ -30,6 +30,10 @@ public class Dimension extends Category{
         for(Area area: areas){
             points += area.getPoints();
         }
+        // limit displayed score to real score like excel file?
+        if(points >= weight){
+            return weight;
+        }
         return points;
     }
 

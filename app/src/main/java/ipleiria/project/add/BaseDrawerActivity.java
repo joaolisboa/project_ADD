@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -23,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -78,6 +80,12 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
         toggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    @Override
+    public void setContentView(@LayoutRes int layoutResID) {
+        FrameLayout activityFrame = (FrameLayout) drawerLayout.findViewById(R.id.activity_frame);
+        getLayoutInflater().inflate(layoutResID, activityFrame, true);
     }
 
     @Override
@@ -173,9 +181,8 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
                                 Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
                                 FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
 
+                                Snackbar.make(findViewById(R.id.coordinatorLayout), "Exported files", Snackbar.LENGTH_SHORT);
                                 progressDialog.dismiss();
-                                View rootView = getWindow().getDecorView().findViewById(R.id.activity_frame);
-                                Snackbar.make(drawerLayout.findViewById(R.id.activity_frame), "Exported files", Snackbar.LENGTH_SHORT);
                             }
                         });
 
@@ -188,8 +195,7 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
             public void onError(Exception e) {
                 Log.d(TAG, e.getMessage(), e);
                 progressDialog.dismiss();
-                View rootView = getWindow().getDecorView().findViewById(R.id.activity_frame);
-                Snackbar.make(rootView, "Error while exporting", Snackbar.LENGTH_SHORT);
+                Snackbar.make(findViewById(R.id.coordinatorLayout), "Error while exporting", Snackbar.LENGTH_SHORT);
             }
         });
     }

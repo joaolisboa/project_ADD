@@ -22,7 +22,7 @@ public class SettingsActivity extends BaseDrawerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getLayoutInflater().inflate(R.layout.settings_activity, (FrameLayout)findViewById(R.id.activity_frame));
+        setContentView(R.layout.settings_activity);
 
         settingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentById(R.id.contentFrame);
         if (settingsFragment == null) {

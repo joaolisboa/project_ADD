@@ -28,7 +28,7 @@ public class CategoriesActivity extends BaseDrawerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getLayoutInflater().inflate(R.layout.categories_activity, (FrameLayout)findViewById(R.id.activity_frame));
+        setContentView(R.layout.categories_activity);
 
         boolean listDeleted = getIntent().getBooleanExtra(LIST_DELETED_KEY, false);
 

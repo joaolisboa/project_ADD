@@ -220,7 +220,10 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
         for(final Dimension dimension: dimensions){
             LinearLayout dimensionView =
                     (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.dimension_weight_limit_layout, null);
-            dimensionWeightLimitsLayout.addView(dimensionView);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
+            params.weight = 1.0f;
+            dimensionWeightLimitsLayout.addView(dimensionView, params);
 
             TextView name = (TextView) dimensionView.findViewById(R.id.name);
             TextView weightLimit = (TextView) dimensionView.findViewById(R.id.weight_limit);
@@ -236,6 +239,7 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
             });
 
         }
+
     }
 
     private void createEditWeightDialog(final Dimension dimension){
