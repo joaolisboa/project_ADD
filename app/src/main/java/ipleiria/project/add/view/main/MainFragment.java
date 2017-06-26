@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.webkit.MimeTypeMap;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -65,6 +66,7 @@ public class MainFragment extends Fragment implements MainContract.View,
 
     private MainContract.Presenter presenter;
 
+    private LinearLayout noPendingFilesView;
     private ListView pendingListView;
     private PendingFileAdapter listAdapter;
 
@@ -94,6 +96,7 @@ public class MainFragment extends Fragment implements MainContract.View,
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.main_frag, container, false);
 
+        noPendingFilesView = (LinearLayout) root.findViewById(R.id.noItems);
         pendingListView = (ListView) root.findViewById(R.id.pending_list);
         pendingListView.setAdapter(listAdapter);
 
@@ -370,12 +373,25 @@ public class MainFragment extends Fragment implements MainContract.View,
 
     @Override
     public void showNoPendingFiles() {
-
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                noPendingFilesView.setVisibility(View.VISIBLE);
+                pendingListView.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override
-    public void showPendingFiles(List<PendingFile> pendingFiles) {
-        listAdapter.replaceData(pendingFiles);
+    public void showPendingFiles(final List<PendingFile> pendingFiles) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                listAdapter.replaceData(pendingFiles);
+                pendingListView.setVisibility(View.VISIBLE);
+                noPendingFilesView.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override

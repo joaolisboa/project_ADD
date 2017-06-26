@@ -329,6 +329,12 @@ public class FilesRepository implements FilesDataSource {
         }
     }
 
+    public void addPendingFile(PendingFile file){
+        if(!pendingFiles.contains(file)){
+            pendingFiles.add(file);
+        }
+    }
+
     @Override
     public void saveEmailAttachment(String filename, byte[] fileByteArray) throws IOException {
         File attachment = getLocalPendingFile(filename);

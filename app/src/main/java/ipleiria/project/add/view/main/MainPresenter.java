@@ -384,7 +384,6 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     private void addFiles(List<PendingFile> files){
-        filesRepository.addPendingFiles(files);
         for(PendingFile file: files){
             addFile(file);
         }
@@ -392,9 +391,11 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     private void addFile(PendingFile file){
+        filesRepository.addPendingFile(file);
         if (!pendingFiles.contains(file)) {
             pendingFiles.add(file);
         }
+        processPendingFiles();
     }
 
     private void processPendingFiles() {
