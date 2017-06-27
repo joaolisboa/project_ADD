@@ -217,6 +217,7 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
 
     @Override
     public void setDimensionViews(List<Dimension> dimensions, User user) {
+        dimensionWeightLimitsLayout.removeAllViewsInLayout();
         for(final Dimension dimension: dimensions){
             LinearLayout dimensionView =
                     (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.dimension_weight_limit_layout, null);

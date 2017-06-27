@@ -56,6 +56,8 @@ public class MainContract {
         void addFilesToItems(ArrayList<PendingFile> pendingFiles);
 
         boolean isFileSelected(PendingFile file);
+
+        void openCategories();
     }
 
     interface Presenter extends BasePresenter {
@@ -79,8 +81,6 @@ public class MainContract {
         void onFileRemoved(PendingFile file);
 
         void addPendingFilesToItems();
-
-        void refreshPendingFiles();
     }
 
 }

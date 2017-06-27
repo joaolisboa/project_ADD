@@ -32,6 +32,7 @@ import ipleiria.project.add.utils.NetworkState;
 import ipleiria.project.add.utils.PathUtils;
 import ipleiria.project.add.utils.UriHelper;
 
+import static ipleiria.project.add.data.model.PendingFile.BOTH;
 import static ipleiria.project.add.data.model.PendingFile.DROPBOX;
 import static ipleiria.project.add.data.model.PendingFile.EMAIL;
 import static ipleiria.project.add.data.model.PendingFile.MEO_CLOUD;
@@ -138,8 +139,8 @@ public class FilesRepository implements FilesDataSource {
         String endYear = String.valueOf(calendar.get(Calendar.YEAR));
         return "/" + startYear + "_" + endYear +
                 "/" + criteria.getDimension().getReference() +
-                "/" + criteria.getArea().getReference() +
-                "/" + criteria.getReference();
+                "_" + criteria.getArea().getReference() +
+                "_" + criteria.getReference();
     }
 
     private String getFilePath(ItemFile file, boolean deletedPath) {
@@ -163,6 +164,7 @@ public class FilesRepository implements FilesDataSource {
     public void getPendingFile(PendingFile pendingFile, Callback<File> callback){
         switch(pendingFile.getProvider()){
 
+            case BOTH:
             case MEO_CLOUD:
             case DROPBOX:
                 downloadTempPendingFile(pendingFile.getFilename(), callback);
@@ -357,9 +359,7 @@ public class FilesRepository implements FilesDataSource {
                         if(!meoMetadata.isDir()){
                             ItemFile newFile = new ItemFile(meoMetadata.getName());
                             PendingFile pendingFile = new PendingFile(newFile, MEO_CLOUD);
-                            if(!pendingFiles.contains(pendingFile)) {
-                                pendingFiles.add(pendingFile);
-                            }
+                            addPendingFile(pendingFile);
                         }
                     }
                     callback.onMEOComplete(pendingFiles);
@@ -379,9 +379,7 @@ public class FilesRepository implements FilesDataSource {
                         if(metadata instanceof FileMetadata) {
                             ItemFile newFile = new ItemFile(metadata.getName());
                             PendingFile pendingFile = new PendingFile(newFile, DROPBOX);
-                            if(!pendingFiles.contains(pendingFile)) {
-                                pendingFiles.add(pendingFile);
-                            }
+                            addPendingFile(pendingFile);
                         }
                     }
                     callback.onDropboxComplete(pendingFiles);
@@ -392,6 +390,10 @@ public class FilesRepository implements FilesDataSource {
                     callback.onDropboxError();
                 }
             });
+        }
+        // temp fix - in case both aren't available send generic error to stop loading progress in main
+        if(!meoCloudService.isAvailable() && !dropboxService.isAvailable()){
+            callback.onMEOError();
         }
     }
 
@@ -566,10 +568,10 @@ public class FilesRepository implements FilesDataSource {
             @Override
             public void onComplete(File result) {
                 System.out.println(pendingFile.getProvider());
-                if(pendingFile.getProvider().equals(MEO_CLOUD)) {
+                if(pendingFile.getProvider().equals(MEO_CLOUD) || pendingFile.getProvider().equals(BOTH)) {
                     meoCloudService.moveFile(from, to);
                     dropboxService.uploadFile(Uri.fromFile(result), getFilePath(pendingFile.getItemFile()), null);
-                }else if(pendingFile.getProvider().equals(DROPBOX)) {
+                }else if(pendingFile.getProvider().equals(DROPBOX) || pendingFile.getProvider().equals(BOTH)) {
                     System.out.println("uploading to meo");
                     if (meoCloudService.isAvailable()) {
                         String relativePath = getRelativePath(pendingFile.getItemFile().getParent().getCriteria());

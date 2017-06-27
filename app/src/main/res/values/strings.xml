@@ -81,7 +81,7 @@
     <string name="no_deleted_items">You have no deleted items!</string>
     <string name="no_items">You have no items!</string>
     <string name="no_pending_files">You have no pending files!</string>
-    <string name="no_connected_services">To add pending files you must connect a service in Settings</string>
+    <string name="no_connected_services">To add pending files you must \n connect a service in Settings</string>
     <string name="anonymous_name">Anonymous</string>
     <string name="add_new_item">Add new item</string>
     <string name="settings_activity_title">Settings</string>

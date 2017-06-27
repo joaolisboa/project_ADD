@@ -55,8 +55,20 @@
             android:layout_width="280dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="72dp"
-            android:layout_gravity="center_vertical"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/primary_text"
             android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/provider"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="72dp"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/secondary_text"
+            android:textSize="14sp" />
 
     </FrameLayout>
 

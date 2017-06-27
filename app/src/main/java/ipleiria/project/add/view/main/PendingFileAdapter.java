@@ -96,6 +96,7 @@ public class PendingFileAdapter extends BaseSwipeAdapter {
         PendingFile file = (PendingFile) getItem(position);
 
         TextView filename = (TextView) convertView.findViewById(R.id.filename);
+        TextView provider = (TextView) convertView.findViewById(R.id.provider);
         ImageView thumbView = (ImageView) convertView.findViewById(R.id.file_thumbnail);
 
         String name = file.getFilename();
@@ -105,20 +106,8 @@ public class PendingFileAdapter extends BaseSwipeAdapter {
         } else {
             filename.setText(file.getFilename());
             thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
-            /*if (!attachedImageViews.containsValue(thumbView)) {
-                ImageView currentFilePreviousThumb = attachedImageViews.get(file);
-                if (currentFilePreviousThumb != null && thumbView != currentFilePreviousThumb) {
-                    // if item already an imageview it'll reach here and reuse the thumb
-                    thumbView.setImageDrawable(currentFilePreviousThumb.getDrawable());
-                    attachedImageViews.remove(file);
-                    attachedImageViews.put(file, thumbView);
-                } else {
-                    // should only reach here on the first run
-                    thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
-                    attachImageViewToFile(file, thumbView);
-                }
-            }*/
         }
+        provider.setText("From: " + file.getProvider());
 
         FrameLayout itemLayout = (FrameLayout) convertView.findViewById(R.id.item_view);
 

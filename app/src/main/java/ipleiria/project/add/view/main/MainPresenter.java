@@ -64,7 +64,6 @@ public class MainPresenter implements MainContract.Presenter {
     private Gmail mService;
 
     private final FilesRepository filesRepository;
-    private List<PendingFile> pendingFiles;
     private List<PendingFile> selectedPendingFiles;
 
     private File sharedFile;
@@ -79,33 +78,16 @@ public class MainPresenter implements MainContract.Presenter {
         this.drawerView = drawerView;
 
         this.filesRepository = FilesRepository.getInstance();
-        this.pendingFiles = new LinkedList<>();
         this.selectedPendingFiles = new LinkedList<>();
     }
 
     @Override
     public void subscribe() {
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
+        processPendingFiles();
 
-        filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<PendingFile>>() {
-            @Override
-            public void onMEOComplete(List<PendingFile> result) {
-                addFiles(result);
-            }
-
-            @Override
-            public void onMEOError() {
-            }
-
-            @Override
-            public void onDropboxComplete(List<PendingFile> result) {
-                addFiles(result);
-            }
-
-            @Override
-            public void onDropboxError() {
-            }
-        });
+        mainView.showLoadingIndicator();
+        getPendingFiles();
 
         // android doesn't seem to ever delete temp file or files with deleteOnExit()
         // so when activity resumes if a file was shared we delete it
@@ -117,8 +99,6 @@ public class MainPresenter implements MainContract.Presenter {
             sharedFile.delete();
             sharedFile = null;
         }
-        pendingFiles = filesRepository.getPendingFiles();
-        processPendingFiles();
     }
 
     @Override
@@ -142,6 +122,13 @@ public class MainPresenter implements MainContract.Presenter {
                         @Override
                         public void onComplete(User user) {
                             drawerView.setUserInfo(UserService.getInstance().getUser());
+                            // anonymous user without cloud services can't have pending files
+                            // DISABLE - for now since it would require us to now when the app is starting
+                            /*if(user.isAnonymous() &&
+                                    userService.getMeoCloudToken() == null &&
+                                    userService.getDropboxToken() == null){
+                                mainView.openCategories();
+                            }*/
                         }
                     });
                     ItemsRepository.getInstance().initUser(user.getUid());
@@ -211,17 +198,7 @@ public class MainPresenter implements MainContract.Presenter {
                     .build();
 
         } else if (mService != null) {
-            new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
-                @Override
-                public void onComplete(List<PendingFile> result) {
-                    addFiles(result);
-                }
-
-                @Override
-                public void onEmailAdded(PendingFile pendingEmail) {
-                    addFile(pendingEmail);
-                }
-            }).execute();
+            getEmails();
         }
 
     }
@@ -285,13 +262,8 @@ public class MainPresenter implements MainContract.Presenter {
     @Override
     public void addPendingFilesToItems() {
         mainView.addFilesToItems(new ArrayList<>(selectedPendingFiles));
-        pendingFiles.removeAll(selectedPendingFiles);
+        filesRepository.removePendingFiles(selectedPendingFiles);
         selectedPendingFiles = new LinkedList<>();
-    }
-
-    @Override
-    public void refreshPendingFiles() {
-        mainView.showPendingFiles(filesRepository.getPendingFiles());
     }
 
     private void checkForCachedCredentials() {
@@ -335,42 +307,13 @@ public class MainPresenter implements MainContract.Presenter {
                 .setApplicationName("Project ADD")
                 .build();
 
-        new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
-            @Override
-            public void onComplete(List<PendingFile> result) {
-                addFiles(result);
-            }
-
-            @Override
-            public void onEmailAdded(PendingFile pendingEmail) {
-                addFile(pendingEmail);
-            }
-        }).execute();
+        getEmails();
     }
 
     @Override
     public void onSwipeRefresh() {
         mainView.showLoadingIndicator();
-        pendingFiles = new LinkedList<>();
-        filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<PendingFile>>() {
-            @Override
-            public void onMEOComplete(List<PendingFile> result) {
-                addFiles(result);
-            }
-
-            @Override
-            public void onMEOError() {
-            }
-
-            @Override
-            public void onDropboxComplete(List<PendingFile> result) {
-                addFiles(result);
-            }
-
-            @Override
-            public void onDropboxError() {
-            }
-        });
+        getPendingFiles();
 
         if(mService == null){
             // will make sure credentials exist, sign in and build the gmail service
@@ -380,7 +323,53 @@ public class MainPresenter implements MainContract.Presenter {
         }
 
         processPendingFiles();
-        mainView.hideLoadingIndicator();
+    }
+
+    private void getEmails(){
+        new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
+            @Override
+            public void onComplete(List<PendingFile> result) {
+                addFiles(result);
+                mainView.hideLoadingIndicator();
+            }
+
+            @Override
+            public void onEmailAdded(PendingFile pendingEmail) {
+                addFile(pendingEmail);
+                mainView.hideLoadingIndicator();
+            }
+
+            @Override
+            public void onError() {
+                mainView.hideLoadingIndicator();
+            }
+        }).execute();
+    }
+
+    private void getPendingFiles(){
+        filesRepository.getRemotePendingFiles(new FilesRepository.ServiceCallback<List<PendingFile>>() {
+            @Override
+            public void onMEOComplete(List<PendingFile> result) {
+                processPendingFiles();
+                mainView.hideLoadingIndicator();
+            }
+
+            @Override
+            public void onMEOError() {
+                mainView.hideLoadingIndicator();
+            }
+
+            @Override
+            public void onDropboxComplete(List<PendingFile> result) {
+                processPendingFiles();
+                mainView.hideLoadingIndicator();
+            }
+
+            @Override
+            public void onDropboxError() {
+                mainView.hideLoadingIndicator();
+            }
+        });
     }
 
     private void addFiles(List<PendingFile> files){
@@ -392,14 +381,12 @@ public class MainPresenter implements MainContract.Presenter {
 
     private void addFile(PendingFile file){
         filesRepository.addPendingFile(file);
-        if (!pendingFiles.contains(file)) {
-            pendingFiles.add(file);
-        }
         processPendingFiles();
     }
 
     private void processPendingFiles() {
-        if (pendingFiles.isEmpty()) {
+        System.out.println(filesRepository.getPendingFiles());
+        if (filesRepository.getPendingFiles().isEmpty()) {
             mainView.showNoPendingFiles();
         } else {
             mainView.showPendingFiles(filesRepository.getPendingFiles());

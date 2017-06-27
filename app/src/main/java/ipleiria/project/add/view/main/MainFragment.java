@@ -178,7 +178,6 @@ public class MainFragment extends Fragment implements MainContract.View,
         super.onResume();
         NavigationView navigationView = (NavigationView) getActivity().findViewById(R.id.nav_view);
         navigationView.setCheckedItem(R.id.nav_home);
-        presenter.refreshPendingFiles();
         fabShow = false;
         toggleFabMenu();
     }
@@ -402,6 +401,12 @@ public class MainFragment extends Fragment implements MainContract.View,
     @Override
     public boolean isFileSelected(PendingFile file){
         return presenter.isFileSelected(file);
+    }
+
+    @Override
+    public void openCategories() {
+        startActivity(new Intent(getContext(), CategoriesActivity.class));
+        getActivity().finish();
     }
 
     @Override

@@ -13,17 +13,16 @@
             android:id="@+id/pending_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone"
             android:clipToPadding="false"
-            android:paddingBottom="72dp">
-
-        </ListView>
+            android:paddingBottom="72dp"/>
 
         <LinearLayout
             android:id="@+id/noItems"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:visibility="gone"
+            android:visibility="visible"
             android:orientation="vertical">
 
             <TextView

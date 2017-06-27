@@ -51,6 +51,8 @@
                 android:id="@+id/account_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:text="@string/google_sign_in_helper"
                 android:textSize="14sp"/>
         </LinearLayout>
