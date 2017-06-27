@@ -67,7 +67,6 @@ public class PendingFile implements Parcelable{
         return provider + ":" + getFilename();
     }
 
-
     protected PendingFile(Parcel in) {
         file = new ItemFile(in.readString());
         provider = in.readString();

@@ -516,7 +516,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
 
     @Override
     public void showFilesAddedMessage() {
-        showMessage("Files saved to item");
+        showMessage("File(s) saved to item");
     }
 
     @Override
