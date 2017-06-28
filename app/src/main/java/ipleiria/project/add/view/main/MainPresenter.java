@@ -385,7 +385,6 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     private void processPendingFiles() {
-        System.out.println(filesRepository.getPendingFiles());
         if (filesRepository.getPendingFiles().isEmpty()) {
             mainView.showNoPendingFiles();
         } else {

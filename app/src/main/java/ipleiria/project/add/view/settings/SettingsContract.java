@@ -52,7 +52,13 @@ public class SettingsContract {
 
         boolean isWeightValid(Dimension dimension, int weightInserted);
 
+        boolean areWeightsValid();
+
+        boolean isSumOfWeightsValid();
+
         void setWeight(Dimension dimension, int weightInserted);
+
+        void commitDimensionWeightChanges();
     }
 
 }

@@ -7,7 +7,9 @@ import com.dropbox.core.android.Auth;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.data.model.Dimension;
@@ -52,6 +54,10 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     // this can be fixed with MEO but Dropbox would require change to their code
     private boolean loginIntent = false;
 
+    // when the dimensions are edited we need to track if all are valid
+    // before altering the dimension weight itself so we use a map to keep track of the changes
+    private Map<Dimension, Integer> weightsChangeValid;
+
     public SettingsPresenter(SettingsContract.View settingsView, DrawerView drawerView,
                              UserService userService, CategoryRepository categoryRepository) {
         this.userService = userService;
@@ -64,6 +70,8 @@ public class SettingsPresenter implements SettingsContract.Presenter {
         this.settingsView.setPresenter(this);
 
         this.firebaseAuth = FirebaseAuth.getInstance();
+
+        this.weightsChangeValid = new LinkedHashMap<>();
     }
 
     @Override
@@ -75,6 +83,10 @@ public class SettingsPresenter implements SettingsContract.Presenter {
             @Override
             public void onComplete(List<Dimension> dimensions) {
                 settingsView.setDimensionViews(dimensions, userService.getUser());
+                // initialize map with default values
+                for(Dimension dimension: dimensions){
+                    weightsChangeValid.put(dimension, dimension.getWeight());
+                }
             }
 
             @Override
@@ -125,12 +137,45 @@ public class SettingsPresenter implements SettingsContract.Presenter {
 
     @Override
     public boolean isWeightValid(Dimension dimension, int weightInserted) {
+        // keep track of all changes to weights before commiting to the dimension
+        weightsChangeValid.put(dimension, weightInserted);
         return weightInserted >= dimension.getMinWeight() && weightInserted <= dimension.getMaxWeight();
+    }
+
+    @Override
+    public boolean areWeightsValid() {
+        // make sure all weights are valid
+        for(Map.Entry<Dimension, Integer> entry: weightsChangeValid.entrySet()){
+            int weight = entry.getValue();
+            Dimension dimension = entry.getKey();
+            if(weight < dimension.getMinWeight() || weight > dimension.getMaxWeight()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean isSumOfWeightsValid() {
+        // make sure the sum of all weights is equal to 100
+        int sum = 0;
+        for(Map.Entry<Dimension, Integer> entry: weightsChangeValid.entrySet()){
+             sum += entry.getValue();
+        }
+        return sum == 100;
     }
 
     @Override
     public void setWeight(Dimension dimension, int weightInserted) {
         userService.getUser().setDimensionWeightLimit(dimension.getDbKey(), weightInserted);
+        userService.saveUserInfo();
+    }
+
+    @Override
+    public void commitDimensionWeightChanges() {
+        for(Map.Entry<Dimension, Integer> entry: weightsChangeValid.entrySet()){
+            userService.getUser().setDimensionWeightLimit(entry.getKey().getDbKey(), entry.getValue());
+        }
         userService.saveUserInfo();
     }
 

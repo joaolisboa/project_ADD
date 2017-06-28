@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:divider="@drawable/horizontal_divider"
+    android:showDividers="middle"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--
+        each layout for dimensions are inserted programatically
+    -->
+
+    <TextView
+        android:id="@+id/weights_sum_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sum of weights must be 100!"
+        android:textColor="@color/red"
+        android:layout_margin="8dp"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:layout_gravity="center_horizontal"
+        />
+
+</LinearLayout>
