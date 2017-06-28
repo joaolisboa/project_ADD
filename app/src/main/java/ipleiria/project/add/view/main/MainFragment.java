@@ -326,14 +326,14 @@ public class MainFragment extends Fragment implements MainContract.View,
     public void addPhotoURIToItems(String photoURI) {
         Intent intent = new Intent(getContext(), CategoriesActivity.class);
         intent.putExtra("photo_uri", photoURI);
-        getActivity().startActivityForResult(intent.setAction(SENDING_PHOTO), REQUEST_ADD_NEW_ITEM);
+        getActivity().startActivity(intent.setAction(SENDING_PHOTO));
     }
 
     @Override
     public void addFilesToItems(ArrayList<PendingFile> pendingFiles) {
         Intent intent = new Intent(getContext(), CategoriesActivity.class);
         intent.putParcelableArrayListExtra("pending_files", pendingFiles);
-        getActivity().startActivityForResult(intent.setAction(SENDING_PENDING_FILES), REQUEST_ADD_NEW_ITEM);
+        getActivity().startActivity(intent.setAction(SENDING_PENDING_FILES));
     }
 
     @Override

@@ -49,6 +49,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import ipleiria.project.add.ItemClickListener;
 import ipleiria.project.add.R;
@@ -67,6 +68,7 @@ import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.CRITERIA_
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM;
 import static ipleiria.project.add.view.add_edit_item.AddEditPresenter.EDITING_ITEM_KEY;
 import static ipleiria.project.add.view.categories.CategoriesPresenter.LIST_DELETED_KEY;
+import static ipleiria.project.add.view.categories.CategoriesPresenter.OPEN_ITEM_ADDED;
 import static ipleiria.project.add.view.itemdetail.ItemDetailPresenter.ITEM_KEY;
 import static ipleiria.project.add.view.main.MainPresenter.REQUEST_TAKE_PHOTO;
 
@@ -202,7 +204,8 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     private void addItem() {
-        if(categoriesPresenter.getIntentAction() != null) {
+        if(categoriesPresenter.getIntentAction() != null &&
+                !categoriesPresenter.getIntentAction().equals(OPEN_ITEM_ADDED)) {
             Intent intent = getActivity().getIntent();
             // change current intent to use a different activity, keeping extras and action
             intent.setComponent(new ComponentName(getContext(), AddEditActivity.class));

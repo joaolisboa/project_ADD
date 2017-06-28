@@ -32,14 +32,19 @@ import ipleiria.project.add.R;
 
 public class FileUtils {
 
-    public static void generateNote(String sFileName) {
+    public static final String SHEET_FILENAME = "ficha_avaliacao.xlsx";
+    public static final String DOC_FILENAME = "relatorio.txt";
+
+    public static void generateReport() {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy");
             int yearStart = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate()));
             int yearEnd = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate()));
-            File file = new File(Application.getAppContext().getFilesDir(), sFileName);
+
+            File file = new File(Application.getAppContext().getFilesDir(), DOC_FILENAME);
             FileWriter writer = new FileWriter(file);
+
             writer.append("Curriculum Vitae Detalhado - Avaliação de Desempenho \n");
             writer.append("\t ESTG - IPLEIRIA \n");
             writer.append("Nome do Avaliado: " + UserService.getInstance().getUser().getName()+"\n");

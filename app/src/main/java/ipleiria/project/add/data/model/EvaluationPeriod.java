@@ -3,6 +3,7 @@ package ipleiria.project.add.data.model;
 import android.annotation.SuppressLint;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -45,6 +46,15 @@ public class EvaluationPeriod {
 
     public void setDbKey(String dbKey) {
         this.dbKey = dbKey;
+    }
+
+    public String toStringPath(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+        String startYear = String.valueOf(calendar.get(Calendar.YEAR));
+        calendar.setTime(endDate);
+        String endYear = String.valueOf(calendar.get(Calendar.YEAR));
+        return startYear + "_" + endYear;
     }
 
     @Override

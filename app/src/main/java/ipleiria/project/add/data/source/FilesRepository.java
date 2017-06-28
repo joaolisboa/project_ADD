@@ -132,12 +132,7 @@ public class FilesRepository implements FilesDataSource {
     }
 
     private String getRelativePath(Criteria criteria) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(currentPeriod.getStartDate());
-        String startYear = String.valueOf(calendar.get(Calendar.YEAR));
-        calendar.setTime(currentPeriod.getEndDate());
-        String endYear = String.valueOf(calendar.get(Calendar.YEAR));
-        return "/" + startYear + "_" + endYear +
+        return "/" + currentPeriod.toStringPath() +
                 "/" + criteria.getDimension().getReference() +
                 "_" + criteria.getArea().getReference() +
                 "_" + criteria.getReference();
@@ -399,7 +394,7 @@ public class FilesRepository implements FilesDataSource {
 
     @Override
     public void saveFile(final ItemFile newFile, final Uri uri) {
-        if(!NetworkState.isOnline()){
+        if(!NetworkState.isOnline() || !(meoCloudService.isAvailable() && dropboxService.isAvailable())){
             saveLocalFile(newFile, uri);
         }else {
             if (meoCloudService.isAvailable()) {
@@ -538,7 +533,13 @@ public class FilesRepository implements FilesDataSource {
 
     @Override
     public void moveFile(ItemFile file, Criteria newCriteria) {
-        if(NetworkState.isOnline()) {
+        if(!NetworkState.isOnline() || !(meoCloudService.isAvailable() && dropboxService.isAvailable())){
+            File localFile = getLocalFile(file);
+            if (localFile.exists()) {
+                File to = getLocalFile(file, newCriteria);
+                renameLocalFile(localFile, to);
+            }
+        }else{
             String from = getFilePath(file);
             String to = getFilePath(file, newCriteria);
             if (meoCloudService.isAvailable()) {
@@ -546,12 +547,6 @@ public class FilesRepository implements FilesDataSource {
             }
             if (dropboxService.isAvailable()) {
                 dropboxService.moveFile(from, to);
-            }
-        }else{
-            File localFile = getLocalFile(file);
-            if (localFile.exists()) {
-                File to = getLocalFile(file, newCriteria);
-                renameLocalFile(localFile, to);
             }
         }
     }
@@ -689,7 +684,11 @@ public class FilesRepository implements FilesDataSource {
         if (dropboxService.isAvailable()) {
             dropboxService.moveFile(from, to);
         }
-        deleteLocalFile(file);
+        File fromFile = getLocalFile(file, false);
+        if(fromFile.exists()){
+            File toFile = getLocalFile(file, true);
+            renameLocalFile(fromFile, toFile);
+        }
     }
 
     @Override
@@ -737,6 +736,7 @@ public class FilesRepository implements FilesDataSource {
         if (localThumb.exists()) {
             localThumb.delete();
         }
+        deleteLocalFile(file);
     }
 
     public List<PendingFile> getPendingFiles() {

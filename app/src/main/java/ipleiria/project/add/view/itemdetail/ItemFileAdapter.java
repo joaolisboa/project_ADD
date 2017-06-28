@@ -79,7 +79,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
     void onFileRemoved(ItemFile deletedFile) {
         removeAttachedView(deletedFile);
         listFiles.remove(deletedFile);
-        //notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     @Override

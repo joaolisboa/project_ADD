@@ -48,6 +48,8 @@ import ipleiria.project.add.view.categories.CategoriesActivity;
 import ipleiria.project.add.view.main.MainActivity;
 import ipleiria.project.add.view.settings.SettingsActivity;
 
+import static ipleiria.project.add.utils.FileUtils.DOC_FILENAME;
+import static ipleiria.project.add.utils.FileUtils.SHEET_FILENAME;
 import static ipleiria.project.add.view.categories.CategoriesPresenter.LIST_DELETED_KEY;
 
 /**
@@ -63,6 +65,10 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
+
+    private ItemsRepository itemsRepository;
+    private FilesRepository filesRepository;
+    private UserService userService;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,6 +86,10 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
         toggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        itemsRepository = ItemsRepository.getInstance();
+        filesRepository = FilesRepository.getInstance();
+        userService = UserService.getInstance();
     }
 
     @Override
@@ -165,23 +175,25 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
         final ProgressDialog progressDialog = new ProgressDialog(BaseDrawerActivity.this);
         progressDialog.show();
         progressDialog.setMessage("Creating files and exporting...");
-        ItemsRepository.getInstance().getItems(false, new FilesRepository.Callback<List<Item>>() {
+        itemsRepository.getItems(false, new FilesRepository.Callback<List<Item>>() {
             @Override
             public void onComplete(List<Item> result) {
                 final Handler handler = new Handler();
                 Runnable runnable = new Runnable() {
                     public void run() {
                         FileUtils.readExcel();
-                        FileUtils.generateNote("relatorio.txt");
+                        FileUtils.generateReport();
 
                         handler.post(new Runnable() {
                             public void run() {
-                                Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "ficha_avaliacao.xlsx"));
-                                FilesRepository.getInstance().uploadFile(sheet, "export", "ficha_avaliacao.xlsx");
-                                Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), "relatorio.txt"));
-                                FilesRepository.getInstance().uploadFile(doc, "export", "relatorio.txt");
-
-                                Snackbar.make(findViewById(R.id.coordinatorLayout), "Exported files", Snackbar.LENGTH_SHORT);
+                                String period = itemsRepository.getCurrentPeriod().toStringPath();
+                                String username = userService.getUser().getName();
+                                String sheetFilename = "Ficha de autoavaliação_Grelha_" + period + "_" + username + ".xlsx";
+                                String docFilename = "Relatorio_" + period + "_" + username + ".txt";
+                                Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), SHEET_FILENAME));
+                                filesRepository.uploadFile(sheet, "exported", sheetFilename);
+                                Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), DOC_FILENAME));
+                                filesRepository.uploadFile(doc, "exported", docFilename);
                                 progressDialog.dismiss();
                             }
                         });

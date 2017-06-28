@@ -221,6 +221,7 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     @Override
     public void showNoTags() {
         chipsInput.setVisibility(View.GONE);
+        getView().findViewById(R.id.tags_header).setVisibility(View.GONE);
     }
 
     @Override

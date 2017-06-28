@@ -213,6 +213,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 selectedDimension = item.getDimension().getDbKey();
                 currentFocus = CRITERIA_FOCUS;
                 categoriesView.showItemAddedMessage();
+                processList();
             }
             if (requestCode == REQUEST_ADD_NEW_ITEM_CHANGE) {
                 categoriesView.showItemAddedMessage();
@@ -259,6 +260,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                     selectedArea = item.getArea().getDbKey();
                     selectedDimension = item.getDimension().getDbKey();
                     currentFocus = CRITERIA_FOCUS;
+                    action = null;
                     break;
             }
         }

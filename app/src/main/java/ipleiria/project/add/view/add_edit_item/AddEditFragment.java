@@ -223,6 +223,7 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     public void finishAction(Item item) {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(descriptionEditText.getWindowToken(), 0);
+
         Intent resultIntent = new Intent();
         resultIntent.putExtra("item_added_key", item.getDbKey());
         resultIntent.setAction(OPEN_ITEM_ADDED);
@@ -234,6 +235,7 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     public void finishAction() {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(descriptionEditText.getWindowToken(), 0);
+
         getActivity().setResult(Activity.RESULT_OK);
         getActivity().finish();
     }

@@ -62,8 +62,8 @@ public class ItemFilesRepository implements ItemFilesDataSource {
     public void deleteItemFile(ItemFile file) {
         file.setDeleted(true);
 
-        if (itemsRepository.getItems().contains(item)) {
-            int pos = itemsRepository.getItems().indexOf(item);
+        if (itemsRepository.getItems().contains(file.getParent())) {
+            int pos = itemsRepository.getItems().indexOf(file.getParent());
             Item originalItem = itemsRepository.getItems().get(pos);
             // delete file from deleted list
             if (!originalItem.getFiles().remove(file)) {
@@ -71,11 +71,11 @@ public class ItemFilesRepository implements ItemFilesDataSource {
             }
             itemsRepository.saveItemToDatabase(originalItem);
         } else {
-            Log.wtf(TAG, "Really shouldn't happen, an item with a deleted file should always be in the deleted Items list");
+            Log.wtf(TAG, "Really shouldn't happen, an item with a deleted file should always be in the Items list");
         }
 
-        if (itemsRepository.getDeletedItems().contains(item)) {
-            int pos = itemsRepository.getDeletedItems().indexOf(item);
+        if (itemsRepository.getDeletedItems().contains(file.getParent())) {
+            int pos = itemsRepository.getDeletedItems().indexOf(file.getParent());
             Item originalItem = itemsRepository.getDeletedItems().get(pos);
             // restore file in original list
             originalItem.addDeletedFile(file);
@@ -83,10 +83,10 @@ public class ItemFilesRepository implements ItemFilesDataSource {
         } else {
             // if item in the 'opposite' list is missing create it
             item.addDeletedFile(file);
-            itemsRepository.addItem(item, null, true);
+            itemsRepository.addItem(file.getParent(), null, true);
         }
 
-        itemsRepository.saveDeletedItemToDatabase(item);
+        itemsRepository.saveDeletedItemToDatabase(file.getParent());
 
         itemFilesReference.child(file.getDbKey()).removeValue();
     }
@@ -94,8 +94,8 @@ public class ItemFilesRepository implements ItemFilesDataSource {
     @Override
     public void permanentlyDeleteItemFile(ItemFile file) {
 
-        if (itemsRepository.getDeletedItems().contains(item)) {
-            int pos = itemsRepository.getDeletedItems().indexOf(item);
+        if (itemsRepository.getDeletedItems().contains(file.getParent())) {
+            int pos = itemsRepository.getDeletedItems().indexOf(file.getParent());
             Item originalItem = itemsRepository.getDeletedItems().get(pos);
             originalItem.getDeletedFiles().remove(file);
         } else {
@@ -105,9 +105,9 @@ public class ItemFilesRepository implements ItemFilesDataSource {
         itemDeletedFilesReference.child(file.getDbKey()).removeValue();
 
         // if the delete item has no more files it'll be deleted
-        if (item.getDeletedFiles().isEmpty()) {
-            itemsRepository.deleteLocalItem(item, true);
-            itemsRepository.getDeletedItemsReference().child(item.getDbKey()).removeValue();
+        if (file.getParent().getDeletedFiles().isEmpty()) {
+            itemsRepository.deleteLocalItem(file.getParent(), true);
+            itemsRepository.getDeletedItemsReference().child(file.getParent().getDbKey()).removeValue();
         }
     }
 
@@ -115,36 +115,36 @@ public class ItemFilesRepository implements ItemFilesDataSource {
     public void restoreItemFile(ItemFile file) {
         file.setDeleted(false);
 
-        if (itemsRepository.getDeletedItems().contains(item)) {
-            int pos = itemsRepository.getDeletedItems().indexOf(item);
+        if (itemsRepository.getDeletedItems().contains(file.getParent())) {
+            int pos = itemsRepository.getDeletedItems().indexOf(file.getParent());
             Item originalItem = itemsRepository.getDeletedItems().get(pos);
             // delete file from deleted list
             if (!originalItem.getDeletedFiles().remove(file)) {
                 Log.d(TAG, "file isn't in list");
             }
             if (originalItem.getDeletedFiles().isEmpty()) {
-                itemsRepository.deleteLocalItem(item, true);
+                itemsRepository.deleteLocalItem(file.getParent(), true);
             }
             itemsRepository.saveDeletedItemToDatabase(originalItem);
         } else {
-            System.out.println(itemsRepository.getDeletedItem(item.getDbKey()));
+            System.out.println(itemsRepository.getDeletedItem(file.getParent().getDbKey()));
             System.out.println(Arrays.toString(itemsRepository.getDeletedItems().toArray()));
             Log.wtf(TAG, "Probably shouldn't happen, an item with a deleted file should be in the deleted Items list");
         }
 
-        if (itemsRepository.getItems().contains(item)) {
-            int pos = itemsRepository.getItems().indexOf(item);
+        if (itemsRepository.getItems().contains(file.getParent())) {
+            int pos = itemsRepository.getItems().indexOf(file.getParent());
             Item originalItem = itemsRepository.getItems().get(pos);
             // restore file in original list
             originalItem.addFile(file);
             item = originalItem;
         } else {
             // if item in the 'opposite' list is missing create it
-            item.addFile(file);
-            itemsRepository.addItem(item, null, false);
+            file.getParent().addFile(file);
+            itemsRepository.addItem(file.getParent(), null, false);
         }
 
-        itemsRepository.saveItemToDatabase(item);
+        itemsRepository.saveItemToDatabase(file.getParent());
 
         itemDeletedFilesReference.child(file.getDbKey()).removeValue();
     }
