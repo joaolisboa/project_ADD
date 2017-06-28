@@ -145,7 +145,7 @@
         android:paddingStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:text="User"
+        android:text="User Info"
         android:textSize="14sp"
         android:textColor="@color/primary"/>
 
@@ -159,8 +159,8 @@
         android:onClick="onDropboxClick">
 
         <!--
-        dimension weights are inserted programatically
-        with layout dimension_weight_limit_layout
+            dimension weight layout are inserted programatically
+            with layout dimension_weight_limit_layout
         -->
 
     </LinearLayout>
