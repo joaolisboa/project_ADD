@@ -87,7 +87,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     // on resume will show an item added message
     public static final int REQUEST_ADD_NEW_ITEM = 2091;
     // on resume will show an item edited message
-    public static  final int REQUEST_ITEM_EDIT = 2092;
+    public static final int REQUEST_ITEM_EDIT = 2092;
 
     private ScrollChildSwipeRefreshLayout swipeRefreshLayout;
 
@@ -127,10 +127,10 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         itemsAdapter = new ItemAdapter(new LinkedList<Item>(), itemActionListener, listDeleted,
                 categoriesPresenter.getIntentAction() == null);
 
-        if(listDeleted){
+        if (listDeleted) {
             getActivity().findViewById(R.id.fab_add).setVisibility(View.GONE);
             setTitle("Trash");
-        }else{
+        } else {
             setTitle("Dimensions");
         }
     }
@@ -190,13 +190,13 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
             @Override
             public void onClick(View v) {
                 fabShow = !fabShow;
-                toggleFabMenu();
+                categoriesPresenter.toggleFabMenu();
             }
         });
 
         setHasOptionsMenu(true);
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             categoriesPresenter.restoreInstanceState(savedInstanceState);
         }
 
@@ -204,15 +204,15 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     private void addItem() {
-        if(categoriesPresenter.getIntentAction() != null &&
+        if (categoriesPresenter.getIntentAction() != null &&
                 !categoriesPresenter.getIntentAction().equals(OPEN_ITEM_ADDED)) {
             Intent intent = getActivity().getIntent();
             // change current intent to use a different activity, keeping extras and action
             intent.setComponent(new ComponentName(getContext(), AddEditActivity.class));
             startActivityForResult(intent, REQUEST_ADD_NEW_ITEM_CHANGE);
-        }else{
+        } else {
             Intent intent = new Intent(getContext(), AddEditActivity.class);
-            if(categoriesPresenter.getSelectedCriteria() != null){
+            if (categoriesPresenter.getSelectedCriteria() != null) {
                 intent.setAction(CRITERIA_SELECTED);
                 intent.putExtra(CRITERIA_SELECTED, categoriesPresenter.getSelectedCriteria().getRealReference());
             }
@@ -230,7 +230,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
                 return false;
             }
@@ -245,7 +245,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
 
             case R.id.app_bar_period:
                 categoriesPresenter.setPeriodSelection();
@@ -269,7 +269,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         super.onResume();
         categoriesPresenter.subscribe();
         fabShow = false;
-        toggleFabMenu();
+        categoriesPresenter.toggleFabMenu();
     }
 
     @Override
@@ -279,20 +279,28 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         categoriesPresenter.onResult(requestCode, resultCode, data);
     }
 
-    private void toggleFabMenu(){
-        if(!fabShow){
+    @Override
+    public void toggleFabMenu() {
+        if (!fabShow) {
             fabPhoto.hide();
             fabAdd.hide();
             fabMenu.setImageResource(R.drawable.vertical_menu);
-        }else {
+        } else {
             fabPhoto.show();
             fabAdd.show();
             fabMenu.setImageResource(R.drawable.close_white);
         }
+    }
+
+    @Override
+    public void hideFabMenu() {
+        fabPhoto.hide();
+        fabAdd.hide();
+        fabMenu.hide();
     }
 
     @Override
@@ -312,9 +320,9 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     @Override
     public void selectNavigationItem(boolean listDeleted) {
         NavigationView navigationView = (NavigationView) getActivity().findViewById(R.id.nav_view);
-        if(!listDeleted) {
+        if (!listDeleted) {
             navigationView.setCheckedItem(R.id.nav_categories);
-        }else{
+        } else {
             navigationView.setCheckedItem(R.id.nav_trash);
         }
     }
@@ -324,7 +332,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                if(swipeRefreshLayout.isRefreshing()){
+                if (swipeRefreshLayout.isRefreshing()) {
                     swipeRefreshLayout.setRefreshing(false);
                 }
             }
@@ -333,7 +341,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
 
     @Override
     public void setTitle(String title) {
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(title);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(title);
     }
 
     public void takePicture() {
@@ -414,7 +422,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         showCategoryList();
     }
 
-    private void showCategoryList(){
+    private void showCategoryList() {
         swipeRefreshLayout.setScrollUpChild(categoryListView);
         showLayout(categoryListView);
         hideLayout(noItemsView);
@@ -422,7 +430,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     @Override
-    public void hideSelectedDimension(){
+    public void hideSelectedDimension() {
         hideLayout(dimensionView);
     }
 
@@ -452,7 +460,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     @Override
-    public void showSelectedCriteria(Criteria criteria){
+    public void showSelectedCriteria(Criteria criteria) {
         setSelectedViewInfo(criteria, criteriaView, canceledCriteriaClickListener);
     }
 
@@ -513,7 +521,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     @Override
-    public void showItemAddedMessage(){
+    public void showItemAddedMessage() {
         showMessage("New item saved");
     }
 
@@ -540,12 +548,12 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         categoryListView.setVisibility(View.GONE);
     }
 
-    private void showMessage(String message){
+    private void showMessage(String message) {
         Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
     }
 
-    private void setSelectedViewInfo(Category category, final View view, View.OnClickListener onClickListener){
-        if(category instanceof Criteria) {
+    private void setSelectedViewInfo(Category category, final View view, View.OnClickListener onClickListener) {
+        if (category instanceof Criteria) {
             view.findViewById(R.id.additional_info).setVisibility(View.VISIBLE);
         }
 
@@ -559,7 +567,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         points.setText(String.valueOf(category.getPoints()));
         view.setOnClickListener(onClickListener);
 
-        if(view.getVisibility() == View.GONE) {
+        if (view.getVisibility() == View.GONE) {
             expand(view);
             expandableArrow.setRotation(0);
             expandableArrow.animate().rotation(180).setDuration(200).start();
@@ -590,7 +598,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     private AdapterView.OnItemClickListener listClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            categoriesPresenter.categoryClicked((Category)parent.getItemAtPosition(position));
+            categoriesPresenter.categoryClicked((Category) parent.getItemAtPosition(position));
         }
     };
 
@@ -632,13 +640,12 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         // Older versions of android (pre API 21) cancel animations for views with a height of 0.
         v.getLayoutParams().height = 1;
         v.setVisibility(View.VISIBLE);
-        Animation a = new Animation()
-        {
+        Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 v.getLayoutParams().height = interpolatedTime == 1
                         ? LinearLayout.LayoutParams.WRAP_CONTENT
-                        : (int)(targetHeight * interpolatedTime);
+                        : (int) (targetHeight * interpolatedTime);
                 v.requestLayout();
             }
 
@@ -649,21 +656,20 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         };
 
         // 1dp/ms
-        a.setDuration((int)(targetHeight / v.getContext().getResources().getDisplayMetrics().density)*2);
+        a.setDuration((int) (targetHeight / v.getContext().getResources().getDisplayMetrics().density) * 2);
         v.startAnimation(a);
     }
 
     public static void collapse(final View v) {
         final int initialHeight = v.getMeasuredHeight();
 
-        Animation a = new Animation()
-        {
+        Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
-                if(interpolatedTime == 1){
+                if (interpolatedTime == 1) {
                     v.setVisibility(View.GONE);
-                }else{
-                    v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
+                } else {
+                    v.getLayoutParams().height = initialHeight - (int) (initialHeight * interpolatedTime);
                     v.requestLayout();
                 }
             }
@@ -675,12 +681,12 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         };
 
         // 1dp/ms
-        a.setDuration((int)(initialHeight / v.getContext().getResources().getDisplayMetrics().density));
+        a.setDuration((int) (initialHeight / v.getContext().getResources().getDisplayMetrics().density));
         v.startAnimation(a);
     }
 
     private void showLayout(View targetView) {
-        if(targetView.getVisibility() == View.GONE) {
+        if (targetView.getVisibility() == View.GONE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 int cx = targetView.getWidth() / 2;
                 int cy = targetView.getHeight() / 2;

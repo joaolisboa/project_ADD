@@ -79,6 +79,10 @@ public class SettingsPresenter implements SettingsContract.Presenter {
         firebaseAuth.addAuthStateListener(authStateListener);
         updateServicesStatus();
 
+        setDimensions();
+    }
+
+    private void setDimensions(){
         categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
             @Override
             public void onComplete(List<Dimension> dimensions) {
@@ -177,6 +181,7 @@ public class SettingsPresenter implements SettingsContract.Presenter {
             userService.getUser().setDimensionWeightLimit(entry.getKey().getDbKey(), entry.getValue());
         }
         userService.saveUserInfo();
+        setDimensions();
     }
 
     @Override

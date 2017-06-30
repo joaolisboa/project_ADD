@@ -104,6 +104,10 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         refreshData();
         drawerView.setUserInfo(userService.getUser());
         categoriesView.selectNavigationItem(listingDeleted);
+
+        if(listingDeleted){
+            categoriesView.hideFabMenu();
+        }
     }
 
     @Override
@@ -502,6 +506,13 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     @Override
     public void setPhotoUri(Uri photoUri) {
         this.photoUri = photoUri;
+    }
+
+    @Override
+    public void toggleFabMenu(){
+        if(!listingDeleted){
+            categoriesView.toggleFabMenu();
+        }
     }
 
 }

@@ -73,6 +73,10 @@ public class CategoriesContract {
         void showNoDeletedItems();
 
         void openPeriodSelection(CharSequence periods[]);
+
+        void toggleFabMenu();
+
+        void hideFabMenu();
     }
 
     interface Presenter extends BasePresenter {
@@ -116,6 +120,8 @@ public class CategoriesContract {
         Bundle saveInstanceState();
 
         void restoreInstanceState(Bundle savedInstanceState);
+
+        void toggleFabMenu();
     }
 
 }
