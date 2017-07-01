@@ -30,6 +30,8 @@ public class SetupActivity extends AppCompatActivity {
                     getSupportFragmentManager(), setupFragment, R.id.contentFrame);
         }
 
+        new SetupPresenter(setupFragment, UserService.getInstance());
+
     }
 
     @Override

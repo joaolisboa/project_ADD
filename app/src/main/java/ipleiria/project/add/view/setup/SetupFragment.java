@@ -1,11 +1,12 @@
 package ipleiria.project.add.view.setup;
 
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,30 +14,31 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import org.w3c.dom.Text;
 
 import ipleiria.project.add.R;
-import ipleiria.project.add.data.model.EvaluationPeriod;
-import ipleiria.project.add.data.model.User;
-import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.view.main.MainActivity;
-
-import static ipleiria.project.add.data.source.UserService.USER_DATA_KEY;
 
 /**
  * Created by J on 06/06/2017.
  */
 
-public class SetupFragment extends Fragment {
+public class SetupFragment extends Fragment implements SetupContract.View {
 
+    private SetupContract.Presenter setupPresenter;
 
-    private Date startDate_;
-    private Date endDate_;
-    private String name_;
-    private String department_;
+    private EditText startDate;
+    private EditText endDate;
+    private EditText nameText;
+    private Spinner departmentSelect;
+
+    private TextView dateError;
+
+    private DatePickerDialog startDatePicker;
+    private DatePickerDialog endDatePicker;
+
     public SetupFragment() {
     }
 
@@ -55,46 +57,23 @@ public class SetupFragment extends Fragment {
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.setup_frag, container, false);
 
-        final EditText startDate = (EditText) root.findViewById(R.id.startDate);
-        final EditText endDate = (EditText) root.findViewById(R.id.endDate);
-        final EditText name = (EditText) root.findViewById(R.id.name);
-        final String myFormat = "dd-MM-yyyy";
-        final Spinner department = (Spinner) root.findViewById(R.id.department);
-        final Calendar myCalendar = Calendar.getInstance();
-        final SimpleDateFormat sdf = new SimpleDateFormat(myFormat);
-        final SharedPreferences sharedPreferences = getActivity().getSharedPreferences(USER_DATA_KEY,0);
+        startDate = (EditText) root.findViewById(R.id.startDate);
+        endDate = (EditText) root.findViewById(R.id.endDate);
+        nameText = (EditText) root.findViewById(R.id.name);
+        departmentSelect = (Spinner) root.findViewById(R.id.department);
+        dateError = (TextView) root.findViewById(R.id.date_error);
 
         startDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        myCalendar.set(Calendar.YEAR, year);
-                        myCalendar.set(Calendar.MONTH, month);
-                        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        startDate_ = myCalendar.getTime();
-                        startDate.setText(sdf.format(myCalendar.getTime()));
-                    }
-                }, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH))
-                        .show();
+                startDatePicker.show();
             }
         });
 
         endDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        myCalendar.set(Calendar.YEAR, year);
-                        myCalendar.set(Calendar.MONTH, month);
-                        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        endDate_ = myCalendar.getTime();
-                        endDate.setText(sdf.format(myCalendar.getTime()));
-                    }
-                }, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH))
-                        .show();
+                endDatePicker.show();
             }
         });
 
@@ -102,24 +81,101 @@ public class SetupFragment extends Fragment {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                name_ = name.getText().toString();
-                User user = UserService.getInstance().getUser();
-                EvaluationPeriod evaluationPeriod = new EvaluationPeriod();
-                evaluationPeriod.setStartDate(startDate_);
-                evaluationPeriod.setEndDate(endDate_);
-                department_ = department.getSelectedItem().toString().toUpperCase();
-                user.setDepartment(department_);
-                user.addEvaluationPeriod(evaluationPeriod);
-                user.setName(name_);
-                UserService.getInstance().setUser(user);
-                UserService.getInstance().saveUserInfo();
-                sharedPreferences.edit().putBoolean("my_first_time", false).apply();
-                startActivity(new Intent(getContext(), MainActivity.class));
-                getActivity().finish();
+                String name = nameText.getText().toString();
+                String department = departmentSelect.getSelectedItem().toString().toUpperCase();
+
+                if(setupPresenter.isInputValid(name)){
+                    setupPresenter.onCreateClick(name, department);
+                    startActivity(new Intent(getContext(), MainActivity.class));
+                    getActivity().finish();
+                }
             }
         });
 
         return root;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        setupPresenter.setupCalendar();
+    }
+
+
+    @Override
+    public void createDatePickers(int year, int month, int dayOfMonth) {
+        startDatePicker = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                setupPresenter.setStartDate(year, month, dayOfMonth);
+            }
+        }, year, month, dayOfMonth);
+        endDatePicker = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                setupPresenter.setEndDate(year, month, dayOfMonth);
+            }
+        }, year, month, dayOfMonth);
+    }
+
+    @Override
+    public void showNoNetworkError() {
+        new AlertDialog.Builder(getContext())
+                .setTitle("No internet")
+                .setMessage("In order to continue an internet connection is required")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(getContext(), SetupActivity.class));
+                        getActivity().finish();
+                    }
+                })
+                .show();
+    }
+
+    @Override
+    public void setPresenter(SetupContract.Presenter presenter) {
+        setupPresenter = presenter;
+    }
+
+    @Override
+    public void showStartDateInvalid() {
+        startDate.setError("Start date must come before end date");
+        dateError.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void showEndDateInvalid() {
+        endDate.setError("End date must come after start date");
+        dateError.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void setNameError() {
+        nameText.setError("Name field is empty");
+    }
+
+    @Override
+    public void showDatesValid() {
+        //only one needs to be verified and if one is correct so is the other
+        startDate.setError(null);
+        endDate.setError(null);
+        dateError.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void setNameValid() {
+        nameText.setError(null);
+    }
+
+    @Override
+    public void setStartDateText(String date) {
+        startDate.setText(date);
+    }
+
+    @Override
+    public void setEndDateText(String date) {
+        endDate.setText(date);
     }
 
 }

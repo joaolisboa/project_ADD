@@ -48,6 +48,8 @@ public class UserService {
     public static final String DROPBOX_PREFS_KEY = "dropbox_access_token";
     public static final String MEO_PREFS_KEY = "meo_access_token";
 
+    public final static String PERIOD_DATE_FORMAT = "dd-MM-yyyy";
+
     private User user;
 
     private String dropboxToken;
@@ -147,12 +149,13 @@ public class UserService {
         preferences.edit().putString(USER_UID_KEY, firebaseUser.getUid()).apply();
     }
 
+    @SuppressLint("SimpleDateFormat")
     private User getUserFromSnapshot(DataSnapshot snapshot){
         User user = new User(snapshot.getKey());
         user.setName((String) snapshot.child("name").getValue());
         user.setDepartment((String) snapshot.child("department").getValue());
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(PERIOD_DATE_FORMAT);
         for (DataSnapshot periodsSnapshot : snapshot.child("evaluationPeriods").getChildren()) {
             EvaluationPeriod evaluationPeriod = new EvaluationPeriod(periodsSnapshot.getKey());
             try {
@@ -221,7 +224,7 @@ public class UserService {
     public void saveUserInfo() {
         DatabaseReference ref = userDatabaseReference.child("evaluationPeriods");
         Map<String, Object> periodsMap = new HashMap<>();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(PERIOD_DATE_FORMAT);
         for (EvaluationPeriod evaluationPeriod : user.getEvaluationPeriods()) {
             Map<String, Object> period = new HashMap<>();
             if (evaluationPeriod.getDbKey() == null || evaluationPeriod.getDbKey().isEmpty()) {

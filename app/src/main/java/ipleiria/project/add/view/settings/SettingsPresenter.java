@@ -54,8 +54,8 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     // this can be fixed with MEO but Dropbox would require change to their code
     private boolean loginIntent = false;
 
-    // when the dimensions are edited we need to track if all are valid
-    // before altering the dimension weight itself so we use a map to keep track of the changes
+    // when the dimensions are edited we need to track if all are changes valid
+    // before commiting the changes so we use a map to keep track of the changes
     private Map<Dimension, Integer> weightsChangeValid;
 
     public SettingsPresenter(SettingsContract.View settingsView, DrawerView drawerView,
