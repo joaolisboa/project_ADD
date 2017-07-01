@@ -13,11 +13,9 @@ public class SetupContract {
 
     interface View extends BaseView<Presenter>{
 
-        void showStartDateInvalid();
-
-        void showEndDateInvalid();
-
         void setNameError();
+
+        void showDatesInvalid();
 
         void showDatesValid();
 

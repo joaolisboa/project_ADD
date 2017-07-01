@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -56,19 +57,21 @@ import static ipleiria.project.add.view.categories.CategoriesPresenter.LIST_DELE
  * Created by Lisboa on 25-Jun-17.
  */
 
-public class BaseDrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, DrawerView{
+public class BaseDrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, DrawerView, BaseContract.View{
 
     static final String TAG = "BASE_DRAWER_ACTIVITY";
-
-    private Date startDate_;
-    private Date endDate_;
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
 
-    private ItemsRepository itemsRepository;
-    private FilesRepository filesRepository;
-    private UserService userService;
+    private EditText startDate;
+    private EditText endDate;
+    private TextView dateError;
+
+    private ProgressDialog progressDialog;
+    private AlertDialog createPeriodDialog;
+
+    private BaseContract.Presenter basePresenter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,9 +90,17 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        itemsRepository = ItemsRepository.getInstance();
-        filesRepository = FilesRepository.getInstance();
-        userService = UserService.getInstance();
+        basePresenter = new DrawerPresenter(this, ItemsRepository.getInstance(),
+                FilesRepository.getInstance(), UserService.getInstance());
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        createPeriodDialog = builder.setView(inflater.inflate(R.layout.create_new_period, null))
+                // Add action buttons
+                .setPositiveButton("Create", null)
+                .setNegativeButton("Cancel", null)
+                .create();
     }
 
     @Override
@@ -135,7 +146,8 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
                 break;
 
             case R.id.export:
-                exportFiles();
+                //exportFiles();
+                basePresenter.exportFiles();
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return false; // don't select item
 
@@ -171,87 +183,84 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
         });
     }
 
-    private void exportFiles(){
-        final ProgressDialog progressDialog = new ProgressDialog(BaseDrawerActivity.this);
+    @Override
+    public void showProgressDialog() {
+        if(progressDialog == null) {
+            progressDialog = new ProgressDialog(BaseDrawerActivity.this);
+            progressDialog.setMessage("Creating files and exporting...");
+        }
         progressDialog.show();
-        progressDialog.setMessage("Creating files and exporting...");
-        itemsRepository.getItems(false, new FilesRepository.Callback<List<Item>>() {
-            @Override
-            public void onComplete(List<Item> result) {
-                final Handler handler = new Handler();
-                Runnable runnable = new Runnable() {
-                    public void run() {
-                        FileUtils.readExcel();
-                        FileUtils.generateReport();
+    }
 
-                        handler.post(new Runnable() {
-                            public void run() {
-                                String period = itemsRepository.getCurrentPeriod().toStringPath();
-                                String username = userService.getUser().getName();
-                                String sheetFilename = "Ficha de autoavaliação_Grelha_" + period + "_" + username + ".xlsx";
-                                String docFilename = "Relatorio_" + period + "_" + username + ".txt";
-                                Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), SHEET_FILENAME));
-                                filesRepository.uploadFile(sheet, "exported", sheetFilename);
-                                Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), DOC_FILENAME));
-                                filesRepository.uploadFile(doc, "exported", docFilename);
-                                progressDialog.dismiss();
-                            }
-                        });
+    @Override
+    public void hideProgressDialog() {
+        if(progressDialog != null) {
+            progressDialog.dismiss();
+        }
+    }
 
-                    }
-                };
-                new Thread(runnable).start();
-            }
+    @Override
+    public void setStartDateText(String date) {
+        startDate.setText(date);
+    }
 
-            @Override
-            public void onError(Exception e) {
-                Log.d(TAG, e.getMessage(), e);
-                progressDialog.dismiss();
-                Snackbar.make(findViewById(R.id.coordinatorLayout), "Error while exporting", Snackbar.LENGTH_SHORT);
-            }
-        });
+    @Override
+    public void setEndDateText(String date) {
+        endDate.setText(date);
+    }
+
+    @Override
+    public void showDatesValid() {
+        startDate.setError(null);
+        endDate.setError(null);
+        dateError.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showDatesInvalid() {
+        startDate.setError("Start date must come before end date");
+        endDate.setError("End date must come after start date");
+        dateError.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void setPresenter(BaseContract.Presenter presenter) {
+        basePresenter = presenter;
     }
 
     private void createPeriod(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        // Get the layout inflater
-        LayoutInflater inflater = this.getLayoutInflater();
-
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.create_new_period, null))
-                // Add action buttons
-                .setPositiveButton("Create", new DialogInterface.OnClickListener() {
+        // this way we can override when the dialog should close
+        createPeriodDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        EvaluationPeriod evaluationPeriod = new EvaluationPeriod();
-                        evaluationPeriod.setStartDate(startDate_);
-                        evaluationPeriod.setEndDate(endDate_);
-                        UserService.getInstance().getUser().addEvaluationPeriod(evaluationPeriod);
-                        UserService.getInstance().saveUserInfo();
+                    public void onClick(View v) {
+                        if (basePresenter.areDatesValid()) {
+                            basePresenter.createPeriod();
+                            createPeriodDialog.dismiss();
+                        }
                     }
-                })
-                .setNegativeButton("Cancel", null);
-        AlertDialog dialog = builder.create();
+                });
+            }
+        });
 
-        dialog.show();
+        createPeriodDialog.show();
 
-        final String myFormat = "dd-MM-yyyy";
-        final EditText startDate = (EditText) dialog.findViewById(R.id.startDate);
-        final EditText endDate = (EditText) dialog.findViewById(R.id.endDate);
+        startDate = (EditText) createPeriodDialog.findViewById(R.id.startDate);
+        endDate = (EditText) createPeriodDialog.findViewById(R.id.endDate);
+        dateError = (TextView) createPeriodDialog.findViewById(R.id.date_error);
+
         final Calendar myCalendar = Calendar.getInstance();
-        final SimpleDateFormat sdf = new SimpleDateFormat(myFormat);
+
         startDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new DatePickerDialog(BaseDrawerActivity.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        myCalendar.set(Calendar.YEAR, year);
-                        myCalendar.set(Calendar.MONTH, month);
-                        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        startDate_ = myCalendar.getTime();
-                        startDate.setText(sdf.format(myCalendar.getTime()));
+                        basePresenter.setStartDate(year, month, dayOfMonth);
                     }
                 }, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH))
                         .show();
@@ -264,11 +273,7 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
                 new DatePickerDialog(BaseDrawerActivity.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        myCalendar.set(Calendar.YEAR, year);
-                        myCalendar.set(Calendar.MONTH, month);
-                        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        endDate_ = myCalendar.getTime();
-                        endDate.setText(sdf.format(myCalendar.getTime()));
+                        basePresenter.setEndDate(year, month, dayOfMonth);
                     }
                 }, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH))
                         .show();

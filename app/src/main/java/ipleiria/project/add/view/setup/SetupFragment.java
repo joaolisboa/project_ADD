@@ -139,13 +139,8 @@ public class SetupFragment extends Fragment implements SetupContract.View {
     }
 
     @Override
-    public void showStartDateInvalid() {
+    public void showDatesInvalid() {
         startDate.setError("Start date must come before end date");
-        dateError.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void showEndDateInvalid() {
         endDate.setError("End date must come after start date");
         dateError.setVisibility(View.VISIBLE);
     }

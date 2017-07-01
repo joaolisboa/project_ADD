@@ -53,7 +53,7 @@ public class SetupPresenter implements SetupContract.Presenter{
         //verify date comes before endDate
         if(endDate != null){
             if(startDate.compareTo(endDate) > 0){
-                setupView.showStartDateInvalid();
+                setupView.showDatesInvalid();
             }else{
                 setupView.showDatesValid();
             }
@@ -69,7 +69,7 @@ public class SetupPresenter implements SetupContract.Presenter{
         //verify date comes after startDate
         if(startDate != null){
             if(endDate.compareTo(startDate) < 0){
-                setupView.showEndDateInvalid();
+                setupView.showDatesInvalid();
             }else{
                 setupView.showDatesValid();
             }
