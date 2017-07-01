@@ -267,7 +267,7 @@ public class MainFragment extends Fragment implements MainContract.View,
     @Override
     public void openFileShare(String filePath) {
         MimeTypeMap mime = MimeTypeMap.getSingleton();
-        String ext = filePath.substring(filePath.indexOf(".") + 1);
+        String ext = filePath.substring(filePath.lastIndexOf(".") + 1);
         String type = mime.getMimeTypeFromExtension(ext);
         if(ext.equals("eml")){
             type = "message/rfc822";
@@ -275,6 +275,7 @@ public class MainFragment extends Fragment implements MainContract.View,
 
         Intent shareIntent = new Intent(Intent.ACTION_VIEW);
         Uri fileUri = UriHelper.getUriFromAppfile(filePath);
+        System.out.println("uri: " + fileUri.getEncodedPath());
         shareIntent.setDataAndType(fileUri, type);
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(Intent.createChooser(shareIntent, "Open file"));

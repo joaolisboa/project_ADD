@@ -1,12 +1,9 @@
 package ipleiria.project.add;
 
 import android.annotation.SuppressLint;
-import android.net.Uri;
 import android.os.Handler;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,8 +17,6 @@ import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.FileUtils;
 
 import static ipleiria.project.add.data.source.UserService.PERIOD_DATE_FORMAT;
-import static ipleiria.project.add.utils.FileUtils.DOC_FILENAME;
-import static ipleiria.project.add.utils.FileUtils.SHEET_FILENAME;
 
 /**
  * Created by Lisboa on 01-Jul-17.
@@ -57,7 +52,7 @@ public class DrawerPresenter implements BaseContract.Presenter{
         dateFormat = new SimpleDateFormat(PERIOD_DATE_FORMAT);
     }
 
-    // TODO: 01-Jul-17 make base presenter of all presenters with drawer view, where subscribe will set user info 
+    // TODO: 01-Jul-17 make base presenter of all presenters with drawer view, where subscribe will set user info
     @Override
     public void subscribe() {
         baseView.setUserInfo(userService.getUser());
@@ -83,17 +78,16 @@ public class DrawerPresenter implements BaseContract.Presenter{
 
                         handler.post(new Runnable() {
                             public void run() {
-                                String period = itemsRepository.getCurrentPeriod().toStringPath();
                                 String username = userService.getUser().getName();
 
-                                String sheetFilename = "Ficha de autoavaliação_Grelha_" + period + "_" + username + ".xlsx";
-                                String docFilename = "Relatorio_" + period + "_" + username + ".txt";
-                                Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), SHEET_FILENAME));
-                                filesRepository.uploadFile(sheet, "exported", sheetFilename);
-                                Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), DOC_FILENAME));
-                                filesRepository.uploadFile(doc, "exported", docFilename);
-
                                 baseView.hideProgressDialog();
+
+                                if(filesRepository.exportFiles(username)){
+                                    baseView.showOnlineFilesExported();
+                                }else{
+                                    baseView.showOfflineFilesExported();
+                                }
+
                             }
                         });
 

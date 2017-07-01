@@ -26,6 +26,10 @@ public class BaseContract {
 
         void showDatesInvalid();
 
+        void showOnlineFilesExported();
+
+        void showOfflineFilesExported();
+
     }
 
     interface Presenter extends BasePresenter{

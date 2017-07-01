@@ -12,6 +12,8 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -37,25 +39,24 @@ public class FileUtils {
 
     public static void generateReport() {
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy");
             int yearStart = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate()));
             int yearEnd = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate()));
 
             File file = new File(Application.getAppContext().getFilesDir(), DOC_FILENAME);
-            FileWriter writer = new FileWriter(file);
+            Writer writer = new OutputStreamWriter(new FileOutputStream(file), "ISO8859_1");
 
             writer.append("Curriculum Vitae Detalhado - Avaliação de Desempenho \n");
             writer.append("\t ESTG - IPLEIRIA \n");
-            writer.append("Nome do Avaliado: " + UserService.getInstance().getUser().getName()+"\n");
+            writer.append("Nome do Avaliado: " + UserService.getInstance().getUser().getName() + "\n");
             writer.append("Categoria:  \n");
             writer.append("Unidade Orgânica: Escola Superior de Tecnologia e Gestão \n");
-            writer.append("Departamento: Departamento de " + UserService.getInstance().getUser().getDepartment()+"\n");
+            writer.append("Departamento: Departamento de " + UserService.getInstance().getUser().getDepartment() + "\n");
             writer.append("Regime de contratação:  \n");
-            writer.append("Período em avaliação: " + yearStart +" a " +yearEnd +"\n");
+            writer.append("Período em avaliação: " + yearStart + " a " + yearEnd + "\n");
 
             for (Dimension dimension : CategoryRepository.getInstance().getDimensions()) {
-                if(dimension.getNumberOfItems() > 0) {
+                if (dimension.getNumberOfItems() > 0) {
                     writer.append(dimension.getReference() + ". " + dimension.getName() + "\n");
 
                     for (Area area : dimension.getAreas()) {
@@ -78,10 +79,7 @@ public class FileUtils {
 
             writer.flush();
             writer.close();
-        } catch (
-                IOException e)
-
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -105,9 +103,9 @@ public class FileUtils {
             int yearStart = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate()));
             int yearEnd = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate()));
             int duration = 0;
-            if( yearEnd - yearStart * 12 > 0) {
+            if (yearEnd - yearStart * 12 > 0) {
                 duration = yearEnd - yearStart * 12;
-            }else{
+            } else {
                 duration = 12;
             }
             sheet.getRow(2).getCell(7).setCellValue(duration);

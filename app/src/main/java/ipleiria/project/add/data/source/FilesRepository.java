@@ -36,6 +36,8 @@ import static ipleiria.project.add.data.model.PendingFile.BOTH;
 import static ipleiria.project.add.data.model.PendingFile.DROPBOX;
 import static ipleiria.project.add.data.model.PendingFile.EMAIL;
 import static ipleiria.project.add.data.model.PendingFile.MEO_CLOUD;
+import static ipleiria.project.add.utils.FileUtils.DOC_FILENAME;
+import static ipleiria.project.add.utils.FileUtils.SHEET_FILENAME;
 
 /**
  * Created by Lisboa on 06-May-17.
@@ -101,6 +103,30 @@ public class FilesRepository implements FilesDataSource {
 
     public static void destroyInstance() {
         INSTANCE = null;
+    }
+
+    // method returns true if files where exported to cloud services(user is onlines with services connected)
+    public boolean exportFiles(String username){
+        String sheetFilename = "Ficha de autoavaliação_Grelha_" + currentPeriod + "_" + username + ".xlsx";
+        String docFilename = "Relatorio_" + currentPeriod + "_" + username + ".txt";
+
+        Uri sheet = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), SHEET_FILENAME));
+        Uri doc = Uri.fromFile(new File(Application.getAppContext().getFilesDir(), DOC_FILENAME));
+
+        if(NetworkState.isOnline()){
+            if(meoCloudService.isAvailable() || dropboxService.isAvailable()){
+                uploadFile(sheet, "exported", sheetFilename);
+                uploadFile(doc, "exported", docFilename);
+                // files have been uploaded
+                return true;
+            }
+        }
+
+        //if files are exported locally, create them here
+        //... rename?
+
+        //files can be exported locally
+        return false;
     }
 
     public void setCurrentPeriod(EvaluationPeriod currentPeriod) {

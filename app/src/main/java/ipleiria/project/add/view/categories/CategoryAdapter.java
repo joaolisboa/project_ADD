@@ -13,6 +13,7 @@ import java.util.List;
 
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Category;
+import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.Item;
 
 /**
@@ -33,26 +34,32 @@ public class CategoryAdapter extends BaseAdapter{
     }
 
     private void setList(List<Category> categories){
-        LinkedList<Category> firstItems = new LinkedList<>();
-        LinkedList<Category> lastItems = new LinkedList<>();
+        LinkedList<Category> orderedList = new LinkedList<>();
 
-        for(Category category: categories){
-            if(!listingDeleted){
-                if(category.getPoints() > 0){
-                    firstItems.add(category);
-                }else{
-                    lastItems.add(category);
-                }
-            }else{
-                if(category.getNumberOfDeletedItems() > 0){
-                    firstItems.add(category);
+        // only reorder list if it's an instance of Dimension which is the first level
+        if(!categories.isEmpty() && !(categories.get(0) instanceof Dimension)) {
+            LinkedList<Category> firstItems = new LinkedList<>();
+            LinkedList<Category> lastItems = new LinkedList<>();
+
+            // order list by adding categories with items/points first
+            for (Category category : categories) {
+                if (!listingDeleted) {
+                    if (category.getPoints() > 0) {
+                        firstItems.add(category);
+                    } else {
+                        lastItems.add(category);
+                    }
+                } else {
+                    if (category.getNumberOfDeletedItems() > 0) {
+                        firstItems.add(category);
+                    }
                 }
             }
+            orderedList.addAll(firstItems);
+            orderedList.addAll(lastItems);
+        }else{
+            orderedList.addAll(categories);
         }
-
-        LinkedList<Category> orderedList = new LinkedList<>();
-        orderedList.addAll(firstItems);
-        orderedList.addAll(lastItems);
 
         this.items = orderedList;
     }

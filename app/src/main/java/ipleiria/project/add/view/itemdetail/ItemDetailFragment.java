@@ -188,7 +188,7 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     @Override
     public void openFileShare(String filePath) {
         MimeTypeMap mime = MimeTypeMap.getSingleton();
-        String ext = filePath.substring(filePath.indexOf(".") + 1);
+        String ext = filePath.substring(filePath.lastIndexOf(".") + 1);
         String type = mime.getMimeTypeFromExtension(ext);
         if(ext.equals("eml")){
             type = "message/rfc822";
