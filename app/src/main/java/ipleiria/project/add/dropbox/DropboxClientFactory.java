@@ -14,7 +14,7 @@ public class DropboxClientFactory {
     public static void init(String accessToken) {
         if (sDbxClient == null) {
             DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder("Projecto ADD v1.0")
-                .withHttpRequestor(OkHttp3Requestor.INSTANCE)
+                .withHttpRequestor(new OkHttp3Requestor(OkHttp3Requestor.defaultOkHttpClient()))
                 .build();
 
             sDbxClient = new DbxClientV2(requestConfig, accessToken);
