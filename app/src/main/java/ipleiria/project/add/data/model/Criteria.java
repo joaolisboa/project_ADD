@@ -170,6 +170,19 @@ public class Criteria extends Category{
         this.readCell = readCell;
     }
 
+    public boolean hasAdditionalInfo() {
+        if(observations != null && !observations.isEmpty()){
+            return true;
+        }
+        if(requiredDocument != null && !requiredDocument.isEmpty()){
+            return true;
+        }
+        if(weightsInformation != null && !weightsInformation.isEmpty()){
+            return true;
+        }
+        return false;
+    }
+
     public static class Coordinate{
         public int x;
         public int y;

@@ -26,6 +26,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,6 +40,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -552,10 +554,39 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
     }
 
-    private void setSelectedViewInfo(Category category, final View view, View.OnClickListener onClickListener) {
-        if (category instanceof Criteria) {
-            view.findViewById(R.id.additional_info).setVisibility(View.VISIBLE);
-        }
+    private void setSelectedViewInfo(final Category category, final View view, View.OnClickListener onClickListener) {
+        // TODO: 02-Jul-17 show info button and criteria additional info when clicking
+        /*if (category instanceof Criteria) {
+            ImageButton info = (ImageButton) view.findViewById(R.id.additional_info);
+            if(((Criteria)category).hasAdditionalInfo()) {
+                info.setVisibility(View.VISIBLE);
+
+                info.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Criteria criteria = (Criteria) category;
+                        String formattedString = "";
+                        if(criteria.getObservations() != null && !criteria.getObservations().isEmpty()) {
+                            formattedString ="<h3><b>Observations</b></h3><p>" + criteria.getObservations() + "</p>";
+                        }
+                        if(criteria.getRequiredDocument() != null && !criteria.getRequiredDocument().isEmpty()) {
+                            formattedString ="\n<b>Required Document</b>\n" + criteria.getRequiredDocument();
+                        }
+                        if(criteria.getWeightsInformation() != null && !criteria.getWeightsInformation().isEmpty()) {
+                            formattedString ="\n<b>Weight Information</b>\n" + criteria.getWeightsInformation();
+                        }
+
+                        TextView text = new TextView(getContext());
+                        text.setText(Html.fromHtml(formattedString));
+                        new AlertDialog.Builder(getContext())
+                                .setTitle(criteria.getName())
+                                .setView(text)
+                                .setPositiveButton("Close", null)
+                                .show();
+                    }
+                });
+            }
+        }*/
 
         ImageView expandableArrow = (ImageView) view.findViewById(R.id.expandable_arrow);
         expandableArrow.setVisibility(View.VISIBLE);
