@@ -114,7 +114,7 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
     }
 
     @Override
-    public void fillValues(final int position, View convertView) {
+    public void fillValues(final int position, final View convertView) {
         ItemFile file = (ItemFile) getItem(position);
 
         TextView filename = (TextView) convertView.findViewById(R.id.filename);
@@ -148,6 +148,15 @@ public class ItemFileAdapter extends BaseSwipeAdapter {
             @Override
             public void onClick(View v) {
                 actionsListener.onFileClick((ItemFile) getItem(position));
+            }
+        });
+
+        itemLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                SwipeLayout swipeLayout = (SwipeLayout) convertView.findViewById(R.id.bottom_layout_actions);
+                swipeLayout.open(true);
+                return true;
             }
         });
 

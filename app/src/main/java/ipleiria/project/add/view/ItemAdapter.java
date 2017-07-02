@@ -88,7 +88,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
     public void fillValues(final int position, View convertView) {
         Item item = (Item) getItem(position);
 
-        SwipeLayout swipeLayout = (SwipeLayout) convertView.findViewById(R.id.bottom_layout_actions);
+        final SwipeLayout swipeLayout = (SwipeLayout) convertView.findViewById(R.id.bottom_layout_actions);
         swipeLayout.setSwipeEnabled(enableSwipe);
 
         TextView itemName = (TextView) convertView.findViewById(R.id.title_text_view);
@@ -98,7 +98,7 @@ public class ItemAdapter extends BaseSwipeAdapter {
         TextView numFilesView = (TextView) convertView.findViewById(R.id.num_files);
         TextView pointsView = (TextView) convertView.findViewById(R.id.weight);
         attachView(item, pointsView);
-        pointsView.setText(String.valueOf(item.getWeight()));
+        pointsView.setText("Weight: " + item.getWeight());
 
         if (!listingDeleted) {
             numFilesView.setText(convertView.getContext().getString(R.string.num_files, item.getFiles().size()));
@@ -111,6 +111,14 @@ public class ItemAdapter extends BaseSwipeAdapter {
             @Override
             public void onClick(View v) {
                 actionsListener.onItemClick((Item) getItem(position));
+            }
+        });
+
+        itemLayout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                swipeLayout.open(true);
+                return true;
             }
         });
 

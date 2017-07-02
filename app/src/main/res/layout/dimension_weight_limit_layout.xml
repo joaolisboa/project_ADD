@@ -16,7 +16,7 @@
         android:paddingTop="12dp"
         android:text="Dimension 1"
         android:textColor="@android:color/primary_text_light"
-        android:textSize="13sp"/>
+        android:textSize="16sp"/>
 
     <TextView
         android:id="@+id/weight_limit"

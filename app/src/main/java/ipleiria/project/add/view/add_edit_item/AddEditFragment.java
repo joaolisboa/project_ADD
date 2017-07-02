@@ -299,6 +299,7 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
         tView.setDefaultNodeClickListener(nodeClickListener);
         tView.setUse2dScroll(false);
         tView.setSelectionModeEnabled(true);
+        tView.setDefaultAnimation(true);
         containerView.addView(tView.getView());
     }
 
