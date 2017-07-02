@@ -210,7 +210,7 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
                     }
                 });
             }
-            signInView.showAuthenticatedUser(acct.getDisplayName());
+            signInView.showAuthenticatedUser(acct.getDisplayName(), acct.getEmail());
         } else {
             // Signed out, show unauthenticated UI.
             signInView.showUnauthenticatedUser();
@@ -298,7 +298,7 @@ public class GoogleSignInPresenter implements GoogleSignInContract.Presenter {
                             // so we need to log in with the credential
                             // instead of linking with the anonymous account
                             firebaseAuth.signInWithCredential(credential);
-                            signInView.requestContactsPermission();
+                            signInView.requestContactsPermission(acct.getEmail());
                             googleAccountCredential = GoogleAccountCredential
                                     .usingOAuth2(Application.getAppContext(), Arrays.asList(SCOPES));
                             googleAccountCredential.setSelectedAccount(acct.getAccount());

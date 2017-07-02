@@ -1,6 +1,5 @@
 package ipleiria.project.add.view.google_sign_in;
 
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentProviderOperation;
 import android.content.DialogInterface;
@@ -120,8 +119,12 @@ public class GoogleSignInFragment extends Fragment implements GoogleSignInContra
     }
 
     @Override
-    public void showAuthenticatedUser(String displayName) {
-        statusTextView.setText("signed in: " + displayName);
+    public void showAuthenticatedUser(String displayName, String email) {
+        String customFilteredEmail = email.split("@")[0] + "+addestg@" + email.split("@")[1];
+
+        statusTextView.setText("signed in: " + displayName +
+                "\n\n If you allowed access to Gmail\nyou can send emails to\n"
+                +customFilteredEmail+"\n and receive them in the home page");
         signInButton.setVisibility(View.GONE);
         signOutLayout.setVisibility(View.VISIBLE);
     }
@@ -151,11 +154,12 @@ public class GoogleSignInFragment extends Fragment implements GoogleSignInContra
     }
 
     @Override
-    public void requestContactsPermission(){
+    public void requestContactsPermission(String email){
         // create dialogto give user some context of why we're requesting access to contacts
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMessage("Now that you've linked with Google you can send emails to the contact ADD ESTG.\n"
-                            + "Click Allow when requested to create the contact")
+        builder.setMessage("Now that you've linked with Google you can send emails to the contact ADD ESTG "+
+                            "or to the address " + email.split("@")[0] + "+addestg@" + email.split("@")[1]  + ".\n\n"
+                            + "Click Allow when requested to create the contact and to access Gmail if you wish to use this functionality")
                 .setTitle("Create contact");
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {

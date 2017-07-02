@@ -22,7 +22,7 @@ public class GoogleSignInContract {
 
         void showUnauthenticatedUser();
 
-        void showAuthenticatedUser(String mail);
+        void showAuthenticatedUser(String mail, String email);
 
         void showProgressDialog();
 
@@ -30,7 +30,7 @@ public class GoogleSignInContract {
 
         void signIn(GoogleApiClient googleApiClient);
 
-        void requestContactsPermission();
+        void requestContactsPermission(String email);
 
         void requestAuth(Intent intent);
 
