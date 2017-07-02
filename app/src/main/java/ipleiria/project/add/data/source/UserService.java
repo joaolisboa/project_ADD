@@ -285,4 +285,9 @@ public class UserService {
         this.dropboxToken = null;
         preferences.edit().remove(DROPBOX_PREFS_KEY).apply();
     }
+
+    public void deleteEvaluationPeriod(EvaluationPeriod period) {
+        user.getEvaluationPeriods().remove(period);
+        userDatabaseReference.child("evaluationPeriods").child(period.getDbKey()).removeValue();
+    }
 }

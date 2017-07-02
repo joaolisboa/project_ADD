@@ -5,6 +5,7 @@ import java.util.List;
 import ipleiria.project.add.BasePresenter;
 import ipleiria.project.add.BaseView;
 import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.User;
 
 /**
@@ -32,6 +33,8 @@ public class SettingsContract {
         void setDropboxStatus(boolean status);
 
         void setDimensionViews(List<Dimension> dimensions, User user);
+
+        void openEvaluationPeriodDialog(List<EvaluationPeriod> evaluationPeriods);
     }
 
     interface Presenter extends BasePresenter{
@@ -59,6 +62,10 @@ public class SettingsContract {
         void setWeight(Dimension dimension, int weightInserted);
 
         void commitDimensionWeightChanges();
+
+        void onEvaluationPeriodsClick();
+
+        void deleteEvaluationPeriod(EvaluationPeriod period);
     }
 
 }

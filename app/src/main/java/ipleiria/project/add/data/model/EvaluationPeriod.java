@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import static ipleiria.project.add.data.source.UserService.PERIOD_DATE_FORMAT;
+
 /**
  * Created by Lisboa on 12-Jun-17.
  */
@@ -68,7 +70,7 @@ public class EvaluationPeriod {
     @SuppressLint("SimpleDateFormat")
     public boolean equals(Object obj) {
         if(obj instanceof EvaluationPeriod){
-            SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat format = new SimpleDateFormat(PERIOD_DATE_FORMAT);
             if(format.format(startDate).equals(format.format((((EvaluationPeriod)obj)).getStartDate()))){
                 return true;
             }
@@ -77,5 +79,11 @@ public class EvaluationPeriod {
             }
         }
         return super.equals(obj);
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public String getFormattedString() {
+        SimpleDateFormat format = new SimpleDateFormat(PERIOD_DATE_FORMAT);
+        return format.format(startDate) + " - " + format.format(endDate);
     }
 }

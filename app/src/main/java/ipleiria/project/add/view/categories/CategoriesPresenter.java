@@ -437,7 +437,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         CharSequence periods[] = new CharSequence[userService.getUser().getEvaluationPeriods().size()];
         int i = 0;
         for (EvaluationPeriod evaluationPeriod : userService.getUser().getEvaluationPeriods()) {
-            periods[i] = evaluationPeriod.toString();
+            periods[i] = evaluationPeriod.getFormattedString();
             i++;
         }
         categoriesView.openPeriodSelection(periods);

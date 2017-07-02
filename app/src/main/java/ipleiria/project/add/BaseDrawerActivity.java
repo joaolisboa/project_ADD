@@ -6,53 +6,37 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.FileProvider;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
-import ipleiria.project.add.data.model.EvaluationPeriod;
-import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.CircleTransformation;
-import ipleiria.project.add.utils.FileUtils;
-import ipleiria.project.add.utils.MyProvider;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.view.categories.CategoriesActivity;
 import ipleiria.project.add.view.main.MainActivity;
@@ -99,15 +83,15 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        basePresenter = new DrawerPresenter(this, ItemsRepository.getInstance(),
+        basePresenter = new BaseDrawerPresenter(this, ItemsRepository.getInstance(),
                 FilesRepository.getInstance(), UserService.getInstance());
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         createPeriodDialog = builder.setView(inflater.inflate(R.layout.create_new_period, null))
-                // Add action buttons
-                .setPositiveButton("Create", null)
+                .setTitle("New evaluation period")
+                .setPositiveButton("Create", null) // this button will be overridden
                 .setNegativeButton("Cancel", null)
                 .create();
     }
@@ -187,7 +171,11 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
         profilePicView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(BaseDrawerActivity.this, SettingsActivity.class));
+                if(!navigationView.getMenu().findItem(R.id.nav_settings).isChecked()) {
+                    startActivity(new Intent(BaseDrawerActivity.this, SettingsActivity.class));
+                }else{
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                }
             }
         });
     }
@@ -243,42 +231,38 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
 
     @Override
     public void showOfflineFilesExported() {
-        ListView exportedFilesListView = new ListView(this);
-        String[] files = new String[]{"Evaluation grid", "Curriculum Vitae"};
-        ListAdapter adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, files);
-        exportedFilesListView.setAdapter(adapter);
+        CharSequence[] files = new CharSequence[]{"Evaluation grid", "Curriculum Vitae"};
 
-        exportedFilesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String filePath = Application.getAppContext().getFilesDir().getAbsolutePath();
-
-                if (position == 0) { // evaluation grid
-                    filePath += "/" + SHEET_FILENAME;
-                } else if (position == 1) { // curriculum vitae
-                    filePath += "/" + DOC_FILENAME;
-                }
-
-                MimeTypeMap mime = MimeTypeMap.getSingleton();
-                String ext = filePath.substring(filePath.lastIndexOf(".") + 1);
-                String type = mime.getMimeTypeFromExtension(ext);
-
-                File file = new File(filePath);
-                int start = Application.getAppContext().getFilesDir().getAbsolutePath().length();
-                String path = file.getAbsolutePath().substring(start, file.getAbsolutePath().length());
-
-                Uri fileUri = UriHelper.getUriFromAppfile(path);
-
-                Intent shareIntent = new Intent(Intent.ACTION_VIEW);
-                shareIntent.setDataAndType(fileUri, type);
-                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(Intent.createChooser(shareIntent, "Open file"));
-            }
-        });
-
-        new AlertDialog.Builder(this).setView(exportedFilesListView)
+        new AlertDialog.Builder(this)
                 .setTitle("Select file to open")
                 .setNegativeButton("Close", null)
+                .setItems(files, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String filePath = Application.getAppContext().getFilesDir().getAbsolutePath();
+
+                        if (which == 0) { // evaluation grid
+                            filePath += "/" + SHEET_FILENAME;
+                        } else if (which == 1) { // curriculum vitae
+                            filePath += "/" + DOC_FILENAME;
+                        }
+
+                        MimeTypeMap mime = MimeTypeMap.getSingleton();
+                        String ext = filePath.substring(filePath.lastIndexOf(".") + 1);
+                        String type = mime.getMimeTypeFromExtension(ext);
+
+                        File file = new File(filePath);
+                        int start = Application.getAppContext().getFilesDir().getAbsolutePath().length();
+                        String path = file.getAbsolutePath().substring(start, file.getAbsolutePath().length());
+
+                        Uri fileUri = UriHelper.getUriFromAppfile(path);
+
+                        Intent shareIntent = new Intent(Intent.ACTION_VIEW);
+                        shareIntent.setDataAndType(fileUri, type);
+                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(Intent.createChooser(shareIntent, "Open file"));
+                    }
+                })
                 .show();
     }
 
@@ -310,6 +294,9 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
         startDate = (EditText) createPeriodDialog.findViewById(R.id.startDate);
         endDate = (EditText) createPeriodDialog.findViewById(R.id.endDate);
         dateError = (TextView) createPeriodDialog.findViewById(R.id.date_error);
+
+        startDate.setText("");
+        endDate.setText("");
 
         final Calendar myCalendar = Calendar.getInstance();
 

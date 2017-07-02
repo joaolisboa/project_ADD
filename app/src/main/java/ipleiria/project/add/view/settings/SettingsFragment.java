@@ -11,24 +11,31 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dropbox.core.android.Auth;
 import com.squareup.picasso.Picasso;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.*;
 import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.meocloud.MEOCloudAPI;
 import ipleiria.project.add.utils.CircleTransformation;
 import ipleiria.project.add.utils.NetworkState;
@@ -120,6 +127,10 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
         } else {
             showNoNetworkHint();
         }
+    }
+
+    public void onEvaluationPeriodsClick() {
+        settingsPresenter.onEvaluationPeriodsClick();
     }
 
     @Override
@@ -254,6 +265,19 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
 
     }
 
+    @Override
+    public void openEvaluationPeriodDialog(List<EvaluationPeriod> evaluationPeriods) {
+        ListView exportedFilesListView = new ListView(getContext());
+        BaseAdapter adapter = new PeriodAdapter(evaluationPeriods);
+        exportedFilesListView.setAdapter(adapter);
+
+        new AlertDialog.Builder(getContext())
+                .setView(exportedFilesListView)
+                .setTitle("Evaluation Periods")
+                .setNegativeButton("Close", null)
+                .show();
+    }
+
     private void createEditWeightDialog(final Dimension dimension) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         // create the custom dialog layout
@@ -364,5 +388,84 @@ public class SettingsFragment extends Fragment implements SettingsContract.View 
 
     public void showNoNetworkHint() {
         Toast.makeText(getContext(), "Can't establish connection", Toast.LENGTH_SHORT).show();
+    }
+
+    class PeriodAdapter extends BaseAdapter {
+
+        List<EvaluationPeriod> periods;
+
+        PeriodAdapter(List<EvaluationPeriod> periods) {
+            this.periods = new LinkedList<>();
+            this.periods.addAll(periods);
+        }
+
+        @Override
+        public int getCount() {
+            return periods.size();
+        }
+
+        @Override
+        public EvaluationPeriod getItem(int position) {
+            return periods.get(position);
+        }
+
+        private void deleteItem(int position){
+            periods.remove(position);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            ViewHolder viewHolder;
+
+            if (convertView == null) {
+                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.dialog_list_item_editing, parent, false);
+                viewHolder = new ViewHolder(convertView);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+
+            EvaluationPeriod period = getItem(position);
+
+            viewHolder.name.setText(period.getFormattedString());
+
+            viewHolder.delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new AlertDialog.Builder(getContext())
+                            .setTitle("Confirm")
+                            .setMessage("Deleting this period will delete all items associated. Are you sure?")
+                            .setNegativeButton("Cancel", null)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    settingsPresenter.deleteEvaluationPeriod(getItem(position));
+                                    deleteItem(position);
+                                }
+                            })
+                            .show();
+                }
+            });
+
+            return convertView;
+        }
+
+        private class ViewHolder {
+
+            TextView name;
+            ImageButton delete;
+
+            ViewHolder(View view) {
+                name = (TextView) view.findViewById(R.id.name);
+                delete = (ImageButton) view.findViewById(R.id.delete_button);
+            }
+
+        }
     }
 }

@@ -5,15 +5,6 @@
     android:orientation="vertical"
     android:paddingTop="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp"
-        android:paddingBottom="20dp"
-        android:text="Evaluation Period"
-        android:textSize="18sp"/>
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

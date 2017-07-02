@@ -8,6 +8,7 @@ import ipleiria.project.add.BaseDrawerActivity;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.ActivityUtils;
 
 /**
@@ -32,7 +33,8 @@ public class SettingsActivity extends BaseDrawerActivity {
                     getSupportFragmentManager(), settingsFragment, R.id.contentFrame);
         }
 
-        new SettingsPresenter(settingsFragment, this, UserService.getInstance(), CategoryRepository.getInstance());
+        new SettingsPresenter(settingsFragment, this, UserService.getInstance(),
+                CategoryRepository.getInstance(), ItemsRepository.getInstance());
     }
 
     public void onDropboxClick(View view) {
@@ -47,4 +49,7 @@ public class SettingsActivity extends BaseDrawerActivity {
         settingsFragment.onGoogleAccountClick();
     }
 
+    public void onEvaluationPeriodClick(View view) {
+        settingsFragment.onEvaluationPeriodsClick();
+    }
 }

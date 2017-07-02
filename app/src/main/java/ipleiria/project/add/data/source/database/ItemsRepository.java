@@ -86,6 +86,22 @@ public class ItemsRepository implements ItemsDataSource {
         this.deletedItemsReference.keepSynced(true);
     }
 
+    /**
+     * Returns the single instance of this class, creating it if necessary.
+     *
+     * @return the {@link ItemsRepository} instance
+     */
+    public static ItemsRepository getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new ItemsRepository();
+        }
+        return INSTANCE;
+    }
+
+    public static void destroyInstance() {
+        INSTANCE = null;
+    }
+
     public void initCurrentPeriod(User user){
         EvaluationPeriod mostRecentStart = null;
         for (EvaluationPeriod evaluationPeriod : user.getEvaluationPeriods()) {
@@ -118,20 +134,14 @@ public class ItemsRepository implements ItemsDataSource {
         return currentPeriod;
     }
 
-    /**
-     * Returns the single instance of this class, creating it if necessary.
-     *
-     * @return the {@link ItemsRepository} instance
-     */
-    public static ItemsRepository getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new ItemsRepository();
+    public void deleteEvaluationPeriod(EvaluationPeriod period) {
+        // delete items for the period
+        itemsReference.child(period.getDbKey()).removeValue();
+        // in case the current period has been deleted rerun init to select most recent period
+        if(currentPeriod.equals(period)){
+            currentPeriod = null;
+            initCurrentPeriod(userService.getUser());
         }
-        return INSTANCE;
-    }
-
-    public static void destroyInstance() {
-        INSTANCE = null;
     }
 
     @Override

@@ -22,7 +22,7 @@ import static ipleiria.project.add.data.source.UserService.PERIOD_DATE_FORMAT;
  * Created by Lisboa on 01-Jul-17.
  */
 
-public class DrawerPresenter implements BaseContract.Presenter{
+public class BaseDrawerPresenter implements BaseContract.Presenter{
 
     private static final String TAG = "DRAWER_PRESENTER";
 
@@ -39,8 +39,8 @@ public class DrawerPresenter implements BaseContract.Presenter{
     private Date endDate;
 
     @SuppressLint("SimpleDateFormat")
-    DrawerPresenter(BaseContract.View baseView, ItemsRepository itemsRepository,
-                    FilesRepository filesRepository, UserService userService){
+    BaseDrawerPresenter(BaseContract.View baseView, ItemsRepository itemsRepository,
+                        FilesRepository filesRepository, UserService userService){
         this.baseView = baseView;
         this.baseView.setPresenter(this);
 
@@ -112,6 +112,10 @@ public class DrawerPresenter implements BaseContract.Presenter{
 
         userService.getUser().addEvaluationPeriod(evaluationPeriod);
         userService.saveUserInfo();
+
+        startDate = null;
+        endDate = null;
+        calendar = Calendar.getInstance();
     }
 
     @Override

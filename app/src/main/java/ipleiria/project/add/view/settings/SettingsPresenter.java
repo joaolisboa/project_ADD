@@ -13,8 +13,10 @@ import java.util.Map;
 
 import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.data.model.Dimension;
+import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.database.CategoryRepository;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.dropbox.DropboxCallback;
 import ipleiria.project.add.dropbox.DropboxClientFactory;
 import ipleiria.project.add.meocloud.MEOCallback;
@@ -40,6 +42,7 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     private final DropboxService dropboxService;
     private final MEOCloudService meoCloudService;
     private final CategoryRepository categoryRepository;
+    private final ItemsRepository itemsRepository;
 
     private final SettingsContract.View settingsView;
     private final DrawerView drawerView;
@@ -59,11 +62,14 @@ public class SettingsPresenter implements SettingsContract.Presenter {
     private Map<Dimension, Integer> weightsChangeValid;
 
     public SettingsPresenter(SettingsContract.View settingsView, DrawerView drawerView,
-                             UserService userService, CategoryRepository categoryRepository) {
+                             UserService userService, CategoryRepository categoryRepository,
+                             ItemsRepository itemsRepository) {
+
         this.userService = userService;
         this.dropboxService = DropboxService.getInstance(userService.getDropboxToken());
         this.meoCloudService = MEOCloudService.getInstance(userService.getMeoCloudToken());
         this.categoryRepository = categoryRepository;
+        this.itemsRepository = itemsRepository;
 
         this.drawerView = drawerView;
         this.settingsView = settingsView;
@@ -182,6 +188,17 @@ public class SettingsPresenter implements SettingsContract.Presenter {
         }
         userService.saveUserInfo();
         setDimensions();
+    }
+
+    @Override
+    public void onEvaluationPeriodsClick() {
+        settingsView.openEvaluationPeriodDialog(userService.getUser().getEvaluationPeriods());
+    }
+
+    @Override
+    public void deleteEvaluationPeriod(EvaluationPeriod period) {
+        userService.deleteEvaluationPeriod(period);
+        itemsRepository.deleteEvaluationPeriod(period);
     }
 
     @Override
