@@ -292,7 +292,9 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
             fabAdd.hide();
             fabMenu.setImageResource(R.drawable.vertical_menu);
         } else {
-            fabPhoto.show();
+            if(categoriesPresenter.getIntentAction() == null || categoriesPresenter.getIntentAction().equals(OPEN_ITEM_ADDED)) {
+                fabPhoto.show();
+            }
             fabAdd.show();
             fabMenu.setImageResource(R.drawable.close_white);
         }
