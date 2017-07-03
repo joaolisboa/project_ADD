@@ -136,10 +136,20 @@ public class ItemsRepository implements ItemsDataSource {
 
     public void mergePeriodItems(EvaluationPeriod newPeriod, EvaluationPeriod currentPeriod) {
         localItems.put(newPeriod.getDbKey(), localItems.get(currentPeriod.getDbKey()));
+        localDeletedItems.put(newPeriod.getDbKey(), localDeletedItems.get(currentPeriod.getDbKey()));
+
         deleteEvaluationPeriod(currentPeriod);
+
         for(Item item: localItems.get(newPeriod.getDbKey())){
             saveItemToDatabase(newPeriod.getDbKey(), item);
         }
+
+        for(Item item: localDeletedItems.get(newPeriod.getDbKey())){
+            saveDeletedItemToDatabase(newPeriod.getDbKey(), item);
+        }
+
+        localItems.remove(currentPeriod.getDbKey());
+        localDeletedItems.remove(currentPeriod.getDbKey());
     }
 
     public void deleteEvaluationPeriod(EvaluationPeriod period) {
