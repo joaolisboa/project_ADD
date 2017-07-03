@@ -100,6 +100,10 @@ public class Item {
         }
     }
 
+    public void setCriteria(Criteria criteria){
+        this.criteria = criteria;
+    }
+
     public Dimension getDimension(){
         return criteria.getDimension();
     }

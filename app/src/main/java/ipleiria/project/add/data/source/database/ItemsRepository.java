@@ -150,6 +150,9 @@ public class ItemsRepository implements ItemsDataSource {
 
         localItems.remove(currentPeriod.getDbKey());
         localDeletedItems.remove(currentPeriod.getDbKey());
+
+        itemsReference.child(currentPeriod.getDbKey()).removeValue();
+        deletedItemsReference.child(currentPeriod.getDbKey()).removeValue();
     }
 
     public void deleteEvaluationPeriod(EvaluationPeriod period) {
@@ -181,7 +184,7 @@ public class ItemsRepository implements ItemsDataSource {
                     localItems.put(periodSnapshot.getKey(), new LinkedList<Item>());
 
                     for (DataSnapshot itemSnapshot: periodSnapshot.getChildren()) {
-                        localItems.get(periodSnapshot.getKey()).add(transformItem(itemSnapshot, false));
+                        localItems.get(periodSnapshot.getKey()).add(transformItem(periodSnapshot.getKey(), itemSnapshot, false));
                     }
                 }
                 deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -191,7 +194,7 @@ public class ItemsRepository implements ItemsDataSource {
                             localDeletedItems.put(periodSnapshot.getKey(), new LinkedList<Item>());
 
                             for (DataSnapshot itemSnapshot: periodSnapshot.getChildren()) {
-                                localDeletedItems.get(periodSnapshot.getKey()).add(transformItem(itemSnapshot, true));
+                                localDeletedItems.get(periodSnapshot.getKey()).add(transformItem(periodSnapshot.getKey(), itemSnapshot, true));
                             }
                         }
                     }
@@ -218,7 +221,7 @@ public class ItemsRepository implements ItemsDataSource {
                     localItems.put(periodSnapshot.getKey(), new LinkedList<Item>());
 
                     for (DataSnapshot itemSnapshot: periodSnapshot.getChildren()) {
-                        localItems.get(periodSnapshot.getKey()).add(transformItem(itemSnapshot, false));
+                        localItems.get(periodSnapshot.getKey()).add(transformItem(periodSnapshot.getKey(), itemSnapshot, false));
                     }
                 }
                 deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -228,7 +231,7 @@ public class ItemsRepository implements ItemsDataSource {
                             localDeletedItems.put(periodSnapshot.getKey(), new LinkedList<Item>());
 
                             for (DataSnapshot itemSnapshot: periodSnapshot.getChildren()) {
-                                localDeletedItems.get(periodSnapshot.getKey()).add(transformItem(itemSnapshot, true));
+                                localDeletedItems.get(periodSnapshot.getKey()).add(transformItem(periodSnapshot.getKey(), itemSnapshot, true));
                             }
                         }
                         if (deleted) {
@@ -256,8 +259,8 @@ public class ItemsRepository implements ItemsDataSource {
     // ie. when he upgrades from anon to Google account
     @Override
     public void moveItemsToNewUser() {
-        Log.d(TAG, "Moving items to new user: " + UserService.getInstance().getUser().getUid());
-        initUser(UserService.getInstance().getUser().getUid());
+        Log.d(TAG, "Moving items to new user: " +  userService.getUser().getUid());
+        initUser(userService.getUser().getUid());
         for(Map.Entry<String, List<Item>> entry: localItems.entrySet()){
             for (Item item : entry.getValue()) {
                 saveItemToDatabase(entry.getKey(), item);
@@ -303,7 +306,7 @@ public class ItemsRepository implements ItemsDataSource {
         return null;
     }
 
-    private Item transformItem(DataSnapshot itemSnapshot, boolean deleted){
+    private Item transformItem(String periodKey, DataSnapshot itemSnapshot, boolean deleted){
         Item newItem = new Item((String) itemSnapshot.child("description").getValue());
         newItem.setDbKey(itemSnapshot.getKey());
 
@@ -311,7 +314,14 @@ public class ItemsRepository implements ItemsDataSource {
 
         String reference = (String) itemSnapshot.child("reference").getValue();
         Criteria criteria = CategoryRepository.getInstance().getCriteriaFromReference(reference);
-        newItem.setCriteria(criteria, deleted);
+        newItem.setCriteria(criteria/*, deleted*/);
+        if(periodKey.equals(currentPeriod.getDbKey())) {
+            if (deleted) {
+                criteria.addDeletedItem(newItem);
+            } else {
+                criteria.addItem(newItem);
+            }
+        }
 
         for (DataSnapshot tagSnapshot : itemSnapshot.child("tags").getChildren()) {
             newItem.addTag(tagSnapshot.getValue(String.class));

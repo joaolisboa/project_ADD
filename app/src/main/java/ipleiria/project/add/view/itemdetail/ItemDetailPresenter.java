@@ -184,11 +184,14 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
     @Override
     public void onItemClicked(final ItemFile clickedFile) {
-        if (clickedFile.getFilename().substring(clickedFile.getFilename().lastIndexOf(".") + 1).equals("eml")) {
+        /*if (clickedFile.getFilename().substring(clickedFile.getFilename().lastIndexOf(".") + 1).equals("eml")) {
             File email = new File(Application.getAppContext().getFilesDir(), clickedFile.getFilename());
+            if(email.exists()){
+
+            }
             sharedFile = email;
             itemDetailView.openFileShare(filesRepository.getRelativePath(email));
-        } else {
+        } else {*/
             itemDetailView.showLoadingIndicator();
             filesRepository.getFileToShare(clickedFile, new FilesRepository.Callback<File>() {
                 @Override
@@ -200,12 +203,13 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
 
                 @Override
                 public void onError(Exception e) {
-                    itemDetailView.hideLoadingIndicator();
-                    // show error message for file not found
                     Log.d(TAG, "File not found - missing locally and/or remotely");
                     Log.e(TAG, e.getMessage(), e);
+                    itemDetailView.hideLoadingIndicator();
+                    // show error message for file not found
+                    itemDetailView.showFileNotFound();
                 }
             });
-        }
+        //}
     }
 }

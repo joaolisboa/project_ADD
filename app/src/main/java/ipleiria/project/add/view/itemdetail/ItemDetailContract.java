@@ -44,6 +44,8 @@ public class ItemDetailContract {
         void showNoTags();
 
         void openEditItemView(Item item);
+
+        void showFileNotFound();
     }
 
     interface Presenter extends BasePresenter{

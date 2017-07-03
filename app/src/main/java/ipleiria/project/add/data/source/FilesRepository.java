@@ -544,6 +544,8 @@ public class FilesRepository implements FilesDataSource {
             callback.onComplete(localFile);
         } else if (NetworkState.isOnline()) {
             downloadTempFile(file, callback);
+        }else{
+            callback.onError(new Exception("User is offline - no local file found"));
         }
     }
 
@@ -674,6 +676,8 @@ public class FilesRepository implements FilesDataSource {
             });
         } else if (dropboxService.isAvailable()) {
             dropboxService.downloadTempFile(path, toFile, callback);
+        } else {
+            callback.onError(new Exception("User is online but no service is connected"));
         }
     }
 

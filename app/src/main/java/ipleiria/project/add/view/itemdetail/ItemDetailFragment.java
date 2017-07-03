@@ -233,6 +233,14 @@ public class ItemDetailFragment extends Fragment implements ItemDetailContract.V
     }
 
     @Override
+    public void showFileNotFound() {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Error")
+                .setMessage("File not found")
+                .show();
+    }
+
+    @Override
     public void showItemInfo(Item item) {
         descriptionTextView.setText(item.getDescription());
         weightTextView.setText(String.valueOf(item.getWeight()));
