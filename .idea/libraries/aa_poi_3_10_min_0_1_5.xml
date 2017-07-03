@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="aa-poi-3.10-min-0.1.5">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/libs/aa-poi-3.10-min-0.1.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

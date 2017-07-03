@@ -197,6 +197,7 @@ public class UserService {
                 }
                 newUser.setPhotoUrl(profileUri);
 
+                mergeEvaluationPeriods(newUser);
                 newUser.addEvaluationPeriods(user.getEvaluationPeriods());
                 // if moving to a new user(first login or downgrading to anynomous, the data needs to be set
                 if(newUser.getDepartment() == null || newUser.getDepartment().isEmpty()){
@@ -218,6 +219,19 @@ public class UserService {
                 Log.e(TAG, "Failed to read user info from firebase db", databaseError.toException());
             }
         });
+    }
+
+    private void mergeEvaluationPeriods(User newUser){
+        for(EvaluationPeriod newPeriod: newUser.getEvaluationPeriods()){
+            for(EvaluationPeriod currentPeriod: user.getEvaluationPeriods()){
+                if(newPeriod.getStartDate().compareTo(currentPeriod.getStartDate()) == 0 &&
+                        newPeriod.getEndDate().compareTo(currentPeriod.getEndDate()) == 0){
+                    ItemsRepository.getInstance().mergePeriodItems(newPeriod, currentPeriod);
+                    user.getEvaluationPeriods().remove(currentPeriod);
+                    ItemsRepository.getInstance().deleteEvaluationPeriod(currentPeriod);
+                }
+            }
+        }
     }
 
     @SuppressLint("SimpleDateFormat")

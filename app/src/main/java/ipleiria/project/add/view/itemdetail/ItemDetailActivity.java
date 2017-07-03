@@ -50,7 +50,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             item = itemsRepository.getDeletedItem(itemKey);
         }
         new ItemDetailPresenter(itemDetailFragment, FilesRepository.getInstance(),
-                ItemFilesRepository.getInstance(item, itemsRepository), item, listDeleted);
+                ItemFilesRepository.newInstance(item, itemsRepository), item, listDeleted);
 
     }
 

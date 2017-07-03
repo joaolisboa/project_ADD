@@ -134,6 +134,14 @@ public class ItemsRepository implements ItemsDataSource {
         return currentPeriod;
     }
 
+    public void mergePeriodItems(EvaluationPeriod newPeriod, EvaluationPeriod currentPeriod) {
+        localItems.put(newPeriod.getDbKey(), localItems.get(currentPeriod.getDbKey()));
+        deleteEvaluationPeriod(currentPeriod);
+        for(Item item: localItems.get(newPeriod.getDbKey())){
+            saveItemToDatabase(newPeriod.getDbKey(), item);
+        }
+    }
+
     public void deleteEvaluationPeriod(EvaluationPeriod period) {
         // delete items for the period
         itemsReference.child(period.getDbKey()).removeValue();
@@ -238,7 +246,7 @@ public class ItemsRepository implements ItemsDataSource {
     // ie. when he upgrades from anon to Google account
     @Override
     public void moveItemsToNewUser() {
-        Log.d(TAG, "Moving files to new user: " + UserService.getInstance().getUser().getUid());
+        Log.d(TAG, "Moving items to new user: " + UserService.getInstance().getUser().getUid());
         initUser(UserService.getInstance().getUser().getUid());
         for(Map.Entry<String, List<Item>> entry: localItems.entrySet()){
             for (Item item : entry.getValue()) {

@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.FirebaseDatabase;
-import com.squareup.leakcanary.LeakCanary;
 
 /**
  * Created by Lisboa on 08-May-17.
@@ -25,12 +24,12 @@ public class Application extends android.app.Application {
     public void onCreate() {
         super.onCreate();
 
-        if (LeakCanary.isInAnalyzerProcess(this)) {
+        /*if (LeakCanary.isInAnalyzerProcess(this)) {
             // This process is dedicated to LeakCanary for heap analysis.
             // You should not init your app in this process.
             return;
         }
-        LeakCanary.install(this);
+        LeakCanary.install(this);*/
 
         try {
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
