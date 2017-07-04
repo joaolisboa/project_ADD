@@ -137,6 +137,7 @@ public class AddEditPresenter implements AddEditContract.Presenter {
 
                 case SENDING_PENDING_FILES:
                     receivedPendingFiles = intent.getParcelableArrayListExtra("pending_files");
+                    System.out.println("on set intent: " + receivedPendingFiles);
                     break;
 
                 case EDITING_ITEM:
@@ -221,11 +222,12 @@ public class AddEditPresenter implements AddEditContract.Presenter {
                     Item item = new Item(description);
                     item.setCriteria(selectedCriteria, false);
                     item.setWeight(weight);
-                    itemsRepository.saveItem(item, false);
                     itemsRepository.addFilesToItem(item, receivedFiles);
+                    System.out.println("on finish action: " + receivedPendingFiles);
                     if (!receivedPendingFiles.isEmpty()) {
                         itemsRepository.addPendingFilesToItem(item, receivedPendingFiles);
                     }
+                    itemsRepository.saveItem(item, false);
                     addEditView.finishAction(item);
                     break;
 

@@ -103,10 +103,10 @@ public class FileUtils {
             int yearStart = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate()));
             int yearEnd = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate()));
             int duration = 0;
-            if (yearEnd - yearStart * 12 > 0) {
-                duration = yearEnd - yearStart * 12;
+            if ((yearEnd - yearStart) * 12 > 0) {
+                duration = (yearEnd - yearStart) * 12;
             } else {
-                duration = 12;
+                duration = 36;
             }
             sheet.getRow(2).getCell(7).setCellValue(duration);
             sheet.getRow(1).getCell(2).setCellValue(UserService.getInstance().getUser().getName());

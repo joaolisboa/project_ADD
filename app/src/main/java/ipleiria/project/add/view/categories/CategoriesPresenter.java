@@ -218,20 +218,25 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 currentFocus = CRITERIA_FOCUS;
                 categoriesView.showItemAddedMessage();
                 processList();
-            }
-            if (requestCode == REQUEST_ADD_NEW_ITEM_CHANGE) {
+            }else if (requestCode == REQUEST_ADD_NEW_ITEM_CHANGE) {
                 categoriesView.showItemAddedMessage();
                 action = null;
                 categoriesView.enableListSwipe(true);
-            }
-            if (requestCode == REQUEST_ITEM_EDIT) {
+            }else if (requestCode == REQUEST_ITEM_EDIT) {
                 categoriesView.showItemEditedMessage();
-            }
-            if (requestCode == REQUEST_TAKE_PHOTO) {
+            }else if (requestCode == REQUEST_TAKE_PHOTO) {
                 categoriesView.enableListSwipe(false);
                 action = SENDING_PHOTO;
                 receivedFiles = new LinkedList<>();
                 receivedFiles.add(photoUri);
+            }
+            if(data.getAction().equals(OPEN_ITEM_ADDED)){
+                String itemKey = data.getStringExtra("item_added_key");
+                Item item = itemsRepository.getItem(itemKey);
+                selectedCriteria = item.getCriteria().getDbKey();
+                selectedArea = item.getArea().getDbKey();
+                selectedDimension = item.getDimension().getDbKey();
+                currentFocus = CRITERIA_FOCUS;
             }
         }
     }

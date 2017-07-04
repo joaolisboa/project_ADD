@@ -420,9 +420,7 @@ public class FilesRepository implements FilesDataSource {
 
     @Override
     public void saveFile(final ItemFile newFile, final Uri uri) {
-        if(!NetworkState.isOnline() || !(meoCloudService.isAvailable() && dropboxService.isAvailable())){
-            saveLocalFile(newFile, uri);
-        }else {
+        if(NetworkState.isOnline()){
             if (meoCloudService.isAvailable()) {
                 String relativePath = getRelativePath(newFile.getParent().getCriteria());
                 meoCloudService.uploadFile(uri, relativePath.substring(1), newFile.getFilename());
@@ -431,6 +429,8 @@ public class FilesRepository implements FilesDataSource {
                 // dropbox creates folders automatically so we don't need to seperate the path and filename
                 dropboxService.uploadFile(uri, getFilePath(newFile), null);
             }
+        }else {
+            saveLocalFile(newFile, uri);
         }
     }
 
