@@ -230,6 +230,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
             if (requestCode == REQUEST_TAKE_PHOTO) {
                 categoriesView.enableListSwipe(false);
                 action = SENDING_PHOTO;
+                receivedFiles = new LinkedList<>();
                 receivedFiles.add(photoUri);
             }
         }
@@ -250,6 +251,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                     break;
 
                 case SENDING_PHOTO:
+                    receivedFiles = new LinkedList<>();
                     receivedFiles.add(Uri.parse(intent.getStringExtra("photo_uri")));
                     break;
 
