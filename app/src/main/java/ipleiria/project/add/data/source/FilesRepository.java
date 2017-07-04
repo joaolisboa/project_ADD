@@ -749,7 +749,7 @@ public class FilesRepository implements FilesDataSource {
             dropboxService.moveFile(from, to);
         }
         // rename cached thumbnail
-        renameLocalFile(getLocalFile(file), getLocalFile(file, newFilename));
+        renameLocalFile(getLocalFile(file, oldFilename), getLocalFile(file, newFilename));
         renameLocalFile(getCachedThumbnail(oldFilename), getCachedThumbnail(newFilename));
     }
 

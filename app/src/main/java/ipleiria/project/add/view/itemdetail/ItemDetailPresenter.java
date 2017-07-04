@@ -141,7 +141,7 @@ public class ItemDetailPresenter implements ItemDetailContract.Presenter {
             String ext = file.getFilename().substring(file.getFilename().lastIndexOf("."));
             file.setFilename(newFilename + ext);
             itemFilesRepository.renameItemFile(file);
-            filesRepository.renameFile(file, oldFilename, newFilename);
+            filesRepository.renameFile(file, oldFilename, newFilename + ext);
             itemDetailView.showAddedFile(file);
         }
     }
