@@ -1,0 +1,20 @@
+Abrir projeto em Android Studio:
+
+À partida não será necessário nenhuma configuração
+caso seja necessário poderá ser utilizada uma conta para acesso à configuração
+
+email: 	projetoaddestg@gmail.com
+pass:	projetoadd123
+
+projeto git: https://github.com/joaolisboa/project_ADD
+
+Importar para uma nova base de dados:
+
+- Seguir setup: https://firebase.google.com/docs/android/setup
+
+- Ativar Google Authentication 
+	- Authentication > Sign-In Method > Google - Enable
+
+- Importar na consola da apicação no site do Firebase
+para a base de dados o ficheiro com as categories na raiz do projeto
+	- /firebase-categories-data-export.json
