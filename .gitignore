@@ -40,3 +40,4 @@ captures/
 *.jks
 
 firebase_functions/functions/node_modules/
+app/release.properties

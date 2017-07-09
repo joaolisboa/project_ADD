@@ -1,6 +1,19 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            def props = new Properties()
+            props.load(new FileInputStream(project.file("release.properties")))
+
+            storeFile project.file(props.keyStore)
+            storePassword props.keyStorePassword
+
+            keyAlias props.keyAlias
+            keyPassword props.keyAliasPassword
+        }
+    }
+
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
@@ -17,6 +30,7 @@ android {
     }
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -34,8 +48,7 @@ android {
 dependencies {
     // library to workaround 64k limit
     compile 'com.android.support:multidex:1.0.1'
-
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -46,6 +59,7 @@ dependencies {
     compile "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
+
     compile 'com.squareup.okhttp3:okhttp:3.6.0'
     compile 'com.dropbox.core:dropbox-core-sdk:3.0.3'
     compile 'com.google.code.gson:gson:2.8.0'
@@ -54,7 +68,6 @@ dependencies {
     compile "com.google.firebase:firebase-auth:$rootProject.firebaseVersion"
     compile "com.google.firebase:firebase-database:$rootProject.firebaseVersion"
     compile "com.google.android.gms:play-services-auth:$rootProject.firebaseVersion"
-
     compile('com.google.apis:google-api-services-gmail:v1-rev62-1.22.0') {
         exclude group: 'org.apache.httpcomponents'
         exclude group: 'com.google.code.findbugs'
@@ -68,14 +81,11 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.github.bmelnychuk:atv:1.2.9'
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
-
     compile 'com.github.pchmn:MaterialChipsInput:1.0.8'
-
     compile 'com.sun.mail:android-mail:1.6.0-rc1'
     compile 'com.sun.mail:android-activation:1.6.0-rc1'
 
     testCompile 'junit:junit:4.12'
-
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
 }
