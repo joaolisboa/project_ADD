@@ -214,26 +214,26 @@ public class ItemsRepository implements ItemsDataSource {
     // read all items, store and send back
     @Override
     public void getItems(final boolean deleted, final FilesRepository.Callback<List<Item>> callback) {
-        itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        if(currentPeriod == null){
+            // TODO: 09-Jul-17 add protection in case current period isn't initiliazed or no periods exist
+            callback.onError(new Exception("No period"));
+        }
+        itemsReference.child(currentPeriod.getDbKey()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot periodSnapshot: dataSnapshot.getChildren()){
-                    localItems.put(periodSnapshot.getKey(), new LinkedList<Item>());
-
-                    for (DataSnapshot itemSnapshot: periodSnapshot.getChildren()) {
-                        localItems.get(periodSnapshot.getKey()).add(transformItem(periodSnapshot.getKey(), itemSnapshot, false));
-                    }
+                localItems.put(currentPeriod.getDbKey(), new LinkedList<Item>());
+                for (DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                    localItems.get(currentPeriod.getDbKey()).add(transformItem(currentPeriod.getDbKey(), itemSnapshot, false));
                 }
-                deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                deletedItemsReference.child(currentPeriod.getDbKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for(DataSnapshot periodSnapshot: dataSnapshot.getChildren()){
-                            localDeletedItems.put(periodSnapshot.getKey(), new LinkedList<Item>());
-
-                            for (DataSnapshot itemSnapshot: periodSnapshot.getChildren()) {
-                                localDeletedItems.get(periodSnapshot.getKey()).add(transformItem(periodSnapshot.getKey(), itemSnapshot, true));
-                            }
+                        localDeletedItems.put(currentPeriod.getDbKey(), new LinkedList<Item>());
+                        for (DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                            localDeletedItems.get(currentPeriod.getDbKey()).add(transformItem(currentPeriod.getDbKey(), itemSnapshot, false));
                         }
+
                         if (deleted) {
                             callback.onComplete(localDeletedItems.get(currentPeriod.getDbKey()));
                         } else {
@@ -250,7 +250,7 @@ public class ItemsRepository implements ItemsDataSource {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                callback.onError(databaseError.toException());
+
             }
         });
     }

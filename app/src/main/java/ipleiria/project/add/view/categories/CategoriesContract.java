@@ -77,6 +77,8 @@ public class CategoriesContract {
         void toggleFabMenu();
 
         void hideFabMenu();
+
+        void showNoPeriodAvailable();
     }
 
     interface Presenter extends BasePresenter {

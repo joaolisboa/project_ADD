@@ -98,6 +98,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     private LinearLayout areaView;
     private LinearLayout criteriaView;
     private LinearLayout noItemsView;
+    private LinearLayout noPeriodView;
 
     private FloatingActionButton fabPhoto;
     private FloatingActionButton fabAdd;
@@ -154,6 +155,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         areaView = (LinearLayout) root.findViewById(area);
         criteriaView = (LinearLayout) root.findViewById(R.id.criteria);
         noItemsView = (LinearLayout) root.findViewById(R.id.noItems);
+        noPeriodView = (LinearLayout) root.findViewById(R.id.noPeriod);
 
         swipeRefreshLayout = (ScrollChildSwipeRefreshLayout) root.findViewById(R.id.refresh_layout);
         swipeRefreshLayout.setColorSchemeColors(
@@ -431,6 +433,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         showLayout(categoryListView);
         hideLayout(noItemsView);
         hideLayout(itemsListView);
+        hideLayout(noPeriodView);
     }
 
     @Override
@@ -469,10 +472,19 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
     }
 
     @Override
+    public void showNoPeriodAvailable() {
+        showLayout(noPeriodView);
+        hideLayout(itemsListView);
+        hideLayout(categoryListView);
+        hideLayout(noItemsView);
+    }
+
+    @Override
     public void showNoItems() {
         showLayout(noItemsView);
         hideLayout(itemsListView);
         hideLayout(categoryListView);
+        hideLayout(noPeriodView);
 
         noItemsView.findViewById(R.id.noItemsAdd).setOnClickListener(new View.OnClickListener() {
             @Override

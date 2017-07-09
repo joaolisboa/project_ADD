@@ -139,7 +139,6 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
                 break;
 
             case R.id.export:
-                //exportFiles();
                 basePresenter.exportFiles();
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return false; // don't select item
@@ -231,6 +230,7 @@ public class BaseDrawerActivity extends AppCompatActivity implements NavigationV
 
     @Override
     public void showOfflineFilesExported() {
+        // TODO: 09-Jul-17 fix non-compliance with MVP 
         CharSequence[] files = new CharSequence[]{"Evaluation grid", "Curriculum Vitae"};
 
         new AlertDialog.Builder(this)

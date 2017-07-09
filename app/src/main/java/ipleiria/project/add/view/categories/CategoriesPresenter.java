@@ -105,7 +105,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         drawerView.setUserInfo(userService.getUser());
         categoriesView.selectNavigationItem(listingDeleted);
 
-        if(listingDeleted){
+        if (listingDeleted) {
             categoriesView.hideFabMenu();
         }
     }
@@ -131,44 +131,48 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     private void refreshItems() {
-        itemsRepository.getItems(listingDeleted, new FilesRepository.Callback<List<Item>>() {
-            @Override
-            public void onComplete(List<Item> result) {
-                if (result.isEmpty()) {
-                    // don't show dimensions or anything else if there are no items
-                    categoriesView.hideSelectedDimension();
-                    categoriesView.hideSelectedArea();
-                    categoriesView.hideSelectedCriteria();
+        if (itemsRepository.getCurrentPeriod() == null) {
+            categoriesView.showNoPeriodAvailable();
+        } else {
+            itemsRepository.getItems(listingDeleted, new FilesRepository.Callback<List<Item>>() {
+                @Override
+                public void onComplete(List<Item> result) {
+                    if (result.isEmpty()) {
+                        // don't show dimensions or anything else if there are no items
+                        categoriesView.hideSelectedDimension();
+                        categoriesView.hideSelectedArea();
+                        categoriesView.hideSelectedCriteria();
 
-                    if (!listingDeleted) {
-                        categoriesView.showNoItems();
-                    } else {
-                        categoriesView.showNoDeletedItems();
-                    }
-                    categoriesView.hideProgressDialog();
-                } else {
-                    final Handler handler = new Handler();
-                    Runnable runnable = new Runnable() {
-                        public void run() {
-                            FileUtils.readExcel();
-                            handler.post(new Runnable() {
-                                public void run() {
-                                    processList();
-                                    categoriesView.hideProgressDialog();
-                                }
-                            });
-
+                        if (!listingDeleted) {
+                            categoriesView.showNoItems();
+                        } else {
+                            categoriesView.showNoDeletedItems();
                         }
-                    };
-                    new Thread(runnable).start();
-                }
-            }
+                        categoriesView.hideProgressDialog();
+                    } else {
+                        final Handler handler = new Handler();
+                        Runnable runnable = new Runnable() {
+                            public void run() {
+                                FileUtils.readExcel();
+                                handler.post(new Runnable() {
+                                    public void run() {
+                                        processList();
+                                        categoriesView.hideProgressDialog();
+                                    }
+                                });
 
-            @Override
-            public void onError(Exception e) {
-                categoriesView.hideProgressDialog();
-            }
-        });
+                            }
+                        };
+                        new Thread(runnable).start();
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    categoriesView.hideProgressDialog();
+                }
+            });
+        }
     }
 
     private void processList() {
@@ -218,19 +222,19 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 currentFocus = CRITERIA_FOCUS;
                 categoriesView.showItemAddedMessage();
                 processList();
-            }else if (requestCode == REQUEST_ADD_NEW_ITEM_CHANGE) {
+            } else if (requestCode == REQUEST_ADD_NEW_ITEM_CHANGE) {
                 categoriesView.showItemAddedMessage();
                 action = null;
                 categoriesView.enableListSwipe(true);
-            }else if (requestCode == REQUEST_ITEM_EDIT) {
+            } else if (requestCode == REQUEST_ITEM_EDIT) {
                 categoriesView.showItemEditedMessage();
-            }else if (requestCode == REQUEST_TAKE_PHOTO) {
+            } else if (requestCode == REQUEST_TAKE_PHOTO) {
                 categoriesView.enableListSwipe(false);
                 action = SENDING_PHOTO;
                 receivedFiles = new LinkedList<>();
                 receivedFiles.add(photoUri);
             }
-            if(data.getAction().equals(OPEN_ITEM_ADDED)){
+            if (data.getAction().equals(OPEN_ITEM_ADDED)) {
                 String itemKey = data.getStringExtra("item_added_key");
                 Item item = itemsRepository.getItem(itemKey);
                 selectedCriteria = item.getCriteria().getDbKey();
@@ -516,8 +520,8 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     @Override
-    public void toggleFabMenu(){
-        if(!listingDeleted){
+    public void toggleFabMenu() {
+        if (!listingDeleted) {
             categoriesView.toggleFabMenu();
         }
     }

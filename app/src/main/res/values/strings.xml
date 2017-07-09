@@ -88,6 +88,7 @@
     <string name="google_activity_title">Google Sign In</string>
     <string name="signed_out_text">Signed out</string>
     <string name="deleted_files_top_banner">Showing deleted files</string>
+    <string name="no_period">You must create a period in the menu to continue!</string>
 
 
 </resources>
