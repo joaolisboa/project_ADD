@@ -429,7 +429,8 @@ public class FilesRepository implements FilesDataSource {
                 // dropbox creates folders automatically so we don't need to seperate the path and filename
                 dropboxService.uploadFile(uri, getFilePath(newFile), null);
             }
-        }else {
+        }
+        if (!meoCloudService.isAvailable() && !dropboxService.isAvailable()) {
             saveLocalFile(newFile, uri);
         }
     }
@@ -452,7 +453,9 @@ public class FilesRepository implements FilesDataSource {
         if (!dir.exists()) {
             dir.mkdirs();
         }
+        System.out.println(dir.getAbsolutePath());
         File destFile = new File(filePath);
+        System.out.println(destFile.getAbsolutePath());
         try {
             InputStream is = appContext.getContentResolver().openInputStream(src);
             FileOutputStream outStream = new FileOutputStream(destFile);
@@ -540,6 +543,7 @@ public class FilesRepository implements FilesDataSource {
     @Override
     public void getFileToShare(ItemFile file, Callback<File> callback){
         File localFile = getLocalFile(file);
+        System.out.println(localFile.getAbsolutePath());
         if (localFile.exists()) {
             callback.onComplete(localFile);
         } else if (NetworkState.isOnline()) {
