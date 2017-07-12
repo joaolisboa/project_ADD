@@ -199,8 +199,12 @@ public class UserService {
                 }
                 newUser.setPhotoUrl(profileUri);
 
+                System.out.println(newUser.getEvaluationPeriods());
                 mergeEvaluationPeriods(newUser);
+                System.out.println(newUser.getEvaluationPeriods());
+                System.out.println(user.getEvaluationPeriods());
                 newUser.addEvaluationPeriods(user.getEvaluationPeriods());
+                System.out.println(newUser.getEvaluationPeriods());
                 // if moving to a new user(first login or downgrading to anynomous, the data needs to be set
                 if (newUser.getDepartment() == null || newUser.getDepartment().isEmpty()) {
                     newUser.setDepartment(user.getDepartment());
@@ -230,7 +234,7 @@ public class UserService {
                         newPeriod.getEndDate().compareTo(currentPeriod.getEndDate()) == 0) {
                     ItemsRepository.getInstance().mergePeriodItems(newPeriod, currentPeriod);
                     user.getEvaluationPeriods().remove(currentPeriod);
-                    ItemsRepository.getInstance().deleteEvaluationPeriod(currentPeriod);
+                    //ItemsRepository.getInstance().deleteEvaluationPeriod(currentPeriod);
                 }
             }
         }

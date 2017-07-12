@@ -17,6 +17,7 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import hugo.weaving.DebugLog;
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Item;
@@ -84,6 +85,7 @@ public class FileUtils {
         }
     }
 
+    @DebugLog
     public static void readExcel() {
         // part of poi-shadow - newer version incompatible with API 19(4.4)
         //System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory", "com.fasterxml.aalto.stax.InputFactoryImpl");
@@ -94,7 +96,7 @@ public class FileUtils {
             File file = getExcelFile();
             InputStream inputStream = new FileInputStream(file);
             XSSFWorkbook wb = new XSSFWorkbook(inputStream);
-            wb.setForceFormulaRecalculation(true);
+            //wb.setForceFormulaRecalculation(true);
             XSSFFormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
             XSSFSheet sheet = wb.getSheetAt(0);
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");

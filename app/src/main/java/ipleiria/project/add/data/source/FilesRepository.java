@@ -372,6 +372,7 @@ public class FilesRepository implements FilesDataSource {
 
     @Override
     public void getRemotePendingFiles(final ServiceCallback<List<PendingFile>> callback) {
+        pendingFiles = new LinkedList<>();
         if(meoCloudService.isAvailable()) {
             meoCloudService.getMetadata(PENDING_PATH, new Callback<MEOMetadata>() {
                 @Override
@@ -587,9 +588,9 @@ public class FilesRepository implements FilesDataSource {
         //pendingFiles.remove(pendingFile);
         final String from = PENDING_PATH + pendingFile.getFilename();
         final String to = getFilePath(pendingFile.getItemFile(), criteria);
-        if(pendingFiles.contains(pendingFile)){
+        /*if(pendingFiles.contains(pendingFile)){
             item.addFile(pendingFile.getItemFile());
-        }
+        }*/
 
         downloadPendingFile(pendingFile.getFilename(), new Callback<File>() {
             @Override

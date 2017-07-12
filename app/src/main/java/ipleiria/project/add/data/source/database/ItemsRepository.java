@@ -534,6 +534,26 @@ public class ItemsRepository implements ItemsDataSource {
         saveItem(item, false);
     }
 
+
+
+    public void addPendingFilesToItem(Item item, List<PendingFile> receivedPendingFiles) {
+        for(PendingFile file: receivedPendingFiles){
+            item.addFile(file.getItemFile());
+
+            switch(file.getProvider()){
+                case MEO_CLOUD:
+                case DROPBOX:
+                    filesRepository.movePendingFile(file, item, item.getCriteria());
+                    break;
+                case EMAIL:
+                    File email = new File(Application.getAppContext().getFilesDir(), file.getFilename());
+                    filesRepository.saveFile(file.getItemFile(), Uri.fromFile(email));
+                    break;
+            }
+        }
+        saveItem(item, false);
+    }
+
     // this will make files with the same filename use the parenthesis method like Windows
     // where it'll add ([int]) to the end of the filename or increment if it exists
     private String getRepeatedFilename(Item item, String filename){
@@ -591,23 +611,6 @@ public class ItemsRepository implements ItemsDataSource {
             }
         }
         return true;
-    }
-
-    public void addPendingFilesToItem(Item item, List<PendingFile> receivedPendingFiles) {
-        for(PendingFile file: receivedPendingFiles){
-            item.addFile(file.getItemFile());
-
-            switch(file.getProvider()){
-                case MEO_CLOUD:
-                case DROPBOX:
-                    filesRepository.movePendingFile(file, item, item.getCriteria());
-                    break;
-                case EMAIL:
-                    File email = new File(Application.getAppContext().getFilesDir(), file.getFilename());
-                    filesRepository.saveFile(file.getItemFile(), Uri.fromFile(email));
-                    break;
-            }
-        }
     }
 
     @Override

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="hugo-runtime-1.2.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.android/build-cache/c2dde262adc5fe092275caa93a3e6d8eca55200f/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/c2dde262adc5fe092275caa93a3e6d8eca55200f/output/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

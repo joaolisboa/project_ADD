@@ -148,6 +148,7 @@ public class MainFragment extends Fragment implements MainContract.View,
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                showPendingFiles(new ArrayList<PendingFile>());
                 presenter.onSwipeRefresh();
                 presenter.buildGoogleClient(getActivity(), MainFragment.this, getString(R.string.default_web_client_id));
             }
