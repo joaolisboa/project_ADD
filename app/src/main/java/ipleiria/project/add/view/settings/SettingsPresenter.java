@@ -250,7 +250,6 @@ public class SettingsPresenter implements SettingsContract.Presenter {
 
             @Override
             public void onRequestError(HttpErrorException httpE) {
-                settingsView.setMEOCloudStatus(false);
                 Log.e(TAG, httpE.getMessage(), httpE);
             }
 
@@ -259,6 +258,7 @@ public class SettingsPresenter implements SettingsContract.Presenter {
                 Log.e(TAG, e.getMessage(), e);
             }
         });
+        settingsView.setMEOCloudStatus(false);
     }
 
     @Override
