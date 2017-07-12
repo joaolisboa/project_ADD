@@ -51,8 +51,8 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
     }
 
     private void removeToken() {
-        UserService.getInstance().removeMEOCloudToken();
         MEOCloudClient.destroyClient();
+        UserService.getInstance().removeMEOCloudToken();
     }
 
     @Override
@@ -84,6 +84,7 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
 
             @Override
             public void onError(Exception e) {
+                removeToken();
                 callback.onError(e);
             }
         }).execute();

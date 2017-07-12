@@ -102,7 +102,7 @@ public class ItemsRepository implements ItemsDataSource {
         INSTANCE = null;
     }
 
-    public void initCurrentPeriod(User user){
+    public void initCurrentPeriod(User user) {
         EvaluationPeriod mostRecentStart = null;
         for (EvaluationPeriod evaluationPeriod : user.getEvaluationPeriods()) {
             if (mostRecentStart == null || evaluationPeriod.getStartDate()
@@ -111,7 +111,7 @@ public class ItemsRepository implements ItemsDataSource {
             }
         }
 
-        if(currentPeriod == null && mostRecentStart != null){
+        if (currentPeriod == null && mostRecentStart != null) {
             setCurrentPeriod(mostRecentStart);
         }
     }
@@ -122,10 +122,10 @@ public class ItemsRepository implements ItemsDataSource {
 
         // ensure list creation when period is selected
         // will happen when the user has no items saved in the period
-        if(localItems.get(currentPeriod.getDbKey()) == null){
+        if (localItems.get(currentPeriod.getDbKey()) == null) {
             localItems.put(currentPeriod.getDbKey(), new LinkedList<Item>());
         }
-        if(localDeletedItems.get(currentPeriod.getDbKey()) == null){
+        if (localDeletedItems.get(currentPeriod.getDbKey()) == null) {
             localDeletedItems.put(currentPeriod.getDbKey(), new LinkedList<Item>());
         }
     }
@@ -134,35 +134,34 @@ public class ItemsRepository implements ItemsDataSource {
         return currentPeriod;
     }
 
+    // TODO: 12/07/2017 fix item merge when period dates match
     public void mergePeriodItems(EvaluationPeriod newPeriod, EvaluationPeriod currentPeriod) {
-        localItems.put(newPeriod.getDbKey(), localItems.get(currentPeriod.getDbKey()));
-        localDeletedItems.put(newPeriod.getDbKey(), localDeletedItems.get(currentPeriod.getDbKey()));
+        localItems.put(newPeriod.getDbKey(), new LinkedList<Item>());
+        localDeletedItems.put(newPeriod.getDbKey(), new LinkedList<Item>());
 
-        deleteEvaluationPeriod(currentPeriod);
-
-        for(Item item: localItems.get(newPeriod.getDbKey())){
+        for (Item item : localItems.get(currentPeriod.getDbKey())) {
+            localItems.get(newPeriod.getDbKey()).add(item);
             saveItemToDatabase(newPeriod.getDbKey(), item);
         }
 
-        for(Item item: localDeletedItems.get(newPeriod.getDbKey())){
+        for (Item item : localDeletedItems.get(currentPeriod.getDbKey())) {
+            localDeletedItems.get(newPeriod.getDbKey()).add(item);
             saveDeletedItemToDatabase(newPeriod.getDbKey(), item);
         }
 
         localItems.remove(currentPeriod.getDbKey());
         localDeletedItems.remove(currentPeriod.getDbKey());
 
-        itemsReference.child(currentPeriod.getDbKey()).removeValue();
-        deletedItemsReference.child(currentPeriod.getDbKey()).removeValue();
+        deleteEvaluationPeriod(currentPeriod);
     }
 
     public void deleteEvaluationPeriod(EvaluationPeriod period) {
         // delete items for the period
         itemsReference.child(period.getDbKey()).removeValue();
+        deletedItemsReference.child(period.getDbKey()).removeValue();
         // in case the current period has been deleted rerun init to select most recent period
-        if(currentPeriod.equals(period)){
-            currentPeriod = null;
-            initCurrentPeriod(userService.getUser());
-        }
+        currentPeriod = null;
+        initCurrentPeriod(userService.getUser());
     }
 
     @Override
@@ -176,24 +175,24 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
     // simply read all items and store
-    public void readAllItems(){
+    public void readAllItems() {
         itemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot periodSnapshot: dataSnapshot.getChildren()){
+                for (DataSnapshot periodSnapshot : dataSnapshot.getChildren()) {
                     localItems.put(periodSnapshot.getKey(), new LinkedList<Item>());
 
-                    for (DataSnapshot itemSnapshot: periodSnapshot.getChildren()) {
+                    for (DataSnapshot itemSnapshot : periodSnapshot.getChildren()) {
                         localItems.get(periodSnapshot.getKey()).add(transformItem(periodSnapshot.getKey(), itemSnapshot, false));
                     }
                 }
                 deletedItemsReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for(DataSnapshot periodSnapshot: dataSnapshot.getChildren()){
+                        for (DataSnapshot periodSnapshot : dataSnapshot.getChildren()) {
                             localDeletedItems.put(periodSnapshot.getKey(), new LinkedList<Item>());
 
-                            for (DataSnapshot itemSnapshot: periodSnapshot.getChildren()) {
+                            for (DataSnapshot itemSnapshot : periodSnapshot.getChildren()) {
                                 localDeletedItems.get(periodSnapshot.getKey()).add(transformItem(periodSnapshot.getKey(), itemSnapshot, true));
                             }
                         }
@@ -214,7 +213,7 @@ public class ItemsRepository implements ItemsDataSource {
     // read all items, store and send back
     @Override
     public void getItems(final boolean deleted, final FilesRepository.Callback<List<Item>> callback) {
-        if(currentPeriod == null){
+        if (currentPeriod == null) {
             // TODO: 09-Jul-17 add protection in case current period isn't initiliazed or no periods exist
             callback.onError(new Exception("No period"));
             return;
@@ -223,7 +222,7 @@ public class ItemsRepository implements ItemsDataSource {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 localItems.put(currentPeriod.getDbKey(), new LinkedList<Item>());
-                for (DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
                     localItems.get(currentPeriod.getDbKey()).add(transformItem(currentPeriod.getDbKey(), itemSnapshot, false));
                 }
 
@@ -231,7 +230,7 @@ public class ItemsRepository implements ItemsDataSource {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         localDeletedItems.put(currentPeriod.getDbKey(), new LinkedList<Item>());
-                        for (DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
+                        for (DataSnapshot itemSnapshot : dataSnapshot.getChildren()) {
                             localDeletedItems.get(currentPeriod.getDbKey()).add(transformItem(currentPeriod.getDbKey(), itemSnapshot, true));
                         }
 
@@ -260,14 +259,14 @@ public class ItemsRepository implements ItemsDataSource {
     // ie. when he upgrades from anon to Google account
     @Override
     public void moveItemsToNewUser() {
-        Log.d(TAG, "Moving items to new user: " +  userService.getUser().getUid());
+        Log.d(TAG, "Moving items to new user: " + userService.getUser().getUid());
         initUser(userService.getUser().getUid());
-        for(Map.Entry<String, List<Item>> entry: localItems.entrySet()){
+        for (Map.Entry<String, List<Item>> entry : localItems.entrySet()) {
             for (Item item : entry.getValue()) {
                 saveItemToDatabase(entry.getKey(), item);
             }
         }
-        for(Map.Entry<String, List<Item>> entry: localDeletedItems.entrySet()){
+        for (Map.Entry<String, List<Item>> entry : localDeletedItems.entrySet()) {
             for (Item item : entry.getValue()) {
                 saveDeletedItemToDatabase(entry.getKey(), item);
             }
@@ -307,7 +306,7 @@ public class ItemsRepository implements ItemsDataSource {
         return null;
     }
 
-    private Item transformItem(String periodKey, DataSnapshot itemSnapshot, boolean deleted){
+    private Item transformItem(String periodKey, DataSnapshot itemSnapshot, boolean deleted) {
         Item newItem = new Item((String) itemSnapshot.child("description").getValue());
         newItem.setDbKey(itemSnapshot.getKey());
 
@@ -316,7 +315,7 @@ public class ItemsRepository implements ItemsDataSource {
         String reference = (String) itemSnapshot.child("reference").getValue();
         Criteria criteria = CategoryRepository.getInstance().getCriteriaFromReference(reference);
         newItem.setCriteria(criteria/*, deleted*/);
-        if(periodKey.equals(currentPeriod.getDbKey())) {
+        if (periodKey.equals(currentPeriod.getDbKey())) {
             if (deleted) {
                 criteria.addDeletedItem(newItem);
             } else {
@@ -371,15 +370,15 @@ public class ItemsRepository implements ItemsDataSource {
     @Override
     public void addItem(Item item, String periodDbKey, boolean flag) {
         String period = periodDbKey;
-        if(periodDbKey == null){
+        if (periodDbKey == null) {
             period = currentPeriod.getDbKey();
         }
         List<Item> itemDestination = (!flag ? localItems.get(period) :
-                                                localDeletedItems.get(period));
-        if(itemDestination == null){
-            if(!flag){
+                localDeletedItems.get(period));
+        if (itemDestination == null) {
+            if (!flag) {
                 itemDestination = localItems.put(period, new LinkedList<Item>());
-            }else{
+            } else {
                 itemDestination = localDeletedItems.put(period, new LinkedList<Item>());
             }
         }
@@ -523,7 +522,7 @@ public class ItemsRepository implements ItemsDataSource {
             ItemFile file = new ItemFile(filename);
 
             // file doesn't have dbkey so it will compare by filename(see equals in ItemFile)
-            if(item.getFiles().contains(file)){
+            if (item.getFiles().contains(file)) {
                 Log.d(TAG, "filename alread exists: " + filename);
                 file.setFilename(getRepeatedFilename(item, filename));
                 Log.d(TAG, "altered filename: " + file.getFilename());
@@ -535,12 +534,11 @@ public class ItemsRepository implements ItemsDataSource {
     }
 
 
-
     public void addPendingFilesToItem(Item item, List<PendingFile> receivedPendingFiles) {
-        for(PendingFile file: receivedPendingFiles){
+        for (PendingFile file : receivedPendingFiles) {
             item.addFile(file.getItemFile());
 
-            switch(file.getProvider()){
+            switch (file.getProvider()) {
                 case MEO_CLOUD:
                 case DROPBOX:
                     filesRepository.movePendingFile(file, item, item.getCriteria());
@@ -556,32 +554,32 @@ public class ItemsRepository implements ItemsDataSource {
 
     // this will make files with the same filename use the parenthesis method like Windows
     // where it'll add ([int]) to the end of the filename or increment if it exists
-    private String getRepeatedFilename(Item item, String filename){
+    private String getRepeatedFilename(Item item, String filename) {
         String ext = filename.substring(filename.lastIndexOf(".")); // no need to cut '.'
         String nameNoExt = filename.substring(0, filename.lastIndexOf("."));
-        if(nameNoExt.lastIndexOf("(") != -1 && nameNoExt.lastIndexOf(")") != -1){
+        if (nameNoExt.lastIndexOf("(") != -1 && nameNoExt.lastIndexOf(")") != -1) {
             // char '(' and ')' exists in the name
             String valueInParenthesis =
-                    nameNoExt.substring(nameNoExt.lastIndexOf("(")+1, nameNoExt.lastIndexOf(")"));
+                    nameNoExt.substring(nameNoExt.lastIndexOf("(") + 1, nameNoExt.lastIndexOf(")"));
 
             // check if number in parenthesis is an integer to determine
-            if(isInteger(valueInParenthesis)){
+            if (isInteger(valueInParenthesis)) {
                 String nameNoParenthesis = nameNoExt.substring(0, nameNoExt.lastIndexOf("("));
                 int copyNum = Integer.parseInt(valueInParenthesis) + 1;
                 nameNoExt = nameNoParenthesis + "(" + copyNum + ")";
-            }else {
+            } else {
                 // last block of parenthesis isn't a number
                 // - invalid filename to increment copy number so add the default
                 nameNoExt = nameNoExt.concat("(1)");
             }
-        }else{
+        } else {
             nameNoExt = nameNoExt.concat("(1)");
         }
 
         String newEditedFilename = nameNoExt + ext;
         // confirm if new filename doesn't exist(in case it's being added again
         // ie. _name_(1) exists, return _name_(2)
-        if(item.getFiles().contains(new ItemFile(newEditedFilename))){
+        if (item.getFiles().contains(new ItemFile(newEditedFilename))) {
             newEditedFilename = getRepeatedFilename(item, newEditedFilename);
         }
 
@@ -697,7 +695,7 @@ public class ItemsRepository implements ItemsDataSource {
         deletedItemRef.setValue(values);
     }
 
-    private void saveItemToDatabase(String periodDbKey, Item item){
+    private void saveItemToDatabase(String periodDbKey, Item item) {
         DatabaseReference itemRef = itemsReference.child(periodDbKey);
 
         // when updating the item in db make sure it wasn't deleted otherwise

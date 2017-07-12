@@ -245,7 +245,7 @@ public class SettingsPresenter implements SettingsContract.Presenter {
         meoCloudService.revokeToken(new MEOCallback() {
             @Override
             public void onComplete(Object result) {
-                settingsView.setMEOCloudStatus(false);
+                Log.d(TAG, "Sign out MEO Cloud successful");
             }
 
             @Override

@@ -5,11 +5,11 @@ import android.util.Log;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCalcMode;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -20,6 +20,7 @@ import java.util.List;
 import hugo.weaving.DebugLog;
 import ipleiria.project.add.Application;
 import ipleiria.project.add.data.model.Area;
+import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.UserService;
@@ -96,72 +97,25 @@ public class FileUtils {
             File file = getExcelFile();
             InputStream inputStream = new FileInputStream(file);
             XSSFWorkbook wb = new XSSFWorkbook(inputStream);
-            //wb.setForceFormulaRecalculation(true);
-            XSSFFormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
+
+            //wb.setForceFormulaRecalculation(false);
+            //wb.getCTWorkbook().getCalcPr().setCalcMode(STCalcMode.MANUAL);
+
             XSSFSheet sheet = wb.getSheetAt(0);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-            SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy");
 
-            int yearStart = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate()));
-            int yearEnd = Integer.parseInt(yearDateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate()));
-            int duration = 0;
-            if ((yearEnd - yearStart) * 12 > 0) {
-                duration = (yearEnd - yearStart) * 12;
-            } else {
-                duration = 36;
-            }
-            sheet.getRow(2).getCell(7).setCellValue(duration);
-            sheet.getRow(1).getCell(2).setCellValue(UserService.getInstance().getUser().getName());
-            sheet.getRow(2).getCell(2).setCellValue(UserService.getInstance().getUser().getDepartment());
-            String startDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getStartDate());
-            String endDate = dateFormat.format(ItemsRepository.getInstance().getCurrentPeriod().getEndDate());
-            sheet.getRow(2).getCell(10).setCellValue(startDate);
-            sheet.getRow(2).getCell(13).setCellValue(endDate);
-
-            List<Dimension> dimensions = CategoryRepository.getInstance().getDimensions();
             User user = UserService.getInstance().getUser();
-            if (user.getDimensionWeightLimit(dimensions.get(0).getDbKey()) == 0) {
-                sheet.getRow(6).getCell(5).setCellValue(dimensions.get(0).getWeight());
-            } else {
-                sheet.getRow(6).getCell(5).setCellValue(user.getDimensionWeightLimit(dimensions.get(0).getDbKey()));
-            }
-
-            if (user.getDimensionWeightLimit(dimensions.get(1).getDbKey()) == 0) {
-                sheet.getRow(6).getCell(7).setCellValue(dimensions.get(1).getWeight());
-            } else {
-                sheet.getRow(6).getCell(7).setCellValue(user.getDimensionWeightLimit(dimensions.get(1).getDbKey()));
-            }
-
-            if (user.getDimensionWeightLimit(dimensions.get(2).getDbKey()) == 0) {
-                sheet.getRow(6).getCell(10).setCellValue(dimensions.get(2).getWeight());
-            } else {
-                sheet.getRow(6).getCell(10).setCellValue(user.getDimensionWeightLimit(dimensions.get(2).getDbKey()));
-            }
-
-            int points = 0;
-            // first 4 criteria have a special case with a 10 point limit
+            List<Dimension> dimensions = CategoryRepository.getInstance().getDimensions();
             List<Criteria> criterias = CategoryRepository.getInstance().getCriterias();
-            for (int i = 0; i < 4; i++) {
-                Criteria criteria = criterias.get(i);
-                points += criteria.getWeights();
-                if (points >= 10) {
-                    points = 10;
-                }
-                sheet.getRow(criteria.getWriteCell().y)
-                        .getCell(criteria.getWriteCell().x)
-                        .setCellValue(points);
-            }
-            for (int i = 4; i < criterias.size(); i++) {
-                Criteria criteria = criterias.get(i);
-                sheet.getRow(criteria.getWriteCell().y)
-                        .getCell(criteria.getWriteCell().x)
-                        .setCellValue(criteria.getWeights());
 
+            writeUserData(sheet, user, ItemsRepository.getInstance().getCurrentPeriod());
+            writeDimensionWeights(sheet, user, dimensions);
+            writeCategories(sheet, criterias);
 
-            }
             try (FileOutputStream stream = new FileOutputStream(file)) {
                 wb.write(stream);
             }
+
+            XSSFFormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
             evaluator.evaluateAll();
 
             for (int i = 0; i < criterias.size(); i++) {
@@ -177,6 +131,73 @@ public class FileUtils {
             inputStream.close();
         } catch (Exception e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    @DebugLog
+    private static void writeUserData(XSSFSheet sheet, User user, EvaluationPeriod currentPeriod) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy");
+
+        int yearStart = Integer.parseInt(yearDateFormat.format(currentPeriod.getStartDate()));
+        int yearEnd = Integer.parseInt(yearDateFormat.format(currentPeriod.getEndDate()));
+        int duration;
+        if ((yearEnd - yearStart) * 12 > 0) {
+            duration = (yearEnd - yearStart) * 12;
+        } else {
+            // default
+            duration = 36;
+        }
+
+        sheet.getRow(2).getCell(7).setCellValue(duration);
+        sheet.getRow(1).getCell(2).setCellValue(user.getName());
+        sheet.getRow(2).getCell(2).setCellValue(user.getDepartment());
+        String startDate = dateFormat.format(currentPeriod.getStartDate());
+        String endDate = dateFormat.format(currentPeriod.getEndDate());
+        sheet.getRow(2).getCell(10).setCellValue(startDate);
+        sheet.getRow(2).getCell(13).setCellValue(endDate);
+    }
+
+    @DebugLog
+    private static void writeCategories(XSSFSheet sheet, List<Criteria> criterias) {
+        int points = 0;
+        // first 4 criteria have a special case with a 10 point limit
+        for (int i = 0; i < 4; i++) {
+            Criteria criteria = criterias.get(i);
+            points += criteria.getWeights();
+            if (points >= 10) {
+                points = 10;
+            }
+            sheet.getRow(criteria.getWriteCell().y)
+                    .getCell(criteria.getWriteCell().x)
+                    .setCellValue(points);
+        }
+        for (int i = 4; i < criterias.size(); i++) {
+            Criteria criteria = criterias.get(i);
+            sheet.getRow(criteria.getWriteCell().y)
+                    .getCell(criteria.getWriteCell().x)
+                    .setCellValue(criteria.getWeights());
+        }
+    }
+
+    @DebugLog
+    private static void writeDimensionWeights(XSSFSheet sheet, User user, List<Dimension> dimensions){
+        if (user.getDimensionWeightLimit(dimensions.get(0).getDbKey()) == 0) {
+            sheet.getRow(6).getCell(5).setCellValue(dimensions.get(0).getWeight());
+        } else {
+            sheet.getRow(6).getCell(5).setCellValue(user.getDimensionWeightLimit(dimensions.get(0).getDbKey()));
+        }
+
+        if (user.getDimensionWeightLimit(dimensions.get(1).getDbKey()) == 0) {
+            sheet.getRow(6).getCell(7).setCellValue(dimensions.get(1).getWeight());
+        } else {
+            sheet.getRow(6).getCell(7).setCellValue(user.getDimensionWeightLimit(dimensions.get(1).getDbKey()));
+        }
+
+        if (user.getDimensionWeightLimit(dimensions.get(2).getDbKey()) == 0) {
+            sheet.getRow(6).getCell(10).setCellValue(dimensions.get(2).getWeight());
+        } else {
+            sheet.getRow(6).getCell(10).setCellValue(user.getDimensionWeightLimit(dimensions.get(2).getDbKey()));
         }
     }
 

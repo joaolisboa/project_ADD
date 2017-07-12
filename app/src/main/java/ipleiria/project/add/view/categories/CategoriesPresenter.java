@@ -273,7 +273,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 receivedFiles = new LinkedList<>();
                 receivedFiles.add(photoUri);
             }
-            if (data.getAction() != null && data.getAction().equals(OPEN_ITEM_ADDED)) {
+            if (data != null && data.getAction() != null && data.getAction().equals(OPEN_ITEM_ADDED)) {
                 String itemKey = data.getStringExtra("item_added_key");
                 Item item = itemsRepository.getItem(itemKey);
                 selectedCriteria = item.getCriteria().getDbKey();

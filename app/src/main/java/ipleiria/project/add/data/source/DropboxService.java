@@ -75,6 +75,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
 
             @Override
             public void onError(Exception e) {
+                removeToken();
                 callback.onError(e);
             }
         }).execute();
