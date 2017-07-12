@@ -273,7 +273,7 @@ public class AddEditFragment extends Fragment implements AddEditContract.View{
     @Override
     public void hideProgressDialog() {
         if(progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.hide();
+            progressDialog.dismiss();
         }
     }
 

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "476372799489-1t3k67rrqhjlb4pdhppn48of8m2pqqhl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ipleiria.project.add",
+            "certificate_hash": "b87bd29e278bea9b7bf56a2bb5584057a05e5349"
+          }
+        },
+        {
           "client_id": "476372799489-khhtdepf98jfckgrbbavkulps078k2nh.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -117,7 +117,9 @@ public class ItemAdapter extends BaseSwipeAdapter {
         itemLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                swipeLayout.open(true);
+                if(enableSwipe) {
+                    swipeLayout.open(true);
+                }
                 return true;
             }
         });

@@ -131,7 +131,7 @@ public class User {
 
     @Override
     public String toString(){
-        return name + ":" + email + ":" + isAnonymous;
+        return uid + ":" + name + ":" + email + ":" + isAnonymous;
     }
 
     public Map<String, Integer> getDimensionWeightLimits() {

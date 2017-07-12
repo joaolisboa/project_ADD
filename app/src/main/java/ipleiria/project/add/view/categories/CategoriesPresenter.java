@@ -8,10 +8,14 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import ipleiria.project.add.Callbacks;
 import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Category;
@@ -20,6 +24,7 @@ import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.PendingFile;
+import ipleiria.project.add.data.model.User;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
@@ -29,6 +34,7 @@ import ipleiria.project.add.utils.StringUtils;
 import ipleiria.project.add.utils.UriHelper;
 
 import static android.app.Activity.RESULT_OK;
+import static ipleiria.project.add.data.source.UserService.AUTH_TAG;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PENDING_FILES;
 import static ipleiria.project.add.view.add_edit_item.AddEditFragment.SENDING_PHOTO;
 import static ipleiria.project.add.view.categories.CategoriesFragment.REQUEST_ADD_NEW_ITEM;
@@ -96,13 +102,24 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
 
     @Override
     public void subscribe() {
-        if (listingDeleted) {
-            categoriesView.setTitle("Trash " + itemsRepository.getCurrentPeriod().toString());
-        } else {
-            categoriesView.setTitle(itemsRepository.getCurrentPeriod().toString());
+        // if app is closed and the instance start here we need to authenticate the user
+        if(userService.getUser().getName() == null){
+            categoriesView.showProgressDialog();
+            FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
         }
-        refreshData();
-        drawerView.setUserInfo(userService.getUser());
+
+        if (itemsRepository.getCurrentPeriod() == null) {
+            categoriesView.setTitle("");
+        } else {
+            if (listingDeleted) {
+                categoriesView.setTitle("Trash " + itemsRepository.getCurrentPeriod().toString());
+            } else {
+                categoriesView.setTitle(itemsRepository.getCurrentPeriod().toString());
+            }
+            refreshData();
+            drawerView.setUserInfo(userService.getUser());
+        }
+
         categoriesView.selectNavigationItem(listingDeleted);
 
         if (listingDeleted) {
@@ -110,9 +127,30 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         }
     }
 
+    private FirebaseAuth.AuthStateListener authStateListener = new FirebaseAuth.AuthStateListener() {
+        @Override
+        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+            if (user != null) {
+                Log.d(AUTH_TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                itemsRepository.initUser(user.getUid());
+                userService.initUser(user, new Callbacks.BaseCallback<User>() {
+                    @Override
+                    public void onComplete(User result) {
+                        subscribe();
+                    }
+                });
+            }
+        }
+    };
+
     @Override
     public void unsubscribe() {
         categoriesView.hideProgressDialog();
+
+        if (authStateListener != null) {
+            FirebaseAuth.getInstance().removeAuthStateListener(authStateListener);
+        }
     }
 
     public void refreshData() {
@@ -131,48 +169,47 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     }
 
     private void refreshItems() {
-        if (itemsRepository.getCurrentPeriod() == null) {
-            categoriesView.showNoPeriodAvailable();
-        } else {
-            itemsRepository.getItems(listingDeleted, new FilesRepository.Callback<List<Item>>() {
-                @Override
-                public void onComplete(List<Item> result) {
-                    if (result.isEmpty()) {
-                        // don't show dimensions or anything else if there are no items
-                        categoriesView.hideSelectedDimension();
-                        categoriesView.hideSelectedArea();
-                        categoriesView.hideSelectedCriteria();
+        itemsRepository.getItems(listingDeleted, new FilesRepository.Callback<List<Item>>() {
+            @Override
+            public void onComplete(List<Item> result) {
+                if (result.isEmpty()) {
+                    // don't show dimensions or anything else if there are no items
+                    categoriesView.hideSelectedDimension();
+                    categoriesView.hideSelectedArea();
+                    categoriesView.hideSelectedCriteria();
 
-                        if (!listingDeleted) {
-                            categoriesView.showNoItems();
-                        } else {
-                            categoriesView.showNoDeletedItems();
-                        }
-                        categoriesView.hideProgressDialog();
+                    if (!listingDeleted) {
+                        categoriesView.showNoItems();
                     } else {
-                        final Handler handler = new Handler();
-                        Runnable runnable = new Runnable() {
-                            public void run() {
-                                FileUtils.readExcel();
-                                handler.post(new Runnable() {
-                                    public void run() {
-                                        processList();
-                                        categoriesView.hideProgressDialog();
-                                    }
-                                });
-
-                            }
-                        };
-                        new Thread(runnable).start();
+                        categoriesView.showNoDeletedItems();
                     }
-                }
-
-                @Override
-                public void onError(Exception e) {
                     categoriesView.hideProgressDialog();
+                } else {
+                    final Handler handler = new Handler();
+                    Runnable runnable = new Runnable() {
+                        public void run() {
+                            FileUtils.readExcel();
+                            handler.post(new Runnable() {
+                                public void run() {
+                                    processList();
+                                    categoriesView.hideProgressDialog();
+                                }
+                            });
+
+                        }
+                    };
+                    new Thread(runnable).start();
                 }
-            });
-        }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (itemsRepository.getCurrentPeriod() == null) {
+                    categoriesView.showNoPeriodAvailable();
+                }
+                categoriesView.hideProgressDialog();
+            }
+        });
     }
 
     private void processList() {
@@ -222,6 +259,8 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 currentFocus = CRITERIA_FOCUS;
                 categoriesView.showItemAddedMessage();
                 processList();
+                action = null;
+                categoriesView.enableListSwipe(true);
             } else if (requestCode == REQUEST_ADD_NEW_ITEM_CHANGE) {
                 categoriesView.showItemAddedMessage();
                 action = null;
@@ -234,7 +273,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                 receivedFiles = new LinkedList<>();
                 receivedFiles.add(photoUri);
             }
-            if (data != null && data.getAction().equals(OPEN_ITEM_ADDED)) {
+            if (data.getAction() != null && data.getAction().equals(OPEN_ITEM_ADDED)) {
                 String itemKey = data.getStringExtra("item_added_key");
                 Item item = itemsRepository.getItem(itemKey);
                 selectedCriteria = item.getCriteria().getDbKey();
@@ -248,6 +287,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     @Override
     public void setIntentInfo(Intent intent) {
         this.action = intent.getAction();
+        receivedFiles = new LinkedList<>();
 
         if (action != null) {
             switch (action) {
@@ -260,7 +300,6 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                     break;
 
                 case SENDING_PHOTO:
-                    receivedFiles = new LinkedList<>();
                     receivedFiles.add(Uri.parse(intent.getStringExtra("photo_uri")));
                     break;
 

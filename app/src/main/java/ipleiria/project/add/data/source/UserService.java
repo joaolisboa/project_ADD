@@ -92,7 +92,9 @@ public class UserService {
         this.user.setName(user.getName());
         this.user.setDepartment(user.getDepartment());
         this.user.addEvaluationPeriods(user.getEvaluationPeriods());
-        saveUserInfo();
+        if (userDatabaseReference != null) {
+            saveUserInfo();
+        }
         ItemsRepository.getInstance().initCurrentPeriod(user);
     }
 
@@ -150,7 +152,7 @@ public class UserService {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private User getUserFromSnapshot(DataSnapshot snapshot){
+    private User getUserFromSnapshot(DataSnapshot snapshot) {
         User user = new User(snapshot.getKey());
         user.setName((String) snapshot.child("name").getValue());
         user.setDepartment((String) snapshot.child("department").getValue());
@@ -168,7 +170,7 @@ public class UserService {
             user.addEvaluationPeriod(evaluationPeriod);
         }
 
-        for(DataSnapshot weightsSnapshot: snapshot.child("dimensions_weights").getChildren()){
+        for (DataSnapshot weightsSnapshot : snapshot.child("dimensions_weights").getChildren()) {
             user.setDimensionWeightLimit(weightsSnapshot.getKey(), weightsSnapshot.getValue(Integer.class));
         }
 
@@ -176,7 +178,7 @@ public class UserService {
     }
 
     // initiate references, get data of logged in account and merge evaluation periods
-    public void moveUserInfoToNewUser(final FirebaseUser firebaseUser, final Callbacks.BaseCallback<Void> callback){
+    public void moveUserInfoToNewUser(final FirebaseUser firebaseUser, final Callbacks.BaseCallback<Void> callback) {
         preferences.edit().putString(USER_UID_KEY, firebaseUser.getUid()).apply();
 
         userDatabaseReference = FirebaseDatabase.getInstance().getReference().child(USER_REF).child(firebaseUser.getUid());
@@ -200,10 +202,10 @@ public class UserService {
                 mergeEvaluationPeriods(newUser);
                 newUser.addEvaluationPeriods(user.getEvaluationPeriods());
                 // if moving to a new user(first login or downgrading to anynomous, the data needs to be set
-                if(newUser.getDepartment() == null || newUser.getDepartment().isEmpty()){
+                if (newUser.getDepartment() == null || newUser.getDepartment().isEmpty()) {
                     newUser.setDepartment(user.getDepartment());
                 }
-                if(newUser.getName() == null || newUser.getName().isEmpty()){
+                if (newUser.getName() == null || newUser.getName().isEmpty()) {
                     newUser.setName(user.getName());
                 }
                 newUser.setDimensionWeightLimits(user.getDimensionWeightLimits());
@@ -221,11 +223,11 @@ public class UserService {
         });
     }
 
-    private void mergeEvaluationPeriods(User newUser){
-        for(EvaluationPeriod newPeriod: newUser.getEvaluationPeriods()){
-            for(EvaluationPeriod currentPeriod: user.getEvaluationPeriods()){
-                if(newPeriod.getStartDate().compareTo(currentPeriod.getStartDate()) == 0 &&
-                        newPeriod.getEndDate().compareTo(currentPeriod.getEndDate()) == 0){
+    private void mergeEvaluationPeriods(User newUser) {
+        for (EvaluationPeriod newPeriod : newUser.getEvaluationPeriods()) {
+            for (EvaluationPeriod currentPeriod : user.getEvaluationPeriods()) {
+                if (newPeriod.getStartDate().compareTo(currentPeriod.getStartDate()) == 0 &&
+                        newPeriod.getEndDate().compareTo(currentPeriod.getEndDate()) == 0) {
                     ItemsRepository.getInstance().mergePeriodItems(newPeriod, currentPeriod);
                     user.getEvaluationPeriods().remove(currentPeriod);
                     ItemsRepository.getInstance().deleteEvaluationPeriod(currentPeriod);
@@ -255,7 +257,7 @@ public class UserService {
         userDatabaseReference.child("department").setValue(user.getDepartment());
         userDatabaseReference.child("evaluationPeriods").setValue(periodsMap);
         //DatabaseReference dimensionWeightsRef = userDatabaseReference.child("dimensions_weights")
-        for(Map.Entry<String, Integer> weight: user.getDimensionWeightLimits().entrySet()){
+        for (Map.Entry<String, Integer> weight : user.getDimensionWeightLimits().entrySet()) {
             userDatabaseReference.child("dimensions_weights").child(weight.getKey()).setValue(weight.getValue());
         }
     }

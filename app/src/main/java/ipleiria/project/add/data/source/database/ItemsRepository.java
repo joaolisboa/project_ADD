@@ -217,6 +217,7 @@ public class ItemsRepository implements ItemsDataSource {
         if(currentPeriod == null){
             // TODO: 09-Jul-17 add protection in case current period isn't initiliazed or no periods exist
             callback.onError(new Exception("No period"));
+            return;
         }
         itemsReference.child(currentPeriod.getDbKey()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -231,7 +232,7 @@ public class ItemsRepository implements ItemsDataSource {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         localDeletedItems.put(currentPeriod.getDbKey(), new LinkedList<Item>());
                         for (DataSnapshot itemSnapshot: dataSnapshot.getChildren()) {
-                            localDeletedItems.get(currentPeriod.getDbKey()).add(transformItem(currentPeriod.getDbKey(), itemSnapshot, false));
+                            localDeletedItems.get(currentPeriod.getDbKey()).add(transformItem(currentPeriod.getDbKey(), itemSnapshot, true));
                         }
 
                         if (deleted) {

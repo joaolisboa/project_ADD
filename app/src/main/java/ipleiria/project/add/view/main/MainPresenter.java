@@ -57,6 +57,7 @@ public class MainPresenter implements MainContract.Presenter {
     public static final int REQUEST_TAKE_PHOTO = 2002;
 
     private final UserService userService;
+    private final ItemsRepository itemsRepository;
     private final MainContract.View mainView;
     private final DrawerView drawerView;
 
@@ -71,11 +72,13 @@ public class MainPresenter implements MainContract.Presenter {
     // ensure we want to sign to avoid consequent calls to authStateListener
     private boolean authFlag = false;
 
-    MainPresenter(UserService userService, MainContract.View mainView, DrawerView drawerView) {
+    MainPresenter(UserService userService, MainContract.View mainView, DrawerView drawerView,
+                  ItemsRepository itemsRepository) {
         this.userService = userService;
         this.mainView = mainView;
         this.mainView.setPresenter(this);
         this.drawerView = drawerView;
+        this.itemsRepository = itemsRepository;
 
         this.filesRepository = FilesRepository.getInstance();
         this.selectedPendingFiles = new LinkedList<>();
@@ -131,7 +134,7 @@ public class MainPresenter implements MainContract.Presenter {
                             }*/
                         }
                     });
-                    ItemsRepository.getInstance().initUser(user.getUid());
+                    itemsRepository.initUser(user.getUid());
                     if (!user.isAnonymous()) {
                         // if user is not anonymous get google credentials and fetch emails
                         checkForCachedCredentials();
@@ -390,6 +393,12 @@ public class MainPresenter implements MainContract.Presenter {
         } else {
             mainView.showPendingFiles(filesRepository.getPendingFiles());
         }
+    }
+
+    @Override
+    public boolean userHasEvaluationPeriod(){
+        // current period should always be initialized is user has periods
+        return itemsRepository.getCurrentPeriod() != null;
     }
 
     @Override

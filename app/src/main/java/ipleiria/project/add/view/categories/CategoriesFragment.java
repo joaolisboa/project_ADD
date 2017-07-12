@@ -211,8 +211,10 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         if (categoriesPresenter.getIntentAction() != null &&
                 !categoriesPresenter.getIntentAction().equals(OPEN_ITEM_ADDED)) {
             Intent intent = getActivity().getIntent();
+            System.out.println("Result requested from: " + getActivity().getCallingActivity());
             // change current intent to use a different activity, keeping extras and action
             intent.setComponent(new ComponentName(getContext(), AddEditActivity.class));
+            intent.setFlags(0);
             startActivityForResult(intent, REQUEST_ADD_NEW_ITEM_CHANGE);
         } else {
             Intent intent = new Intent(getContext(), AddEditActivity.class);
@@ -434,6 +436,8 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
         hideLayout(noItemsView);
         hideLayout(itemsListView);
         hideLayout(noPeriodView);
+
+        fabMenu.show();
     }
 
     @Override
@@ -473,10 +477,17 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
 
     @Override
     public void showNoPeriodAvailable() {
-        showLayout(noPeriodView);
-        hideLayout(itemsListView);
-        hideLayout(categoryListView);
-        hideLayout(noItemsView);
+        noPeriodView.post(new Runnable() {
+            @Override
+            public void run() {
+                showLayout(noPeriodView);
+                hideLayout(itemsListView);
+                hideLayout(categoryListView);
+                hideLayout(noItemsView);
+
+                fabMenu.hide();
+            }
+        });
     }
 
     @Override
@@ -492,6 +503,8 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
                 addItem();
             }
         });
+
+        fabMenu.show();
     }
 
     @Override

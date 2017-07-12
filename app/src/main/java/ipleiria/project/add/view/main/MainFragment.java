@@ -105,7 +105,11 @@ public class MainFragment extends Fragment implements MainContract.View,
         fabPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                takePicture();
+                if(presenter.userHasEvaluationPeriod()) {
+                    takePicture();
+                }else{
+                    showNoEvaluationPeriodError();
+                }
             }
         });
 
@@ -113,7 +117,11 @@ public class MainFragment extends Fragment implements MainContract.View,
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(getContext(), AddEditActivity.class), REQUEST_ADD_NEW_ITEM);
+                if(presenter.userHasEvaluationPeriod()) {
+                    startActivityForResult(new Intent(getContext(), AddEditActivity.class), REQUEST_ADD_NEW_ITEM);
+                }else{
+                    showNoEvaluationPeriodError();
+                }
             }
         });
 
@@ -180,6 +188,10 @@ public class MainFragment extends Fragment implements MainContract.View,
         navigationView.setCheckedItem(R.id.nav_home);
         fabShow = false;
         toggleFabMenu();
+    }
+
+    private void showNoEvaluationPeriodError(){
+        Snackbar.make(getView(), "You need an evaluation period!", Snackbar.LENGTH_SHORT).show();
     }
 
     private void toggleFabMenu(){
@@ -256,7 +268,6 @@ public class MainFragment extends Fragment implements MainContract.View,
             Log.d(TAG, "Shouldn't happen");
         }
         startActivity(openItemAdded);
-        //Snackbar.make(getView(), "New item saved", Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -402,12 +413,6 @@ public class MainFragment extends Fragment implements MainContract.View,
     @Override
     public boolean isFileSelected(PendingFile file){
         return presenter.isFileSelected(file);
-    }
-
-    @Override
-    public void openCategories() {
-        startActivity(new Intent(getContext(), CategoriesActivity.class));
-        getActivity().finish();
     }
 
     @Override

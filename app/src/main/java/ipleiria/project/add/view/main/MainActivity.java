@@ -10,6 +10,7 @@ import android.widget.FrameLayout;
 import ipleiria.project.add.BaseDrawerActivity;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.source.UserService;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.ActivityUtils;
 import ipleiria.project.add.view.setup.SetupActivity;
 
@@ -45,7 +46,7 @@ public class MainActivity extends BaseDrawerActivity {
                     getSupportFragmentManager(), mainFragment, R.id.contentFrame);
         }
 
-        new MainPresenter(UserService.getInstance(), mainFragment, this);
+        new MainPresenter(UserService.getInstance(), mainFragment, this, ItemsRepository.getInstance());
     }
 
     @Override
