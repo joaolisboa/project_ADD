@@ -124,6 +124,8 @@ public class CategoriesContract {
         void restoreInstanceState(Bundle savedInstanceState);
 
         void toggleFabMenu();
+
+        void onSwipeRefresh();
     }
 
 }

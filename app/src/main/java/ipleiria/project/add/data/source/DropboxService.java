@@ -109,7 +109,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
             public void onError(Exception e) {
                 callback.onError(e);
             }
-        }).execute(path, to);
+        }).execute(path, null);
     }
 
     @Override

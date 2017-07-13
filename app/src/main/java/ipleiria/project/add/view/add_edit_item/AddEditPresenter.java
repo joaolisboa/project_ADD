@@ -81,7 +81,9 @@ public class AddEditPresenter implements AddEditContract.Presenter {
         categoryRepository.readData(new FilesRepository.Callback<List<Dimension>>() {
             @Override
             public void onComplete(List<Dimension> result) {
-                refreshItems();
+                addEditView.hideProgressDialog();
+                addEditView.createTreeView(categoryRepository.getDimensions());
+                //refreshItems();
             }
 
             @Override

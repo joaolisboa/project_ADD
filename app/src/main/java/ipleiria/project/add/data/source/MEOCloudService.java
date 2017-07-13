@@ -131,7 +131,7 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
                 callback.onError(e);
                 Log.e(TAG, e.getMessage(), e);
             }
-        }).execute(path, null, to);
+        }).execute(path, null, null);
     }
 
     @Override

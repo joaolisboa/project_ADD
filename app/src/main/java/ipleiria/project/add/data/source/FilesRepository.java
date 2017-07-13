@@ -123,9 +123,7 @@ public class FilesRepository implements FilesDataSource {
         }
 
         //if files are exported locally, create them here
-        //... rename?
-
-        //files can be exported locally
+        //... rename local file to correct name like above?
         return false;
     }
 

@@ -81,6 +81,8 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
     private final CategoriesContract.View categoriesView;
     private final DrawerView drawerView;
 
+    private boolean forceRefresh = false;
+
     public CategoriesPresenter(CategoriesContract.View categoriesView, DrawerView drawerView,
                                CategoryRepository categoryRepository,
                                ItemsRepository itemsRepository,
@@ -98,6 +100,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         this.receivedPendingFiles = new ArrayList<>();
 
         this.currentFocus = ROOT_FOCUS;
+        forceRefresh = true;
     }
 
     @Override
@@ -188,7 +191,10 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                     final Handler handler = new Handler();
                     Runnable runnable = new Runnable() {
                         public void run() {
-                            FileUtils.readExcel();
+                            if(forceRefresh) {
+                                FileUtils.readExcel();
+                                forceRefresh = false;
+                            }
                             handler.post(new Runnable() {
                                 public void run() {
                                     processList();
@@ -504,6 +510,7 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         }
         // go to root view when changing period
         currentFocus = ROOT_FOCUS;
+        forceRefresh = true;
         refreshData();
     }
 
@@ -563,6 +570,12 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
         if (!listingDeleted) {
             categoriesView.toggleFabMenu();
         }
+    }
+
+    @Override
+    public void onSwipeRefresh() {
+        forceRefresh = true;
+        refreshData();
     }
 
 }

@@ -25,6 +25,7 @@
             android:id="@+id/points"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:visibility="gone"
             android:gravity="end"
             android:textSize="20sp"
             android:paddingStart="16dp"
