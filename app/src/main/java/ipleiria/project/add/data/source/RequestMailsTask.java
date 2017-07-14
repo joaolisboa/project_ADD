@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Semaphore;
@@ -61,7 +62,7 @@ import static ipleiria.project.add.view.google_sign_in.GoogleSignInPresenter.SCO
  * Created by Lisboa on 17-May-17.
  */
 
-public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
+public class RequestMailsTask extends AsyncTask<Void, Void, Void> {
 
     private static final String TAG = "REQUEST_MAIL_TASK";
 
@@ -81,8 +82,6 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
 
     public interface MailCallback {
 
-        void onComplete(List<PendingFile> pendingFiles);
-
         void onEmailAdded(PendingFile pendingEmail);
 
         void onError();
@@ -90,15 +89,8 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
     }
 
     @Override
-    protected void onPostExecute(List<PendingFile> pendingFiles) {
-        super.onPostExecute(pendingFiles);
-        callback.onComplete(pendingFiles);
-    }
-
-    @Override
-    protected List<PendingFile> doInBackground(Void... params) {
+    protected Void doInBackground(Void... params) {
         String user = "me";
-        List<PendingFile> attachments = new ArrayList<>();
 
         String[] emailAux = userEmail.split("@");
         String email = emailAux[0] + "+addestg@" + emailAux[1];
@@ -109,6 +101,23 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
                 throw new IOException("No messages found");
             }
             for (int i = 0; i < listResponse.getMessages().size(); i++) {
+                LinkedList<String> meta = new LinkedList<>();
+                meta.add("Subject");
+                Message header = gmailService.users()
+                        .messages().get(user, listResponse.getMessages().get(i).getId())
+                        .setMetadataHeaders(meta)
+                        .setFormat("metadata").execute();
+
+                String subject = header.getPayload().getHeaders().get(0).getValue();
+                String filename = "Assunto: " + subject + ".eml";
+                File emlFile = new File(Application.getAppContext().getFilesDir(), filename);
+                // avoid redownloading emails
+                if(emlFile.exists()){
+                    PendingFile emailFile = new PendingFile(new ItemFile(filename), PendingFile.EMAIL);
+                    callback.onEmailAdded(emailFile);
+                    continue;
+                }
+
                 Message message = gmailService.users()
                         .messages().get(user, listResponse.getMessages().get(i).getId())
                         .setFormat("raw").execute();
@@ -118,14 +127,13 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
                     Properties props = new Properties();
                     Session session = Session.getDefaultInstance(props, null);
                     MimeMessage eml = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
-                    String filename = "Assunto: " + eml.getSubject() + ".eml";
-                    File emlFile = new File(Application.getAppContext().getFilesDir(), filename);
+
                     eml.writeTo(new FileOutputStream(emlFile));
                     PendingFile emailFile = new PendingFile(new ItemFile(filename), PendingFile.EMAIL);
-                    attachments.add(emailFile);
                     callback.onEmailAdded(emailFile);
+
                 } catch (MessagingException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, e.getMessage(), e);
                 }
             }
         } catch (UserRecoverableAuthIOException userRecoverableException) {
@@ -137,6 +145,6 @@ public class RequestMailsTask extends AsyncTask<Void, Void, List<PendingFile>> {
             callback.onError();
         }
 
-        return attachments;
+        return null;
     }
 }

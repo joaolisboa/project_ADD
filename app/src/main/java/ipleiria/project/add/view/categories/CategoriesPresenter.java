@@ -191,10 +191,10 @@ public class CategoriesPresenter implements CategoriesContract.Presenter {
                     final Handler handler = new Handler();
                     Runnable runnable = new Runnable() {
                         public void run() {
-                            if(forceRefresh) {
+                            //if(forceRefresh) {
                                 FileUtils.readExcel();
                                 forceRefresh = false;
-                            }
+                            //}
                             handler.post(new Runnable() {
                                 public void run() {
                                     processList();

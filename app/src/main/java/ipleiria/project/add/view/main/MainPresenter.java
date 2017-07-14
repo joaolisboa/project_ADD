@@ -330,11 +330,6 @@ public class MainPresenter implements MainContract.Presenter {
 
     private void getEmails(){
         new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
-            @Override
-            public void onComplete(List<PendingFile> result) {
-                addFiles(result);
-                mainView.hideLoadingIndicator();
-            }
 
             @Override
             public void onEmailAdded(PendingFile pendingEmail) {

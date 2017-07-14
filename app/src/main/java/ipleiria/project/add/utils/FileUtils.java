@@ -2,11 +2,14 @@ package ipleiria.project.add.utils;
 
 import android.util.Log;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCalcMode;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -88,18 +91,10 @@ public class FileUtils {
 
     @DebugLog
     public static void readExcel() {
-        // part of poi-shadow - newer version incompatible with API 19(4.4)
-        //System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory", "com.fasterxml.aalto.stax.InputFactoryImpl");
-        //System.setProperty("org.apache.poi.javax.xml.stream.XMLOutputFactory", "com.fasterxml.aalto.stax.OutputFactoryImpl");
-        //System.setProperty("org.apache.poi.javax.xml.stream.XMLEventFactory", "com.fasterxml.aalto.stax.EventFactoryImpl");
-
         try {
             File file = getExcelFile();
-            InputStream inputStream = new FileInputStream(file);
+            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
             XSSFWorkbook wb = new XSSFWorkbook(inputStream);
-
-            //wb.setForceFormulaRecalculation(false);
-            //wb.getCTWorkbook().getCalcPr().setCalcMode(STCalcMode.MANUAL);
 
             XSSFSheet sheet = wb.getSheetAt(0);
 
@@ -130,7 +125,7 @@ public class FileUtils {
             // which doesn't have a close() method
             inputStream.close();
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            Log.e("EXCEL", e.getMessage(), e);
         }
     }
 
