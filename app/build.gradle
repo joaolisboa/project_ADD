@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.hugo'
+apply plugin: 'io.fabric'
 
 android {
     signingConfigs {
@@ -14,12 +16,12 @@ android {
         }
     }
 
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.1"
     defaultConfig {
         applicationId "ipleiria.project.add"
         minSdkVersion 19
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -28,6 +30,11 @@ android {
         }
         multiDexEnabled true
     }
+
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:3.0.1'
+    }
+
     buildTypes {
         release {
             signingConfig signingConfigs.release
@@ -44,6 +51,10 @@ android {
     }
 }
 
+repositories {
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url 'https://maven.fabric.io/public' }
+}
 
 dependencies {
     // library to workaround 64k limit
@@ -52,22 +63,44 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    testCompile 'junit:junit:4.12'
 
-    compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-    compile "com.android.support:support-core-utils:$rootProject.supportLibraryVersion"
-    compile "com.android.support:design:$rootProject.supportLibraryVersion"
-    compile "com.android.support:recyclerview-v7:$rootProject.supportLibraryVersion"
+    // ANDROID - SUPPORT
+    compile 'com.android.support:support-v4:26.1.0'
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.android.support:support-v4:26.1.0'
+    compile 'com.android.support:design:26.1.0'
+    compile 'com.android.support:cardview-v7:26.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
+    // CONDUCTOR
+    compile 'com.bluelinelabs:conductor:2.1.5-SNAPSHOT'
+    compile 'com.bluelinelabs:conductor-support:2.1.5-SNAPSHOT'
+    compile 'com.hannesdorfmann.mosby3:mvp-conductor:3.0.0'
+    compile 'com.hannesdorfmann.mosby3:viewstate-conductor:3.0.0'
 
-    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+    // STEPPER
+    compile 'com.stepstone.stepper:material-stepper:4.3.0'
+
+    // NETWORK
+    compile 'com.squareup.okhttp3:okhttp:3.9.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.9.0'
+
+    // DAGGER
+    compile 'com.google.dagger:dagger:2.12'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.12'
+    compile 'com.google.dagger:dagger-android:2.12'
+    compile 'com.google.dagger:dagger-android-support:2.12'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.12'
+    compile 'com.google.guava:guava:22.0'
+
     compile 'com.dropbox.core:dropbox-core-sdk:3.0.3'
     compile 'com.google.code.gson:gson:2.8.0'
 
-    compile "com.google.firebase:firebase-core:$rootProject.firebaseVersion"
-    compile "com.google.firebase:firebase-auth:$rootProject.firebaseVersion"
-    compile "com.google.firebase:firebase-database:$rootProject.firebaseVersion"
-    compile "com.google.android.gms:play-services-auth:$rootProject.firebaseVersion"
+    compile "com.google.firebase:firebase-core:11.4.2"
+    compile "com.google.firebase:firebase-auth:11.4.2"
+    compile "com.google.firebase:firebase-database:11.4.2"
+    compile "com.google.android.gms:play-services-auth:11.4.2"
     compile('com.google.apis:google-api-services-gmail:v1-rev62-1.22.0') {
         exclude group: 'org.apache.httpcomponents'
         exclude group: 'com.google.code.findbugs'
@@ -85,11 +118,16 @@ dependencies {
     compile 'com.sun.mail:android-mail:1.6.0-rc1'
     compile 'com.sun.mail:android-activation:1.6.0-rc1'
 
-    testCompile 'junit:junit:4.12'
+    // DEBUG TOOLS
+    compile 'ch.acra:acra:4.9.2'
+    compile 'com.jakewharton:butterknife:8.5.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+        transitive = true;
+    }
 }
 
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.android.application'
-apply plugin: 'com.jakewharton.hugo'

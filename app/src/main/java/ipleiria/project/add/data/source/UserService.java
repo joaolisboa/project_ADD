@@ -60,7 +60,7 @@ public class UserService {
 
     private SharedPreferences preferences;
 
-    private UserService() {
+    public UserService() {
         this.firebaseAuth = FirebaseAuth.getInstance();
         this.preferences = Application.getAppContext().getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE);
 

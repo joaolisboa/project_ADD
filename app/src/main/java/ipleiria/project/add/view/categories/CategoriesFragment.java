@@ -366,7 +366,7 @@ public class CategoriesFragment extends Fragment implements CategoriesContract.V
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(getContext(),
-                        "ipleiria.project.add.store",
+                        "ipleiria.project.add.prov",
                         photoFile);
                 categoriesPresenter.setPhotoUri(photoURI);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);

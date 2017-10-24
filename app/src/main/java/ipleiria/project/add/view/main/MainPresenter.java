@@ -329,7 +329,7 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     private void getEmails(){
-        new RequestMailsTask(mService, filesRepository, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
+        new RequestMailsTask(mService, userService.getUser().getEmail(), new RequestMailsTask.MailCallback() {
 
             @Override
             public void onEmailAdded(PendingFile pendingEmail) {
@@ -368,13 +368,6 @@ public class MainPresenter implements MainContract.Presenter {
                 mainView.hideLoadingIndicator();
             }
         });
-    }
-
-    private void addFiles(List<PendingFile> files){
-        for(PendingFile file: files){
-            addFile(file);
-        }
-        processPendingFiles();
     }
 
     private void addFile(PendingFile file){

@@ -33,7 +33,7 @@ public class MEOCloudService implements RemoteFileService<MEOCallback> {
 
     private static MEOCloudService INSTANCE = null;
 
-    private MEOCloudService(String token) {
+    public MEOCloudService(String token) {
         if (token != null && !token.isEmpty()) {
             MEOCloudClient.init(token);
         }

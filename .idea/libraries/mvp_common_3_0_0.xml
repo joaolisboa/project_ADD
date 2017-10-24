@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="mvp-common-3.0.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.hannesdorfmann.mosby3/mvp-common/3.0.0/9d6fd647be2e6e3942e0a367120bd76dc13a0ab/mvp-common-3.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.hannesdorfmann.mosby3/mvp-common/3.0.0/e483045ff308f96e7b5a05bf3024c9824523bbcf/mvp-common-3.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

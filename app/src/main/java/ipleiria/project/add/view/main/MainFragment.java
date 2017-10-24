@@ -226,7 +226,7 @@ public class MainFragment extends Fragment implements MainContract.View,
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(getContext(),
-                        "ipleiria.project.add.store",
+                        "ipleiria.project.add.prov",
                         photoFile);
                 presenter.setPhotoUri(photoURI);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);

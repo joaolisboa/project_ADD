@@ -68,14 +68,11 @@ public class RequestMailsTask extends AsyncTask<Void, Void, Void> {
 
     private MailCallback callback;
 
-    private FilesRepository filesRepository;
     private Gmail gmailService;
     private String userEmail;
 
-    public RequestMailsTask(Gmail gmailService, FilesRepository filesRepository,
-                            String userEmail, MailCallback callback) {
+    public RequestMailsTask(Gmail gmailService, String userEmail, MailCallback callback) {
         this.gmailService = gmailService;
-        this.filesRepository = filesRepository;
         this.callback = callback;
         this.userEmail = userEmail;
     }

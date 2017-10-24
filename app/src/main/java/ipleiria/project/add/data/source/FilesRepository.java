@@ -94,6 +94,37 @@ public class FilesRepository implements FilesDataSource {
         }).start();
     }
 
+    public FilesRepository(UserService userService, DropboxService dropboxService, MEOCloudService meoCloudService) {
+        this.dropboxService = dropboxService;
+        this.meoCloudService = meoCloudService;
+
+        localFiles = new LinkedList<>();
+        pendingFiles = new LinkedList<>();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final CategoryRepository categoryRepository = CategoryRepository.getInstance();
+
+                if (categoryRepository.getDimensions().isEmpty()) {
+                    categoryRepository.getReference().addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            categoryRepository.addDimensions(dataSnapshot);
+                            searchForLocalFiles(categoryRepository.getDimensions());
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
+                } else {
+                    searchForLocalFiles(categoryRepository.getDimensions());
+                }
+            }
+        }).start();
+    }
+
     public static FilesRepository getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new FilesRepository();

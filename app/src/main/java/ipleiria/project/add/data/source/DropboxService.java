@@ -31,7 +31,7 @@ public class DropboxService implements RemoteFileService<DropboxCallback> {
 
     private static DropboxService INSTANCE = null;
 
-    private DropboxService(String token){
+    public DropboxService(String token){
         if(token != null && !token.isEmpty()) {
             DropboxClientFactory.init(token);
         }

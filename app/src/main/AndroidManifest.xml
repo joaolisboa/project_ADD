@@ -26,6 +26,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="223e437e555277684aa961e31dd32a419ed2ba20"
+            />
 
         <activity
             android:name=".view.setup.SetupActivity"
@@ -124,7 +128,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="ipleiria.project.add.store"
+            android:authorities="ipleiria.project.add.prov"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
