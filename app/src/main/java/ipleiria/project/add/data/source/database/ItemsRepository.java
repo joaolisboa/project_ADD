@@ -79,6 +79,20 @@ public class ItemsRepository implements ItemsDataSource {
         this.filesRepository = FilesRepository.getInstance();
     }
 
+    public ItemsRepository(UserService userService, FilesRepository filesRepository) {
+        //this.localItems = new LinkedList<>();
+        this.localItems = new LinkedHashMap<>();
+        this.localDeletedItems = new LinkedHashMap<>();
+        this.tags = new LinkedList<>();
+        this.cacheIsDirty = false;
+
+        // add default tags from strings.xml
+        tags.addAll(Arrays.asList(Application.getAppContext().getResources().getStringArray(R.array.default_tags)));
+
+        this.userService = userService;
+        this.filesRepository = filesRepository;
+    }
+
     public void initUser(String userUid) {
         this.itemsReference = FirebaseDatabase.getInstance().getReference().child(ITEMS).child(userUid);
         this.itemsReference.keepSynced(true);

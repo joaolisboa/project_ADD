@@ -1,6 +1,8 @@
 package ipleiria.project.add.view.base;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,7 +14,10 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.bluelinelabs.conductor.Controller;
 
+import ipleiria.project.add.Application;
 import ipleiria.project.add.view.root.RootController;
+
+import static ipleiria.project.add.data.source.UserService.USER_DATA_KEY;
 
 /**
  * Base controller of which all controller will extend with helper methods
@@ -20,28 +25,12 @@ import ipleiria.project.add.view.root.RootController;
 
 public abstract class BaseController extends RefWatchingController {
 
-    private static final String MOSBY_TAG = "MOSBY";
-
-    // navigation drawer is always enabled unless specified. ie.AlbumDetailController
-    private boolean navigationState = true;
-    private boolean toolbarHideState = true;
-
-    protected BaseController() {
-    }
+    private SharedPreferences sharedPreferences;
 
     protected BaseController(Bundle args) {
         super(args);
         setHasOptionsMenu(true);
-    }
-
-    protected BaseController(Bundle args, boolean navigationState) {
-        this(args);
-        this.navigationState = navigationState;
-    }
-
-    protected BaseController(Bundle args, boolean navigationState, boolean toolbarHideState) {
-        this(args, navigationState);
-        this.toolbarHideState = toolbarHideState;
+        sharedPreferences = Application.getAppContext().getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE);
     }
 
     // Note: This is just a quick demo of how an ActionBar *can* be accessed, not necessarily how it *should*
@@ -107,9 +96,9 @@ public abstract class BaseController extends RefWatchingController {
      * @param focusedView view with current focus
      */
     public void hideKeyboard(@Nullable View focusedView){
-        // focused view can be null, in which case we'll find the view through the activity
+        // less efficient - focused view can be null, in which case we'll find the view through the activity
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         if(focusedView == null) {
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
             //Find the currently focused view, so we can grab the correct window token from it.
             View view = getActivity().getCurrentFocus();
             //If no view currently has focus, create a new one, just so we can grab a window token from it
@@ -119,7 +108,6 @@ public abstract class BaseController extends RefWatchingController {
             //close the keyboard
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }else{
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(focusedView.getWindowToken(), 0);
         }
     }
@@ -160,8 +148,13 @@ public abstract class BaseController extends RefWatchingController {
         return null;
     }
 
-    public interface ActionBarProvider {
-        ActionBar getSupportActionBar();
+    public SharedPreferences getSharedPreferences(){
+        return sharedPreferences;
     }
+
+    public Context getContext(){
+        return getActivity();
+    }
+
 
 }

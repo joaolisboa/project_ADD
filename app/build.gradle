@@ -17,7 +17,7 @@ android {
     }
 
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "ipleiria.project.add"
         minSdkVersion 19
@@ -58,7 +58,7 @@ repositories {
 
 dependencies {
     // library to workaround 64k limit
-    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:multidex:1.0.2'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
@@ -92,15 +92,15 @@ dependencies {
     compile 'com.google.dagger:dagger-android:2.12'
     compile 'com.google.dagger:dagger-android-support:2.12'
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.12'
-    compile 'com.google.guava:guava:22.0'
+    compile 'com.google.guava:guava:23.3-android'
 
     compile 'com.dropbox.core:dropbox-core-sdk:3.0.3'
     compile 'com.google.code.gson:gson:2.8.0'
 
-    compile "com.google.firebase:firebase-core:11.4.2"
-    compile "com.google.firebase:firebase-auth:11.4.2"
-    compile "com.google.firebase:firebase-database:11.4.2"
-    compile "com.google.android.gms:play-services-auth:11.4.2"
+    compile "com.google.firebase:firebase-core:11.6.0"
+    compile "com.google.firebase:firebase-auth:11.6.0"
+    compile "com.google.firebase:firebase-database:11.6.0"
+    compile "com.google.android.gms:play-services-auth:11.6.0"
     compile('com.google.apis:google-api-services-gmail:v1-rev62-1.22.0') {
         exclude group: 'org.apache.httpcomponents'
         exclude group: 'com.google.code.findbugs'

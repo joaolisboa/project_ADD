@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Project ADD</string>
+    <string name="app_name">Avaliação do Docente</string>
     <string name="share_activity_label">Add file</string>
     <string name="service_chooser_label">Connect services</string>
     <string name="title_activity_list">ListActivity</string>
@@ -19,6 +19,13 @@
     <string name="cancel">Cancel</string>
     <string name="sign_out">Sign out</string>
     <string name="disconnect">Disconnect</string>
+
+    // LOGIN
+    <string name="register">Register</string>
+    <string name="login_title">Avaliação Desempenho de Docentes</string>
+    <string name="evaluation_period_title">Evaluation Period</string>
+    <string name="empty_name_message">Name must be filled</string>
+    <string name="date_error_message">Start date must come before end date</string>
 
     <string-array name="departments">
         <item>Ciências Jurídicas</item>

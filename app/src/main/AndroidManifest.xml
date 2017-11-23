@@ -18,8 +18,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".view.main.MainActivity"
-            android:theme="@style/AppTheme.OverlapSystemBar">
+            android:name=".view.MainActivity"
+            android:theme="@style/AppTheme.OverlapSystemBar"
+            android:windowSoftInputMode="stateHidden|adjustResize|adjustPan"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,84 +33,6 @@
             android:value="223e437e555277684aa961e31dd32a419ed2ba20"
             />
 
-        <activity
-            android:name=".view.setup.SetupActivity"
-            android:windowSoftInputMode="stateHidden">
-        </activity>
-
-        <activity
-            android:name=".view.categories.CategoriesActivity"
-            android:label="Categories"
-            android:parentActivityName=".view.main.MainActivity"
-            android:theme="@style/AppTheme.OverlapSystemBar"
-            android:windowSoftInputMode="stateHidden">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.main.MainActivity" />
-
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="*/*" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND_MULTIPLE" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="*/*" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".view.settings.SettingsActivity"
-            android:label="@string/settings_activity_title"
-            android:parentActivityName=".view.main.MainActivity"
-            android:theme="@style/AppTheme.OverlapSystemBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.main.MainActivity" />
-        </activity>
-        <activity
-            android:name=".view.add_edit_item.AddEditActivity"
-            android:label="Add Item"
-            android:parentActivityName=".view.categories.CategoriesActivity"
-            android:theme="@style/AppTheme.OverlapSystemBar"
-            android:windowSoftInputMode="stateHidden">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.categories.CategoriesActivity" />
-        </activity>
-        <activity
-            android:name=".view.google_sign_in.GoogleSignInActivity"
-            android:label="@string/google_title_text"
-            android:parentActivityName=".view.settings.SettingsActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.settings.SettingsActivity" />
-        </activity>
-        <activity
-            android:name=".view.itemdetail.ItemDetailActivity"
-            android:parentActivityName=".view.categories.CategoriesActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.categories.CategoriesActivity" />
-        </activity>
-        <activity
-            android:name="com.dropbox.core.android.AuthActivity"
-            android:configChanges="orientation|keyboard"
-            android:launchMode="singleTask">
-            <intent-filter>
-                <data android:scheme="db-glwb2lyyikpo7de" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".meocloud.MEOAuth"
             android:configChanges="orientation|keyboard"

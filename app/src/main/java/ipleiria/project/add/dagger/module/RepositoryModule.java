@@ -7,6 +7,7 @@ import ipleiria.project.add.data.source.DropboxService;
 import ipleiria.project.add.data.source.FilesRepository;
 import ipleiria.project.add.data.source.MEOCloudService;
 import ipleiria.project.add.data.source.UserService;
+import ipleiria.project.add.data.source.database.ItemsRepository;
 
 /**
  * Created by Lisboa on 24-Sep-17.
@@ -23,10 +24,15 @@ public class RepositoryModule {
 
     @Provides
     @ApplicationScope
-    public FilesRepository provideFilesRepository(UserService userService, DropboxService dropboxService, MEOCloudService meoCloudService){
-        return new FilesRepository(userService, dropboxService, meoCloudService);
+    public FilesRepository provideFilesRepository(DropboxService dropboxService, MEOCloudService meoCloudService){
+        return new FilesRepository(dropboxService, meoCloudService);
     }
 
+    @Provides
+    @ApplicationScope
+    public ItemsRepository provideItemsRepository(UserService userService, FilesRepository filesRepository){
+        return new ItemsRepository(userService, filesRepository);
+    }
 
     @Provides
     @ApplicationScope

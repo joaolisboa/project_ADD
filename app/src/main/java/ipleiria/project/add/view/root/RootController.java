@@ -1,5 +1,8 @@
 package ipleiria.project.add.view.root;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -19,6 +22,7 @@ import com.bluelinelabs.conductor.ControllerChangeHandler;
 import com.bluelinelabs.conductor.ControllerChangeType;
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
+import com.bluelinelabs.conductor.changehandler.HorizontalChangeHandler;
 import com.bluelinelabs.conductor.changehandler.SimpleSwapChangeHandler;
 import com.hannesdorfmann.mosby3.mvp.conductor.delegate.MvpConductorDelegateCallback;
 import com.hannesdorfmann.mosby3.mvp.conductor.delegate.MvpConductorLifecycleListener;
@@ -32,6 +36,8 @@ import ipleiria.project.add.dagger.component.DaggerControllerComponent;
 import ipleiria.project.add.dagger.module.PresenterModule;
 import ipleiria.project.add.view.base.BaseController;
 import ipleiria.project.add.view.home.HomeController;
+import ipleiria.project.add.view.login.LoginController;
+import ipleiria.project.add.view.setup.SetupActivity;
 
 /**
  * Root controller where all controllers will be inserted into
@@ -61,6 +67,7 @@ public class RootController extends BaseController implements NavigationView.OnN
     RootPresenter rootPresenter;
 
     public RootController() {
+        super(new Bundle());
         DaggerControllerComponent.builder()
                 .repositoryComponent(Application.getRepositoryComponent())
                 .presenterModule(new PresenterModule())
@@ -83,7 +90,12 @@ public class RootController extends BaseController implements NavigationView.OnN
         if (changeType == ControllerChangeType.PUSH_ENTER) {
             if (!router.hasRootController()) {
                 // default controller
-                router.setRoot(RouterTransaction.with(new HomeController()).tag(HomeController.TAG));
+                if (getSharedPreferences().getBoolean("first_login", true)) {
+                    //the app is being launched for first time, start setup
+                    router.setRoot(RouterTransaction.with(new LoginController()).tag(LoginController.TAG));
+                }else {
+                    router.setRoot(RouterTransaction.with(new HomeController()).tag(HomeController.TAG));
+                }
             }
         }
     }
@@ -158,26 +170,35 @@ public class RootController extends BaseController implements NavigationView.OnN
     }
 
     /**
-     * Ensure that when moving to a controller it doesn't already exist in the backstack
+     * Push controller to front
      *
      * @param controller controller being pushed
-     * @param tag        controller tag, also used to verify if a controller is in the backstack
+     * @param tag        controller tag, used to getController
      */
-    public void changeController(Controller controller, String tag) {
-        if (router.getControllerWithTag(tag) == null) {
-            router.pushController(RouterTransaction.with(controller).tag(tag));
-        } else {
-            router.popToTag(tag);
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
+    public void changeController(Controller controller, String tag){
+        router.pushController(RouterTransaction.with(controller).tag(tag));
     }
 
+    /**
+     * Might be preferred than having to instance a new Controller in changeController()
+     * @param tag tag given to controller when it was created
+     * @return controller if controller is in back stack
+     */
+    public Controller getControllerInBackStack(String tag){
+        return router.getControllerWithTag(tag);
+    }
+
+    /**
+     * Pushes Controller to root, so clicking the back button will close the app
+     *
+     * @param controller controller being pushed
+     * @param tag        controller tag, used to getController
+     */
     public void setRoot(Controller controller, String tag){
         router.setRoot(RouterTransaction.with(controller)
                 .tag(tag)
-                .pushChangeHandler(new SimpleSwapChangeHandler())
-                .popChangeHandler(new SimpleSwapChangeHandler()));
+                .pushChangeHandler(new HorizontalChangeHandler())
+                .popChangeHandler(new HorizontalChangeHandler()));
     }
 
     @Override
@@ -190,7 +211,9 @@ public class RootController extends BaseController implements NavigationView.OnN
 
         switch (item.getItemId()) {
             case R.id.nav_home:
-
+                String tag = HomeController.TAG;
+                Controller controller = getControllerInBackStack(tag);
+                changeController((controller == null) ? new HomeController() : controller, tag);
                 break;
 
             case R.id.nav_categories:
@@ -218,6 +241,7 @@ public class RootController extends BaseController implements NavigationView.OnN
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
+        //item.setChecked(true);
         return true;
     }
 
