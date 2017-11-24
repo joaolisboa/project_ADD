@@ -51,7 +51,7 @@ public class PendingFileAdapter extends BaseSwipeAdapter {
         this.files = files;
     }
 
-    void replaceData(List<PendingFile> files) {
+    public void replaceData(List<PendingFile> files) {
         setList(files);
         notifyDataSetChanged();
     }

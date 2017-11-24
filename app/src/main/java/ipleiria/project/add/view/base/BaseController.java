@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import com.bluelinelabs.conductor.Controller;
 
 import ipleiria.project.add.Application;
+import ipleiria.project.add.R;
 import ipleiria.project.add.view.root.RootController;
 
 import static ipleiria.project.add.data.source.UserService.USER_DATA_KEY;
@@ -71,15 +73,23 @@ public abstract class BaseController extends RefWatchingController {
     }
 
     /**
-     * Show generic error message
+     * Show generic error message with AlertDialog
      * @param message error message
      */
-    public void showErrorMessage(String message){
+    public void showErrorAlert(String message){
         AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
         alert.setTitle("Erro")
                 .setMessage(message)
                 .setPositiveButton("OK", null)
                 .show();
+    }
+
+    /**
+     * Show generic error message with Snackbar
+     * @param message error message
+     */
+    public void showErrorMessage(String message){
+        Snackbar.make(getView(), message, Snackbar.LENGTH_SHORT).show();
     }
 
     /**

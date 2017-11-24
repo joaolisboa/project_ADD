@@ -2,6 +2,7 @@ package ipleiria.project.add.data.source;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 
 import com.dropbox.core.v2.files.FileMetadata;
@@ -15,7 +16,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -840,6 +843,23 @@ public class FilesRepository implements FilesDataSource {
 
     public void removePendingFiles(List<PendingFile> selectedPendingFiles) {
         pendingFiles.removeAll(selectedPendingFiles);
+    }
+
+    public File createImageFile() {
+        try {
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date());
+            String imageFileName = timeStamp + "_";
+            File storageDir = Application.getAppContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            return File.createTempFile(
+                    imageFileName, /* prefix */
+                    ".jpg",  /* suffix */
+                    storageDir     /* directory */
+            );
+        } catch (IOException e) {
+            Log.d(TAG, "createImageFile: " + e);
+        }
+
+        return null;
     }
 
     // in some cases we don't care about errors, ie. downloading thumbnails

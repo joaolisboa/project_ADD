@@ -106,7 +106,7 @@ public class LoginController extends BaseController implements LoginView, MvpCon
 
     @Override
     public void showEmptyNameError() {
-        nameView.setError(getString(R.string.empty_name));
+        nameView.setError(getString(R.string.empty_name_message));
     }
 
     @Override

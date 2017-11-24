@@ -1,5 +1,8 @@
 package ipleiria.project.add.view.home;
 
+import android.net.Uri;
+
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,6 +27,7 @@ public class HomePresenter extends LogPresenter<HomeView> {
     private FilesRepository filesRepository;
 
     private List<PendingFile> selectedPendingFiles;
+    private Uri photoUri;
 
     public HomePresenter(UserService userService, ItemsRepository itemsRepository, FilesRepository filesRepository){
         super(TAG);
@@ -45,6 +49,33 @@ public class HomePresenter extends LogPresenter<HomeView> {
         super.detachView(retainInstance);
         if(!retainInstance){
             homeView = null;
+        }
+    }
+
+    boolean userHasEvaluationPeriod() {
+        return !userService.getUser().getEvaluationPeriods().isEmpty();
+    }
+
+    File getNewImageFile() {
+        return filesRepository.createImageFile();
+    }
+
+    void setPhotoUri(Uri photoUri) {
+        this.photoUri = photoUri;
+    }
+
+    void onRefresh() {
+        homeView.showLoadingIndicator();
+        //getPendingFiles();
+
+        processPendingFiles();
+    }
+
+    private void processPendingFiles() {
+        if (filesRepository.getPendingFiles().isEmpty()) {
+            homeView.showNoPendingFiles();
+        } else {
+            homeView.showPendingFiles(filesRepository.getPendingFiles());
         }
     }
 }

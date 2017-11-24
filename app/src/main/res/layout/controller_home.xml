@@ -1,6 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
 
-</LinearLayout>
+    <ipleiria.project.add.view.ScrollChildSwipeRefreshLayout
+        android:id="@+id/refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ListView
+                android:id="@+id/pending_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:clipToPadding="false"
+                android:paddingBottom="72dp"/>
+
+            <LinearLayout
+                android:id="@+id/no_items"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="visible"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/no_items_main"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/no_pending_files"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="@dimen/list_item_padding" />
+
+                <TextView
+                    android:id="@+id/no_items_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:gravity="center"
+                    android:text="@string/no_connected_services"
+                    android:textSize="16sp"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+    </ipleiria.project.add.view.ScrollChildSwipeRefreshLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="182dp"
+        android:layout_marginEnd="16dp"
+        android:visibility="invisible"
+        app:fabSize="normal"
+        app:layout_anchor="@id/contentFrame"
+        app:layout_anchorGravity="bottom|end"
+        app:srcCompat="@drawable/photo_camera" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="96dp"
+        android:layout_marginEnd="16dp"
+        android:visibility="invisible"
+        app:fabSize="normal"
+        app:layout_anchor="@id/contentFrame"
+        app:layout_anchorGravity="bottom|end"
+        app:srcCompat="@drawable/add_white" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:fabSize="normal"
+        app:layout_anchor="@id/contentFrame"
+        app:layout_anchorGravity="bottom|end"
+        app:srcCompat="@drawable/vertical_menu" />
+
+</android.support.design.widget.CoordinatorLayout>

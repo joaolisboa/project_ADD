@@ -27,6 +27,9 @@
     <string name="empty_name_message">Name must be filled</string>
     <string name="date_error_message">Start date must come before end date</string>
 
+    // HOME
+    <string name="hint_missing_evaluation_period">You need an evaluation period!</string>
+
     <string-array name="departments">
         <item>Ciências Jurídicas</item>
         <item>Ciências da Linguagem</item>
