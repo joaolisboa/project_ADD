@@ -37,7 +37,7 @@ import ipleiria.project.add.Callbacks;
 import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.model.User;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.data.source.RequestMailsTask;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;

@@ -87,7 +87,7 @@ public class MainFragment extends Fragment implements MainContract.View,
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        listAdapter = new PendingFileAdapter(new LinkedList<PendingFile>(), pendingActionListener, this);
+        //listAdapter = new PendingFileAdapter(new LinkedList<PendingFile>(), pendingActionListener, this);
     }
 
     @Nullable

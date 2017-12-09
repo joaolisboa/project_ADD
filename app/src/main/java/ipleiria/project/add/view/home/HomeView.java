@@ -16,4 +16,6 @@ public interface HomeView extends ControllerView {
     void showNoPendingFiles();
 
     void showLoadingIndicator();
+
+    void toggleFileSelected(PendingFile file, boolean select);
 }

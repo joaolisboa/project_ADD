@@ -15,7 +15,7 @@ import ipleiria.project.add.data.model.Area;
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.User;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 
 /**

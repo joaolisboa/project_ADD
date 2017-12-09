@@ -3,13 +3,11 @@ package ipleiria.project.add.view.itemdetail;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.Item;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.data.source.database.ItemFilesRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.ActivityUtils;

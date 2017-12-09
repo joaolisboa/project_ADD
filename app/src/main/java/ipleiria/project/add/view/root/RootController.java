@@ -90,12 +90,12 @@ public class RootController extends BaseController implements NavigationView.OnN
         if (changeType == ControllerChangeType.PUSH_ENTER) {
             if (!router.hasRootController()) {
                 // default controller
-                if (getSharedPreferences().getBoolean("first_login", true)) {
+                /*if (getSharedPreferences().getBoolean("first_login", true)) {
                     //the app is being launched for first time, start setup
                     router.setRoot(RouterTransaction.with(new LoginController()).tag(LoginController.TAG));
-                }else {
+                }else {*/
                     router.setRoot(RouterTransaction.with(new HomeController()).tag(HomeController.TAG));
-                }
+                //}
             }
         }
     }

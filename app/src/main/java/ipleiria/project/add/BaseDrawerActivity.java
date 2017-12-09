@@ -33,7 +33,7 @@ import java.io.File;
 import java.util.Calendar;
 
 import ipleiria.project.add.data.model.User;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.utils.CircleTransformation;

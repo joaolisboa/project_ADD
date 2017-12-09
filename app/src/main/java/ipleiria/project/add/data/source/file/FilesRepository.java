@@ -1,4 +1,4 @@
-package ipleiria.project.add.data.source;
+package ipleiria.project.add.data.source.file;
 
 import android.content.Context;
 import android.net.Uri;
@@ -17,7 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,11 +28,12 @@ import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.model.PendingFile;
+import ipleiria.project.add.data.source.DropboxService;
+import ipleiria.project.add.data.source.MEOCloudService;
+import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.meocloud.data.MEOMetadata;
 import ipleiria.project.add.utils.NetworkState;
-import ipleiria.project.add.utils.PathUtils;
-import ipleiria.project.add.utils.UriHelper;
 
 import static ipleiria.project.add.data.model.PendingFile.BOTH;
 import static ipleiria.project.add.data.model.PendingFile.DROPBOX;
@@ -46,14 +46,9 @@ import static ipleiria.project.add.utils.FileUtils.SHEET_FILENAME;
  * Created by Lisboa on 06-May-17.
  */
 
-public class FilesRepository implements FilesDataSource {
+public class FilesRepository extends MasterFilesRepository implements RemoteFilesDataSource, FilesDataSource {
 
     private static final String TAG = "FILES_REPO";
-
-    private static final String APP_DIR = Application.getAppContext().getFilesDir().getAbsolutePath();
-    private static final String TRASH_PATH = "/trash";
-    private static final String THUMBNAIL_PREFIX = "/thumb_";
-    private static final String PENDING_PATH = "";
 
     private static FilesRepository INSTANCE = null;
 
@@ -831,6 +826,7 @@ public class FilesRepository implements FilesDataSource {
         deleteLocalFile(file);
     }
 
+    @Override
     public List<PendingFile> getPendingFiles() {
         List<PendingFile> files = new LinkedList<>();
         for(PendingFile file: pendingFiles){
@@ -843,23 +839,6 @@ public class FilesRepository implements FilesDataSource {
 
     public void removePendingFiles(List<PendingFile> selectedPendingFiles) {
         pendingFiles.removeAll(selectedPendingFiles);
-    }
-
-    public File createImageFile() {
-        try {
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date());
-            String imageFileName = timeStamp + "_";
-            File storageDir = Application.getAppContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            return File.createTempFile(
-                    imageFileName, /* prefix */
-                    ".jpg",  /* suffix */
-                    storageDir     /* directory */
-            );
-        } catch (IOException e) {
-            Log.d(TAG, "createImageFile: " + e);
-        }
-
-        return null;
     }
 
     // in some cases we don't care about errors, ie. downloading thumbnails

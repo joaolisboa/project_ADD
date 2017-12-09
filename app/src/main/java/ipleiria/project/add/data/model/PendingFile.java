@@ -2,6 +2,10 @@ package ipleiria.project.add.data.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.content.ContextCompat;
+
+import ipleiria.project.add.R;
+import ipleiria.project.add.utils.FileType;
 
 /**
  * Created by Lisboa on 13-Jun-17.
@@ -36,6 +40,35 @@ public class PendingFile implements Parcelable{
 
     public String getProvider() {
         return provider;
+    }
+
+    /**
+     * Returns the necessary thumbnail for the file
+     * @return int R.drawable
+     */
+    public int getDrawableThumb() {
+        switch (FileType.getFileType(getFilename())){
+            case FileType.EMAIL_FILE:
+                return R.drawable.email_thumbnail;
+
+            default:
+                return R.drawable.file_placeholder;
+        }
+    }
+
+    /**
+     * Returns the filename with whatever modifications are necessary.
+     * ie. removing the .eml extension for an email file - undesirable
+     * @return string pretty filename
+     */
+    public String getPrettyFilename() {
+        switch (FileType.getFileType(getFilename())){
+            case FileType.EMAIL_FILE:
+                return getFilename().substring(0, getFilename().lastIndexOf("."));
+
+            default:
+                return getFilename();
+        }
     }
 
     @Override
@@ -95,4 +128,5 @@ public class PendingFile implements Parcelable{
             return new PendingFile[size];
         }
     };
+
 }

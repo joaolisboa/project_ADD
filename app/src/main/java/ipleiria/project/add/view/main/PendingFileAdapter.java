@@ -16,13 +16,17 @@ import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import ipleiria.project.add.R;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.model.PendingFile;
+import ipleiria.project.add.view.home.PendingActions;
 import ipleiria.project.add.view.itemdetail.ItemDetailFragment;
 
 /**
@@ -31,18 +35,17 @@ import ipleiria.project.add.view.itemdetail.ItemDetailFragment;
 
 public class PendingFileAdapter extends BaseSwipeAdapter {
 
-    private MainFragment.PendingActionListener actionsListener;
-    private MainContract.View mainView;
+    private PendingActions actionsListener;
     private List<PendingFile> files;
+    private List<PendingFile> selectedFiles;
 
     private boolean selectMode = false;
     private LinkedHashMap<PendingFile, ImageView> attachedImageViews;
 
-    public PendingFileAdapter(List<PendingFile> files, MainFragment.PendingActionListener actionsListener,
-                              MainContract.View mainView) {
-        this.mainView = mainView;
+    public PendingFileAdapter(List<PendingFile> files, PendingActions actionsListener) {
         this.actionsListener = actionsListener;
         this.files = files;
+        this.selectedFiles = new ArrayList<>();
 
         this.attachedImageViews = new LinkedHashMap<>();
     }
@@ -83,7 +86,7 @@ public class PendingFileAdapter extends BaseSwipeAdapter {
         Context context = parent.getContext();
         View itemView = LayoutInflater.from(context).inflate(R.layout.pending_list_file_item, null);
 
-        SwipeLayout swipeLayout = (SwipeLayout) itemView.findViewById(R.id.bottom_layout_actions);
+        SwipeLayout swipeLayout = itemView.findViewById(R.id.bottom_layout_actions);
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
         swipeLayout.setLongClickable(true);
         swipeLayout.setClickToClose(true);
@@ -93,75 +96,30 @@ public class PendingFileAdapter extends BaseSwipeAdapter {
 
     @Override
     public void fillValues(final int position, final View convertView) {
-        PendingFile file = (PendingFile) getItem(position);
-
-        TextView filename = (TextView) convertView.findViewById(R.id.filename);
-        TextView provider = (TextView) convertView.findViewById(R.id.provider);
-        ImageView thumbView = (ImageView) convertView.findViewById(R.id.file_thumbnail);
-
-        String name = file.getFilename();
-        if (name.substring(name.lastIndexOf(".") + 1).equals("eml")) {
-            filename.setText(name.substring(0, name.lastIndexOf(".")));
-            thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.email_thumbnail));
-        } else {
-            filename.setText(file.getFilename());
-            thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), R.drawable.file_placeholder));
-        }
-        provider.setText("From: " + file.getProvider());
-
-        FrameLayout itemLayout = (FrameLayout) convertView.findViewById(R.id.item_view);
-
-        if(mainView.isFileSelected(file)){
-            itemLayout.setBackgroundColor(ContextCompat.getColor(convertView.getContext(), R.color.gray_light));
-        }else{
-            itemLayout.setBackgroundColor(ContextCompat.getColor(convertView.getContext(), R.color.white));
-        }
-
-        itemLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (selectMode) {
-                    selectFile(position, v);
-                } else {
-                    actionsListener.onFileClick((PendingFile) getItem(position));
-                }
-            }
-        });
-
-        itemLayout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                selectFile(position, v);
-                return true;
-            }
-        });
-
-        ImageView buttonShare = (ImageView) convertView.findViewById(R.id.action_1);
-        buttonShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                actionsListener.onFileClick((PendingFile) getItem(position));
-            }
-        });
-
-        ImageView buttonDelete = (ImageView) convertView.findViewById(R.id.action_2);
-
-        buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                actionsListener.onFileDelete((PendingFile) getItem(position));
-                closeAllItems();
-            }
-        });
+        FileView fileView = new FileView(convertView);
+        fileView.bindFile((PendingFile) getItem(position));
     }
 
-    private void selectFile(int position, View view) {
-        actionsListener.onLongFileClick((PendingFile) getItem(position), view);
-        closeItem(position);
+    private void selectFile(PendingFile file) {
+        actionsListener.onLongFileClick(file);
+        closeAllItems();
     }
 
     public void setSelectMode(boolean selectMode){
         this.selectMode = selectMode;
+    }
+
+    public void setFileSelected(PendingFile file, boolean select) {
+        if(select){
+            selectedFiles.add(file);
+        }else{
+            selectedFiles.remove(file);
+        }
+        notifyDataSetChanged();
+    }
+
+    private boolean isFileSelected(PendingFile file){
+        return selectedFiles.contains(file);
     }
 
     @Override
@@ -176,7 +134,74 @@ public class PendingFileAdapter extends BaseSwipeAdapter {
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return files.get(position).hashCode();
+    }
+
+    class FileView{
+
+        @BindView(R.id.filename) TextView filename;
+        @BindView(R.id.provider) TextView provider;
+        @BindView(R.id.file_thumbnail) ImageView thumbView;
+
+        @BindView(R.id.item_view) FrameLayout itemLayout;
+
+        @BindView(R.id.action_1) ImageView buttonShare;
+        @BindView(R.id.action_2) ImageView buttonDelete;
+
+        View convertView;
+
+        FileView(View view){
+            ButterKnife.bind(this, view);
+            this.convertView = view;
+        }
+
+        void bindFile(final PendingFile file){
+            filename.setText(file.getPrettyFilename());
+            thumbView.setImageDrawable(ContextCompat.getDrawable(convertView.getContext(), file.getDrawableThumb()));
+            provider.setText(convertView.getContext().getString(R.string.file_provider, file.getProvider()));
+
+            if(isFileSelected(file)){
+                itemLayout.setBackgroundColor(ContextCompat.getColor(convertView.getContext(), R.color.gray_light));
+            }else{
+                itemLayout.setBackgroundColor(ContextCompat.getColor(convertView.getContext(), R.color.white));
+            }
+
+            itemLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (selectMode) {
+                        selectFile(file);
+                    } else {
+                        actionsListener.onFileClick(file);
+                    }
+                }
+            });
+
+            itemLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    selectFile(file);
+                    return true;
+                }
+            });
+
+            buttonShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    actionsListener.onFileClick(file);
+                }
+            });
+
+            buttonDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    actionsListener.onFileDelete(file);
+                    closeAllItems();
+                }
+            });
+
+        }
+
     }
 
     void setThumbnail(PendingFile file, File thumbnail) {
@@ -193,5 +218,4 @@ public class PendingFileAdapter extends BaseSwipeAdapter {
     private void removeAttachedView(PendingFile file) {
         attachedImageViews.remove(file);
     }
-
 }

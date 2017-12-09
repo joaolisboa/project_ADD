@@ -18,6 +18,7 @@ android {
 
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
+    flavorDimensions "default"
     defaultConfig {
         applicationId "ipleiria.project.add"
         minSdkVersion 19
@@ -42,6 +43,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    productFlavors{
+        prod{
+            buildConfigField "Boolean", "DEMO_MODE", 'false'
+        }
+        demo{
+            buildConfigField "Boolean", "DEMO_MODE", 'true'
+        }
+        dev{
+            buildConfigField "Boolean", "DEMO_MODE", 'false'
+        }
+    }
+
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'
@@ -97,10 +111,10 @@ dependencies {
     compile 'com.dropbox.core:dropbox-core-sdk:3.0.3'
     compile 'com.google.code.gson:gson:2.8.0'
 
-    compile "com.google.firebase:firebase-core:11.6.0"
-    compile "com.google.firebase:firebase-auth:11.6.0"
-    compile "com.google.firebase:firebase-database:11.6.0"
-    compile "com.google.android.gms:play-services-auth:11.6.0"
+    compile "com.google.firebase:firebase-core:11.6.2"
+    compile "com.google.firebase:firebase-auth:11.6.2"
+    compile "com.google.firebase:firebase-database:11.6.2"
+    compile "com.google.android.gms:play-services-auth:11.6.2"
     compile('com.google.apis:google-api-services-gmail:v1-rev62-1.22.0') {
         exclude group: 'org.apache.httpcomponents'
         exclude group: 'com.google.code.findbugs'
@@ -120,13 +134,15 @@ dependencies {
 
     // DEBUG TOOLS
     compile 'ch.acra:acra:4.9.2'
-    compile 'com.jakewharton:butterknife:8.5.1'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+    compile 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
+
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
-        transitive = true;
+        transitive = true
     }
 }
 

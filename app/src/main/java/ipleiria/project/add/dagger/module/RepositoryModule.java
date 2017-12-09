@@ -2,9 +2,12 @@ package ipleiria.project.add.dagger.module;
 
 import dagger.Module;
 import dagger.Provides;
+import ipleiria.project.add.BuildConfig;
 import ipleiria.project.add.dagger.scope.ApplicationScope;
 import ipleiria.project.add.data.source.DropboxService;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.DummyFilesRepository;
+import ipleiria.project.add.data.source.file.FilesDataSource;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.data.source.MEOCloudService;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;
@@ -24,13 +27,16 @@ public class RepositoryModule {
 
     @Provides
     @ApplicationScope
-    public FilesRepository provideFilesRepository(DropboxService dropboxService, MEOCloudService meoCloudService){
+    public FilesDataSource provideFilesRepository(DropboxService dropboxService, MEOCloudService meoCloudService){
+        if(BuildConfig.DEMO_MODE){
+            return new DummyFilesRepository();
+        }
         return new FilesRepository(dropboxService, meoCloudService);
     }
 
     @Provides
     @ApplicationScope
-    public ItemsRepository provideItemsRepository(UserService userService, FilesRepository filesRepository){
+    public ItemsRepository provideItemsRepository(UserService userService, FilesDataSource filesRepository){
         return new ItemsRepository(userService, filesRepository);
     }
 

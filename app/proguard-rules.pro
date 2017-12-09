@@ -26,3 +26,5 @@
 
 -keepattributes Signature
 -keepattributes *Annotation*
+
+-dontwarn InnerClasses

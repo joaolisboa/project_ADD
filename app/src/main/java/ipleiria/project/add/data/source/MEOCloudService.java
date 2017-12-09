@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
-import java.util.Arrays;
 
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.meocloud.MEOCallback;
 import ipleiria.project.add.meocloud.MEOCloudAPI;
 import ipleiria.project.add.meocloud.MEOCloudClient;

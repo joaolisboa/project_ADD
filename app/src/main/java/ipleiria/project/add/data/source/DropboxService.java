@@ -10,11 +10,11 @@ import com.dropbox.core.v2.files.Metadata;
 
 import java.io.File;
 
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.dropbox.DropboxCallback;
 import ipleiria.project.add.dropbox.DropboxClientFactory;
 import ipleiria.project.add.dropbox.DropboxDeleteFile;
 import ipleiria.project.add.dropbox.DropboxDownloadFile;
-import ipleiria.project.add.dropbox.DropboxGetMetadata;
 import ipleiria.project.add.dropbox.DropboxGetThumbnail;
 import ipleiria.project.add.dropbox.DropboxListFolder;
 import ipleiria.project.add.dropbox.DropboxMoveFile;

@@ -1,21 +1,21 @@
-package ipleiria.project.add.data.source;
+package ipleiria.project.add.data.source.file;
 
 import android.net.Uri;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.ItemFile;
 import ipleiria.project.add.data.model.PendingFile;
+import ipleiria.project.add.data.source.file.FilesRepository;
 
 /**
- * Created by Lisboa on 06-May-17.
+ * Will be phased out by FilesDataSource
  */
 
-public interface FilesDataSource {
+public interface RemoteFilesDataSource {
 
     String getRelativePath(File file);
 

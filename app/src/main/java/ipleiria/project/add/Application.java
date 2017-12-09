@@ -30,10 +30,9 @@ public class Application extends android.app.Application {
 
     // avoid possible memory leak
     private static WeakReference<Context> context;
+    public static RefWatcher refWatcher;
 
     private static RepositoryComponent repositoryComponent;
-
-    public static RefWatcher refWatcher;
 
     @Override
     public void onCreate() {

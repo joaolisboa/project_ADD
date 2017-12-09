@@ -25,7 +25,7 @@ import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.Item;
 import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.model.User;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;

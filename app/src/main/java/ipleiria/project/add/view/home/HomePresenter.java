@@ -1,13 +1,15 @@
 package ipleiria.project.add.view.home;
 
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
 import ipleiria.project.add.data.model.PendingFile;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesDataSource;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.view.base.LogPresenter;
@@ -24,12 +26,12 @@ public class HomePresenter extends LogPresenter<HomeView> {
 
     private UserService userService;
     private ItemsRepository itemsRepository;
-    private FilesRepository filesRepository;
+    private FilesDataSource filesRepository;
 
     private List<PendingFile> selectedPendingFiles;
     private Uri photoUri;
 
-    public HomePresenter(UserService userService, ItemsRepository itemsRepository, FilesRepository filesRepository){
+    public HomePresenter(UserService userService, ItemsRepository itemsRepository, FilesDataSource filesRepository){
         super(TAG);
         this.userService = userService;
         this.itemsRepository = itemsRepository;
@@ -66,8 +68,6 @@ public class HomePresenter extends LogPresenter<HomeView> {
 
     void onRefresh() {
         homeView.showLoadingIndicator();
-        //getPendingFiles();
-
         processPendingFiles();
     }
 
@@ -77,5 +77,23 @@ public class HomePresenter extends LogPresenter<HomeView> {
         } else {
             homeView.showPendingFiles(filesRepository.getPendingFiles());
         }
+    }
+
+    // PENDING ACTIONS
+
+    void onFileClicked(PendingFile file) {
+    }
+
+    void toggleFileSelection(PendingFile file) {
+        boolean isAlreadySelected = selectedPendingFiles.contains(file);
+        if(isAlreadySelected){
+            selectedPendingFiles.remove(file);
+        }else{
+            selectedPendingFiles.add(file);
+        }
+        homeView.toggleFileSelected(file, !isAlreadySelected);
+    }
+
+    void onFileRemoved(PendingFile file) {
     }
 }

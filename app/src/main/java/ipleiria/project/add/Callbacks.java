@@ -1,6 +1,6 @@
 package ipleiria.project.add;
 
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesRepository;
 
 /**
  * Created by Lisboa on 13-Jun-17.

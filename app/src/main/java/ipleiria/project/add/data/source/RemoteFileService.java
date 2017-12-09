@@ -3,9 +3,9 @@ package ipleiria.project.add.data.source;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.dropbox.core.v2.files.Metadata;
-
 import java.io.File;
+
+import ipleiria.project.add.data.source.file.FilesRepository;
 
 /**
  * Created by Lisboa on 06-May-17.

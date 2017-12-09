@@ -14,7 +14,7 @@ import java.util.Map;
 import ipleiria.project.add.DrawerView;
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.EvaluationPeriod;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.data.source.database.CategoryRepository;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.dropbox.DropboxCallback;

@@ -9,15 +9,17 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import com.hannesdorfmann.mosby3.mvp.conductor.delegate.MvpConductorDelegateCallback;
 import com.hannesdorfmann.mosby3.mvp.conductor.delegate.MvpConductorLifecycleListener;
@@ -56,13 +58,13 @@ public class HomeController extends BaseController implements HomeView, MvpCondu
 
     private HomeViewState homeViewState;
 
-    @BindView(R.id.no_items) LinearLayout noPendingFilesView;
+    @BindView(R.id.no_items) RelativeLayout noPendingFilesView;
     @BindView(R.id.pending_list) ListView pendingListView;
-    @BindView(R.id.refresh_layout) ScrollChildSwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
 
-    private FloatingActionButton fabPhoto;
-    private FloatingActionButton fabAdd;
-    private FloatingActionButton fabMenu;
+    @BindView(R.id.fab_photo) FloatingActionButton fabPhoto;
+    @BindView(R.id.fab_add) FloatingActionButton fabAdd;
+    @BindView(R.id.fab_menu) FloatingActionButton fabMenu;
 
     private PendingFileAdapter listAdapter;
 
@@ -95,6 +97,10 @@ public class HomeController extends BaseController implements HomeView, MvpCondu
     protected void onAttach(@NonNull View view) {
         super.onAttach(view);
 
+        listAdapter = new PendingFileAdapter(new ArrayList<PendingFile>(), pendingActionListener);
+        pendingListView.setAdapter(listAdapter);
+        homePresenter.onRefresh();
+
         // Set up floating action buttons
         fabPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,7 +116,6 @@ public class HomeController extends BaseController implements HomeView, MvpCondu
         });
         fabMenu.setOnClickListener(fabMenuListener);
 
-        swipeRefreshLayout.setScrollUpChild(pendingListView);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -118,24 +123,13 @@ public class HomeController extends BaseController implements HomeView, MvpCondu
                 homePresenter.onRefresh();
             }
         });
-
-        swipeRefreshLayout.setColorSchemeColors(
-                ContextCompat.getColor(getActivity(), R.color.colorPrimary),
-                ContextCompat.getColor(getActivity(), R.color.colorAccent),
-                ContextCompat.getColor(getActivity(), R.color.colorPrimaryDark)
-        );
     }
 
     @Override
     public void showPendingFiles(final List<PendingFile> pendingFiles) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                listAdapter.replaceData(pendingFiles);
-                pendingListView.setVisibility(View.VISIBLE);
-                noPendingFilesView.setVisibility(View.GONE);
-            }
-        });
+        listAdapter.replaceData(pendingFiles);
+        pendingListView.setVisibility(View.VISIBLE);
+        noPendingFilesView.setVisibility(View.GONE);
     }
 
     @Override
@@ -147,6 +141,11 @@ public class HomeController extends BaseController implements HomeView, MvpCondu
     @Override
     public void showLoadingIndicator() {
 
+    }
+
+    @Override
+    public void toggleFileSelected(PendingFile file, boolean select) {
+        listAdapter.setFileSelected(file, select);
     }
 
     private void fabOptionClick(int option){
@@ -204,6 +203,24 @@ public class HomeController extends BaseController implements HomeView, MvpCondu
             }
         }
     }
+
+    private PendingActions pendingActionListener = new PendingActions() {
+
+        @Override
+        public void onFileClick(PendingFile file) {
+            homePresenter.onFileClicked(file);
+        }
+
+        @Override
+        public void onLongFileClick(PendingFile file) {
+            homePresenter.toggleFileSelection(file);
+        }
+
+        @Override
+        public void onFileDelete(PendingFile file) {
+            homePresenter.onFileRemoved(file);
+        }
+    };
 
     // MOSBY
 

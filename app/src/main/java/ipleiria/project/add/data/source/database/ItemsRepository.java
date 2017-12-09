@@ -24,7 +24,8 @@ import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.EvaluationPeriod;
 import ipleiria.project.add.data.model.PendingFile;
 import ipleiria.project.add.data.model.User;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesDataSource;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.utils.UriHelper;
 import ipleiria.project.add.data.model.Item;
@@ -46,7 +47,7 @@ public class ItemsRepository implements ItemsDataSource {
 
     private static ItemsRepository INSTANCE = null;
 
-    private final FilesRepository filesRepository;
+    private final FilesDataSource filesRepository;
     private final UserService userService;
 
     private DatabaseReference itemsReference;
@@ -79,7 +80,7 @@ public class ItemsRepository implements ItemsDataSource {
         this.filesRepository = FilesRepository.getInstance();
     }
 
-    public ItemsRepository(UserService userService, FilesRepository filesRepository) {
+    public ItemsRepository(UserService userService, FilesDataSource filesRepository) {
         //this.localItems = new LinkedList<>();
         this.localItems = new LinkedHashMap<>();
         this.localDeletedItems = new LinkedHashMap<>();

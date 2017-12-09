@@ -3,12 +3,12 @@ package ipleiria.project.add.dagger.module;
 import dagger.Module;
 import dagger.Provides;
 import ipleiria.project.add.dagger.scope.ControllerScope;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesDataSource;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.data.source.UserService;
 import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.view.home.HomePresenter;
 import ipleiria.project.add.view.login.LoginPresenter;
-import ipleiria.project.add.view.root.RootController;
 import ipleiria.project.add.view.root.RootPresenter;
 
 /**
@@ -26,7 +26,7 @@ public class PresenterModule {
 
     @Provides
     @ControllerScope
-    HomePresenter providehomePresenter(UserService userService, ItemsRepository itemsRepository, FilesRepository filesRepository){
+    HomePresenter providehomePresenter(UserService userService, ItemsRepository itemsRepository, FilesDataSource filesRepository){
         return new HomePresenter(userService, itemsRepository, filesRepository);
     }
 

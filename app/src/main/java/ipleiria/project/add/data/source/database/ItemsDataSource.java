@@ -10,7 +10,7 @@ import java.util.List;
 
 import ipleiria.project.add.data.model.Criteria;
 import ipleiria.project.add.data.model.Item;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesRepository;
 
 /**
  * Created by Lisboa on 04-May-17.

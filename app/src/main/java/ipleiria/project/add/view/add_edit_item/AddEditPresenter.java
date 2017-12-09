@@ -2,15 +2,9 @@ package ipleiria.project.add.view.add_edit_item;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -18,7 +12,7 @@ import java.util.List;
 
 import ipleiria.project.add.data.model.Dimension;
 import ipleiria.project.add.data.model.PendingFile;
-import ipleiria.project.add.data.source.FilesRepository;
+import ipleiria.project.add.data.source.file.FilesRepository;
 import ipleiria.project.add.utils.FileUtils;
 import ipleiria.project.add.utils.StringUtils;
 import ipleiria.project.add.utils.UriHelper;
