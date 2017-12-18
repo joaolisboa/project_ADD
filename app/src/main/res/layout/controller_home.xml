@@ -2,58 +2,59 @@
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <ipleiria.project.add.view.ScrollChildSwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent">
 
         <ListView
             android:id="@+id/pending_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
+            android:nestedScrollingEnabled="true"
             android:clipToPadding="false"
-            android:paddingBottom="72dp"/>
+            android:visibility="gone"
+            android:paddingBottom="92dp"/>
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+        <RelativeLayout
+            android:id="@+id/no_items"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible">
 
-    <RelativeLayout
-        android:id="@+id/no_items"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/no_items_main"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/no_pending_files"
-                android:textSize="16sp"
-                android:layout_marginBottom="@dimen/list_item_padding" />
+                android:layout_centerInParent="true"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/no_items_add"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:background="?selectableItemBackgroundBorderless"
-                android:gravity="center"
-                android:text="@string/no_connected_services"
-                android:textSize="16sp"/>
+                <TextView
+                    android:id="@+id/no_items_main"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/no_pending_files"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="@dimen/list_item_padding" />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/no_items_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:gravity="center"
+                    android:text="@string/no_connected_services"
+                    android:textSize="16sp"/>
 
-    </RelativeLayout>
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </ipleiria.project.add.view.ScrollChildSwipeRefreshLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_photo"

@@ -112,7 +112,7 @@ public class RootController extends BaseController implements NavigationView.OnN
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         }
-        // TODO: 24-Oct-17 if current controller is not home, go back to home
+        // TODO: 24-Oct-17 if current controller is root but not the default page, go back to it
         return router.handleBack();
     }
 

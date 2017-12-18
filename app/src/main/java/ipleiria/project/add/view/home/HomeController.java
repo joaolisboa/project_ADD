@@ -60,7 +60,7 @@ public class HomeController extends BaseController implements HomeView, MvpCondu
 
     @BindView(R.id.no_items) RelativeLayout noPendingFilesView;
     @BindView(R.id.pending_list) ListView pendingListView;
-    @BindView(R.id.refresh_layout) SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.refresh_layout) ScrollChildSwipeRefreshLayout swipeRefreshLayout;
 
     @BindView(R.id.fab_photo) FloatingActionButton fabPhoto;
     @BindView(R.id.fab_add) FloatingActionButton fabAdd;
@@ -116,6 +116,7 @@ public class HomeController extends BaseController implements HomeView, MvpCondu
         });
         fabMenu.setOnClickListener(fabMenuListener);
 
+        swipeRefreshLayout.setScrollUpChild(pendingListView);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -130,12 +131,20 @@ public class HomeController extends BaseController implements HomeView, MvpCondu
         listAdapter.replaceData(pendingFiles);
         pendingListView.setVisibility(View.VISIBLE);
         noPendingFilesView.setVisibility(View.GONE);
+
+        if(swipeRefreshLayout.isRefreshing()){
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     @Override
     public void showNoPendingFiles() {
         noPendingFilesView.setVisibility(View.VISIBLE);
         pendingListView.setVisibility(View.GONE);
+
+        if(swipeRefreshLayout.isRefreshing()){
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     @Override

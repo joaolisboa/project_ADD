@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         /*Intent intent = getIntent();
         if (intent != null) {
-            handleDecodeData(intent);
+
         }*/
     }
 
