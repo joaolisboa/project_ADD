@@ -30,13 +30,19 @@ public class DummyFilesRepository extends MasterFilesRepository implements Files
     private void populatePendingFiles() {
         pendingFiles.add(new PendingFile(new ItemFile("test.jpg"), "test"));
         pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));
+        pendingFiles.add(new PendingFile(new ItemFile("test.jpg"), "test"));
         pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));
+        pendingFiles.add(new PendingFile(new ItemFile("test.jpg"), "test"));
         pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));
+        pendingFiles.add(new PendingFile(new ItemFile("test.jpg"), "test"));
         pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));
+        pendingFiles.add(new PendingFile(new ItemFile("test.jpg"), "test"));
         pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));
+        pendingFiles.add(new PendingFile(new ItemFile("test.jpg"), "test"));
         pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));
+        pendingFiles.add(new PendingFile(new ItemFile("test.jpg"), "test"));
         pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));
-        pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));
+        pendingFiles.add(new PendingFile(new ItemFile("test.jpg"), "test"));
         pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));
         pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));
         pendingFiles.add(new PendingFile(new ItemFile("email.eml"), "test"));

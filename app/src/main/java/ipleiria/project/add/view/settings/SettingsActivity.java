@@ -2,7 +2,6 @@ package ipleiria.project.add.view.settings;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.FrameLayout;
 
 import ipleiria.project.add.BaseDrawerActivity;
 import ipleiria.project.add.R;
@@ -33,7 +32,7 @@ public class SettingsActivity extends BaseDrawerActivity {
                     getSupportFragmentManager(), settingsFragment, R.id.contentFrame);
         }
 
-        new SettingsPresenter(settingsFragment, this, UserService.getInstance(),
+        new SettingsPresenterOld(settingsFragment, this, UserService.getInstance(),
                 CategoryRepository.getInstance(), ItemsRepository.getInstance());
     }
 

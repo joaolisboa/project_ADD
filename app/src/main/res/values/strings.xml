@@ -28,7 +28,24 @@
     <string name="date_error_message">Start date must come before end date</string>
 
     // HOME
+    <string name="home_title">Dashboard</string>
     <string name="hint_missing_evaluation_period">You need an evaluation period!</string>
+
+    // SETTINGS
+    <string name="settings_title">Settings</string>
+    <string name="settings_user_info_title">User Info</string>
+    <string name="settings_evaluation_periods_text">Evaluation Periods</string>
+    <string name="settings_evaluation_periods_options">Show/delete Periods</string>
+    <string name="settings_meo_cloud_text">Connect MEO Cloud</string>
+    <string name="settings_dropbox_text">Connect Dropbox</string>
+    <string name="settings_calendar_icon_desc">Settings calendar icon</string>
+    <string name="settings_meo_cloud_state_desc">Settings MEOCloud state</string>
+    <string name="settings_meo_cloud_icon_desc">Settings MEOCloud icon</string>
+    <string name="settings_dropbox_state_desc">Settings Dropbox state</string>
+    <string name="settings_dropbox_icon_desc">Settings Dropbox icon</string>
+    <string name="settings_default_account_name">Anonymous</string>
+    <string name="settings_services_title">Services</string>
+
 
     <string-array name="departments">
         <item>Ciências Jurídicas</item>

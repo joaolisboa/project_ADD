@@ -231,6 +231,11 @@ public class HomeController extends BaseController implements HomeView, MvpCondu
         }
     };
 
+    @Override
+    protected String getTitle() {
+        return getString(R.string.home_title);
+    }
+
     // MOSBY
 
     @NonNull

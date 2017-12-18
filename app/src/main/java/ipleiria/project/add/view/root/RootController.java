@@ -37,6 +37,7 @@ import ipleiria.project.add.dagger.module.PresenterModule;
 import ipleiria.project.add.view.base.BaseController;
 import ipleiria.project.add.view.home.HomeController;
 import ipleiria.project.add.view.login.LoginController;
+import ipleiria.project.add.view.settings.SettingsController;
 import ipleiria.project.add.view.setup.SetupActivity;
 
 /**
@@ -201,6 +202,7 @@ public class RootController extends BaseController implements NavigationView.OnN
                 .popChangeHandler(new HorizontalChangeHandler()));
     }
 
+    // the backstack is cleared when opening a controller from nav view as guidelines state
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // TODO: 27/09/2017 add menu option for feedback
@@ -209,11 +211,14 @@ public class RootController extends BaseController implements NavigationView.OnN
             return false;
         }
 
+        String tag;
+        Controller controller;
+
         switch (item.getItemId()) {
             case R.id.nav_home:
-                String tag = HomeController.TAG;
-                Controller controller = getControllerInBackStack(tag);
-                changeController((controller == null) ? new HomeController() : controller, tag);
+                tag = HomeController.TAG;
+                controller = getControllerInBackStack(tag);
+                setRoot((controller == null) ? new HomeController() : controller, tag);
                 break;
 
             case R.id.nav_categories:
@@ -221,7 +226,9 @@ public class RootController extends BaseController implements NavigationView.OnN
                 break;
 
             case R.id.nav_settings:
-
+                tag = SettingsController.TAG;
+                controller = getControllerInBackStack(tag);
+                setRoot((controller == null) ? new SettingsController() : controller, tag);
                 break;
 
             case R.id.nav_trash:

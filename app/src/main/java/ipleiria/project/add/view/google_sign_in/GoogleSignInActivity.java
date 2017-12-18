@@ -6,8 +6,6 @@ import android.support.v7.widget.Toolbar;
 
 import ipleiria.project.add.R;
 import ipleiria.project.add.utils.ActivityUtils;
-import ipleiria.project.add.view.settings.SettingsFragment;
-import ipleiria.project.add.view.settings.SettingsPresenter;
 
 /**
  * Created by J on 09/05/2017.

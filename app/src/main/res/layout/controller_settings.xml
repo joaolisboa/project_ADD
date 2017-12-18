@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="8dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/settings_services_title"
+        android:textSize="14sp"
+        android:textColor="@color/primary"/>
+
+    <LinearLayout
+        android:id="@+id/account_info"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:onClick="onGoogleAccountClick">
+
+        <ImageView
+            android:id="@+id/profile_pic"
+            android:layout_width="46dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="12dp"
+            android:contentDescription="@string/user_profile_picture"
+            app:srcCompat="@drawable/profile_placeholder" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="14dp"
+            android:paddingTop="16dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/account_name"
+                android:layout_width="match_parent"
+                android:text="@string/settings_default_account_name"
+                android:textColor="@android:color/primary_text_light"
+                android:textSize="16sp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/account_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/google_sign_in_helper"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/open_google_sign_in"
+            app:srcCompat="@drawable/ic_keyboard_arrow_right_black_24dp" />
+
+    </LinearLayout>
+
+    <View style="@style/horizontal_divider" />
+
+    <LinearLayout
+        android:id="@+id/dropbox"
+        android:layout_width="match_parent"
+        android:layout_height="56dp">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            app:srcCompat="@drawable/dropbox_icon"
+            android:contentDescription="@string/settings_dropbox_icon_desc" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingTop="18dp"
+            android:layout_marginStart="16dp"
+            android:text="@string/settings_dropbox_text"
+            android:textColor="@android:color/primary_text_light"
+            android:textSize="16sp"/>
+
+        <ImageView
+            android:id="@+id/dropbox_state"
+            android:layout_width="28dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            app:srcCompat="@drawable/link_black"
+            android:contentDescription="@string/settings_dropbox_state_desc" />
+
+    </LinearLayout>
+
+    <View style="@style/horizontal_divider" />
+
+    <LinearLayout
+        android:id="@+id/meocloud"
+        android:layout_width="match_parent"
+        android:layout_height="56dp">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            app:srcCompat="@drawable/meocloud_icon"
+            android:contentDescription="@string/settings_meo_cloud_icon_desc" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:text="@string/settings_meo_cloud_text"
+            android:paddingTop="18dp"
+            android:textColor="@android:color/primary_text_light"
+            android:textSize="16sp"/>
+
+        <ImageView
+            android:id="@+id/meocloud_state"
+            android:layout_width="28dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            app:srcCompat="@drawable/link_black"
+            android:contentDescription="@string/settings_meo_cloud_state_desc" />
+
+    </LinearLayout>
+
+    <View style="@style/horizontal_divider" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/settings_user_info_title"
+        android:textSize="14sp"
+        android:textColor="@color/primary"/>
+
+    <LinearLayout
+        android:id="@+id/dimension_limits"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:orientation="horizontal"
+        android:divider="@drawable/vertical_divider"
+        android:showDividers="middle">
+
+        <!--
+            dimension weight layout are inserted programatically
+            with layout dimension_weight_limit_layout
+        -->
+
+    </LinearLayout>
+
+    <View style="@style/horizontal_divider" />
+
+    <LinearLayout
+        android:id="@+id/periods"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="16dp"
+            app:srcCompat="@drawable/calendar_black"
+            android:contentDescription="@string/settings_calendar_icon_desc" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/settings_evaluation_periods_text"
+                android:paddingTop="10dp"
+                android:textColor="@android:color/primary_text_light"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/settings_evaluation_periods_options"
+                android:paddingTop="4dp"
+                android:textColor="@android:color/secondary_text_light"
+                android:textSize="14sp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View style="@style/horizontal_divider" />
+
+</LinearLayout>

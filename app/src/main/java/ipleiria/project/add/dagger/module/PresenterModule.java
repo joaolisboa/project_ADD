@@ -10,6 +10,7 @@ import ipleiria.project.add.data.source.database.ItemsRepository;
 import ipleiria.project.add.view.home.HomePresenter;
 import ipleiria.project.add.view.login.LoginPresenter;
 import ipleiria.project.add.view.root.RootPresenter;
+import ipleiria.project.add.view.settings.SettingsPresenter;
 
 /**
  * Created by J on 12/09/2017.
@@ -34,6 +35,12 @@ public class PresenterModule {
     @ControllerScope
     LoginPresenter provideLoginPresenter(UserService userService){
         return new LoginPresenter(userService);
+    }
+
+    @Provides
+    @ControllerScope
+    SettingsPresenter provideSettingsPresenter(UserService userService){
+        return new SettingsPresenter(userService);
     }
 
 }
